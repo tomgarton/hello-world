@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.22)
+# Baby Tracking App — Plan & Spec (Draft 0.23)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -367,6 +367,21 @@ Body rules: head and body about equal; short legs under the hem; arms that can w
 - **Mono version of every character:** one ink on paper (and a night variant, cream on navy). For embroidery, single-colour print and stamps, small sizes, widgets, the Lock Screen and Live Activities. Blush drops out in mono; the stitches stay.
 - **Character builder:** parents make their child's character by choosing friend, outfit, outfit colour, background and colour or mono. A working prototype is on the mockup canvas. Later options: hats, accessories, names on garments, seasonal outfits (themes and the clothing label feed this). The built character is what stands in for the child in the scene and widgets.
 - **Soft shapes:** a small set of rounded geometric shapes (quatrefoil, pill, scallop, soft square, soft hexagon, pebble, half pill, blossom), prompted by Tom's reference (Amigável by Latinotype). The shapes are our own drawings; the typeface is not used. Uses: repeat pattern for fabric and app backgrounds, potty-chart stickers, chips and buttons, and a mark after the logotype.
+
+#### Wallpapers, repeats and books
+
+**Wallpapers and repeats** (Nintendo's character wallpapers are the reference). Mocked up: a half-drop grid of friends and shapes; a night repeat of tossed shapes with mono Puggle; Breton-style stripes with friends; a one-colour fabric repeat. Uses: free downloads, a reward for supporters (tip jar), app backgrounds, and fabric for the label.
+
+**Books** (Miffy, Spot, Possum Magic as references). Square board books for 0–3; one short sentence per page; text on the left, one picture on the right; counting, colours, routines, weather; gentle humour for the parent reading aloud. Draft titles: *Puggle at the Beach*, *Koala and the Jacaranda*, *Night Night, Puggle*, *The Wattle Walk*, and a washing-line counting book. Stories can follow the app's moments: bath, bedtime, first steps, the potty, the light rail to the beach.
+
+**Flora:** wattle, gum leaves, banksia, bottlebrush, waratah, jacaranda.
+**Everyday places, not famous landmarks:** Hills Hoist, terrace house with iron lace, light rail, lighthouse, ocean pool, surf flags. Generic, Australian, and free to draw.
+
+What to avoid:
+- **Aboriginal art styles, motifs, stories and significant places.** Uluru is the clearest case: commercial use of its image requires a permit from Parks Australia, and Anangu ask that some views not be shown.
+- **Trademarked landmarks.** The Sydney Opera House's shape is registered as a trade mark and its Trust requires approval for commercial use, so it stays out. Check any other named landmark before drawing it.
+
+**Local context:** Dulwich Hill is within the Inner West Council area, whose traditional custodians are the Gadigal and Wangal peoples of the Eora Nation. Which of the two applies to Dulwich Hill specifically is not settled by the sources found; the Metropolitan Local Aboriginal Land Council is the place to ask. A respectful Acknowledgement of Country on the website and in the books is appropriate; Aboriginal content in the stories would need a proper collaboration.
 
 #### Photos first, characters second
 
