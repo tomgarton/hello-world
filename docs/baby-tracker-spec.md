@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.24)
+# Baby Tracking App — Plan & Spec (Draft 0.25)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -383,15 +383,19 @@ Rules: one or two syllables a toddler can say; each name hints at the character'
 
 Trademark checks needed for Puggle before launch; the others matter only if sold as products in their own right.
 
-#### Style direction: between Miffy and Bluey
+#### Style direction: cute first
 
-Explored on the canvas as a spectrum. The middle option keeps Miffy's flat colour, simple shapes and front-on stance, and takes from Bluey:
-- a thinner outline in a dark fur tone in place of brown-black ink;
-- brows and a small eye glint, so the character can act;
-- a bill that can smile, open and frown (six expressions drawn);
-- a pear-shaped body, darker crown, webbed hands and feet, bigger tail.
+A first attempt at a "between Miffy and Bluey" Puggle (brows, thinner limbs, darker crown, big bill) lost the cuteness; Tom found it scary. Three cuter candidates followed on the canvas: A the current Puggle plus a smile and eye glint; B bigger, lower eyes with a smaller bill and softer outline; C chubby.
 
-The Bluey end (no outlines, three-quarter view, energetic poses) suits the books and animation. The Miffy end suits icons, labels, embroidery and small sizes. One character can work at both ends: Miffy-style for marks, middle style for the app and books. These are original drawings; no Bluey or Miffy artwork is copied.
+Cuteness rules learned:
+- **No brows by default.** Expressions come from the eyes (dots, happy arcs, closed, wide) and the bill (smile, open laugh, small "o", frown). Brows read as stern at this scale.
+- **Big head, eyes large, low and close together,** with a small white glint.
+- **Small bill.** A big bill dominates the face and turns it into a muzzle.
+- **Round, short, stubby body and limbs.** Thin limbs age the character.
+- **No dark patches on the face.**
+- **Outline in a soft dark brown,** not black.
+
+Bluey's contribution is behaviour, not drawing style: family stories, humour for parents, everyday Australian settings. The character drawing stays on the Miffy side.
 
 #### Wallpapers, repeats and books
 
