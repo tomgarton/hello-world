@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.9)
+# Baby Tracking App — Plan & Spec (Draft 0.10)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -339,10 +339,14 @@ Checked only with one App Store-oriented web search each. No trademark or domain
 
 | Name | Why | Against | Quick check |
 |---|---|---|---|
-| **Handful** | What everyone calls small children, said with affection. Speaks to the parent, works for one child or four, suits the dry voice | Could read as negative to some | No app of this name found |
+| **Ducklings** | A row of ducklings behind a parent: several children, one adult keeping them together. "Ducks in a row" also means being organised. Affectionate, and gives the illustration a natural cast | More playful than premium; needs elegant execution | No app of this name found |
+| **Peapod** | "Peas in a pod": siblings and twins, snug together. Warm, character-friendly | A US grocery delivery brand uses the name (from memory, **[verify]**) | No baby app of this name found |
+| **Poppet** | British term of endearment for a small child | Singular; little meaning outside the UK, AU and NZ | No app of this name found |
 | **Small Hours** | The time parents are awake. Also "the hours of the small ones". Fits the premium night look | Suggests a night-only app. Same idiom as an existing app, Wee Hours | No app of this name found |
 | **Brood** | A family of young. One syllable, distinctive | "Brooding" has a gloomy sense | No app of this name found |
 | **Fledge** | Growing up through stages | Less warm; easily misheard | No app of this name found |
+| ~~Handful~~ | | **Rejected by Tom:** used when children are being naughty; negative connotation | |
+| ~~Little Wins~~ | | **Taken:** "Little Wins: Celebrate Today" and a "LittleWins" family routines app exist | Exists |
 | ~~Wee Hours~~ | | **Taken:** "Wee Hours – Baby Tracker" is a free, native SwiftUI tracker with a dark night interface by a solo parent-developer. Worth studying as a direct competitor | Exists on the App Store |
 
 ### Website (Vercel)
