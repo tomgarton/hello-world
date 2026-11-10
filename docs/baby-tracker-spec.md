@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.1)
+# Baby Tracking App — Plan & Spec (Draft 0.2)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -6,6 +6,25 @@ _Last updated: 2026-11-10._
 **How to read this:** §1–3 are the market assessment and where the opening is. §4–7 are the product. §8–10 are how we build and run it. §12 lists the decisions we need to make together.
 
 Claims marked **[verify]** come from third-party roundups or from memory, not from a primary source, and must be checked before we rely on them.
+
+---
+
+## 0. Working assumptions (agreed 2026-11-10)
+
+- **Team:** Tom (product design) and Claude (engineering). No hired engineers.
+- **Shape:** an indie product born from Tom's own two-kid friction, in the Apollo/Crouton mould. Start small, ship, grow from use.
+- **Money:** a small subscription or one-off unlock for a handful of good features. Core tracking stays free.
+- **Consequence:** every choice below favours the least infrastructure to run and the fastest route to an app on Tom's own phone. §8 and §11 were rewritten on that basis.
+
+### How we work together
+
+| Tom | Claude |
+|---|---|
+| Product decisions, flows, visual design, illustration direction | Architecture, all code, tests, build config |
+| Uses the app daily with the family and reports friction | Turns friction into fixes and features |
+| Owns Apple Developer account, App Store listing, brand | Drafts store copy, privacy policy, website, support docs |
+
+**Practical constraint:** iOS apps can only be built and run on a Mac with Xcode. This cloud session runs on Linux, so here I can write the spec, website and Swift source, but cannot compile or run the app. For the app itself we work in Claude Code on Tom's Mac, where I can build, run the simulator and fix what breaks.
 
 ---
 
@@ -157,32 +176,30 @@ Showing a measurement on a published chart is record-keeping. Interpreting it ("
 
 ## 8. Technical plan
 
-### 8.1 Recommendation
+### 8.1 Recommendation for v1: iOS only, no server
 
 | Layer | Choice | Why |
 |---|---|---|
-| iOS | Swift, SwiftUI, GRDB/SQLite, WidgetKit, ActivityKit, App Intents | Truly native; needed for the surfaces in §6 |
-| Android | Kotlin, Jetpack Compose, Room/SQLite, Glance | Same |
-| Sync | Local SQLite on device, **Postgres** in the cloud, sync engine between them (PowerSync is the leading candidate; it has Swift and Kotlin SDKs and a Supabase integration) | Offline-first, cross-platform caregivers, real-time updates |
-| Backend | **Supabase** (Postgres, Auth, Storage, Edge Functions), EU region to start | Managed, row-level security fits family/role sharing, low ops |
-| Website | Next.js on **Vercel** | Marketing site, help centre, invite and share links |
-| Payments | StoreKit 2 and Play Billing through RevenueCat | Cross-platform entitlements, Family Sharing |
-| Push | APNs and FCM directly | Live Activity updates, caregiver notifications |
-| Diagnostics | Crash reporting and privacy-preserving, first-party analytics only | Matches the privacy position |
+| App | Swift, SwiftUI, WidgetKit, ActivityKit, App Intents | Truly native; needed for the surfaces in §6 |
+| Storage | Local database on device (Core Data, SwiftData or GRDB; decided by a short spike) | Works offline; fast |
+| Sync and sharing | **CloudKit** (the user's own iCloud), with CloudKit sharing for partner and caregivers | No backend to build, run, secure or pay for. No sign-up screen. Data sits in the family's iCloud, not ours |
+| Payments | StoreKit 2 (add RevenueCat only if we go cross-platform) | One less dependency |
+| Website | Next.js on **Vercel** | Landing page, privacy policy, help pages |
+| Diagnostics | Apple's built-in crash and usage reports | No third-party SDKs |
 
-**On Vercel:** good for the website, the wrong tool for the app's backend. The app needs a database, auth and sync, which is Supabase's job. Vercel hosts the site and any light web endpoints.
+This reverses Draft 0.1, which proposed Supabase from day one. With two of us and a start-small brief, running a server that holds children's health data is the biggest avoidable cost and liability. CloudKit is what Crouton uses.
 
-**Why not CloudKit** (what Crouton uses): free and seamless on Apple devices, but an Android grandparent could not join. Cross-platform sharing is core to this product.
+**The trade-off:** CloudKit sharing only works between Apple devices. An Android partner or grandparent could not join in v1. If your own household is mixed, tell me and we go straight to the cross-platform backend instead.
 
-**Why not React Native/Flutter:** the brief is Apollo/Crouton-level native feel, and widgets, Live Activities and watch apps need native code regardless.
+**The spike:** CloudKit *sharing* (as opposed to single-user sync) is not supported equally by all three storage options **[verify for current iOS]**. One week of prototyping "two iCloud accounts editing the same child" settles the choice before we build on it.
 
-### 8.2 Platform sequencing
+**On Vercel:** right for the website, not needed for the app in v1.
 
-Two native codebases doubles UI work. Options:
+### 8.2 Later: Android and a backend
 
-- **A. iOS first, Android about 3–4 months behind (recommended).** Prove the product on one platform; build backend, schema and region packs platform-neutral from day one.
-- **B. Both at once.** Slower to first release, and every design change costs twice.
-- **C. Kotlin Multiplatform shared core with native UI.** Shares the domain and sync logic. Worth revisiting when Android starts; adds build complexity to the iOS app early.
+Android is a decision for after iOS has real users. At that point we add Postgres (Supabase), an offline sync layer (PowerSync has Swift and Kotlin SDKs) and a Jetpack Compose app, and migrate families from CloudKit. To keep that migration cheap, v1 uses a platform-neutral data model (§8.3), stable UUIDs, and keeps sync behind one interface in the code.
+
+Not React Native or Flutter: the brief is Apollo/Crouton-level native feel, and widgets, Live Activities and watch apps need native code regardless.
 
 ### 8.3 Data model (sketch)
 
@@ -204,9 +221,9 @@ Key decisions: events are append-friendly with soft deletes and last-write-wins 
 
 - Children's health data: treat as special-category data under GDPR; UK Children's Code, COPPA and the FTC Health Breach Notification Rule (extended to health apps in 2024) are all relevant.
 - No ad SDKs, no data sale, no third-party trackers. Say so on the App Store privacy label.
-- Encryption in transit and at rest; evaluate end-to-end encryption for notes and photos.
+- In v1 the data lives in the family's own iCloud; we hold none of it. That is the privacy story.
 - One-tap export (CSV, JSON, PDF) and full account deletion.
-- Sign in with Apple, Google, and email link. Caregivers join by invite link.
+- No account to create in v1: identity is the iCloud account. Caregivers join by an iCloud share link.
 
 ## 9. Business model
 
@@ -219,7 +236,9 @@ Principle: **never charge for the family's own data, or per child, or per caregi
 
 Pricing to test: about **$24.99/yr** or **$59.99 lifetime**, with Family Sharing. That undercuts Huckleberry Plus by more than half and answers the "Nanit locks everything" complaint. These are starting numbers, not researched price points.
 
-Cost side: text-only event data is tiny, so database cost per family is small. Photo storage is the real cost, which is why it sits in Plus.
+Cost side: with CloudKit, storage counts against each family's own iCloud, so our running costs in v1 are the Apple Developer fee ($99/yr), a domain and the Vercel free tier. Illustration is the one real spend.
+
+Start with fewer Plus features than the table lists. Two or three good ones (predictions, the paediatrician PDF, themes and icons) are enough to test whether people pay.
 
 ## 10. Design, brand and operations
 
@@ -248,28 +267,37 @@ English (US/UK/AU/NZ variants) at launch, then Japanese, German, French, Spanish
 
 ## 11. Roadmap
 
-| Phase | Outcome | Rough duration |
-|---|---|---|
-| 0. Validation | Hands-on teardown of the top 5 with two child profiles; 8–10 parent interviews (include twin parents); licence checks from §7; name and trademark | 2–3 weeks |
-| 1. Design | Design system, core flows, illustration brief and illustrator chosen | 3–4 weeks |
-| 2. iOS MVP | Feeds, sleep, nappies, growth, multi-child timeline, concurrent timers, caregiver sync, Live Activities, widgets, WHO charts | 10–12 weeks |
-| 3. Beta | TestFlight with 50–100 families, fix, add Plus tier | 4–6 weeks |
-| 4. iOS launch | US, UK, AU, NZ region packs | — |
-| 5. Android | Compose app at feature parity | 10–12 weeks |
-| 6. Expansion | Watch/Wear, Japan and EU packs, toddler stage depth, predictions | Ongoing |
+Built for two people. Each step ends with something usable.
 
-Durations are planning estimates for a small team and depend heavily on who is building.
+| Step | Outcome |
+|---|---|
+| 1. Teardown | Tom lists what annoyed him in the apps he tried; we test the top five with two child profiles and write down the specific failures |
+| 2. Core flows | Tom designs the family timeline, log sheet and timers. Claude runs the CloudKit sharing spike in parallel |
+| 3. Household build | Feeds, sleep, nappies, two or more children, concurrent timers, partner sharing. Installed on Tom's family's phones via TestFlight. No paywall, no polish |
+| 4. Live with it | Two to four weeks of real use. Fix what grates. This is where the product gets good |
+| 5. Native surfaces | Live Activities, widgets, Siri/Shortcuts, night mode |
+| 6. Growth and stages | Measurements with WHO charts, milestones, solids, potty training |
+| 7. Beta | 20–50 outside families (include twin parents). Add the paywall and the first Plus features. Illustration commissioned |
+| 8. Launch | App Store, English-speaking regions first. Website live |
+| Later | Apple Watch, region packs for UK/AU/NZ/US schedules, Japan and EU, Android |
 
-## 12. Decisions needed
+I have left out durations. They depend on how many hours a week Tom has, and I would rather set them after step 3 shows our real pace.
 
-1. **How did your sentence end?** "…especially if someone was to hav…"
-2. **Who is building?** You alone, you with me, or a hired team. This drives the sequencing in §8.2.
-3. **iOS first, or both platforms together?** I recommend iOS first.
-4. **Launch regions.** I suggest US, UK, AU, NZ first (English, clearest content licences), then Japan and EU.
-5. **Pricing stance.** Is "all tracking free, lifetime option" acceptable, or do you want a firmer revenue model?
-6. **Illustration budget and style.** Any illustrators or references you like?
-7. **Which apps did you try, and what specifically annoyed you?** Your two-kid experience is the best research we have.
-8. **Ambition.** Indie product in the Apollo/Crouton mould, or venture-scale? It changes pricing, hiring and scope.
+## 12. Decisions
+
+**Settled**
+- Team is Tom and Claude; indie scale; start small.
+- Free core tracking with a small paid tier.
+- iOS first.
+
+**Open**
+1. **Is your household all-Apple?** Partner and anyone else who would log. This decides CloudKit versus a cross-platform backend (§8.1).
+2. **Do you have a Mac with Xcode and an Apple Developer account?** Needed before step 3.
+3. **How did your sentence end?** "…especially if someone was to hav…"
+4. **Which apps did you try, and what specifically annoyed you?** This is step 1.
+5. **Subscription or one-off unlock?** I lean towards offering both: a low annual price and a lifetime price.
+6. **Illustration:** any illustrators or styles you already like? As a designer you may want to set the direction yourself.
+7. **Name.** Candidates welcome; I will check domains and obvious conflicts.
 
 ## Sources
 
