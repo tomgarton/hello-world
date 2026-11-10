@@ -480,6 +480,8 @@ Recommendation: **Puggle is her name**, and she is a platypus. One word for the 
 Long-running characters are held on model by a style guide of model sheets. The Simpsons had an early guide of nearly 500 pages setting poses, movements and expressions, down to the shape of Lisa's hair. Mickey's white gloves were added so his hands showed against his black body (and, Disney said, to make him more human). Miffy is drawn flat and front-on, without perspective, in a small set of specially mixed "Bruna colours".
 
 Puggle's style guide should contain:
+**Face and legs refresh (2026-11-10, adopted).** Bill smaller, flatter and a touch lower (94 x 38 at 240 wide, was 108 x 50), nostrils reduced to pin dots so they stop reading as eyes. Eyes lower and slightly larger, on the head's centre line, 54 apart (was 60); blush drops with them. Legs shorter-looking and thicker (28 wide, was 20). Dress shape, tail, colours, clip, stitched blush and the no-mouth rule unchanged. **Small version** for under about 100 pt tall: plain blush, no nostrils or pocket, line a quarter heavier. Applied to the model sheet, expressions, anime marks, hands, family, cast line-up, head accessories, glasses and the drawing guide. Not yet applied: logo variants, clothing mock-ups, books, wallpapers, splash and onboarding.
+
 1. **Model sheet:** turnaround (front, three-quarter, side, back), proportions (about 2 heads tall: head 1, body ¾, legs ⅓), colours with values, line weights, and a "never" panel. First version on the canvas.
 2. **Expression sheet** and **pose sheet** (on the canvas).
 3. **Hands sheet** (on the canvas).
