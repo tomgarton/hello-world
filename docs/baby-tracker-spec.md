@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.33)
+# Baby Tracking App — Plan & Spec (Draft 0.34)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -585,6 +585,37 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 3. **One-off unlock for themes, icons and extras at a premium price:** agreed in principle; price to test.
 4. **Potty training method.** Which approach are you planning (timed sits, child-led, a three-day method)? It changes what is worth logging and whether reminders help.
 6. **Name.** Shortlist in §10. Pick one or two for proper trademark and domain checks.
+
+## 13. Not yet accounted for (2026-11-10)
+
+**Product and app**
+- The app screens predate the brand. Redo the core screens (Today, log sheet, potty, Lock Screen) in the Puggle style, with the logotype, palette and characters.
+- No palette or type tokens defined yet; no design system file.
+- Onboarding: adding children, choosing photos and characters, inviting a partner, choosing region.
+- Notifications and reminders: what, when, tone, and how they stay quiet at night.
+- Empty states, errors, settings, export and account deletion screens.
+- Accessibility pass: contrast of the palette, VoiceOver labels for characters, Reduce Motion fallbacks.
+- How the characters age with the child, and how a family with three children or twins is shown.
+
+**Characters and world**
+- A character bible: personalities, likes, catchphrases, rules of what each will and won't do.
+- Mum, Dad, Nan and Pop not drawn; Pebble's sex and name not confirmed.
+- Family diversity: single parents, two mums or two dads, grandparents raising children, disability, different feeding choices.
+- A prop library and a scene kit (backyard, beach, bedroom, bathroom) built from the flora and places.
+- Production: master vector files, Rive rig, export sizes, animation principles.
+
+**Business and legal**
+- A company structure, and agreement between Tom and his wife on who owns the characters and brand (IP assignment).
+- Trademark searches and filings for "Puggle" and the logotype in software, clothing, books and toys classes, in Australia first; domain and social handles.
+- Apple Developer account as an organisation, not an individual, if a company is formed.
+- Privacy policy and terms; children's health data rules for each launch region.
+- Clothing: Australian mandatory standards for children's products (for example nightwear flammability labelling and small parts), sizing, manufacturing and sourcing.
+- Books: self-publish or approach a publisher; board-book safety for under-threes.
+- Budget and time: hours per week, and what is paid for (illustration help, legal, trademarks).
+
+**Go to market**
+- Website, App Store listing, screenshots and preview, launch plan, beta families (including twin parents).
+- Support, feedback and roadmap channel.
 
 ## Sources
 
