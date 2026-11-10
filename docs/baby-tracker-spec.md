@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.14)
+# Baby Tracking App — Plan & Spec (Draft 0.15)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -305,7 +305,19 @@ Tom's reference for cute characters is Miffy (Dick Bruna). We take the method, n
 
 Why it suits us: it is cute and premium at once, it reads at avatar and widget size, simple shapes are quick to animate in Rive, and flat colours print cleanly on fabric for the clothing label.
 
-A first study of an original character, a puggle (baby echidna), is on the mockup canvas. If the puggle becomes the character, **Puggle** could name the character, the app and the label, in the way Miffy does.
+A study of an original character, a puggle (baby echidna), is on the mockup canvas. If the puggle becomes the character, **Puggle** could name the character, the app and the label, in the way Miffy does.
+
+Further references from Tom and his wife, and what each contributes (characterised from memory):
+
+| Reference | What to take |
+|---|---|
+| Sylvanian Families | Animal **families**, and animals that **wear clothes**. The characters can wear the label's range; each child's colour becomes their character's jumper |
+| Animal Crossing | Big head, small body. A world that follows the real clock, seasons and holidays, and rewards a short daily visit. This is the model for the living scene |
+| Kirby | One round shape, blush cheeks, emotion through squash and stretch |
+| Spot the Dog | Flat colour, one identifying mark, and lift-the-flap reveals, which suit sheets and pull to refresh |
+| Also worth a look | Moomin (loved by adults, strong in fashion), Barbapapa (a family told apart by colour), Maisy, Bluey (written for parents as much as children), Paddington and Peter Rabbit (one signature garment), Totoro, Pingu |
+
+Resulting rules for our characters: head as large as the body; one signature feature (for the puggle, the long snout and crown of spines); clothed; a family of sizes; six or seven flat colours.
 
 #### Photos first, characters second
 
