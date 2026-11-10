@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.36)
+# Baby Tracking App — Plan & Spec (Draft 0.37)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -426,10 +426,21 @@ Puggle's style guide should contain:
 2. **Expression sheet** and **pose sheet** (on the canvas).
 3. **Hands sheet** (on the canvas).
 4. **Silhouette rule:** poses are staged so arms and hands have space around them and read in solid silhouette, which is the classic test. Where a pose cannot avoid overlap (hands held in front), a thin light knockout line keeps the arm distinct.
-5. **Size line-up** of the whole cast (on the canvas). Children share one head size; grown-ups are taller through longer bodies, not bigger heads. Nan wears glasses and a cardigan; Pop glasses, a cardigan and a bucket hat; Mum a flower; Dad shorts.
+5. **Size line-up** of the whole cast (on the canvas). Children share one head size; grown-ups are taller through longer bodies, not bigger heads. Nan wears pale blue reading glasses on her bill and a cardigan; Pop round glasses, a cardigan and a bucket hat; Mum a flower; Dad shorts.
 6. **Props** sheet (on the canvas): bottle, nappy, potty, bowl and spoon, sippy cup, toothbrush, book, blanket, rubber duck, Puggle plush, wattle, balloon. Each has a grip point a ball hand can hold; hands sit in front of held props.
 7. **Construction** sheet for drawing by hand (on the canvas): head oval 140 × 120; bill oval 108 × 50 overlapping the chin; eyes on the centre line 60 apart; cheeks at the ends of the bill's top edge; jumper body 64 wide at the neck, 120 at the hem.
 8. **Palette and type** (on the canvas, below).
+
+#### Accessories
+
+Rules: few and signature (one per character, like Hello Kitty's bow or Paddington's hat); drawn like the character (flat colour, same outline, from the palette, no extra detail lines); never hide the eyes; must read in silhouette and at icon size; used to tell characters apart.
+
+Glasses (options on the canvas: eye level or resting on the bill; rims only, pale blue lenses, or black lenses). Proposed: **Nan** wears pale blue reading glasses resting on the top of her bill, eyes peeking over; **Pop** wears round rims at eye level, with his bucket hat. Black lenses only as a sunny-day joke, since they hide the eyes.
+
+#### Motion and 3D
+
+- **Rive:** the characters are a handful of flat shapes, so they suit Rive well. Duolingo uses Rive for its characters, with state machines for idle, talking and reacting states and lip sync driven by speech. Puggle needs no lip sync (no mouth); her states are eyes, marks, poses and squash and stretch, which keeps the rig small. One rig per species, with garments and accessories as swappable parts, matches the character builder.
+- **3D:** Miffy moved to CGI in *Miffy's Adventures Big and Small* (2015, 3 seasons of 26 seven-minute episodes), and a new CGI series has been announced. A 3D Puggle is a later option for animation, AR or toys; the flat 2D drawing stays the master. Simple rounded volumes (head, bill, jumper) would translate well, and plush and vinyl toys are effectively 3D already.
 
 #### Family and ages (Tom, 2026-11-10)
 
