@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.5)
+# Baby Tracking App — Plan & Spec (Draft 0.6)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -259,9 +259,32 @@ The reference is Citymapper: a utility people are fond of, because of its voice 
 - **Voice:** short, dry, kind. "One down, one to go." Never guilt, never medical-sounding. Voice can vary by theme.
 - **A reactive home screen:** the header illustration reflects the real state of the family (who is asleep, time of day), so it is information as well as decoration.
 - **Rewards for the child, not the parent:** the potty sticker chart is designed to be shown to a toddler.
-- **Three directions mocked up** (see the mockup canvas): A Daybreak (bright scene, big type), B Sticker Book (toy-like, mascot per child), C Night Nursery (dark, serif, line drawing). These could be alternative brand directions or three themes in one app.
+- **Direction chosen (Tom, 2026-11-10):** a mix of A Daybreak and C Night Nursery, with B Sticker Book's chunky, tactile style for buttons and inputs. In practice: A's scene, type and voice by day; C's palette and calm at night; outlined, hard-shadowed controls throughout; soft tinted cards for information. Playful but solid, in the way Duolingo is.
 - **Commission one lead illustrator** for the signature theme and the character system; guest illustrators for later theme packs. The mockup drawings are stand-ins.
 - Illustrations must be inclusive across skin tones, family structures and feeding choices.
+
+#### The living scene
+
+The home screen header is a scene that changes with what is happening. Each child has a character in it (asleep on a cloud, awake on the hill, in a party hat on their birthday).
+
+| Input | Examples | Source |
+|---|---|---|
+| Family state | Who is asleep, feeding, awake; how many children | The log |
+| Time of day | Dawn, day, dusk, night | Device clock and sunrise/sunset |
+| Season | Leaves, snow, blossom; flipped for the southern hemisphere | Date and region |
+| Holidays | Opt-in sets per family, since holidays differ by country and belief | Settings |
+| Child moments | Birthdays, monthly "birthdays", first tooth, first steps, last nappy | Milestones |
+
+**Build it from layers, not finished pictures.** Sky, weather, ground, props and characters are separate layers combined at runtime. Five times of day, four seasons and a dozen moments would be hundreds of drawings as whole scenes; as layers it is a few dozen parts. This is the decision that keeps the illustration budget sane.
+
+#### Motion (Rive)
+
+- Characters and scene elements are **Rive** files with state machines: inputs such as `asleep`, `timeOfDay`, `celebrating` drive the animation, so one file covers many states.
+- **Pull to refresh** is a signature moment: the sun spins, the awake character hops, the cloud bobs while the app syncs with the other phones.
+- Other moments worth animating: saving a log (a small acknowledgement, under half a second), a timer starting, a sticker being earned, a milestone.
+- Rive has a native iOS runtime. Widgets and Live Activities cannot run it, as far as I know, so those use still frames from the same artwork **[verify]**.
+- Respect Reduce Motion: every animation needs a still fallback. Nothing animates at night beyond the minimum.
+- Motion must never delay logging. Animation plays after the tap is recorded, not before.
 
 Apps to study (from memory, **[verify]** details): Citymapper (voice, joke transport modes), Duolingo (character cast carried into widgets and icons), Headspace (soft shapes, animation), Gentler Streak (one elegant recurring character), Carrot Weather (personality as the product), Andy Works' (Not Boring) apps (skins as the paid layer), Finch (a companion that grows), How We Feel (quiet, elegant illustration), Pok Pok (hand-made feel for children).
 
@@ -308,13 +331,15 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 - iOS only for v1, on CloudKit. Household is all-Apple and Tom has a Mac with Xcode.
 - Twins are a design target.
 - First build is driven by a bottle-fed 6-month-old and a potty-training 2.5-year-old.
+- Visual direction: A and C mixed, B-style controls, Rive animation, a living scene built from layers.
+- Premium positioning; funded by a one-off unlock for themes, icons and extras, plus a tip jar.
 
 **Open**
 1. **Which apps did you try, and what specifically annoyed you?** This is step 1.
 2. **Apple Developer account** ($99/yr): needed for CloudKit and TestFlight, so before step 3.
 3. **One-off unlock for themes, icons and extras at a premium price:** agreed in principle; price to test.
 4. **Potty training method.** Which approach are you planning (timed sits, child-led, a three-day method)? It changes what is worth logging and whether reminders help.
-5. **Which character direction** (A, B, C, or a mix), and any illustrators you already like?
+5. **Illustrator and animator.** Who draws the character system and builds the Rive files? Any you already like?
 6. **Name.** Candidates welcome; I will check domains and obvious conflicts.
 
 ## Sources
