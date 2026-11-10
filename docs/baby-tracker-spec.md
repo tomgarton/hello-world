@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.2)
+# Baby Tracking App — Plan & Spec (Draft 0.3)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -13,7 +13,7 @@ Claims marked **[verify]** come from third-party roundups or from memory, not fr
 
 - **Team:** Tom (product design) and Claude (engineering). No hired engineers.
 - **Shape:** an indie product born from Tom's own two-kid friction, in the Apollo/Crouton mould. Start small, ship, grow from use.
-- **Money:** a small subscription or one-off unlock for a handful of good features. Core tracking stays free.
+- **Money:** free app with a tip jar, as Apollo did, and a one-off Pro unlock for a handful of extras later. No subscription planned.
 - **Consequence:** every choice below favours the least infrastructure to run and the fastest route to an app on Tom's own phone. §8 and §11 were rewritten on that basis.
 
 ### How we work together
@@ -227,18 +227,20 @@ Key decisions: events are append-friendly with soft deletes and last-write-wins 
 
 ## 9. Business model
 
-Principle: **never charge for the family's own data, or per child, or per caregiver.**
+Principle: **never charge for the family's own data, or per child, or per caregiver.** Quality first; money follows goodwill.
 
-| Tier | Contents |
-|---|---|
-| **Free** | All tracking, unlimited children and caregivers, sync, full history, export, growth charts, region packs, basic widgets |
-| **Plus** | Predictions and advanced insights, paediatrician PDF reports, photo journal storage, full widget/watch/Live Activity customisation, themes and icons, illustrated milestone cards |
+Modelled on Apollo, which combined a free app, a tip jar and a one-off Pro unlock (it added a subscription later, for features with ongoing server costs).
 
-Pricing to test: about **$24.99/yr** or **$59.99 lifetime**, with Family Sharing. That undercuts Huckleberry Plus by more than half and answers the "Nanit locks everything" complaint. These are starting numbers, not researched price points.
+| Layer | Contents | When |
+|---|---|---|
+| **Free** | All tracking, unlimited children and caregivers, sync, full history, export, growth charts, widgets, Live Activities | Launch |
+| **Tip jar** | Three or four tip sizes. A thank-you only: a supporter badge and perhaps an extra app icon | Launch |
+| **Pro (one-off)** | Extras, not essentials: themes and icon set, paediatrician PDF report, nap/feed predictions, illustrated milestone cards | After beta, once we know what people value |
+| Subscription | Only if we add something that costs us money every month (e.g. a cross-platform backend or photo hosting) | Not planned |
 
-Cost side: with CloudKit, storage counts against each family's own iCloud, so our running costs in v1 are the Apple Developer fee ($99/yr), a domain and the Vercel free tier. Illustration is the one real spend.
+Why this works here: with CloudKit our running costs are the Apple Developer fee ($99/yr), a domain and the Vercel free tier. Apollo was ended by a third party's API bill; we have no equivalent dependency.
 
-Start with fewer Plus features than the table lists. Two or three good ones (predictions, the paediatrician PDF, themes and icons) are enough to test whether people pay.
+What to expect: tip jars alone usually bring in little. They will cover running costs, but probably not illustration, which is the one real spend. The Pro unlock is what would pay that back. Prices to test later: tips around $1.99 / $4.99 / $9.99, Pro around $14.99–24.99 one-off. These are starting numbers, not researched price points.
 
 ## 10. Design, brand and operations
 
@@ -277,7 +279,7 @@ Built for two people. Each step ends with something usable.
 | 4. Live with it | Two to four weeks of real use. Fix what grates. This is where the product gets good |
 | 5. Native surfaces | Live Activities, widgets, Siri/Shortcuts, night mode |
 | 6. Growth and stages | Measurements with WHO charts, milestones, solids, potty training |
-| 7. Beta | 20–50 outside families (include twin parents). Add the paywall and the first Plus features. Illustration commissioned |
+| 7. Beta | 20–50 outside families (include twin parents). Add the tip jar. Decide what, if anything, goes in Pro. Illustration commissioned |
 | 8. Launch | App Store, English-speaking regions first. Website live |
 | Later | Apple Watch, region packs for UK/AU/NZ/US schedules, Japan and EU, Android |
 
@@ -287,7 +289,7 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 
 **Settled**
 - Team is Tom and Claude; indie scale; start small.
-- Free core tracking with a small paid tier.
+- Free app with a tip jar; one-off Pro unlock later; no subscription.
 - iOS first.
 
 **Open**
@@ -295,7 +297,7 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 2. **Do you have a Mac with Xcode and an Apple Developer account?** Needed before step 3.
 3. **How did your sentence end?** "…especially if someone was to hav…"
 4. **Which apps did you try, and what specifically annoyed you?** This is step 1.
-5. **Subscription or one-off unlock?** I lean towards offering both: a low annual price and a lifetime price.
+5. **Is a one-off Pro unlock alongside the tip jar acceptable**, or do you want tips only?
 6. **Illustration:** any illustrators or styles you already like? As a designer you may want to set the direction yourself.
 7. **Name.** Candidates welcome; I will check domains and obvious conflicts.
 
