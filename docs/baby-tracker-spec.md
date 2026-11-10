@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.41)
+# Baby Tracking App — Plan & Spec (Draft 0.42)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -48,6 +48,8 @@ Prices are US figures from 2026 third-party reviews. **[verify]** all of them in
 | **Napper** | Sleep schedules, warmer design. | Sleep only **[verify]**. | Subscription **[verify]**. |
 | **Nanit** | Camera-driven sleep analytics, polished design. | Needs the hardware. Analytics, video history and milestone features need an Insights plan after the trial. | About $120/yr and $300/yr tiers (Nanit support page). |
 | **Piyolog (Japan)** | Dominant in Japan; voice logging, daily summary **[verify]**. | Japan-centric. | Freemium **[verify]**. |
+| **Gaia Baby** (found by Tom, 2026-11-10) | Closest to our pitch: a free shared baby log with a clean, premium feel and a little character. An import tool for people leaving Nara (feeds, nappies, sleep, pumping, growth, milestones, with dates and units); imports of the same file by both parents land once. | Tom's view: not native-feeling, a bit clunky. One review reports an account-creation error. | Free (per its listing). |
+| **Sofi Baby Tracker** | Imports from Huckleberry and Nara. | Not reviewed. | Not checked. |
 | **Twin-specific apps** (DoubleLoving, Multibaby, TandemBaby, Twiniversity) | Logging two babies side by side. | Small, feeding-focused, twins only. Their existence shows the mainstream apps under-serve this. | Mixed. |
 | **CDC Milestone Tracker** | Official US milestone checklists, free. | Milestones only, US only. | Free. |
 
@@ -145,6 +147,18 @@ Community/forums, sleep coaching, camera or hardware integration, AI chat, pregn
 3. **Platform-native on each side.** iOS feels like iOS, Android like Material You. No shared UI layer.
 4. **Works fully offline.** Sync is a background detail.
 5. **Accessible:** Dynamic Type, VoiceOver/TalkBack, large touch targets, colour is never the only signal.
+
+### Refined Puggle (direction, 2026-11-10)
+
+Prompted by Gaia Baby: the app itself should feel clean, calm and premium, with character dropped in sparingly; the full playful Puggle world lives in the books, clothes, wallpapers and celebrations.
+
+- **Controls follow Gaia's lead and iOS:** filled pill buttons with no outline or hard shadow (Ink primary, soft secondary); soft filled fields; system toggles and segmented controls; list rows with tinted icon circles and thin dividers; large numbers in Bricolage at medium weight. This replaces the chunky outlined, hard-shadow buttons for the app UI.
+- **Character, sparingly:** child avatars, empty states, onboarding, milestones and celebrations. Never on every row.
+- **Drawn on the canvas:** controls sheet; Today; bottle sheet; import screen.
+
+### Import (new feature)
+
+Parents switch apps mid-baby. Import from Nara Baby, Huckleberry, Baby Tracker (CSV) and any CSV, keeping dates and units; de-duplicate when both parents import the same file. Gaia and Sofi already do this, so it is table stakes for winning switchers. Formats of each app's export need checking **[verify]**.
 
 ### Onboarding (first draft, 2026-11-10)
 
