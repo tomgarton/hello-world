@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.38)
+# Baby Tracking App — Plan & Spec (Draft 0.39)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -437,6 +437,14 @@ Rules: few and signature (one per character, like Hello Kitty's bow or Paddingto
 
 Glasses (options on the canvas: eye level or resting on the bill; rims only, pale blue lenses, or black lenses). Proposed: **Nan** wears pale blue reading glasses resting on the top of her bill, eyes peeking over; **Pop** wears round rims at eye level, with his bucket hat. Black lenses only as a sunny-day joke, since they hide the eyes.
 
+#### Hair and head accessories (2026-11-10)
+
+No hair (Tom's preference). Characters are told apart by head accessories instead, drawn on the canvas: quatrefoil clip, bow, headband, fur bun, flower, beanie, bucket hat, sun hat.
+
+Proposed assignments: **Puggle** wears a hair clip in the shape of the brand quatrefoil (ties her to the logo and avoids the Hello Kitty bow); **Mum** a flower; **Nan** reading glasses; **Pop** glasses and a bucket hat. Hats are seasonal and situational for everyone (beanie in winter, sun hat at the beach).
+
+**Pebble's curl:** the current thin curl is lost at small sizes. Options drawn: Kewpie curl, three tufts, spiral, curl with a bow, forehead squiggle. Recommended: the **Kewpie curl**, a thick fur-coloured curl with an outline, after the single topknot of Rose O'Neill's Kewpie dolls (1909).
+
 #### Motion and 3D
 
 - **Rive:** the characters are a handful of flat shapes, so they suit Rive well. Duolingo uses Rive for its characters, with state machines for idle, talking and reacting states and lip sync driven by speech. Puggle needs no lip sync (no mouth); her states are eyes, marks, poses and squash and stretch, which keeps the rig small. One rig per species, with garments and accessories as swappable parts, matches the character builder.
@@ -524,6 +532,12 @@ One name, used everywhere; the cast grows underneath it, as with Miffy, Bluey an
 | Company | **Puggle & Co.** as the legal and trading name |
 
 Rejected: Puggle Kids (sounds like a clothing size range and dates as children grow); Puggle & Kip (fixes the cast too early and splits attention). A single-word mark is also the simplest to register and protect.
+
+### Logo variants and applications (2026-11-10)
+
+On the canvas: A wordmark with a quatrefoil full stop; B stacked face over wordmark; C face in the blossom badge; D pill with face and wordmark; E scallop awning; F monogram "p" with quatrefoil; G line face in a roundel (stamps, embroidery); H woven label with line face and wordmark; I woven tab, face only (sleeves, socks). In one-colour versions the bill is filled solid so the face never reads as a frowning mouth.
+
+Clothing mock-ups: tees (face and wordmark; friends repeat; Breton stripes with a woven tab), onesies (line-face repeat; shapes repeat), bucket hat in a shapes print, beanie with a woven tab, socks with the face at the ankle.
 
 ### Palette and type (draft, 2026-11-10)
 
