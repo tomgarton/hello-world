@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.30)
+# Baby Tracking App — Plan & Spec (Draft 0.31)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -388,13 +388,13 @@ Trademark checks needed for Puggle before launch; the others matter only if sold
 
 Explorations toward Bluey (brows, eye glints, a mouth drawn on the bill, chubbier bodies) were rejected: they lost the cuteness, and a mouth on a bill makes no sense. **Tom prefers the original Puggle**, and Puggle is a girl ("she").
 
-How the original gets expressions without changing her drawing:
-- **Eyes:** dots, happy arcs, sleepy closed arcs, bigger dots for surprise, a wink, dots glancing aside.
-- **Cheeks:** bigger blush, and a third stitch when shy.
-- **The bill itself:** tilts, rises, drops, or opens (upper and lower bill parting) for laughing and surprise. Never a drawn mouth.
-- **A few marks:** a tear, "z z z", "!", sparkles.
-- **Poses:** hello, hooray, shy, oh no, ta-da.
-- **Open bill (surprised, laughing): under review.** Four approaches on the canvas: A hinged upper and lower bill; B the bill changes shape (a round "O" for surprise, a wide grin for laughing), after Pingu's stretchy beak; C a dark opening inside the unchanged outline; D A plus squash and stretch. Recommended: **B**. The bill keeps its colour, outline and nostrils; only its shape changes; the opening is a warm dark tone, not black; a pink tongue only when laughing.
+**Rule (Tom, 2026-11-10): Puggle emotes only through her eyes, floating marks, and body shape and language. Her bill never changes:** it does not open, tilt, smile or frown. (Open-bill options were explored and set aside; the sheet stays on the canvas marked superseded.)
+
+- **Eyes:** dots, happy arcs, sleepy closed arcs, bigger dots for surprise, a wink, dots glancing aside, stars, squeezed (> <), swirls.
+- **Cheeks:** bigger blush, and a third stitch when shy; puffed when cross.
+- **Floating marks:** "!", "z z z", sparkles, laugh lines, a tear, a sweat drop, hearts, flowers, gloom lines, a sleep bubble.
+- **Body:** poses (hello, hooray, shy, oh no, ta-da), and squash and stretch in animation: a jump for surprise, a bounce for laughter, a droop for sad.
+- Never brows, never a mouth, no dark patches on the face.
 - **Arms and hands always visible** (Tom, 2026-11-10). Arms sit in front of the garment and behind the head. Raised arms go up and out at about 45 degrees, hands clear of the head; never straight up behind it. Lowered hands stick out past the garment's edge. Hands held in front rest on the garment, never over the face or bill. Every pose is checked as a solid silhouette: if a hand disappears in the silhouette, redraw the pose.
 - Never brows, never a mouth, no dark patches on the face.
 
