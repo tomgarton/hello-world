@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.44)
+# Baby Tracking App — Plan & Spec (Draft 0.45)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -153,6 +153,7 @@ Community/forums, sleep coaching, camera or hardware integration, AI chat, pregn
 Prompted by Gaia Baby: the app itself should feel clean, calm and premium, with character dropped in sparingly; the full playful Puggle world lives in the books, clothes, wallpapers and celebrations.
 
 - **Controls follow Gaia's lead and iOS:** filled pill buttons with no outline or hard shadow (Ink primary, soft secondary); soft filled fields; system toggles and segmented controls; list rows with tinted icon circles and thin dividers; large numbers in Bricolage at medium weight. This replaces the chunky outlined, hard-shadow buttons for the app UI.
+- **No app name inside the app** (Tom, 2026-11-10). The wordmark appears only on the splash screen, the app icon and in Help / About. Screens are titled by what they show ("Today", the children's names), not the brand. The character can still appear.
 - **Character, sparingly:** child avatars, empty states, onboarding, milestones and celebrations. Never on every row.
 - **Drawn on the canvas:** controls sheet; Today; bottle sheet; import screen.
 
