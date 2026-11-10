@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.34)
+# Baby Tracking App — Plan & Spec (Draft 0.35)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -416,6 +416,18 @@ Avoid anger veins and anything aggressive.
 #### Her name
 
 Recommendation: **Puggle is her name**, and she is a platypus. One word for the character, app and label, as Miffy and Bluey are; children can say it. Books: "Puggle the platypus". The alternative (a P-name such as Pearl, with Puggle as the brand) splits recognition and needs a second trademark. Caveat: "puggle" is also a common noun for a baby echidna or platypus, so trademark strength in some classes may be weaker; check with an adviser.
+
+#### Model sheets (how other characters are kept consistent)
+
+Long-running characters are held on model by a style guide of model sheets. The Simpsons had an early guide of nearly 500 pages setting poses, movements and expressions, down to the shape of Lisa's hair. Mickey's white gloves were added so his hands showed against his black body (and, Disney said, to make him more human). Miffy is drawn flat and front-on, without perspective, in a small set of specially mixed "Bruna colours".
+
+Puggle's style guide should contain:
+1. **Model sheet:** turnaround (front, three-quarter, side, back), proportions (about 2½ heads tall, with guide lines), colours with values, line weights, and a "never" panel. First version on the canvas.
+2. **Expression sheet** and **pose sheet** (on the canvas).
+3. **Hands sheet** (on the canvas).
+4. **Silhouette rule:** poses are staged so arms and hands have space around them and read in solid silhouette, which is the classic test. Where a pose cannot avoid overlap (hands held in front), a thin light knockout line keeps the arm distinct.
+5. **Size line-up** of the whole cast, and a **props** sheet (to do).
+6. **Construction** notes for redrawing by hand (to do).
 
 #### Family and ages (Tom, 2026-11-10)
 
