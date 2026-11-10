@@ -47,6 +47,7 @@ app/
     Data/Persistence.swift    CloudKit stores and sharing
     Data/FamilyStore.swift    All writes: add child, log, sleep timer
     Design/Theme.swift        Palette, pill buttons, chips, avatars
+    Design/PuggleView.swift   Animated Puggle (Rive), still image without it; see design/rive/README.md
     Features/Today/           Today screen
     Features/Log/             Log sheet
     Features/History/         History
