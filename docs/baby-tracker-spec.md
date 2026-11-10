@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.37)
+# Baby Tracking App — Plan & Spec (Draft 0.38)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -510,6 +510,20 @@ Apps to study (from memory, **[verify]** details): Citymapper (voice, joke trans
 
 - Tone: calm, warm, non-judgemental about feeding and sleep choices, never guilt-inducing.
 - Name must work across US/UK/EU/JP/AU/NZ, have an available `.com` or `.app`, and clear trademark search in classes 9 and 42.
+
+### Brand architecture (proposed, 2026-11-10)
+
+One name, used everywhere; the cast grows underneath it, as with Miffy, Bluey and Peppa Pig.
+
+| Where | Name |
+|---|---|
+| Master brand, character, trademark | **Puggle** |
+| App | **Puggle**, with an App Store subtitle that explains it (e.g. "Baby and family tracker") |
+| Clothing label | **Puggle** on the tag |
+| Books and any animation | **Puggle and Friends** as the series name (Miffy's TV series was *Miffy and Friends*) |
+| Company | **Puggle & Co.** as the legal and trading name |
+
+Rejected: Puggle Kids (sounds like a clothing size range and dates as children grow); Puggle & Kip (fixes the cast too early and splits attention). A single-word mark is also the simplest to register and protect.
 
 ### Palette and type (draft, 2026-11-10)
 
