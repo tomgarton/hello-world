@@ -10,6 +10,7 @@ Written at the end of the cloud session on 2026-11-10, so work can carry on in C
 | iOS app, v0.1 (never compiled) | `app/`, start with `app/README.md` |
 | Design canvas (live) | https://claude.ai/artifact/7YuMrXnyazxos3Hnfr6uAd |
 | Canvas sources (generator scripts and board files) | `design/canvas/`, see `design/canvas/README.md` |
+| Puggle's parts for Rive (named groups) | `design/rive/puggle-parts.svg` |
 | Branch | `claude/baby-tracking-app-spec-fhtvex` |
 
 ## First job on the Mac: build v0.1
@@ -44,6 +45,8 @@ Settled and on the canvas:
 - Activity icons: line with colour by activity; sticker, holographic and print finishes
 - Twelve scenes in the flat, lit style, with a kit of parts; three of them shown as Today headers
 - Wallpapers (eight) and book covers built from the scenes
+
+Motion: "Motion studies for Rive" on the Characters page shows five Puggle loops, the state machine and four animated scenes. They are sketches; the real files get built in the Rive editor.
 
 Proposed, not yet decided (Characters page, "Puggle: three additions"):
 
