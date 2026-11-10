@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.32)
+# Baby Tracking App — Plan & Spec (Draft 0.33)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -395,7 +395,7 @@ Explorations toward Bluey (brows, eye glints, a mouth drawn on the bill, chubbie
 - **Floating marks:** "!", "z z z", sparkles, laugh lines, a tear, a sweat drop, hearts, flowers, gloom lines, a sleep bubble.
 - **Body:** poses (hello, hooray, shy, oh no, ta-da), and squash and stretch in animation: a jump for surprise, a bounce for laughter, a droop for sad.
 - Never brows, never a mouth, no dark patches on the face.
-- **Hands (proposed):** keep the round ball hands, but in fur brown, not slate, so they read as paws; feet stay slate like webbed platypus feet. (Options on the canvas: A fur hands and slate feet, recommended; B all fur; C light tan.) Hands should do things: wave (with motion arcs), clap (with clap marks), hands to cheeks for "oh!", peekaboo (the only time hands cover the face; arms tuck behind the head), and holding props (flowers, a bottle, a toy, a balloon, Pebble's hand).
+- **Hands and feet (decided 2026-11-10):** round ball hands in fur brown (not slate), slightly larger; a thin cuff line where sleeve meets hand; feet stay slate and are a little larger and more paddle-like. Applied across the current canvas sheets (expressions, family, hands, builder, wallpapers, books); earlier exploration sheets are left as they were. Hands do things: wave (with motion arcs), clap (with clap marks), hands to cheeks for "oh!", peekaboo (the only time hands cover the face; arms tuck behind the head), and holding props. Next: a prop library (bottle, nappy, potty, toothbrush, book, wattle, balloon).
 - **Arms and hands always visible** (Tom, 2026-11-10). Arms sit in front of the garment and behind the head. Raised arms go up and out at about 45 degrees, hands clear of the head; never straight up behind it. Lowered hands stick out past the garment's edge. Hands held in front rest on the garment, never over the face or bill. Every pose is checked as a solid silhouette: if a hand disappears in the silhouette, redraw the pose.
 - Never brows, never a mouth, no dark patches on the face.
 
