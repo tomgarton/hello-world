@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.18)
+# Baby Tracking App — Plan & Spec (Draft 0.19)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -443,6 +443,14 @@ Oliver Bonas, Gorman, Gorman Kids, Next Kids, JoJo Maman Bébé, Caramel. Charac
 - **Print as identity.** A repeat pattern, not a logo, is what makes these brands recognisable. The app's scenes and backgrounds can be built from the same patterns that go on fabric.
 - **Quiet base, one loud moment.** Caramel's muted palette for the app's structure; Gorman-level colour reserved for the scene and the child's photo.
 - **Naming.** None of these names describes babies. They are personal names, a phrase and a soft noun, which age better than descriptive or cute names.
+
+### Logotype (exploring, 2026-11-10)
+
+Brief from Tom: bold, blocky, current. Six free Google Fonts tried on the mockup canvas: Bagel Fat One, Dela Gothic One, Rubik Mono One, Climate Crisis, Bricolage Grotesque ExtraBold, Gasoek One.
+
+- Leading candidate: **Bagel Fat One**, lowercase. Puffy, soft corners, matches the rounded outline of the characters, reads well on a woven label and as a single "p" icon.
+- Runner-up: **Dela Gothic One** for a more graphic, fashion-led feel.
+- Whichever is chosen is a starting point: the final wordmark should be redrawn (spacing, the double g, perhaps a bill or tail detail) so it is ownable, and the font licence checked for logo and trademark use (Google Fonts are under the Open Font License **[verify for each]**).
 
 ### Website (Vercel)
 
