@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.35)
+# Baby Tracking App — Plan & Spec (Draft 0.36)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -422,12 +422,14 @@ Recommendation: **Puggle is her name**, and she is a platypus. One word for the 
 Long-running characters are held on model by a style guide of model sheets. The Simpsons had an early guide of nearly 500 pages setting poses, movements and expressions, down to the shape of Lisa's hair. Mickey's white gloves were added so his hands showed against his black body (and, Disney said, to make him more human). Miffy is drawn flat and front-on, without perspective, in a small set of specially mixed "Bruna colours".
 
 Puggle's style guide should contain:
-1. **Model sheet:** turnaround (front, three-quarter, side, back), proportions (about 2½ heads tall, with guide lines), colours with values, line weights, and a "never" panel. First version on the canvas.
+1. **Model sheet:** turnaround (front, three-quarter, side, back), proportions (about 2 heads tall: head 1, body ¾, legs ⅓), colours with values, line weights, and a "never" panel. First version on the canvas.
 2. **Expression sheet** and **pose sheet** (on the canvas).
 3. **Hands sheet** (on the canvas).
 4. **Silhouette rule:** poses are staged so arms and hands have space around them and read in solid silhouette, which is the classic test. Where a pose cannot avoid overlap (hands held in front), a thin light knockout line keeps the arm distinct.
-5. **Size line-up** of the whole cast, and a **props** sheet (to do).
-6. **Construction** notes for redrawing by hand (to do).
+5. **Size line-up** of the whole cast (on the canvas). Children share one head size; grown-ups are taller through longer bodies, not bigger heads. Nan wears glasses and a cardigan; Pop glasses, a cardigan and a bucket hat; Mum a flower; Dad shorts.
+6. **Props** sheet (on the canvas): bottle, nappy, potty, bowl and spoon, sippy cup, toothbrush, book, blanket, rubber duck, Puggle plush, wattle, balloon. Each has a grip point a ball hand can hold; hands sit in front of held props.
+7. **Construction** sheet for drawing by hand (on the canvas): head oval 140 × 120; bill oval 108 × 50 overlapping the chin; eyes on the centre line 60 apart; cheeks at the ends of the bill's top edge; jumper body 64 wide at the neck, 120 at the hem.
+8. **Palette and type** (on the canvas, below).
 
 #### Family and ages (Tom, 2026-11-10)
 
@@ -497,6 +499,19 @@ Apps to study (from memory, **[verify]** details): Citymapper (voice, joke trans
 
 - Tone: calm, warm, non-judgemental about feeding and sleep choices, never guilt-inducing.
 - Name must work across US/UK/EU/JP/AU/NZ, have an available `.com` or `.app`, and clear trademark search in classes 9 and 42.
+
+### Palette and type (draft, 2026-11-10)
+
+| Group | Tokens |
+|---|---|
+| Base | Ink #3A2A20, Paper #FBF6E9, Sand #F2ECDD, Night #1B2440, Moon #F3E0B8 |
+| Brights (fills) | Wattle #F4BE2C, Harbour #2A62B8, Waratah #E5553B, Gum #3C9A5F |
+| Soft fields (child colours, backgrounds) | Sky #BFD9F5, Shell #F3D9C9, Mint #CFE5D2, Sun #F4E7B0 |
+| Puggle | Fur #8A5A3C, Bill #6E7F8D, Blush #EE9C88, Stitch #C24A36 |
+
+Rules: text is Ink on light colours, Paper or Moon on Night. Waratah, Gum, Bill and Stitch pass contrast only for large text, so they are fills, never small text. Each child takes one soft field as their colour. Contrast values are on the canvas sheet.
+
+Type: Bricolage Grotesque ExtraBold for the logotype, display and titles; the iOS system font for headline, body and caption so Dynamic Type works. Components: chunky outlined buttons with a hard Ink shadow; soft rounded chips in the child's colour.
 
 ### Name shortlist (2026-11-10)
 
@@ -602,7 +617,7 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 
 **Product and app**
 - The app screens predate the brand. Redo the core screens (Today, log sheet, potty, Lock Screen) in the Puggle style, with the logotype, palette and characters.
-- No palette or type tokens defined yet; no design system file.
+- Palette and type drafted (§10); still to do: a design system file with spacing, radius and component specs.
 - Onboarding: adding children, choosing photos and characters, inviting a partner, choosing region.
 - Notifications and reminders: what, when, tone, and how they stay quiet at night.
 - Empty states, errors, settings, export and account deletion screens.
