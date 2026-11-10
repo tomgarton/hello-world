@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.12)
+# Baby Tracking App — Plan & Spec (Draft 0.13)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -365,6 +365,16 @@ Tom's wife, a fashion designer, plans a kids' clothing range and was considering
 - **Guardrails:** no shop inside the family's data, no use of a child's data for marketing without explicit opt-in, and nothing leaves the device. One clearly marked place in the app, not banners.
 - **Not in v1.** Keep the option open cheaply: choose one name that works for both, check trademarks in both software and clothing classes, and secure the domain and handles together.
 - **Name check so far:** one web search each found no childrenswear brand and no App Store app called Puggle. Search results are dominated by the pug-beagle dog cross, which is what many people outside Australia will think of. No trademark search done.
+
+#### Fashion references (Tom's wife)
+
+Oliver Bonas, Gorman, Gorman Kids, Next Kids, JoJo Maman Bébé, Caramel. Characterised from memory, **[verify]** before quoting.
+
+- **Themes as collections.** Fashion works in seasonal drops. A theme could launch with a clothing collection and share its print and palette.
+- **Guest artists.** Gorman is known for artist collaborations; the equivalent is guest-illustrator themes, credited by name.
+- **Print as identity.** A repeat pattern, not a logo, is what makes these brands recognisable. The app's scenes and backgrounds can be built from the same patterns that go on fabric.
+- **Quiet base, one loud moment.** Caramel's muted palette for the app's structure; Gorman-level colour reserved for the scene and the child's photo.
+- **Naming.** None of these names describes babies. They are personal names, a phrase and a soft noun, which age better than descriptive or cute names.
 
 ### Website (Vercel)
 
