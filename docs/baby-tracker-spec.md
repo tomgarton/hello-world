@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.40)
+# Baby Tracking App — Plan & Spec (Draft 0.41)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -145,6 +145,18 @@ Community/forums, sleep coaching, camera or hardware integration, AI chat, pregn
 3. **Platform-native on each side.** iOS feels like iOS, Android like Material You. No shared UI layer.
 4. **Works fully offline.** Sync is a background detail.
 5. **Accessible:** Dynamic Type, VoiceOver/TalkBack, large touch targets, colour is never the only signal.
+
+### Onboarding (first draft, 2026-11-10)
+
+Reference from Tom: onboarding screens from an app called Gaia (not identified in a web search). What it does well: one message per screen, a real piece of the product shown inside the onboarding, an honest "Sample data" label, Skip always available, identical light and dark versions.
+
+Puggle's four screens (on the canvas):
+1. **Hello from Puggle.** Puggle and Pebble; one line on what the app is.
+2. **Everyone sees the same day.** A partner's entry arriving, above a shared timeline. Labelled "Example family".
+3. **All your little ones, in one place.** Two children with live status side by side, and "Add a child" (twins and siblings welcome).
+4. **Make their character.** Pick a friend, outfit colour or a photo; changeable later.
+
+Then the setup itself: add the first child (name, birth date, photo or character), invite a partner, choose region and units, allow notifications with a plain explanation. Each step skippable.
 
 ### Where theming stops and iOS begins
 
@@ -672,7 +684,7 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 **Product and app**
 - The app screens predate the brand. Redo the core screens (Today, log sheet, potty, Lock Screen) in the Puggle style, with the logotype, palette and characters.
 - Palette and type drafted (§10); still to do: a design system file with spacing, radius and component specs.
-- Onboarding: adding children, choosing photos and characters, inviting a partner, choosing region.
+- Onboarding: intro screens drafted (§6); setup steps still to design.
 - Notifications and reminders: what, when, tone, and how they stay quiet at night.
 - Empty states, errors, settings, export and account deletion screens.
 - Accessibility pass: contrast of the palette, VoiceOver labels for characters, Reduce Motion fallbacks.
