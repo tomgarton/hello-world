@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.23)
+# Baby Tracking App — Plan & Spec (Draft 0.24)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -367,6 +367,31 @@ Body rules: head and body about equal; short legs under the hem; arms that can w
 - **Mono version of every character:** one ink on paper (and a night variant, cream on navy). For embroidery, single-colour print and stamps, small sizes, widgets, the Lock Screen and Live Activities. Blush drops out in mono; the stitches stay.
 - **Character builder:** parents make their child's character by choosing friend, outfit, outfit colour, background and colour or mono. A working prototype is on the mockup canvas. Later options: hats, accessories, names on garments, seasonal outfits (themes and the clothing label feed this). The built character is what stands in for the child in the scene and widgets.
 - **Soft shapes:** a small set of rounded geometric shapes (quatrefoil, pill, scallop, soft square, soft hexagon, pebble, half pill, blossom), prompted by Tom's reference (Amigável by Latinotype). The shapes are our own drawings; the typeface is not used. Uses: repeat pattern for fabric and app backgrounds, potty-chart stickers, chips and buttons, and a mark after the logotype.
+
+#### Character names (proposed)
+
+Rules: one or two syllables a toddler can say; each name hints at the character's personality or role; drawn from the Australian world, in the way Bluey's names are descriptive.
+
+| Name | Animal | Personality | Role in app and stories |
+|---|---|---|---|
+| **Puggle** | Platypus | Curious, about three, always in the water | The lead |
+| **Quill** | Echidna | Puggle's baby sibling; gets prickly when tired | The baby; sitting poses |
+| **Kip** | Koala | Puggle's best friend; can fall asleep anywhere ("kip" is a nap) | Naps and sleep |
+| **Digby** | Wombat | Loves digging; the potty jokes | Potty training |
+| **Sunny** | Quokka | Always smiling | Milestones and celebrations |
+| Later | Kookaburra (**Chuck**, wakes everyone at dawn), Mum, Dad, Nan and Pop | | Mornings; the parent and grandparent cast |
+
+Trademark checks needed for Puggle before launch; the others matter only if sold as products in their own right.
+
+#### Style direction: between Miffy and Bluey
+
+Explored on the canvas as a spectrum. The middle option keeps Miffy's flat colour, simple shapes and front-on stance, and takes from Bluey:
+- a thinner outline in a dark fur tone in place of brown-black ink;
+- brows and a small eye glint, so the character can act;
+- a bill that can smile, open and frown (six expressions drawn);
+- a pear-shaped body, darker crown, webbed hands and feet, bigger tail.
+
+The Bluey end (no outlines, three-quarter view, energetic poses) suits the books and animation. The Miffy end suits icons, labels, embroidery and small sizes. One character can work at both ends: Miffy-style for marks, middle style for the app and books. These are original drawings; no Bluey or Miffy artwork is copied.
 
 #### Wallpapers, repeats and books
 
