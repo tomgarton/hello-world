@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.15)
+# Baby Tracking App — Plan & Spec (Draft 0.16)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -318,6 +318,27 @@ Further references from Tom and his wife, and what each contributes (characteris
 | Also worth a look | Moomin (loved by adults, strong in fashion), Barbapapa (a family told apart by colour), Maisy, Bluey (written for parents as much as children), Paddington and Peter Rabbit (one signature garment), Totoro, Pingu |
 
 Resulting rules for our characters: head as large as the body; one signature feature (for the puggle, the long snout and crown of spines); clothed; a family of sizes; six or seven flat colours.
+
+#### The world: Puggle and friends (Australiana)
+
+Tom and his wife are Australian. The cast is Australian baby animals, which is distinctive in a market of bears and bunnies and, as Bluey shows, travels well.
+
+| Character | Animal | Signature feature | Natural role |
+|---|---|---|---|
+| **Puggle** | Echidna | Long snout, crown of spines | The lead; the app icon |
+| The other puggle | Platypus | Wide flat bill | Bath time; a sibling or twin for Puggle, since platypus young are commonly called puggles too **[verify]** |
+| Wombat | Wombat joey | Square head, big nose | Sleep, and potty training (wombats are known for cube-shaped droppings) |
+| Koala | Koala joey | Big round ears, tall nose | Naps and cuddles |
+| Quokka | Quokka joey | The smile | Milestones and celebrations |
+| Later | Bilby, kookaburra, emu chick, little penguin, sugar glider | | Bilby for Easter and night; kookaburra for morning; emu chick and penguin for toddlers |
+
+- **Start with Puggle plus two or three friends.** Each is a full set of states to draw and animate.
+- **How they are used:** a child can choose a friend as their character in the scene (photo stays the main avatar). Friends also turn up for the moments they suit.
+- **Settings and seasons are Australian by default:** gum trees, the beach, the backyard; Christmas in summer; wattle in spring; jacaranda in November. Seasons flip for northern-hemisphere families.
+- **Plants as pattern:** gum leaves, wattle, banksia and bottlebrush make repeat prints for both the app's backgrounds and the clothing.
+- **Local references:** Bluey, May Gibbs's gumnut babies, Possum Magic, Diary of a Wombat, Blinky Bill (from memory).
+- **Care:** do not borrow Aboriginal art styles, motifs or stories without a proper collaboration and permission.
+- A New Zealand kiwi chick would be an easy friend to add for NZ families.
 
 #### Photos first, characters second
 
