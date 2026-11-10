@@ -1,13 +1,27 @@
-# Baby Tracking App — Plan & Spec (Draft 0.49)
+# Puggle — Plan & Spec (v1.0)
 
-_Status: first draft for discussion. Working title: **TBD** (see §11)._
+_Status: design foundation agreed; first build starting. App, brand and character name: **Puggle**._
 _Last updated: 2026-11-10._
 
 **How to read this:** §1–3 are the market assessment and where the opening is. §4–7 are the product. §8–10 are how we build and run it. §12 lists the decisions we need to make together.
 
+**Design canvas:** all mockups live on the Puggle canvas, organised into four pages: App, Characters, Brand and world, and Archive (earlier explorations kept for reference).
+
 Claims marked **[verify]** come from third-party roundups or from memory, not from a primary source, and must be checked before we rely on them.
 
 ---
+
+## Where we are (2026-11-10)
+
+| Area | Decision |
+|---|---|
+| Product | Native iOS family tracker for several children at once, newborn to school age; free core, tip jar, one-off Pro unlock later |
+| Platform | iOS first, SwiftUI, Core Data with CloudKit (private and shared databases) so a household can share without a server |
+| Name and brand | **Puggle** for the app, character, label and trademark; **Puggle and Friends** for stories; **Puggle & Co.** for the company. Logotype: Bricolage Grotesque ExtraBold, lowercase |
+| App look | Refined Puggle: calm, native controls (filled pills, soft fields, system toggles), line icons with one accent, character used sparingly. App name only on splash, icon and Help |
+| Characters | Puggle (platypus, 2½, potty training) and Pebble (baby platypus, Kewpie curl); friends Quill, Kip, Digby, Sunny; Mum, Dad, Nan, Pop. Flat colour, warm brown outline, dot eyes, blush with stitches, no mouth or brows; emotion through eyes, marks and body; hands always visible; quatrefoil clip |
+| World | Australian everyday places and objects; full-colour props for books, fabric and wallpapers; blob sign text; no Aboriginal motifs or trademarked landmarks |
+| Next | Build v0.1 on Tom's Mac (§11 step 3) |
 
 ## 0. Working assumptions (agreed 2026-11-10)
 
@@ -15,7 +29,7 @@ Claims marked **[verify]** come from third-party roundups or from memory, not fr
 - **Shape:** an indie product born from Tom's own two-kid friction, in the Apollo/Crouton mould. Start small, ship, grow from use.
 - **Money:** free app with a tip jar, as Apollo did, and a one-off Pro unlock for a handful of extras later. No subscription planned.
 - **Household:** all Apple devices; Tom has a Mac with Xcode. CloudKit is confirmed for v1.
-- **First users:** Tom's own children, a **6-month-old, bottle-fed** and Harry, a **2.5-year-old about to start potty training**. These two define the first build (§11).
+- **First users:** Tom's own children, a **6-month-old, bottle-fed** and a **2.5-year-old about to start potty training**. These two define the first build (§11).
 - **Consequence:** every choice below favours the least infrastructure to run and the fastest route to an app on Tom's own phone. §8 and §11 were rewritten on that basis.
 
 ### How we work together
@@ -164,10 +178,10 @@ Prompted by Gaia Baby: the app itself should feel clean, calm and premium, with 
 **Borrow:** character through illustrated icons with one accent colour (our props sheet does this); a customisable, per-device card layout; dismissible tips for features; calm empty states that say what will appear; plain-language growth notes; a category filter for history; restraint in medical claims.
 
 **Do better:**
-- **Several children.** Gaia's home is one child ("Harry, 0 days old"); Puggle shows everyone at once (drawn on the canvas as "Today as cards", each card showing both children).
+- **Several children.** Gaia's home is one child at a time ("[name], 0 days old"); Puggle shows everyone at once (drawn on the canvas as "Today as cards", each card showing both children).
 - **Density.** Gaia's cards repeat empty text and need scrolling; Puggle cards show the latest for each child, and the Lock Screen and widgets mean less opening the app at all.
 - **Native:** system tab bar, sheets, Live Activities, widgets, Watch.
-- **Polish and care:** the screenshots show "her" used for a child named Harry whose sex was not set, and "0 days old"; small errors undermine trust in a health app. Puggle uses the child's name or "they" until sex is set.
+- **Polish and care:** the screenshots show "her" used for a boy whose sex was not set in the app, and "0 days old"; small errors undermine trust in a health app. Puggle uses the child's name or "they" until sex is set.
 - **Local language and units:** nappy, ml, Australian health references.
 - **Imagery:** no AI-generated food photos; drawn props or real photography.
 - **Toddlers:** potty, big bed, growing up.
@@ -334,7 +348,7 @@ The reference is Citymapper: a utility people are fond of, because of its voice 
 - **Voice:** short, dry, kind. "One down, one to go." Never guilt, never medical-sounding. Voice can vary by theme.
 - **A reactive home screen:** the header illustration reflects the real state of the family (who is asleep, time of day), so it is information as well as decoration.
 - **Rewards for the child, not the parent:** the potty sticker chart is designed to be shown to a toddler.
-- **Direction chosen (Tom, 2026-11-10):** a mix of A Daybreak and C Night Nursery, with B Sticker Book's chunky, tactile style for buttons and inputs. In practice: A's scene, type and voice by day; C's palette and calm at night; outlined, hard-shadowed controls throughout; soft tinted cards for information. Playful but solid, in the way Duolingo is.
+- **Early direction (superseded for the app UI by Refined Puggle in §6; still informs books and scenes):** a mix of A Daybreak and C Night Nursery, with B Sticker Book's chunky, tactile style for buttons and inputs. In practice: A's scene, type and voice by day; C's palette and calm at night; outlined, hard-shadowed controls throughout; soft tinted cards for information. Playful but solid, in the way Duolingo is.
 - **Tom draws the characters and scenes for the concept and proof-of-concept stage.** Commissioning a lead illustrator or guest artists is a later decision, once the system is proven.
 - Illustrations must be inclusive across skin tones, family structures and feeding choices.
 
@@ -632,7 +646,7 @@ Rules: text is Ink on light colours, Paper or Moon on Night. Waratah, Gum, Bill 
 
 Type: Bricolage Grotesque ExtraBold for the logotype, display and titles; the iOS system font for headline, body and caption so Dynamic Type works. Components: chunky outlined buttons with a hard Ink shadow; soft rounded chips in the child's colour.
 
-### Name shortlist (2026-11-10)
+### Name shortlist (2026-11-10, resolved: Puggle)
 
 Checked only with one App Store-oriented web search each. No trademark or domain search has been done.
 
@@ -718,24 +732,25 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 
 **Settled**
 - Team is Tom and Claude; indie scale; start small.
-- Free app with a tip jar; one-off Pro unlock later; no subscription.
-- iOS only for v1, on CloudKit. Household is all-Apple and Tom has a Mac with Xcode.
-- Twins are a design target.
-- First build is driven by a bottle-fed 6-month-old and a potty-training 2.5-year-old.
-- Visual direction: A and C mixed, B-style controls, Rive animation, a living scene built from layers.
-- Premium positioning; funded by a one-off unlock for themes, icons and extras, plus a tip jar.
+- Free app with a tip jar; one-off Pro unlock for themes, icons and extras later; no subscription.
+- iOS only for v1; Core Data with CloudKit; household is all-Apple; Tom has a Mac with Xcode.
+- Name: Puggle (app, character, label); Puggle and Friends (stories); Puggle & Co. (company).
+- App look: Refined Puggle (§6); line icons at 1.4 pt with one accent; app name only on splash, icon and Help.
+- Characters, cast, expression and accessory rules as summarised at the top.
+- Twins and several children are a design target; first build is driven by a bottle-fed 6-month-old and a potty-training 2½-year-old.
 
 **Open**
-1. **Which apps did you try, and what specifically annoyed you?** This is step 1.
-2. **Apple Developer account** ($99/yr): needed for CloudKit and TestFlight, so before step 3.
-3. **One-off unlock for themes, icons and extras at a premium price:** agreed in principle; price to test.
-4. **Potty training method.** Which approach are you planning (timed sits, child-led, a three-day method)? It changes what is worth logging and whether reminders help.
-6. **Name.** Shortlist in §10. Pick one or two for proper trademark and domain checks.
+1. **Apple Developer account** ($99/yr): needed for CloudKit and TestFlight.
+2. **Pebble's name and sex**, and whether Quill stays a friend.
+3. **Pro price** and contents (themes, icons, extras).
+4. **Potty training method** (timed sits, child-led, a three-day method): changes what is worth logging and reminding.
+5. **Today layout:** calm list or cards (both on the canvas).
+6. **Trademark and domain checks** for Puggle in software, clothing, books and toys.
 
 ## 13. Not yet accounted for (2026-11-10)
 
 **Product and app**
-- The app screens predate the brand. Redo the core screens (Today, log sheet, potty, Lock Screen) in the Puggle style, with the logotype, palette and characters.
+- Core screens redone in Refined Puggle (Today as list and as cards, bottle sheet, import, onboarding, splash). Still to do: potty, sleep timer, history, Lock Screen and widgets in the refined style.
 - Palette and type drafted (§10); still to do: a design system file with spacing, radius and component specs.
 - Onboarding: intro screens drafted (§6); setup steps still to design.
 - Notifications and reminders: what, when, tone, and how they stay quiet at night.
