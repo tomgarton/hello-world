@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.39)
+# Baby Tracking App — Plan & Spec (Draft 0.40)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -442,6 +442,21 @@ Glasses (options on the canvas: eye level or resting on the bill; rims only, pal
 No hair (Tom's preference). Characters are told apart by head accessories instead, drawn on the canvas: quatrefoil clip, bow, headband, fur bun, flower, beanie, bucket hat, sun hat.
 
 Proposed assignments: **Puggle** wears a hair clip in the shape of the brand quatrefoil (ties her to the logo and avoids the Hello Kitty bow); **Mum** a flower; **Nan** reading glasses; **Pop** glasses and a bucket hat. Hats are seasonal and situational for everyone (beanie in winter, sun hat at the beach).
+
+**Cast accessories (draft, applied to the line-up):**
+
+| Character | Signature |
+|---|---|
+| Puggle | Red quatrefoil clip |
+| Pebble | Kewpie curl |
+| Quill | None: the spines are the signature |
+| Kip | Blue bow |
+| Digby | Red beanie |
+| Sunny | Sun hat |
+| Mum | Flower |
+| Dad | None (shorts) |
+| Nan | Fur bun and pale blue reading glasses |
+| Pop | Round glasses and green bucket hat |
 
 **Pebble's curl:** the current thin curl is lost at small sizes. Options drawn: Kewpie curl, three tufts, spiral, curl with a bow, forehead squiggle. Recommended: the **Kewpie curl**, a thick fur-coloured curl with an outline, after the single topknot of Rose O'Neill's Kewpie dolls (1909).
 
