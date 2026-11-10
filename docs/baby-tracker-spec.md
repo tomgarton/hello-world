@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.8)
+# Baby Tracking App — Plan & Spec (Draft 0.9)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -294,6 +294,15 @@ The reference is Citymapper: a utility people are fond of, because of its voice 
 - **Tom draws the characters and scenes for the concept and proof-of-concept stage.** Commissioning a lead illustrator or guest artists is a later decision, once the system is proven.
 - Illustrations must be inclusive across skin tones, family structures and feeding choices.
 
+#### Photos first, characters second
+
+The app is for parents, and it has to earn a place in their day. What a parent wants to see is their own child.
+
+- **Each child is represented by their photo**, with a ring in the child's colour. The colour still does the work of telling entries apart.
+- **Easy to keep fresh:** prompt for a new photo on monthly birthdays and milestones, so the app quietly becomes a record of the child growing.
+- **A character is the fallback** before a photo is added, and what stands in for the child inside the illustrated scene, widgets and Lock Screen, where a small photo reads poorly.
+- Photos stay in the family's iCloud like everything else.
+
 #### The living scene
 
 The home screen header is a scene that changes with what is happening. Each child has a character in it (asleep on a cloud, awake on the hill, in a party hat on their birthday).
@@ -323,6 +332,18 @@ Apps to study (from memory, **[verify]** details): Citymapper (voice, joke trans
 
 - Tone: calm, warm, non-judgemental about feeding and sleep choices, never guilt-inducing.
 - Name must work across US/UK/EU/JP/AU/NZ, have an available `.com` or `.app`, and clear trademark search in classes 9 and 42.
+
+### Name shortlist (2026-11-10)
+
+Checked only with one App Store-oriented web search each. No trademark or domain search has been done.
+
+| Name | Why | Against | Quick check |
+|---|---|---|---|
+| **Handful** | What everyone calls small children, said with affection. Speaks to the parent, works for one child or four, suits the dry voice | Could read as negative to some | No app of this name found |
+| **Small Hours** | The time parents are awake. Also "the hours of the small ones". Fits the premium night look | Suggests a night-only app. Same idiom as an existing app, Wee Hours | No app of this name found |
+| **Brood** | A family of young. One syllable, distinctive | "Brooding" has a gloomy sense | No app of this name found |
+| **Fledge** | Growing up through stages | Less warm; easily misheard | No app of this name found |
+| ~~Wee Hours~~ | | **Taken:** "Wee Hours – Baby Tracker" is a free, native SwiftUI tracker with a dark night interface by a solo parent-developer. Worth studying as a direct competitor | Exists on the App Store |
 
 ### Website (Vercel)
 
@@ -370,7 +391,7 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 2. **Apple Developer account** ($99/yr): needed for CloudKit and TestFlight, so before step 3.
 3. **One-off unlock for themes, icons and extras at a premium price:** agreed in principle; price to test.
 4. **Potty training method.** Which approach are you planning (timed sits, child-led, a three-day method)? It changes what is worth logging and whether reminders help.
-6. **Name.** Candidates welcome; I will check domains and obvious conflicts.
+6. **Name.** Shortlist in §10. Pick one or two for proper trademark and domain checks.
 
 ## Sources
 
