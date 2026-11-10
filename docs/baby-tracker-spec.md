@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.4)
+# Baby Tracking App — Plan & Spec (Draft 0.5)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -41,7 +41,7 @@ Prices are US figures from 2026 third-party reviews. **[verify]** all of them in
 | App | What it is best at | Where it falls short | Pricing |
 |---|---|---|---|
 | **Huckleberry** | Sleep. "SweetSpot" nap prediction is the feature parents pay for. | SweetSpot has been paid-only since June 2021. Reviews say growth charts and journaling are thin, and low-star reviews focus on how much sits behind Premium. | Free tracker. Plus about $11.99/mo or $58.99–68.99/yr. Premium about $14.99/mo or $119.99/yr. |
-| **Baby Tracker (Nighp)** | Fast, comprehensive logging; long-time category staple. | Dated UI, ads in the free tier **[verify]**. | Free with paid upgrade **[verify]**. |
+| **Baby Tracker (Nighp)** | Fast, comprehensive logging; long-time category staple. **This is what Tom's family uses.** | Ads in the app (Tom's experience). Feels like a web view in a wrapper, so it uses none of the native surfaces (Tom's impression; not confirmed technically). | Free with paid upgrade **[verify]**. |
 | **Nara Baby** | Clean, free, multi-child and caregiver sync. Often named the best free option. | Shallow insights, few platform integrations **[verify]**. | Free **[verify business model]**. |
 | **Glow Baby** | Multi-user sync, community. | Sits inside a fertility/pregnancy bundle; upsell-heavy **[verify]**. | Sources conflict: $4.99 one-time vs $59.99/yr bundle. |
 | **Baby Daybook / BabyConnect** | Breadth of things you can log; cross-platform. | Utilitarian design **[verify]**. | Freemium **[verify]**. |
@@ -229,28 +229,41 @@ Key decisions: events are append-friendly with soft deletes and last-write-wins 
 
 ## 9. Business model
 
-Principle: **never charge for the family's own data, or per child, or per caregiver.** Quality first; money follows goodwill.
+Positioning: **a premium product for parents who notice craft**, funded by people choosing to pay for character, not by ads or by locking their data.
 
-Modelled on Apollo, which combined a free app, a tip jar and a one-off Pro unlock (it added a subscription later, for features with ongoing server costs).
+Principle: **never charge for the family's own data, or per child, or per caregiver.**
 
 | Layer | Contents | When |
 |---|---|---|
-| **Free** | All tracking, unlimited children and caregivers, sync, full history, export, growth charts, widgets, Live Activities | Launch |
-| **Tip jar** | Three or four tip sizes. A thank-you only: a supporter badge and perhaps an extra app icon | Launch |
-| **Pro (one-off)** | Extras, not essentials: themes and icon set, paediatrician PDF report, nap/feed predictions, illustrated milestone cards | After beta, once we know what people value |
-| Subscription | Only if we add something that costs us money every month (e.g. a cross-platform backend or photo hosting) | Not planned |
+| **Free** | All tracking, unlimited children and caregivers, sync, full history, export, growth charts, widgets, Live Activities, the default theme | Launch |
+| **Tip jar** | Three or four tip sizes. A thank-you only: a supporter badge | Launch |
+| **Themes and icons** | Illustrated themes (each restyles colour, type, illustration, copy voice, widgets and Live Activities) and matching app icons. Sold as a one-off "all themes" unlock; possibly single packs later | After beta |
+| **Pro extras** | Paediatrician PDF report, nap/feed predictions. Bundled with the themes unlock rather than sold separately | After beta |
+| Subscription | Only if we add something that costs us money every month | Not planned |
 
-Why this works here: with CloudKit our running costs are the Apple Developer fee ($99/yr), a domain and the Vercel free tier. Apollo was ended by a third party's API bill; we have no equivalent dependency.
+Precedents (from memory, **[verify]**): Apollo sold a one-off Pro unlock and offered many alternate icons, some by guest artists. Andy Works' (Not Boring) apps charge for visual skins on top of simple utilities. Carrot Weather sells personality and customisation on top of weather data.
 
-What to expect: tip jars alone usually bring in little. They will cover running costs, but probably not illustration, which is the one real spend. The Pro unlock is what would pay that back. Prices to test later: tips around $1.99 / $4.99 / $9.99, Pro around $14.99–24.99 one-off. These are starting numbers, not researched price points.
+Why this fits: with CloudKit our running costs are about $99/yr plus a domain, so revenue only has to repay illustration and reward the work.
+
+Honest limits:
+- Cosmetic-only revenue is usually modest. Bundling two or three useful extras with the themes makes the unlock easier to justify.
+- Every theme is an illustration set, so themes are our main cost as well as our main product. Launch with one signature theme done properly and one or two more, not ten.
+- "Premium" and "free with a tip jar" pull in different directions. The resolution proposed here: free is complete and ad-free; the paid layer is priced with confidence (to test: $29.99–39.99 one-off for everything). These are starting numbers, not researched price points.
 
 ## 10. Design, brand and operations
 
-### Illustration
+### Character and illustration
 
-- A consistent illustrated world (characters for each stage, empty states, milestone cards, monthly recap art) is what makes the app feel premium and is something users will pay for.
-- **Commission one illustrator** for a system, not a pack of stock art: about 40–60 spot illustrations, a set of animated moments (Rive or Lottie), app icon variants. Budget is a real line item; get quotes early.
+The reference is Citymapper: a utility people are fond of, because of its voice and illustration as much as its function.
+
+- **Voice:** short, dry, kind. "One down, one to go." Never guilt, never medical-sounding. Voice can vary by theme.
+- **A reactive home screen:** the header illustration reflects the real state of the family (who is asleep, time of day), so it is information as well as decoration.
+- **Rewards for the child, not the parent:** the potty sticker chart is designed to be shown to a toddler.
+- **Three directions mocked up** (see the mockup canvas): A Daybreak (bright scene, big type), B Sticker Book (toy-like, mascot per child), C Night Nursery (dark, serif, line drawing). These could be alternative brand directions or three themes in one app.
+- **Commission one lead illustrator** for the signature theme and the character system; guest illustrators for later theme packs. The mockup drawings are stand-ins.
 - Illustrations must be inclusive across skin tones, family structures and feeding choices.
+
+Apps to study (from memory, **[verify]** details): Citymapper (voice, joke transport modes), Duolingo (character cast carried into widgets and icons), Headspace (soft shapes, animation), Gentler Streak (one elegant recurring character), Carrot Weather (personality as the product), Andy Works' (Not Boring) apps (skins as the paid layer), Finch (a companion that grows), How We Feel (quiet, elegant illustration), Pok Pok (hand-made feel for children).
 
 ### Brand
 
@@ -299,9 +312,9 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 **Open**
 1. **Which apps did you try, and what specifically annoyed you?** This is step 1.
 2. **Apple Developer account** ($99/yr): needed for CloudKit and TestFlight, so before step 3.
-3. **Is a one-off Pro unlock alongside the tip jar acceptable**, or tips only?
+3. **One-off unlock for themes, icons and extras at a premium price:** agreed in principle; price to test.
 4. **Potty training method.** Which approach are you planning (timed sits, child-led, a three-day method)? It changes what is worth logging and whether reminders help.
-5. **Illustration:** any illustrators or styles you already like?
+5. **Which character direction** (A, B, C, or a mix), and any illustrators you already like?
 6. **Name.** Candidates welcome; I will check domains and obvious conflicts.
 
 ## Sources
