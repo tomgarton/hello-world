@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.10)
+# Baby Tracking App — Plan & Spec (Draft 0.11)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -340,6 +340,9 @@ Checked only with one App Store-oriented web search each. No trademark or domain
 | Name | Why | Against | Quick check |
 |---|---|---|---|
 | **Ducklings** | A row of ducklings behind a parent: several children, one adult keeping them together. "Ducks in a row" also means being organised. Affectionate, and gives the illustration a natural cast | More playful than premium; needs elegant execution | No app of this name found |
+| **Goslings** | Goslings imprint on a parent and follow in a line. Slightly more grown-up than Ducklings | Many people will think of the actor first | No app of this name found |
+| **Cygnet** | A baby swan. The most elegant option; fits the premium night look | Hard to spell and say for some | No app of this name found |
+| **Fawn** | Gentle, short, elegant | Singular; "to fawn" means to flatter | No app of this name found |
 | **Peapod** | "Peas in a pod": siblings and twins, snug together. Warm, character-friendly | A US grocery delivery brand uses the name (from memory, **[verify]**) | No baby app of this name found |
 | **Poppet** | British term of endearment for a small child | Singular; little meaning outside the UK, AU and NZ | No app of this name found |
 | **Small Hours** | The time parents are awake. Also "the hours of the small ones". Fits the premium night look | Suggests a night-only app. Same idiom as an existing app, Wee Hours | No app of this name found |
@@ -347,6 +350,9 @@ Checked only with one App Store-oriented web search each. No trademark or domain
 | **Fledge** | Growing up through stages | Less warm; easily misheard | No app of this name found |
 | ~~Handful~~ | | **Rejected by Tom:** used when children are being naughty; negative connotation | |
 | ~~Little Wins~~ | | **Taken:** "Little Wins: Celebrate Today" and a "LittleWins" family routines app exist | Exists |
+| ~~Joey~~ | | **Taken:** a baby tracker called Joey exists (possibly now archived), plus an older Joey baby journal | Exists |
+| ~~Waddle~~ | | **Taken:** Waddle - Parenting Copilot | Exists |
+| ~~Piglet, Owlet, Cub~~ | | Piglet is a well-known Disney character; Owlet is a baby monitor brand; Cub names are crowded (CubTrack, Cubtale) | From memory and earlier searches |
 | ~~Wee Hours~~ | | **Taken:** "Wee Hours – Baby Tracker" is a free, native SwiftUI tracker with a dark night interface by a solo parent-developer. Worth studying as a direct competitor | Exists on the App Store |
 
 ### Website (Vercel)
