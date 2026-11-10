@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.17)
+# Baby Tracking App — Plan & Spec (Draft 0.18)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -325,8 +325,8 @@ Tom and his wife are Australian. The cast is Australian baby animals, which is d
 
 | Character | Animal | Signature feature | Natural role |
 |---|---|---|---|
-| **Puggle** | Echidna | Long snout, crown of spines | The lead; the app icon |
-| The other puggle | Platypus | Wide flat bill | Bath time; a sibling or twin for Puggle, since platypus young are commonly called puggles too **[verify]** |
+| **Puggle** | Platypus | Bill, flat paddle tail, webbed feet | The lead; the app icon. Chosen over the echidna (Tom, 2026-11-10) because a platypus is recognised worldwide and cannot be mistaken for a hedgehog |
+| The other puggle | Echidna | Long snout, crown of spines | A sibling or twin for Puggle |
 | Wombat | Wombat joey | Square head, big nose | Sleep, and potty training (wombats are known for cube-shaped droppings) |
 | Koala | Koala joey | Big round ears, tall nose | Naps and cuddles |
 | Quokka | Quokka joey | The smile | Milestones and celebrations |
@@ -353,8 +353,12 @@ Bluey took Peppa Pig's formula (flat shapes, a family of animals, short everyday
 | | **Australian** species, settings and seasons |
 
 Signature marks under test (see the mockup canvas):
-- **Stitched cheeks:** two short diagonal stitches in place of round blush. It nods to the clothing label and is ours in the way the X mouth is Miffy's. Options shown: stitches with no mouth (preferred), freckles, stitches with a small smile.
+- **Decided: blush with stitches.** Round blush cheeks with two short stitches over them. Originally proposed as stitches in place of blush: It nods to the clothing label and is ours in the way the X mouth is Miffy's. Options shown: stitches with no mouth (preferred), freckles, stitches with a small smile.
 - **The pouch pocket:** every jumper has a front pouch pocket. Echidnas carry their puggle in a pouch, hoodies call it a kangaroo pocket, and it can be a real detail on the garments.
+
+Wardrobe: jumper with pouch pocket, dungarees and overalls, dresses, T-shirts and shorts, pyjamas. Each child's character can be dressed, and the clothes mirror the label's range.
+
+A note on the word: "puggle" is the usual name for a baby echidna; for a baby platypus it is widely used but informal **[verify]**. That does not stop us using it as a character name.
 
 Body rules: head and body about equal; short legs under the hem; arms that can wave and hold; babies sit, toddlers stand; Puggle sleeps curled into a ball of spines.
 
