@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.19)
+# Baby Tracking App — Plan & Spec (Draft 0.20)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -448,8 +448,8 @@ Oliver Bonas, Gorman, Gorman Kids, Next Kids, JoJo Maman Bébé, Caramel. Charac
 
 Brief from Tom: bold, blocky, current. Six free Google Fonts tried on the mockup canvas: Bagel Fat One, Dela Gothic One, Rubik Mono One, Climate Crisis, Bricolage Grotesque ExtraBold, Gasoek One.
 
-- Leading candidate: **Bagel Fat One**, lowercase. Puffy, soft corners, matches the rounded outline of the characters, reads well on a woven label and as a single "p" icon.
-- Runner-up: **Dela Gothic One** for a more graphic, fashion-led feel.
+- Shortlist (Tom): **A Bagel Fat One, D Climate Crisis, E Bricolage Grotesque ExtraBold, F Gasoek One.** Compared in use on the canvas: lockup, woven label, icon, app header at night.
+- At small sizes D's counters close up and A's "e" tightens; E stays the most legible; F holds up best overall among the heavy options.
 - Whichever is chosen is a starting point: the final wordmark should be redrawn (spacing, the double g, perhaps a bill or tail detail) so it is ownable, and the font licence checked for logo and trademark use (Google Fonts are under the Open Font License **[verify for each]**).
 
 ### Website (Vercel)
