@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.21)
+# Baby Tracking App — Plan & Spec (Draft 0.22)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -361,6 +361,12 @@ Wardrobe: jumper with pouch pocket, dungarees and overalls, dresses, T-shirts an
 A note on the word: "puggle" is the usual name for a baby echidna; for a baby platypus it is widely used but informal **[verify]**. That does not stop us using it as a character name.
 
 Body rules: head and body about equal; short legs under the hem; arms that can wave and hold; babies sit, toddlers stand; Puggle sleeps curled into a ball of spines.
+
+#### Mono characters, builder and soft shapes
+
+- **Mono version of every character:** one ink on paper (and a night variant, cream on navy). For embroidery, single-colour print and stamps, small sizes, widgets, the Lock Screen and Live Activities. Blush drops out in mono; the stitches stay.
+- **Character builder:** parents make their child's character by choosing friend, outfit, outfit colour, background and colour or mono. A working prototype is on the mockup canvas. Later options: hats, accessories, names on garments, seasonal outfits (themes and the clothing label feed this). The built character is what stands in for the child in the scene and widgets.
+- **Soft shapes:** a small set of rounded geometric shapes (quatrefoil, pill, scallop, soft square, soft hexagon, pebble, half pill, blossom), prompted by Tom's reference (Amigável by Latinotype). The shapes are our own drawings; the typeface is not used. Uses: repeat pattern for fabric and app backgrounds, potty-chart stickers, chips and buttons, and a mark after the logotype.
 
 #### Photos first, characters second
 
