@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.28)
+# Baby Tracking App — Plan & Spec (Draft 0.29)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -393,6 +393,7 @@ How the original gets expressions without changing her drawing:
 - **The bill itself:** tilts, rises, drops, or opens (upper and lower bill parting) for laughing and surprise. Never a drawn mouth.
 - **A few marks:** a tear, "z z z", "!", sparkles.
 - **Poses:** hello, hooray, shy, oh no, ta-da.
+- **Open bill (surprised, laughing): under review.** Four approaches on the canvas: A hinged upper and lower bill; B the bill changes shape (a round "O" for surprise, a wide grin for laughing), after Pingu's stretchy beak; C a dark opening inside the unchanged outline; D A plus squash and stretch. Recommended: **B**. The bill keeps its colour, outline and nostrils; only its shape changes; the opening is a warm dark tone, not black; a pink tongue only when laughing.
 - **Arms and hands always visible** (Tom, 2026-11-10). Arms sit in front of the garment and behind the head. Raised arms go up and out at about 45 degrees, hands clear of the head; never straight up behind it. Lowered hands stick out past the garment's edge. Hands held in front rest on the garment, never over the face or bill. Every pose is checked as a solid silhouette: if a hand disappears in the silhouette, redraw the pose.
 - Never brows, never a mouth, no dark patches on the face.
 
