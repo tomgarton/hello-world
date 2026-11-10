@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.45)
+# Baby Tracking App — Plan & Spec (Draft 0.46)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -484,6 +484,8 @@ Glasses (options on the canvas: eye level or resting on the bill; rims only, pal
 #### Props v2 and Australiana (2026-11-10)
 
 Props redrawn to one rule set: one outline weight, flat palette colours, one white highlight, no brands, logos or label text. Everyday: bottle, nappy, potty, bowl and spoon, sippy cup, toothbrush, book, blanket, rubber duck, balloon. Australian, in the spirit of Bluey's everyday Australiana: thongs, esky, Hills Hoist, meat pie, sausage in bread, fairy bread, lamington, pavlova, cricket bat and ball, zinc stick, letterbox, milk crate, surfboard. Generic forms only: no branded products or packaging (no recognisable spreads, biscuits or ice creams).
+
+**Two prop styles (2026-11-10).** The full-colour props read as "funky" in the calm app (Tom). So: **line icons for the app** (one 3.5 line in Ink, rounded ends, one small accent, mostly Wattle; same optical size; lots of air; Gaia-like restraint) and **full-colour props for books, fabric, wallpapers and celebrations**. Both are drawn from the same shapes. The Today cards now use the line icons.
 
 #### Text in the world
 
