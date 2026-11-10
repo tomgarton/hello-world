@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.7)
+# Baby Tracking App — Plan & Spec (Draft 0.8)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -15,7 +15,7 @@ Claims marked **[verify]** come from third-party roundups or from memory, not fr
 - **Shape:** an indie product born from Tom's own two-kid friction, in the Apollo/Crouton mould. Start small, ship, grow from use.
 - **Money:** free app with a tip jar, as Apollo did, and a one-off Pro unlock for a handful of extras later. No subscription planned.
 - **Household:** all Apple devices; Tom has a Mac with Xcode. CloudKit is confirmed for v1.
-- **First users:** Tom's own children, a **6-month-old, bottle-fed** and a **2.5-year-old about to start potty training**. These two define the first build (§11).
+- **First users:** Tom's own children, a **6-month-old, bottle-fed** and Harry, a **2.5-year-old about to start potty training**. These two define the first build (§11).
 - **Consequence:** every choice below favours the least infrastructure to run and the fastest route to an app on Tom's own phone. §8 and §11 were rewritten on that basis.
 
 ### How we work together
@@ -161,6 +161,21 @@ Rules that follow:
 - Custom pull to refresh is the one place we replace a system behaviour. It needs its own implementation and testing.
 - Stock structure picks up each year's iOS design changes for free; custom chrome has to be redone.
 - Apollo and Crouton both work this way: stock structure, strong personality in content, icons and settings.
+
+### Lessons from Tom's references (Nanit screenshots, Claude's iOS sheet)
+
+Borrow the principle, not the look.
+
+| Seen | Take | Avoid |
+|---|---|---|
+| Nanit: deep navy, one warm accent, large light numerals | Night is the premium register. One accent, restraint, big numbers | Tiles that are mostly empty space around a single number |
+| Nanit: moon and stars behind the Insights header; Day/Night toggle re-skins the whole screen | Atmosphere sits behind content and reflects what you are looking at | |
+| Nanit: "Hey Dad, I was helped to sleep 3 hours and 47 minutes ago" | Voice carries character even with no illustration | |
+| Nanit: hamburger menu plus five tabs; one child at a time, switched in a drawer | | Two navigation systems. Per-child silos. We use three tabs and show all children together |
+| Nanit: blurred paid tiles, "Shop" buttons and "Shop Offers" inside the data | | Upsells inside the family's data. Paid extras live in one settings screen |
+| Nanit: nappy sheet needs a type, then Save | One tap on the type saves it | A confirm step for the commonest actions |
+| Nanit: activity list of repeated machine events | A timeline of what people logged, grouped and quiet | |
+| Claude iOS: sheet with grabber, round close button, centred title, half height then full | Use the system sheet with half and full heights for all logging. Half height keeps the scene visible; pull up for time and notes | Custom modal behaviour |
 
 ### OS surfaces
 
