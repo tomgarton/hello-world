@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.3)
+# Baby Tracking App — Plan & Spec (Draft 0.4)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -14,6 +14,8 @@ Claims marked **[verify]** come from third-party roundups or from memory, not fr
 - **Team:** Tom (product design) and Claude (engineering). No hired engineers.
 - **Shape:** an indie product born from Tom's own two-kid friction, in the Apollo/Crouton mould. Start small, ship, grow from use.
 - **Money:** free app with a tip jar, as Apollo did, and a one-off Pro unlock for a handful of extras later. No subscription planned.
+- **Household:** all Apple devices; Tom has a Mac with Xcode. CloudKit is confirmed for v1.
+- **First users:** Tom's own children, a **6-month-old, bottle-fed** and a **2.5-year-old about to start potty training**. These two define the first build (§11).
 - **Consequence:** every choice below favours the least infrastructure to run and the fastest route to an app on Tom's own phone. §8 and §11 were rewritten on that basis.
 
 ### How we work together
@@ -106,7 +108,7 @@ Risks to this thesis: Nara already offers free multi-child tracking, so "free an
 - **No per-child or per-caregiver charge, ever.**
 - **Per-child sharing:** the nanny sees the baby, not the older child's health notes.
 
-_Your message cut off at "especially if someone was to hav…". I have assumed the end was "have twins" or "have a second child while the first is still being tracked". Tell me if you meant something else._
+Twins are an explicit design target (confirmed by Tom), even though the first household test is a baby plus a toddler. Twin mode needs its own testers in the beta.
 
 ### 5.3 Stages
 
@@ -275,10 +277,10 @@ Built for two people. Each step ends with something usable.
 |---|---|
 | 1. Teardown | Tom lists what annoyed him in the apps he tried; we test the top five with two child profiles and write down the specific failures |
 | 2. Core flows | Tom designs the family timeline, log sheet and timers. Claude runs the CloudKit sharing spike in parallel |
-| 3. Household build | Feeds, sleep, nappies, two or more children, concurrent timers, partner sharing. Installed on Tom's family's phones via TestFlight. No paywall, no polish |
+| 3. Household build | Shaped by Tom's two children. **Baby (6 mo):** bottle feeds with volume, sleep, nappies, first solids. **Toddler (2.5 y):** potty attempts, successes and accidents, naps and night sleep. Both on one family timeline, with concurrent timers and partner sharing. Installed on the family's phones via TestFlight. No paywall, no polish |
 | 4. Live with it | Two to four weeks of real use. Fix what grates. This is where the product gets good |
 | 5. Native surfaces | Live Activities, widgets, Siri/Shortcuts, night mode |
-| 6. Growth and stages | Measurements with WHO charts, milestones, solids, potty training |
+| 6. Growth and stages | Measurements with WHO charts, milestones, breastfeeding timers, pumping, allergen checklist, health log |
 | 7. Beta | 20–50 outside families (include twin parents). Add the tip jar. Decide what, if anything, goes in Pro. Illustration commissioned |
 | 8. Launch | App Store, English-speaking regions first. Website live |
 | Later | Apple Watch, region packs for UK/AU/NZ/US schedules, Japan and EU, Android |
@@ -290,16 +292,17 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 **Settled**
 - Team is Tom and Claude; indie scale; start small.
 - Free app with a tip jar; one-off Pro unlock later; no subscription.
-- iOS first.
+- iOS only for v1, on CloudKit. Household is all-Apple and Tom has a Mac with Xcode.
+- Twins are a design target.
+- First build is driven by a bottle-fed 6-month-old and a potty-training 2.5-year-old.
 
 **Open**
-1. **Is your household all-Apple?** Partner and anyone else who would log. This decides CloudKit versus a cross-platform backend (§8.1).
-2. **Do you have a Mac with Xcode and an Apple Developer account?** Needed before step 3.
-3. **How did your sentence end?** "…especially if someone was to hav…"
-4. **Which apps did you try, and what specifically annoyed you?** This is step 1.
-5. **Is a one-off Pro unlock alongside the tip jar acceptable**, or do you want tips only?
-6. **Illustration:** any illustrators or styles you already like? As a designer you may want to set the direction yourself.
-7. **Name.** Candidates welcome; I will check domains and obvious conflicts.
+1. **Which apps did you try, and what specifically annoyed you?** This is step 1.
+2. **Apple Developer account** ($99/yr): needed for CloudKit and TestFlight, so before step 3.
+3. **Is a one-off Pro unlock alongside the tip jar acceptable**, or tips only?
+4. **Potty training method.** Which approach are you planning (timed sits, child-led, a three-day method)? It changes what is worth logging and whether reminders help.
+5. **Illustration:** any illustrators or styles you already like?
+6. **Name.** Candidates welcome; I will check domains and obvious conflicts.
 
 ## Sources
 
