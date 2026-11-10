@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.26)
+# Baby Tracking App — Plan & Spec (Draft 0.27)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -396,6 +396,22 @@ How the original gets expressions without changing her drawing:
 - Never brows, never a mouth, no dark patches on the face.
 
 Bluey's contribution is behaviour, not drawing style: family stories, humour for parents, everyday Australian settings.
+
+#### Japanese character design
+
+References (from memory): Sanrio (Hello Kitty, Pompompurin, Cinnamoroll), San-X (Rilakkuma, Sumikko Gurashi), Chiikawa, Totoro.
+
+What to take:
+- **Kawaii proportions** are already ours: big head, small body, simple face, eyes low and wide apart.
+- **Expression marks (manpu)** layered on a face that never changes. Drawn on the canvas: sparkly eyes, squeezed eyes (> <), sweat drop, dizzy swirls, sleep bubble, tear streams, gloom lines, flower burst, hearts, puffed cheeks. Each maps to an app or story moment (the nappy explosion, 3 am, a first). Our stitched blush is already a version of anime blush lines.
+- **A cast with small personalities and backstories** (Sumikko Gurashi), shown in profile cards and in merchandise.
+- **Kawaii merchandise culture:** stationery, stickers, plush, collectable seasonal sets. Relevant to the label and to the Japanese market (§7).
+
+Avoid anger veins and anything aggressive.
+
+#### Her name
+
+Recommendation: **Puggle is her name**, and she is a platypus. One word for the character, app and label, as Miffy and Bluey are; children can say it. Books: "Puggle the platypus". The alternative (a P-name such as Pearl, with Puggle as the brand) splits recognition and needs a second trademark. Caveat: "puggle" is also a common noun for a baby echidna or platypus, so trademark strength in some classes may be weaker; check with an adviser.
 
 #### Wallpapers, repeats and books
 
