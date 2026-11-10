@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.48)
+# Baby Tracking App — Plan & Spec (Draft 0.49)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -493,8 +493,9 @@ Two tiers, confirmed by Tom: **line icons with one accent in the app; full-colou
 
 - **System UI uses SF Symbols** (house, calendar, chart.bar, person.2, gearshape, plus, pencil, timer, square.and.arrow.up, line.3.horizontal.decrease). They are native, scale with Dynamic Type and match iOS. Apple's terms limit them to apps on Apple platforms and bar them from logos and app icons **[verify the current licence text]**.
 - **Custom Puggle activity icons** for what SF Symbols does not cover: bottle, breastfeed, pump, solids, sleep, nappy, potty, bath, growth, weight, temperature, medicine, vaccine, teeth, milestone, tummy time, play, walk, note, photo.
-- **Construction:** 24 pt canvas, 2 pt padding, keyshapes (circle 20, square 18, portrait 16 × 20, landscape 20 × 16); 1.75 pt stroke, round caps and joins, to sit beside SF Symbols Regular; one accent fill under the line, up to about a third of the shape, Wattle by default; must read with the accent removed; no faces. Shipped as custom SF Symbols so they take weights and scale with Dynamic Type.
+- **Construction:** 24 pt canvas, 2 pt padding, keyshapes (circle 20, square 18, portrait 16 × 20, landscape 20 × 16); 1.4 pt stroke (reduced from 1.75 after review: details closed up at real size), round caps and joins; one accent fill under the line, up to about a third of the shape, Wattle by default; must read with the accent removed; no faces. Shipped as custom SF Symbols so they take weights and scale with Dynamic Type.
 - **Second pass, one by one (2026-11-10).** First set was too small and some were hard to read. Each icon now has a stated idea: bottle (teat, collar, body, milk level, ticks); breastfeed (a parent cradling a baby: two heads, one arm); pump (round funnel into a small bottle); solids (food heaped above a bowl, spoon); sleep (crescent and twinkle); nappy (waistband, taper, leg openings, tabs); potty (side view with front guard); bath (tub on feet, bubbles); growth (height chart and arrow); weight (baby scale with readout); temperature (thermometer); medicine (dropper bottle); vaccine (syringe); teeth (tooth with shine); milestone (star); tummy time (baby on a mat, head up); play (rattle); walk (pram); note; photo. Checked at 24 and 17 pt. Weakest still: tummy time and potty.
+- **Stroke weight (2026-11-10):** compared 1.75, 1.4 and 1.2 pt at 24 and 17 pt. **1.4 pt** chosen as the base. As custom SF Symbols, lighter and heavier weights can be drawn so the icons follow the system's weight and size; at 17 pt a lighter weight (around 1.2) keeps inner details open. Rule: keep at least 1.5 pt clear between parallel lines.
 - **References:** Phosphor (MIT; its duotone style is the model for line plus accent), Lucide (ISC; construction), Tabler (MIT; coverage checks), Material Symbols (Apache 2.0; keylines and optical sizes). Used as references only; Puggle's icons are drawn fresh. If any open-source icon is used directly, keep its licence notice.
 
 #### Text in the world
