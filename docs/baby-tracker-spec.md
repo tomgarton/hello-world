@@ -482,6 +482,8 @@ Long-running characters are held on model by a style guide of model sheets. The 
 Puggle's style guide should contain:
 **Face and legs refresh (2026-11-10, adopted).** Bill smaller, flatter and a touch lower (94 x 38 at 240 wide, was 108 x 50), nostrils reduced to pin dots so they stop reading as eyes. Eyes lower and slightly larger, on the head's centre line, 54 apart (was 60); blush drops with them. Legs shorter-looking and thicker (28 wide, was 20). Dress shape, tail, colours, clip, stitched blush and the no-mouth rule unchanged. **Small version** for under about 100 pt tall: plain blush, no nostrils or pocket, line a quarter heavier. Applied across the live canvas: all character sheets, the character builder, logo variants, clothing mock-ups, books, wallpapers, brand architecture, splash, onboarding and the refined app screens. The friends (Quill, Kip, Digby, Sunny) share the thicker legs. Glasses moved with the eyes (eye level 108, resting on the bill 134). Archive boards keep the old face.
 
+**Side view (2026-11-10).** In profile the bill is the same rounded ellipse as the front view (80 x 36, tilted up 4 degrees), overlapping the front of the face by about half, not a flat slab stuck on the side. Eye and blush sit just behind it. Applied to the model sheet and the walk poses.
+
 1. **Model sheet:** turnaround (front, three-quarter, side, back), proportions (about 2 heads tall: head 1, body ¾, legs ⅓), colours with values, line weights, and a "never" panel. First version on the canvas.
 2. **Expression sheet** and **pose sheet** (on the canvas).
 3. **Hands sheet** (on the canvas).
