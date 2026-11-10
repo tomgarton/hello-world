@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.29)
+# Baby Tracking App — Plan & Spec (Draft 0.30)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -374,8 +374,9 @@ Rules: one or two syllables a toddler can say; each name hints at the character'
 
 | Name | Animal | Personality | Role in app and stories |
 |---|---|---|---|
-| **Puggle** | Platypus | She is curious, about three, always in the water | The lead |
-| **Quill** | Echidna | Puggle's baby sibling; gets prickly when tired | The baby; sitting poses |
+| **Puggle** | Platypus | She is 2½, curious, always in the water; potty training | The lead; the toddler stories |
+| **Pebble** (proposed) | Platypus | Puggle's baby sibling, about 6 months; a curl on top | The baby stories: bottles, first foods, teeth, rolling |
+| **Quill** | Echidna | A friend; gets prickly when tired | Friendship stories |
 | **Kip** | Koala | Puggle's best friend; can fall asleep anywhere ("kip" is a nap) | Naps and sleep |
 | **Digby** | Wombat | Loves digging; the potty jokes | Potty training |
 | **Sunny** | Quokka | Always smiling | Milestones and celebrations |
@@ -414,6 +415,21 @@ Avoid anger veins and anything aggressive.
 #### Her name
 
 Recommendation: **Puggle is her name**, and she is a platypus. One word for the character, app and label, as Miffy and Bluey are; children can say it. Books: "Puggle the platypus". The alternative (a P-name such as Pearl, with Puggle as the brand) splits recognition and needs a second trademark. Caveat: "puggle" is also a common noun for a baby echidna or platypus, so trademark strength in some classes may be weaker; check with an adviser.
+
+#### Family and ages (Tom, 2026-11-10)
+
+Like Bluey and Bingo, the lead has a younger sibling, so stories can cover topics for both ages. The family mirrors Tom's own: a 2½-year-old in potty training and a 6-month-old on bottles, which is also the app's first household.
+
+| Age | Character | Topics for stories and app moments |
+|---|---|---|
+| 0–1 | Pebble | Bottles, first foods, sleep, teeth, rolling and crawling, bath time |
+| 2–3 | Puggle | Potty training, moving to a big bed, a new baby in the family, sharing, big feelings, the dentist |
+| 3–4 | Kip, Digby | Preschool, swimming lessons, making friends, fear of the dark |
+| 4–5 | Sunny | Starting school, riding a bike |
+
+Friends can have younger siblings of their own later. Mum, Dad, Nan and Pop complete the platypus family.
+
+Drawn on the canvas: Puggle at 2½; the baby smaller, with a curl on top, a romper and a bottle; Puggle on the potty (the proud pose with sparkles); Puggle at bedtime.
 
 #### Wallpapers, repeats and books
 
