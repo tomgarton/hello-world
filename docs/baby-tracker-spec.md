@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.27)
+# Baby Tracking App — Plan & Spec (Draft 0.28)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -393,6 +393,7 @@ How the original gets expressions without changing her drawing:
 - **The bill itself:** tilts, rises, drops, or opens (upper and lower bill parting) for laughing and surprise. Never a drawn mouth.
 - **A few marks:** a tear, "z z z", "!", sparkles.
 - **Poses:** hello, hooray, shy, oh no, ta-da.
+- **Arms and hands always visible** (Tom, 2026-11-10). Arms sit in front of the garment and behind the head. Raised arms go up and out at about 45 degrees, hands clear of the head; never straight up behind it. Lowered hands stick out past the garment's edge. Hands held in front rest on the garment, never over the face or bill. Every pose is checked as a solid silhouette: if a hand disappears in the silhouette, redraw the pose.
 - Never brows, never a mouth, no dark patches on the face.
 
 Bluey's contribution is behaviour, not drawing style: family stories, humour for parents, everyday Australian settings.
