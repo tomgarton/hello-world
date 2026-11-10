@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.6)
+# Baby Tracking App — Plan & Spec (Draft 0.7)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -146,6 +146,22 @@ Community/forums, sleep coaching, camera or hardware integration, AI chat, pregn
 4. **Works fully offline.** Sync is a background detail.
 5. **Accessible:** Dynamic Type, VoiceOver/TalkBack, large touch targets, colour is never the only signal.
 
+### Where theming stops and iOS begins
+
+A theme is **data, not layout**: colours, type, corner radius, shadow, icon set, scene artwork, animation files and copy voice. Navigation and screen structure are the same in every theme.
+
+| Layer | Approach | Cost of theming |
+|---|---|---|
+| Our content: scene header, cards, log buttons, steppers, chips, charts | Custom SwiftUI views and button styles built on real system controls | Low. This is where the character lives |
+| System structure: navigation, tab bar, sheets, lists, menus, date and time pickers, swipe actions, alerts, keyboard, share sheet | Keep stock. Tint and font only | High if we fight it, and it breaks with each iOS release |
+| System-drawn surfaces: widgets, Live Activities, Dynamic Island, notifications, Watch complications | Follow the system's rules; themes supply colours and still artwork | Fixed by Apple. No Rive, little animation **[verify]** |
+
+Rules that follow:
+- Style real controls, never rebuild them. A themed button is still a system button underneath, so VoiceOver, Dynamic Type and Reduce Motion keep working.
+- Custom pull to refresh is the one place we replace a system behaviour. It needs its own implementation and testing.
+- Stock structure picks up each year's iOS design changes for free; custom chrome has to be redone.
+- Apollo and Crouton both work this way: stock structure, strong personality in content, icons and settings.
+
 ### OS surfaces
 
 | iOS | Android |
@@ -260,7 +276,7 @@ The reference is Citymapper: a utility people are fond of, because of its voice 
 - **A reactive home screen:** the header illustration reflects the real state of the family (who is asleep, time of day), so it is information as well as decoration.
 - **Rewards for the child, not the parent:** the potty sticker chart is designed to be shown to a toddler.
 - **Direction chosen (Tom, 2026-11-10):** a mix of A Daybreak and C Night Nursery, with B Sticker Book's chunky, tactile style for buttons and inputs. In practice: A's scene, type and voice by day; C's palette and calm at night; outlined, hard-shadowed controls throughout; soft tinted cards for information. Playful but solid, in the way Duolingo is.
-- **Commission one lead illustrator** for the signature theme and the character system; guest illustrators for later theme packs. The mockup drawings are stand-ins.
+- **Tom draws the characters and scenes for the concept and proof-of-concept stage.** Commissioning a lead illustrator or guest artists is a later decision, once the system is proven.
 - Illustrations must be inclusive across skin tones, family structures and feeding choices.
 
 #### The living scene
@@ -339,7 +355,6 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 2. **Apple Developer account** ($99/yr): needed for CloudKit and TestFlight, so before step 3.
 3. **One-off unlock for themes, icons and extras at a premium price:** agreed in principle; price to test.
 4. **Potty training method.** Which approach are you planning (timed sits, child-led, a three-day method)? It changes what is worth logging and whether reminders help.
-5. **Illustrator and animator.** Who draws the character system and builds the Rive files? Any you already like?
 6. **Name.** Candidates welcome; I will check domains and obvious conflicts.
 
 ## Sources
