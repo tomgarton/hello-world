@@ -514,12 +514,14 @@ Two tiers, confirmed by Tom: **line icons with one accent in the app; full-colou
 - **Fixes after review (2026-11-10):** potty redrawn as a child's potty in side view (tall backrest, wide seat, tapered bowl, front splash guard); Play is three identical blocks so they read as equal; the sleep twinkle is back to a small four-point sparkle, softly rounded; Breastfeed simplified to a parent holding a baby close (two heads, a shoulder, an arm under the baby). A heart with a milk drop was the runner-up for Breastfeed.
 - **Potty, final direction (2026-11-10):** three-quarter view as in Tom's reference: rounded backrest sweeping down to a seat opening (accent), a front lip, and a wide base band. Drawn in the house line style. Stock icon sets Tom shared (watermarked) are used for ideas only, never traced.
 - **Refinements from the reference sets:** the bottle has a slight waist mid-body so it reads as a baby bottle faster; the nappy has clear curved leg cut-outs; the pram hood is split into segments, with one panel in the accent.
-- **The Puggle style** (canvas: "The Puggle style"). One drawing, three finishes:
-  - *Line* (the app, SF Symbols): 1.4 pt Ink line, all corners rounded, plus one Wattle fill that **slips 1.3 pt down and right** of the line, like a slightly off screen print. The slip is the signature. In single-colour contexts the fill drops out.
-  - *Sticker* (celebrations, widgets, potty chart): palette fills, gentle two-tone (right half a touch deeper), the slipped Wattle, a paper die-cut edge and soft shadow.
-  - *Print* (clothing, wallpapers, books): flat colour, no outline; the ink line slips up and left instead.
-  - Rules: chubby toddler proportions; soft everything; one slipped colour; sparkles use Puggle's **quatrefoil** (from her hair clip), never a plain star; no faces on objects in the app; draw once.
-  - Small fixes folded in: bottle collar wider than the body (shoulders), pivot dot on the pram hood.
+- **The Puggle style** (canvas: "The Puggle style", "Shapes and Australiana, in the Puggle style", "Holographic stickers"). One drawing, three finishes:
+  - *Line* (the app, SF Symbols): 1.4 pt Ink line, all corners rounded, and **colour by activity** from the brand palette, filling one main part inside the line: feeding and milestones Wattle, sleep Sky, nappy, potty and bath Mint, play and outings Blush, health and growth Shell. In single-colour contexts the fills drop out. (The "slipped" off-register colour was tried for the app and dropped.)
+  - *Sticker* (celebrations, widgets, potty chart): palette fills, gentle two-tone (right half a touch deeper), Wattle sparkle, a paper die-cut edge and soft shadow.
+  - *Holographic sticker* (rare): pastel foil fill and die-cut edge, sliding glare, quatrefoil glints. On iPhone the tilt (Core Motion) drives a SwiftUI Metal shader; Reduce Motion gives a still sheen. Earned only for big moments (milestones, a dry week) plus an occasional surprise Puggle's-clip sticker.
+  - *Print* (clothing, wallpapers, books): flat colour, no outline; the ink line slips up and left, like a real two-screen print. The slip lives only here.
+  - Rules: chubby toddler proportions; soft everything; colour by activity; sparkles use Puggle's **quatrefoil** (from her hair clip), never a plain star; no faces on objects in the app; draw once.
+  - Soft shapes (quatrefoil, pill, scallop, soft square, soft hexagon, pebble, half pill, blossom) and Australiana props (thong, esky, Hills Hoist, lamington, fairy bread, pavlova, surfboard, zinc stick) are redrawn on the same grid in all finishes.
+  - Nappy redrawn: waistband with side tabs (filled), round body, curved leg cut-outs. Bottle collar wider than the body; pivot dot on the pram hood.
 - **References:** Phosphor (MIT; its duotone style is the model for line plus accent), Lucide (ISC; construction), Tabler (MIT; coverage checks), Material Symbols (Apache 2.0; keylines and optical sizes). Used as references only; Puggle's icons are drawn fresh. If any open-source icon is used directly, keep its licence notice.
 
 #### Text in the world
