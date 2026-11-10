@@ -21,7 +21,7 @@ Claims marked **[verify]** come from third-party roundups or from memory, not fr
 | App look | Refined Puggle: calm, native controls (filled pills, soft fields, system toggles), line icons with one accent, character used sparingly. App name only on splash, icon and Help |
 | Characters | Puggle (platypus, 2½, potty training) and Pebble (baby platypus, Kewpie curl); friends Quill, Kip, Digby, Sunny; Mum, Dad, Nan, Pop. Flat colour, warm brown outline, dot eyes, blush with stitches, no mouth or brows; emotion through eyes, marks and body; hands always visible; quatrefoil clip |
 | World | Australian everyday places and objects; full-colour props for books, fabric and wallpapers; blob sign text; no Aboriginal motifs or trademarked landmarks |
-| Next | Build v0.1 on Tom's Mac (§11 step 3) |
+| Next | v0.1 code written in `app/` (Today, logging, history, family sharing on Core Data + CloudKit); build and fix on Tom's Mac (§11 step 3) |
 
 ## 0. Working assumptions (agreed 2026-11-10)
 
