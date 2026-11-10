@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.43)
+# Baby Tracking App — Plan & Spec (Draft 0.44)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -479,6 +479,14 @@ Puggle's style guide should contain:
 Rules: few and signature (one per character, like Hello Kitty's bow or Paddington's hat); drawn like the character (flat colour, same outline, from the palette, no extra detail lines); never hide the eyes; must read in silhouette and at icon size; used to tell characters apart.
 
 Glasses (options on the canvas: eye level or resting on the bill; rims only, pale blue lenses, or black lenses). Proposed: **Nan** wears pale blue reading glasses resting on the top of her bill, eyes peeking over; **Pop** wears round rims at eye level, with his bucket hat. Black lenses only as a sunny-day joke, since they hide the eyes.
+
+#### Props v2 and Australiana (2026-11-10)
+
+Props redrawn to one rule set: one outline weight, flat palette colours, one white highlight, no brands, logos or label text. Everyday: bottle, nappy, potty, bowl and spoon, sippy cup, toothbrush, book, blanket, rubber duck, balloon. Australian, in the spirit of Bluey's everyday Australiana: thongs, esky, Hills Hoist, meat pie, sausage in bread, fairy bread, lamington, pavlova, cricket bat and ball, zinc stick, letterbox, milk crate, surfboard. Generic forms only: no branded products or packaging (no recognisable spreads, biscuits or ice creams).
+
+#### Text in the world
+
+Like the signs in Bluey, shop and street signs are real words rendered as soft blobs: the word set in the display face, thickened, blurred and merged, in a colour close to the sign so it reads as part of the scene. A legibility ladder sets when to use what: crisp (a word the story needs), soft (readable), blob (scenery), pills (pure shape). Example street on the canvas: milk bar, bakery, chemist, surf shop, café. In production this is a fixed filter in the illustration tool (or a pre-baked shape), not live text.
 
 #### Hair and head accessories (2026-11-10)
 
