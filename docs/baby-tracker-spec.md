@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.11)
+# Baby Tracking App — Plan & Spec (Draft 0.12)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -354,6 +354,17 @@ Checked only with one App Store-oriented web search each. No trademark or domain
 | ~~Waddle~~ | | **Taken:** Waddle - Parenting Copilot | Exists |
 | ~~Piglet, Owlet, Cub~~ | | Piglet is a well-known Disney character; Owlet is a baby monitor brand; Cub names are crowded (CubTrack, Cubtale) | From memory and earlier searches |
 | ~~Wee Hours~~ | | **Taken:** "Wee Hours – Baby Tracker" is a free, native SwiftUI tracker with a dark night interface by a solo parent-developer. Worth studying as a direct competitor | Exists on the App Store |
+
+### Future option: a shared brand with a childrenswear label
+
+Tom's wife, a fashion designer, plans a kids' clothing range and was considering the name **Puggle** (a baby echidna or platypus). The app and the label could share one name and one illustrated world.
+
+- **What links them:** the characters. The same cast appears in the app's scenes and as prints on clothes. Both sell to parents of 0–5s.
+- **What the app could offer the label:** an audience; opt-in size prompts from the child's logged measurements; milestone moments (first birthday); a tag code on a garment that unlocks a matching theme or icon.
+- **What the label could offer the app:** revenue beyond tips and themes, and a physical presence. Physical goods sold in an iOS app do not go through in-app purchase **[verify]**.
+- **Guardrails:** no shop inside the family's data, no use of a child's data for marketing without explicit opt-in, and nothing leaves the device. One clearly marked place in the app, not banners.
+- **Not in v1.** Keep the option open cheaply: choose one name that works for both, check trademarks in both software and clothing classes, and secure the domain and handles together.
+- **Name check so far:** one web search each found no childrenswear brand and no App Store app called Puggle. Search results are dominated by the pug-beagle dog cross, which is what many people outside Australia will think of. No trademark search done.
 
 ### Website (Vercel)
 
