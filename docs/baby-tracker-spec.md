@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.42)
+# Baby Tracking App — Plan & Spec (Draft 0.43)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -155,6 +155,23 @@ Prompted by Gaia Baby: the app itself should feel clean, calm and premium, with 
 - **Controls follow Gaia's lead and iOS:** filled pill buttons with no outline or hard shadow (Ink primary, soft secondary); soft filled fields; system toggles and segmented controls; list rows with tinted icon circles and thin dividers; large numbers in Bricolage at medium weight. This replaces the chunky outlined, hard-shadow buttons for the app UI.
 - **Character, sparingly:** child avatars, empty states, onboarding, milestones and celebrations. Never on every row.
 - **Drawn on the canvas:** controls sheet; Today; bottle sheet; import screen.
+
+### Gaia Baby teardown (from Tom's screenshots, 2026-11-10)
+
+**Structure:** five tabs in a floating bar (Activity, History, Trends, Routine, Food). Activity is a grid of large cards, each with a hand-drawn icon carrying one yellow accent and a "+" button. A dismissible tip carousel at the top (connect to AI, set up a routine, Android support). Cards can be added, hidden and reordered, per device ("Other caregivers keep their own"). History has a week strip, Today / Last 24 h, a category filter sheet and sharing. Trends has Activity and Growth, with WHO curves and a careful note on what percentiles mean. Routine offers "Help me build a routine". Food (beta) has meal plans, freezer and fridge, a shopping list, recipes with AI-generated images, allergen history and a needs screen with medical disclaimers.
+
+**Borrow:** character through illustrated icons with one accent colour (our props sheet does this); a customisable, per-device card layout; dismissible tips for features; calm empty states that say what will appear; plain-language growth notes; a category filter for history; restraint in medical claims.
+
+**Do better:**
+- **Several children.** Gaia's home is one child ("Harry, 0 days old"); Puggle shows everyone at once (drawn on the canvas as "Today as cards", each card showing both children).
+- **Density.** Gaia's cards repeat empty text and need scrolling; Puggle cards show the latest for each child, and the Lock Screen and widgets mean less opening the app at all.
+- **Native:** system tab bar, sheets, Live Activities, widgets, Watch.
+- **Polish and care:** the screenshots show "her" used for a child named Harry whose sex was not set, and "0 days old"; small errors undermine trust in a health app. Puggle uses the child's name or "they" until sex is set.
+- **Local language and units:** nappy, ml, Australian health references.
+- **Imagery:** no AI-generated food photos; drawn props or real photography.
+- **Toddlers:** potty, big bed, growing up.
+
+**Watch:** Gaia is on Android and connects to AI assistants, which our iOS-first, iCloud plan does not cover. Revisit once iOS is proven.
 
 ### Import (new feature)
 
