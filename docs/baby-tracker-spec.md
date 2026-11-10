@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.13)
+# Baby Tracking App — Plan & Spec (Draft 0.14)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -293,6 +293,19 @@ The reference is Citymapper: a utility people are fond of, because of its voice 
 - **Direction chosen (Tom, 2026-11-10):** a mix of A Daybreak and C Night Nursery, with B Sticker Book's chunky, tactile style for buttons and inputs. In practice: A's scene, type and voice by day; C's palette and calm at night; outlined, hard-shadowed controls throughout; soft tinted cards for information. Playful but solid, in the way Duolingo is.
 - **Tom draws the characters and scenes for the concept and proof-of-concept stage.** Commissioning a lead illustrator or guest artists is a later decision, once the system is proven.
 - Illustrations must be inclusive across skin tones, family structures and feeding choices.
+
+#### Character style: the discipline of Miffy
+
+Tom's reference for cute characters is Miffy (Dick Bruna). We take the method, not the character; Miffy itself is protected and its owners enforce that.
+
+- Heavy, slightly hand-drawn black outline. Flat colour, no shading or gradients.
+- Very few shapes. Two dots for eyes. Always facing the viewer.
+- A fixed palette of about six colours, used as large flat fields.
+- Movement is small and gentle: a blink, a tilt, a hop.
+
+Why it suits us: it is cute and premium at once, it reads at avatar and widget size, simple shapes are quick to animate in Rive, and flat colours print cleanly on fabric for the clothing label.
+
+A first study of an original character, a puggle (baby echidna), is on the mockup canvas. If the puggle becomes the character, **Puggle** could name the character, the app and the label, in the way Miffy does.
 
 #### Photos first, characters second
 
