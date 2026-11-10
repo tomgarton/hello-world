@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.16)
+# Baby Tracking App — Plan & Spec (Draft 0.17)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -339,6 +339,24 @@ Tom and his wife are Australian. The cast is Australian baby animals, which is d
 - **Local references:** Bluey, May Gibbs's gumnut babies, Possum Magic, Diary of a Wombat, Blinky Bill (from memory).
 - **Care:** do not borrow Aboriginal art styles, motifs or stories without a proper collaboration and permission.
 - A New Zealand kiwi chick would be an easy friend to add for NZ families.
+
+#### Our formula, and where we depart from it
+
+Bluey took Peppa Pig's formula (flat shapes, a family of animals, short everyday stories) and changed specific things on purpose. We do the same with Miffy's.
+
+| Keep from Miffy | Change deliberately |
+|---|---|
+| Heavy outline, flat colour, very few shapes | **Dark warm-brown outline** in place of black: softer, and it works on the night palette |
+| Dot eyes, facing the viewer | **The nose is the face.** No mouth; each species is told apart by its nose, snout or bill |
+| One fixed small palette | **The garment is the body.** A simple flared jumper shape, so the clothing label's pieces define the silhouette |
+| A single character | **A cast and a family**, including a parent. The app is for parents, so the humour is too |
+| | **Australian** species, settings and seasons |
+
+Signature marks under test (see the mockup canvas):
+- **Stitched cheeks:** two short diagonal stitches in place of round blush. It nods to the clothing label and is ours in the way the X mouth is Miffy's. Options shown: stitches with no mouth (preferred), freckles, stitches with a small smile.
+- **The pouch pocket:** every jumper has a front pouch pocket. Echidnas carry their puggle in a pouch, hoodies call it a kangaroo pocket, and it can be a real detail on the garments.
+
+Body rules: head and body about equal; short legs under the hem; arms that can wave and hold; babies sit, toddlers stand; Puggle sleeps curled into a ball of spines.
 
 #### Photos first, characters second
 
