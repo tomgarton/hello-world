@@ -64,7 +64,7 @@ Prices are US figures from 2026 third-party reviews. **[verify]** all of them in
 | Gap | Our answer |
 |---|---|
 | One-baby design | Family timeline, concurrent timers, log one event for several children, sibling comparison |
-| Subscription fatigue | All tracking, sync, history and export free. Paid tier has a **lifetime** option |
+| Subscription fatigue | Everything essential free. Tip jar, plus a one-off Pro unlock for extras |
 | Generic cross-platform UI | SwiftUI and Jetpack Compose, with every relevant OS surface used |
 | Ends at age one | Stages: newborn → baby → toddler → child, with the UI changing as the child grows |
 | US defaults | Region packs: growth reference, check-up schedule, vaccine schedule, official links |
