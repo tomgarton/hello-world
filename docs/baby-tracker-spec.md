@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.25)
+# Baby Tracking App — Plan & Spec (Draft 0.26)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -374,7 +374,7 @@ Rules: one or two syllables a toddler can say; each name hints at the character'
 
 | Name | Animal | Personality | Role in app and stories |
 |---|---|---|---|
-| **Puggle** | Platypus | Curious, about three, always in the water | The lead |
+| **Puggle** | Platypus | She is curious, about three, always in the water | The lead |
 | **Quill** | Echidna | Puggle's baby sibling; gets prickly when tired | The baby; sitting poses |
 | **Kip** | Koala | Puggle's best friend; can fall asleep anywhere ("kip" is a nap) | Naps and sleep |
 | **Digby** | Wombat | Loves digging; the potty jokes | Potty training |
@@ -383,19 +383,19 @@ Rules: one or two syllables a toddler can say; each name hints at the character'
 
 Trademark checks needed for Puggle before launch; the others matter only if sold as products in their own right.
 
-#### Style direction: cute first
+#### Style direction: the original Puggle
 
-A first attempt at a "between Miffy and Bluey" Puggle (brows, thinner limbs, darker crown, big bill) lost the cuteness; Tom found it scary. Three cuter candidates followed on the canvas: A the current Puggle plus a smile and eye glint; B bigger, lower eyes with a smaller bill and softer outline; C chubby.
+Explorations toward Bluey (brows, eye glints, a mouth drawn on the bill, chubbier bodies) were rejected: they lost the cuteness, and a mouth on a bill makes no sense. **Tom prefers the original Puggle**, and Puggle is a girl ("she").
 
-Cuteness rules learned:
-- **No brows by default.** Expressions come from the eyes (dots, happy arcs, closed, wide) and the bill (smile, open laugh, small "o", frown). Brows read as stern at this scale.
-- **Big head, eyes large, low and close together,** with a small white glint.
-- **Small bill.** A big bill dominates the face and turns it into a muzzle.
-- **Round, short, stubby body and limbs.** Thin limbs age the character.
-- **No dark patches on the face.**
-- **Outline in a soft dark brown,** not black.
+How the original gets expressions without changing her drawing:
+- **Eyes:** dots, happy arcs, sleepy closed arcs, bigger dots for surprise, a wink, dots glancing aside.
+- **Cheeks:** bigger blush, and a third stitch when shy.
+- **The bill itself:** tilts, rises, drops, or opens (upper and lower bill parting) for laughing and surprise. Never a drawn mouth.
+- **A few marks:** a tear, "z z z", "!", sparkles.
+- **Poses:** hello, hooray, shy, oh no, ta-da.
+- Never brows, never a mouth, no dark patches on the face.
 
-Bluey's contribution is behaviour, not drawing style: family stories, humour for parents, everyday Australian settings. The character drawing stays on the Miffy side.
+Bluey's contribution is behaviour, not drawing style: family stories, humour for parents, everyday Australian settings.
 
 #### Wallpapers, repeats and books
 
