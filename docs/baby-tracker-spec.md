@@ -1,4 +1,4 @@
-# Baby Tracking App — Plan & Spec (Draft 0.46)
+# Baby Tracking App — Plan & Spec (Draft 0.47)
 
 _Status: first draft for discussion. Working title: **TBD** (see §11)._
 _Last updated: 2026-11-10._
@@ -486,6 +486,15 @@ Glasses (options on the canvas: eye level or resting on the bill; rims only, pal
 Props redrawn to one rule set: one outline weight, flat palette colours, one white highlight, no brands, logos or label text. Everyday: bottle, nappy, potty, bowl and spoon, sippy cup, toothbrush, book, blanket, rubber duck, balloon. Australian, in the spirit of Bluey's everyday Australiana: thongs, esky, Hills Hoist, meat pie, sausage in bread, fairy bread, lamington, pavlova, cricket bat and ball, zinc stick, letterbox, milk crate, surfboard. Generic forms only: no branded products or packaging (no recognisable spreads, biscuits or ice creams).
 
 **Two prop styles (2026-11-10).** The full-colour props read as "funky" in the calm app (Tom). So: **line icons for the app** (one 3.5 line in Ink, rounded ends, one small accent, mostly Wattle; same optical size; lots of air; Gaia-like restraint) and **full-colour props for books, fabric, wallpapers and celebrations**. Both are drawn from the same shapes. The Today cards now use the line icons.
+
+#### App icon foundation (2026-11-10)
+
+Two tiers, confirmed by Tom: **line icons with one accent in the app; full-colour items in the universe and stories.**
+
+- **System UI uses SF Symbols** (house, calendar, chart.bar, person.2, gearshape, plus, pencil, timer, square.and.arrow.up, line.3.horizontal.decrease). They are native, scale with Dynamic Type and match iOS. Apple's terms limit them to apps on Apple platforms and bar them from logos and app icons **[verify the current licence text]**.
+- **Custom Puggle activity icons** for what SF Symbols does not cover: bottle, breastfeed, pump, solids, sleep, nappy, potty, bath, growth, weight, temperature, medicine, vaccine, teeth, milestone, tummy time, play, walk, note, photo.
+- **Construction:** 24 pt canvas, 2 pt padding, keyshapes (circle 20, square 18, portrait 16 × 20, landscape 20 × 16); 1.75 pt stroke, round caps and joins, to sit beside SF Symbols Regular; one accent fill under the line, up to about a third of the shape, Wattle by default; must read with the accent removed; no faces. Shipped as custom SF Symbols so they take weights and scale with Dynamic Type.
+- **References:** Phosphor (MIT; its duotone style is the model for line plus accent), Lucide (ISC; construction), Tabler (MIT; coverage checks), Material Symbols (Apache 2.0; keylines and optical sizes). Used as references only; Puggle's icons are drawn fresh. If any open-source icon is used directly, keep its licence notice.
 
 #### Text in the world
 
