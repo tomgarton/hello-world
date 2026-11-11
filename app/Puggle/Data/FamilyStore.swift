@@ -63,7 +63,8 @@ final class FamilyStore: ObservableObject {
     }
 
     @discardableResult
-    func addChild(name: String, birthDate: Date, colourIndex: Int) -> Child {
+    func addChild(name: String, birthDate: Date, colourIndex: Int,
+                  feeding: Feeding? = nil, pottyTraining: Bool = false) -> Child {
         let family = currentFamily()
         let child = Child(context: context)
         place(child, with: family)
@@ -72,6 +73,8 @@ final class FamilyStore: ObservableObject {
         child.birthDate = birthDate
         child.colourIndex = Int16(colourIndex)
         child.createdAt = .now
+        child.feeding = feeding
+        child.pottyTraining = pottyTraining
         child.family = family
         persistence.save()
         return child
@@ -196,8 +199,64 @@ final class FamilyStore: ObservableObject {
         persistence.save()
     }
 
+    /// Call after changing a child's details.
+    func saveChild() {
+        persistence.save()
+    }
+
+    /// Removes the child and the entries that were only theirs, for everyone.
     func delete(_ child: Child) {
+        for event in child.events ?? [] where (event.children ?? []).allSatisfy({ $0 == child }) {
+            context.delete(event)
+        }
+        lastSaved = nil
         context.delete(child)
         persistence.save()
+    }
+
+    /// "Delete everything": every entry, child and family this phone can see.
+    func deleteEverything() {
+        lastSaved = nil
+        for name in ["Event", "Child", "Family"] {
+            let request = NSFetchRequest<NSManagedObject>(entityName: name)
+            ((try? context.fetch(request)) ?? []).forEach(context.delete)
+        }
+        persistence.save()
+    }
+
+    /// Everything, as a plain CSV file the family can open anywhere.
+    func exportCSV() -> URL? {
+        let request = NSFetchRequest<Event>(entityName: "Event")
+        request.sortDescriptors = [NSSortDescriptor(key: "startedAt", ascending: true)]
+        let events = (try? context.fetch(request)) ?? []
+        let stamp = ISO8601DateFormatter()
+        stamp.timeZone = .current // local time with its offset, not UTC
+        func cell(_ text: String?) -> String {
+            let value = text ?? ""
+            return value.contains(where: { ",\"\n".contains($0) })
+                ? "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
+                : value
+        }
+        var lines = ["started,ended,child,activity,amount_ml,detail,note"]
+        for event in events {
+            let names = event.sortedChildren.map(\.displayName).joined(separator: " & ")
+            lines.append([
+                event.startedAt.map(stamp.string(from:)) ?? "",
+                event.endedAt.map(stamp.string(from:)) ?? "",
+                cell(names),
+                event.kind.rawValue,
+                event.amountML > 0 ? String(Int(event.amountML)) : "",
+                cell(event.detail),
+                cell(event.note),
+            ].joined(separator: ","))
+        }
+        let day = Date.now.formatted(.iso8601.year().month().day())
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("puggle-export-\(day).csv")
+        do {
+            try lines.joined(separator: "\n").write(to: url, atomically: true, encoding: .utf8)
+            return url
+        } catch {
+            return nil
+        }
     }
 }

@@ -6,12 +6,20 @@ struct HistoryView: View {
     @EnvironmentObject private var store: FamilyStore
     @FetchRequest(sortDescriptors: [SortDescriptor(\Event.startedAt, order: .reverse)]) private var events: FetchedResults<Event>
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
-    @State private var filter: EventKind?
+    /// Filters stay set until cleared, across launches.
+    @AppStorage("historyKind") private var kindFilter = ""
+    @AppStorage("historyChild") private var childFilter = ""
     @State private var editing: EditTarget?
 
+    private var isFiltered: Bool { !kindFilter.isEmpty || !childFilter.isEmpty }
+
     private var filtered: [Event] {
-        guard let filter else { return Array(events) }
-        return events.filter { $0.kind == filter }
+        events.filter { event in
+            let kindOK = kindFilter.isEmpty || event.kindRaw == kindFilter
+            let childOK = childFilter.isEmpty
+                || (event.children ?? []).contains { $0.id?.uuidString == childFilter }
+            return kindOK && childOK
+        }
     }
 
     private struct DayGroup: Identifiable {
@@ -29,10 +37,16 @@ struct HistoryView: View {
         NavigationStack {
             List {
                 if days.isEmpty {
-                    ContentUnavailableView("Nothing logged yet",
+                    ContentUnavailableView(isFiltered ? "Nothing matches" : "Nothing here yet",
                                            systemImage: "tray",
-                                           description: Text("Entries from everyone in the family show up here."))
+                                           description: Text(isFiltered
+                                                             ? "No entries match the filter."
+                                                             : "Entries from everyone in the family show up here."))
                         .listRowBackground(Color.clear)
+                    if isFiltered {
+                        Button("Clear filters") { kindFilter = ""; childFilter = "" }
+                            .listRowBackground(Palette.paper)
+                    }
                 }
                 ForEach(days) { group in
                     Section(group.day.formatted(.dateTime.weekday(.wide).day().month(.wide))) {
@@ -59,16 +73,27 @@ struct HistoryView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
-                        Picker("Show", selection: $filter) {
-                            Text("Everything").tag(EventKind?.none)
-                            ForEach(EventKind.allCases) { kind in
-                                Label(kind.title, systemImage: kind.symbol).tag(EventKind?.some(kind))
+                        if children.count > 1 {
+                            Picker("Who", selection: $childFilter) {
+                                Text("Everyone").tag("")
+                                ForEach(children) { child in
+                                    Text(child.displayName).tag(child.id?.uuidString ?? "")
+                                }
                             }
                         }
+                        Picker("What", selection: $kindFilter) {
+                            Text("Everything").tag("")
+                            ForEach(EventKind.allCases) { kind in
+                                Label(kind.title, systemImage: kind.symbol).tag(kind.rawValue)
+                            }
+                        }
+                        if isFiltered {
+                            Button("Clear filters") { kindFilter = ""; childFilter = "" }
+                        }
                     } label: {
-                        Image(systemName: "line.3.horizontal.decrease.circle")
+                        Image(systemName: isFiltered ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
                     }
-                    .accessibilityLabel("Filter")
+                    .accessibilityLabel(isFiltered ? "Filter, on" : "Filter")
                 }
             }
         }

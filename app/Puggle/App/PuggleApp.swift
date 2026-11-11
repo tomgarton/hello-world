@@ -18,14 +18,29 @@ struct PuggleApp: App {
 }
 
 struct RootView: View {
+    @FetchRequest(sortDescriptors: []) private var children: FetchedResults<Child>
+    @AppStorage("hasOnboarded") private var hasOnboarded = false
+    @State private var inFirstRun = false
+
     var body: some View {
-        TabView {
-            TodayView()
-                .tabItem { Label("Today", systemImage: "house") }
-            HistoryView()
-                .tabItem { Label("History", systemImage: "calendar") }
-            FamilyView()
-                .tabItem { Label("Family", systemImage: "person.2") }
+        // First run shows until it is finished, even once the first child exists.
+        if !hasOnboarded && (children.isEmpty || inFirstRun) {
+            OnboardingView {
+                hasOnboarded = true
+                inFirstRun = false
+            }
+            .onAppear { inFirstRun = true }
+        } else {
+            TabView {
+                TodayView()
+                    .tabItem { Label("Today", systemImage: "house") }
+                HistoryView()
+                    .tabItem { Label("History", systemImage: "calendar") }
+                InsightsView()
+                    .tabItem { Label("Insights", systemImage: "chart.bar") }
+                FamilyView()
+                    .tabItem { Label("Family", systemImage: "person.2") }
+            }
         }
     }
 }

@@ -17,16 +17,19 @@ struct FamilyView: View {
             List {
                 Section("Children") {
                     ForEach(children) { child in
-                        HStack(spacing: 12) {
-                            ChildAvatar(child: child, size: 40)
-                            VStack(alignment: .leading) {
-                                Text(child.displayName).font(.headline)
-                                Text(child.ageText).font(.subheadline).foregroundStyle(Palette.muted)
+                        NavigationLink {
+                            ChildDetailView(child: child)
+                        } label: {
+                            HStack(spacing: 12) {
+                                ChildAvatar(child: child, size: 40)
+                                VStack(alignment: .leading) {
+                                    Text(child.displayName).font(.headline)
+                                    Text(child.ageTextFull).font(.subheadline).foregroundStyle(Palette.muted)
+                                }
                             }
                         }
                         .listRowBackground(Palette.paper)
                     }
-                    .onDelete { offsets in offsets.map { children[$0] }.forEach(store.delete) }
                     Button("Add a child") { addingChild = true }
                         .listRowBackground(Palette.paper)
                 }
@@ -47,6 +50,12 @@ struct FamilyView: View {
                     } header: {
                         Text("Sharing")
                     }
+                }
+                Section {
+                    NavigationLink("Your data") { YourDataView() }
+                        .listRowBackground(Palette.paper)
+                    NavigationLink("Help and about") { HelpView() }
+                        .listRowBackground(Palette.paper)
                 }
                 if let shareError {
                     Text(shareError).font(.footnote).foregroundStyle(Palette.waratah)
@@ -92,53 +101,4 @@ struct CloudSharingView: UIViewControllerRepresentable {
     }
 
     func updateUIViewController(_ controller: UICloudSharingController, context: Context) {}
-}
-
-struct AddChildView: View {
-    @EnvironmentObject private var store: FamilyStore
-    @Environment(\.dismiss) private var dismiss
-    @FetchRequest(sortDescriptors: []) private var children: FetchedResults<Child>
-
-    @State private var name = ""
-    @State private var birthDate = Calendar.current.date(byAdding: .month, value: -6, to: .now) ?? .now
-    @State private var colour = 0
-
-    var body: some View {
-        NavigationStack {
-            Form {
-                TextField("Name", text: $name)
-                    .textContentType(.givenName)
-                DatePicker("Birth date", selection: $birthDate, in: ...Date.now, displayedComponents: .date)
-                Section("Colour") {
-                    HStack(spacing: 14) {
-                        ForEach(Palette.childColours.indices, id: \.self) { index in
-                            Button {
-                                colour = index
-                            } label: {
-                                Circle()
-                                    .fill(Palette.childColours[index])
-                                    .frame(width: 44, height: 44)
-                                    .overlay(Circle().stroke(Palette.ink, lineWidth: colour == index ? 3 : 0))
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityLabel(["Sky", "Shell", "Mint", "Sun"][index])
-                        }
-                    }
-                }
-            }
-            .navigationTitle("Add a child")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        store.addChild(name: name, birthDate: birthDate, colourIndex: colour)
-                        dismiss()
-                    }
-                    .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
-                }
-            }
-            .onAppear { colour = children.count % Palette.childColours.count }
-        }
-    }
 }

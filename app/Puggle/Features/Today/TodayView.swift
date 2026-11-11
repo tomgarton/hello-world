@@ -16,7 +16,18 @@ struct TodayView: View {
     @State private var staleSleep: Event?
     @State private var askedAbout: Set<NSManagedObjectID> = []
 
-    private let cardKinds: [EventKind] = [.bottle, .sleep, .nappy, .potty, .solids, .breastfeed]
+    private let cardKinds: [EventKind] = [.bottle, .breastfeed, .sleep, .nappy, .potty, .solids]
+
+    /// Tiles follow each child's setup answers and age.
+    private var visibleKinds: [EventKind] {
+        cardKinds.filter { kind in children.contains { $0.uses(kind) } }
+    }
+
+    /// The children an activity applies to; everyone if that would be nobody.
+    private func relevant(_ kind: EventKind) -> [Child] {
+        let some = children.filter { $0.uses(kind) }
+        return some.isEmpty ? Array(children) : some
+    }
 
     var body: some View {
         NavigationStack {
@@ -31,8 +42,8 @@ struct TodayView: View {
                         }
                         LastSavedRow { editing = EditTarget(event: $0) }
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                            ForEach(cardKinds) { kind in
-                                ActivityCard(kind: kind, children: Array(children)) {
+                            ForEach(visibleKinds) { kind in
+                                ActivityCard(kind: kind, children: relevant(kind)) {
                                     logging = kind
                                 } onEdit: {
                                     editing = EditTarget(event: $0)
@@ -48,7 +59,7 @@ struct TodayView: View {
             .toolbar(.hidden, for: .navigationBar)
         }
         .sheet(item: $logging) { kind in
-            LogSheet(kind: kind, children: Array(children))
+            LogSheet(kind: kind, children: relevant(kind))
         }
         .sheet(item: $editing) { target in
             LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)

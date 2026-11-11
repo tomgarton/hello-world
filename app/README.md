@@ -11,7 +11,8 @@ The first working version of Puggle, for our own family: two children on one scr
 | Today | Every child at once: who is asleep (live timer) and when they last fed. Cards for Bottle, Sleep, Nappy, Potty, Solids and Breastfeed showing the latest for each child, each with a + to log |
 | Logging | One sheet for every activity. Pick one child, several, or Everyone. Bottle: volume, formula or breast milk. Nappy and potty: one tap saves. Sleep: start and stop from Today, or log a past nap |
 | History | Everything, newest first, grouped by day, filter by activity, swipe to delete |
-| Family | Add children (name, birth date, colour). Invite someone with Apple's sharing sheet |
+| Family | Add and edit children. Invite someone with Apple's sharing sheet (iCloud build). Your data, Help and about |
+| Insights | Last night and the last seven days, per child |
 | Sync and sharing | Core Data with CloudKit: private store for your family, shared store for a family someone shared with you. No server, no sign-up |
 
 ### Flows built so far (from `docs/flows.md`)
@@ -31,6 +32,20 @@ Journeys 2 (everyday logging) and 3 (sleep), built on 11 November 2026 and check
 | Cancel | For the first minute the button reads "Cancel" and leaves no entry |
 | Woke up | Ends the sleep and shows its length in Last saved; Change adjusts start and end |
 | Still asleep? | A timer running 14 hours or more gets one question when the app opens, with "Set wake time" |
+
+Also built on 11 November 2026, as thinner versions of journeys 1, 5, 7, 9, 12 and 15:
+
+| Flow | In the app |
+|---|---|
+| First run (1) | Splash with the name, two skippable hello screens, add your first child, "Anyone else?", then Today. No character step or invite yet |
+| Setup that fits the child (12) | "How do they feed?" for babies and "Potty training" for older children decide which tiles show. Children added before this keep every tile until the question is answered on their page |
+| Children (7) | Tap a child on the Family tab to change name, birth date, colour and setup answers. Delete asks twice and removes their entries |
+| History (5) | Filter by child and by activity. The filter stays set until cleared |
+| Insights (5) | A new tab: last night per child, and the last seven days as outlined bars with a value on each. Says so when there are fewer than three days of entries |
+| Your data (15) | Where the data lives, export everything as a CSV file, and delete everything, which returns to first run |
+| Help and about (9) | Five short answers, and the name and version |
+
+Not built: the character builder and photos, invitations in first run, archiving a child, the doctor's PDF summary, import, Pro and tips, settings for night mode, units and reminders, a way to contact us from Help, and the "just log" mode. Whole journeys not started: potty stickers (4), milestones and growth (8), health (11), helpers (13), twins' own amounts and pumping (14), large text and night (16), and widgets, Lock Screen and Siri (17).
 
 Left out of those two journeys: the Lock Screen timer (needs a widget extension), the breastfeed timers, "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, per-child amounts for "Both", and Puggle's nod on save.
 

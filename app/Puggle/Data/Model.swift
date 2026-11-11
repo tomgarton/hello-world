@@ -21,8 +21,28 @@ final class Child: NSManagedObject, Identifiable {
     @NSManaged var birthDate: Date?
     @NSManaged var colourIndex: Int16
     @NSManaged var createdAt: Date?
+    /// Answers to the setup questions. `feedingRaw` is nil for children added
+    /// before the questions existed; they keep every tile.
+    @NSManaged var feedingRaw: String?
+    @NSManaged var pottyTraining: Bool
     @NSManaged var family: Family?
     @NSManaged var events: Set<Event>?
+}
+
+/// "How do they feed?", asked once per child. It decides which tiles they get.
+enum Feeding: String, CaseIterable, Identifiable {
+    case bottle, breast, both, neither
+
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .bottle: "Bottle"
+        case .breast: "Breastfeeding"
+        case .both: "Both"
+        case .neither: "Neither now"
+        }
+    }
 }
 
 @objc(Event)
@@ -105,21 +125,69 @@ extension Event {
 }
 
 extension Child {
+    var feeding: Feeding? {
+        get { feedingRaw.flatMap(Feeding.init(rawValue:)) }
+        set { feedingRaw = newValue?.rawValue }
+    }
+
+    var ageMonths: Int {
+        guard let birth = birthDate else { return 0 }
+        return max(Calendar.current.dateComponents([.month], from: birth, to: .now).month ?? 0, 0)
+    }
+
+    /// Whether this activity belongs on this child's Today. Follows the setup
+    /// answers and their age; a child who was never asked keeps everything.
+    func uses(_ kind: EventKind) -> Bool {
+        switch kind {
+        case .bottle: return feeding == nil || feeding == .bottle || feeding == .both
+        case .breastfeed: return feeding == nil || feeding == .breast || feeding == .both
+        case .solids: return ageMonths >= 4
+        case .nappy: return !pottyTraining || ageMonths < 36
+        case .potty: return pottyTraining || feeding == nil
+        case .sleep, .note: return true
+        }
+    }
+
     var displayName: String { name ?? "Child" }
     var initial: String { String(displayName.prefix(1)).uppercased() }
 
-    /// "6 months", "2½", "3 weeks".
-    var ageText: String {
+    /// Compact age for tight spots: "6mo", "1y 3mo", "3w", "2½".
+    var ageText: String { age(.abbreviated) }
+
+    /// Spelled-out age where there is room: "6 months", "3 weeks", "2½ years".
+    var ageTextFull: String { age(.full) }
+
+    /// Uses Apple's formatter so the wording follows the phone's language.
+    /// The one exception is the half year for children of two and over.
+    private func age(_ style: DateComponentsFormatter.UnitsStyle) -> String {
         guard let birth = birthDate else { return "" }
-        let comps = Calendar.current.dateComponents([.year, .month, .weekOfYear, .day], from: birth, to: .now)
-        if let y = comps.year, y >= 2 {
-            let months = comps.month ?? 0
-            return months >= 6 ? "\(y)½" : "\(y)"
+        let calendar = Calendar.current
+        let comps = calendar.dateComponents([.year, .month, .weekOfYear, .day], from: birth, to: .now)
+        let years = comps.year ?? 0, months = comps.month ?? 0
+
+        if years >= 2, months >= 6 {
+            return style == .full ? "\(years)½ years" : "\(years)½"
         }
-        let totalMonths = (comps.year ?? 0) * 12 + (comps.month ?? 0)
-        if totalMonths >= 1 { return "\(totalMonths) mo" }
-        if let w = comps.weekOfYear, w >= 1 { return "\(w) wk" }
-        return "\(max(comps.day ?? 0, 0)) days"
+
+        let formatter = DateComponentsFormatter()
+        formatter.calendar = calendar
+        formatter.unitsStyle = style
+        var parts = DateComponents()
+        if years >= 2 {
+            formatter.allowedUnits = [.year]
+            parts.year = years
+        } else if years * 12 + months >= 1 {
+            formatter.allowedUnits = [.year, .month]
+            parts.year = years
+            parts.month = months
+        } else if let weeks = comps.weekOfYear, weeks >= 1 {
+            formatter.allowedUnits = [.weekOfMonth]
+            parts.weekOfMonth = weeks
+        } else {
+            formatter.allowedUnits = [.day]
+            parts.day = max(comps.day ?? 0, 0)
+        }
+        return formatter.string(from: parts) ?? ""
     }
 }
 
@@ -200,6 +268,8 @@ enum PuggleModel {
             attribute("birthDate", .dateAttributeType),
             attribute("colourIndex", .integer16AttributeType, optional: false, defaultValue: 0),
             attribute("createdAt", .dateAttributeType),
+            attribute("feedingRaw", .stringAttributeType),
+            attribute("pottyTraining", .booleanAttributeType, optional: false, defaultValue: false),
             childFamily, childEvents,
         ]
         event.properties = [
