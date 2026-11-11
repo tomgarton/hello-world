@@ -6,7 +6,7 @@
 	<string>development</string>
 	<key>com.apple.developer.icloud-container-identifiers</key>
 	<array>
-		<string>iCloud.app.puggle.Puggle</string>
+		<string>iCloud.com.tomgarton.puggle</string>
 	</array>
 	<key>com.apple.developer.icloud-services</key>
 	<array>

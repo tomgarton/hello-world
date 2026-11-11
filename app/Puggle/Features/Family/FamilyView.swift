@@ -30,13 +30,23 @@ struct FamilyView: View {
                     Button("Add a child") { addingChild = true }
                         .listRowBackground(Palette.paper)
                 }
-                Section {
-                    Button("Invite someone") { Task { await startSharing() } }
-                        .listRowBackground(Palette.paper)
-                } header: {
-                    Text("Sharing")
-                } footer: {
-                    Text("Anyone you invite sees and logs the same day, on their own iPhone, with their own Apple Account.")
+                if Persistence.cloudSyncEnabled {
+                    Section {
+                        Button("Invite someone") { Task { await startSharing() } }
+                            .listRowBackground(Palette.paper)
+                    } header: {
+                        Text("Sharing")
+                    } footer: {
+                        Text("Anyone you invite sees and logs the same day, on their own iPhone, with their own Apple Account.")
+                    }
+                } else {
+                    Section {
+                        Text("This is a local build. Everything stays on this iPhone, and sharing is switched off.")
+                            .foregroundStyle(Palette.muted)
+                            .listRowBackground(Palette.paper)
+                    } header: {
+                        Text("Sharing")
+                    }
                 }
                 if let shareError {
                     Text(shareError).font(.footnote).foregroundStyle(Palette.waratah)

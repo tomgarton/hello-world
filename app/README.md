@@ -21,12 +21,23 @@ Not yet: Live Activities, widgets, the custom Puggle icons (SF Symbols stand in)
 1. Install XcodeGen: `brew install xcodegen`
 2. Generate the project: `cd app && xcodegen` (creates `Puggle.xcodeproj`)
 3. Open `Puggle.xcodeproj` in Xcode.
-4. **Bundle ID and iCloud container.** `app.puggle.Puggle` and `iCloud.app.puggle.Puggle` are placeholders; bundle IDs are global, so pick your own (for example `com.<you>.puggle`) and change it in three places:
+4. **Bundle ID and iCloud container.** These are `com.tomgarton.puggle` and `iCloud.com.tomgarton.puggle`. To change them, edit three places:
    - `project.yml` (`bundleIdPrefix` and `PRODUCT_BUNDLE_IDENTIFIER`), then re-run `xcodegen`
    - `Puggle/Resources/Puggle.entitlements`
    - `Puggle/Data/Persistence.swift` (`cloudKitContainerID`)
 5. In the target's **Signing & Capabilities**, choose your team. Check that **iCloud → CloudKit** (with your container ticked), **Push Notifications** and **Background Modes → Remote notifications** are all present; Xcode creates the container in your developer account.
 6. Run on your iPhone (or a simulator signed in to iCloud).
+
+### Running on a phone with a free Apple ID
+
+A free Apple ID cannot sign the iCloud and push entitlements, so use the **Puggle Local** scheme. It builds the `Local` configuration: no entitlements, and `LOCAL_ONLY` set, which makes `Persistence.cloudSyncEnabled` false. Data stays on the phone, the Family tab says sharing is off, and the app needs reinstalling every 7 days.
+
+1. Xcode → Settings → Accounts: add your Apple ID.
+2. Plug in the iPhone, tap Trust, and turn on Settings → Privacy & Security → Developer Mode.
+3. Choose the **Puggle Local** scheme and your iPhone, pick your personal team in Signing & Capabilities, and Run.
+4. First launch: on the phone, Settings → General → VPN & Device Management, trust your developer certificate.
+
+The CloudKit code is untouched. Installing a build from the **Puggle** scheme over the top (paid account) should turn sync on for the same local data; this has not been tested.
 
 ### Testing sharing
 

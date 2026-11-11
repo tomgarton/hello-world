@@ -13,7 +13,16 @@ final class Persistence {
     static let preview = Persistence(inMemory: true)
 
     /// Must match the iCloud container in Puggle.entitlements and the Developer portal.
-    static let cloudKitContainerID = "iCloud.app.puggle.Puggle"
+    static let cloudKitContainerID = "iCloud.com.tomgarton.puggle"
+
+    /// Off in the "Puggle Local" scheme, which builds without the iCloud entitlement
+    /// (a free Apple ID cannot sign it). The stores are then plain local files.
+    /// The same files should pick up CloudKit when a build with sync on is installed over the top (untested).
+    #if LOCAL_ONLY
+    static let cloudSyncEnabled = false
+    #else
+    static let cloudSyncEnabled = true
+    #endif
 
     let container: NSPersistentCloudKitContainer
     private(set) var privateStore: NSPersistentStore?
@@ -38,7 +47,7 @@ final class Persistence {
             sharedDescription.url = URL(fileURLWithPath: "/dev/null/shared")
             privateDescription.type = NSInMemoryStoreType
             sharedDescription.type = NSInMemoryStoreType
-        } else {
+        } else if Self.cloudSyncEnabled {
             let privateOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: Self.cloudKitContainerID)
             privateOptions.databaseScope = .private
             privateDescription.cloudKitContainerOptions = privateOptions

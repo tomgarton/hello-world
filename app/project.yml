@@ -1,9 +1,15 @@
 name: Puggle
 options:
-  bundleIdPrefix: app.puggle
+  bundleIdPrefix: com.tomgarton
   deploymentTarget:
     iOS: "17.0"
   createIntermediateGroups: true
+# "Local" is a debug build with iCloud switched off, for a free Apple ID
+# (free accounts cannot sign the iCloud and push entitlements).
+configs:
+  Debug: debug
+  Local: debug
+  Release: release
 settings:
   base:
     SWIFT_VERSION: "5.10"
@@ -19,9 +25,28 @@ targets:
       - path: Puggle
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: app.puggle.Puggle
+        PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_ENTITLEMENTS: Puggle/Resources/Puggle.entitlements
         INFOPLIST_FILE: Puggle/Resources/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      configs:
+        Local:
+          CODE_SIGN_ENTITLEMENTS: ""
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG LOCAL_ONLY
+schemes:
+  Puggle:
+    build:
+      targets:
+        Puggle: all
+    run:
+      config: Debug
+    archive:
+      config: Release
+  Puggle Local:
+    build:
+      targets:
+        Puggle: all
+    run:
+      config: Local
