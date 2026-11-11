@@ -7,6 +7,8 @@ struct PuggleApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = FamilyStore.live
     @StateObject private var sample = SampleFamily()
+    @StateObject private var lock = AppLock()
+    @AppStorage(Setting.focusNight) private var focusNight = false
     @AppStorage(Setting.appearance) private var appearance = "system"
     @Environment(\.scenePhase) private var scenePhase
 
@@ -22,10 +24,12 @@ struct PuggleApp: App {
     }
 
     private var scheme: ColorScheme? {
+        // A Focus with the Night look filter wins over the usual choice.
+        if focusNight { return .dark }
         switch appearance {
-        case "light": .light
-        case "dark": .dark
-        default: nil
+        case "light": return .light
+        case "dark": return .dark
+        default: return nil
         }
     }
 
@@ -38,9 +42,23 @@ struct PuggleApp: App {
                 .environment(\.managedObjectContext, active.persistence.viewContext)
                 .environmentObject(active)
                 .environmentObject(sample)
+                .overlay {
+                    if lock.isLocked {
+                        LockedView { lock.unlock() }
+                    }
+                }
                 .preferredColorScheme(scheme)
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { LiveTimers.shared.sync(with: store) }
+                    switch phase {
+                    case .active:
+                        LiveTimers.shared.sync(with: store)
+                        lock.unlock()
+                        PuggleShortcuts.updateAppShortcutParameters()
+                    case .background:
+                        lock.lockIfNeeded()
+                    default:
+                        break
+                    }
                 }
                 .tint(Palette.ink)
                 // Warm ink everywhere by default, so nothing falls back to white in dark.

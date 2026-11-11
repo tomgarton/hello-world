@@ -8,6 +8,9 @@ enum Setting {
     static let pottyStickers = "pottyStickers"
     static let lockScreenGlance = "lockScreenGlance"
     static let haptics = "haptics"
+    static let appLock = "appLock"
+    /// Set by the "Night look" Focus filter, not by a switch in the app.
+    static let focusNight = "focusNight"
 }
 
 /// Settings, reached from the Family tab. Short on purpose: who you are,
@@ -20,6 +23,7 @@ struct SettingsView: View {
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
     @AppStorage(Setting.haptics) private var hapticsOn = true
+    @AppStorage(Setting.appLock) private var lockOn = false
     @EnvironmentObject private var store: FamilyStore
 
     var body: some View {
@@ -41,6 +45,29 @@ struct SettingsView: View {
                     Text("Light").tag("light")
                     Text("Dark").tag("dark")
                 }
+            }
+            .listRowBackground(Palette.paper)
+
+            Section {
+                Toggle("Lock with Face ID", isOn: Binding(get: { lockOn }, set: { wanted in
+                    // Ask before changing it either way, so only the phone's owner can.
+                    Task {
+                        if await AppLock.authenticate(reason: wanted ? "Turn on the lock" : "Turn off the lock") {
+                            lockOn = wanted
+                        }
+                    }
+                }))
+            } footer: {
+                Text("Asks for Face ID or your passcode each time the app is opened. The Lock Screen timer and Siri keep working.")
+            }
+            .listRowBackground(Palette.paper)
+
+            Section {
+                Text("Siri, the Action button and Shortcuts can start a sleep, log a nappy or a bottle, and tell you the last feed. For a dark look at night, add the Night look filter to your Sleep Focus in the Settings app. Help has the words to say.")
+                    .font(.subheadline)
+                    .foregroundStyle(Palette.muted)
+            } header: {
+                Text("Without opening the app")
             }
             .listRowBackground(Palette.paper)
 

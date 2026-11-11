@@ -115,6 +115,15 @@ Ninth round, 11 November 2026:
 | Calmer motion | Everyday buttons press with no bounce; the milestone celebration winds up, then lets go; the feed clocks and a child's status line roll between values |
 | Liquid Glass | On iOS 26 the + buttons on the tiles and the sleep button are interactive glass, so they lift and warp when pressed (`glassControl` in `Design/Feel.swift`). Earlier versions keep the flat fill. Cards, rows and the pinned Save button stay solid: glass on content hurt legibility, and a glass Save button all but vanished when disabled |
 
+Tenth round, 11 November 2026:
+
+| Flow | In the app |
+|---|---|
+| Siri, Action button, Shortcuts (17) | `App/Shortcuts.swift`: Start sleep, Woke up, Log a nappy, Log a bottle (uses the last amount if none is said) and Last feed. They run without opening the app. Because they are Shortcuts actions, an NFC tag or a time of day can trigger them too. A Lock Screen card only appears once the app has been opened, since iOS will not start a Live Activity from the background |
+| Night look from a Focus (16) | A Focus filter: add "Night look" to the Sleep Focus in the Settings app and the app goes dark while that Focus is on |
+| Lock with Face ID | Settings: asks for Face ID or the passcode each time the app is opened. Lock Screen timers and Siri still work |
+| Milestone haptic | A composed pattern (three rising ticks, then a full beat) timed to the celebration's windup. The only custom pattern |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

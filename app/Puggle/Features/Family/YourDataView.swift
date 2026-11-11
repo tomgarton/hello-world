@@ -85,6 +85,8 @@ struct HelpView: View {
              Persistence.cloudSyncEnabled
                 ? "Yes. Invite them from the Family tab. They need an iPhone and their own Apple Account."
                 : "Not in this build. It keeps everything on this iPhone."),
+            ("Can I log without opening the app?",
+             "Yes. Say \"Start a sleep in Puggle\", \"Woke up in Puggle\", \"Log a nappy in Puggle\", \"Log a bottle in Puggle\" or \"Last feed in Puggle\" to Siri. The same actions are in the Shortcuts app, so you can put one on the Action button or on an NFC tag by the change table. A running sleep or feed also has buttons on the Lock Screen."),
             ("Is this medical advice?",
              "No. The app records what you tell it and never advises. For anything about your child's health, ask your GP or child health nurse."),
         ]

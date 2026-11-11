@@ -1,3 +1,4 @@
+import CoreHaptics
 import SwiftUI
 import UIKit
 
@@ -19,6 +20,34 @@ enum Haptics {
 
     /// A light tap for a button that opens or undoes something.
     static func tap() { guard isOn else { return }; UIImpactFeedbackGenerator(style: .light).impactOccurred() }
+
+    private static var engine: CHHapticEngine?
+
+    /// The milestone: three rising ticks while she winds up, then one full beat as she lets go.
+    /// The only composed pattern in the app. Falls back to the plain success tap.
+    static func celebrate() {
+        guard isOn else { return }
+        guard CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return success() }
+        func tick(_ time: TimeInterval, _ intensity: Float, _ sharpness: Float) -> CHHapticEvent {
+            CHHapticEvent(eventType: .hapticTransient,
+                          parameters: [CHHapticEventParameter(parameterID: .hapticIntensity, value: intensity),
+                                       CHHapticEventParameter(parameterID: .hapticSharpness, value: sharpness)],
+                          relativeTime: time)
+        }
+        let glow = CHHapticEvent(eventType: .hapticContinuous,
+                                 parameters: [CHHapticEventParameter(parameterID: .hapticIntensity, value: 0.45),
+                                              CHHapticEventParameter(parameterID: .hapticSharpness, value: 0.2)],
+                                 relativeTime: 0.30, duration: 0.22)
+        let events = [tick(0, 0.3, 0.4), tick(0.10, 0.45, 0.5), tick(0.20, 0.6, 0.6), tick(0.29, 1.0, 0.7), glow]
+        do {
+            if engine == nil { engine = try CHHapticEngine() }
+            try engine?.start()
+            let player = try engine?.makePlayer(with: CHHapticPattern(events: events, parameters: []))
+            try player?.start(atTime: CHHapticTimeImmediate)
+        } catch {
+            success()
+        }
+    }
 
     /// One notch of a stepper.
     static func step() { guard isOn else { return }; UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.6) }

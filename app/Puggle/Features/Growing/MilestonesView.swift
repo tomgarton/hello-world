@@ -123,8 +123,9 @@ private struct Hooray: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         .accessibilityHint("Closes")
-        .sensoryFeedback(trigger: burst) { _, _ in Haptics.isOn ? .success : nil }
         .task {
+            // The haptic has its own windup, timed to the squash and release below.
+            Haptics.celebrate()
             if reduceMotion {
                 burst = true
             } else {
