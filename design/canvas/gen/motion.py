@@ -123,27 +123,65 @@ sleepy = shadow() + zz + rig(SKY, 'down', 'sleepy', eyes_svg=drowsy, blink=False
                              a_tail=at('rotate', '0 160 240;2 160 240;0 160 240;4 160 240;2 160 240;8 160 240;8 160 240;0 160 240', 7, 0.2, KT_S),
                              a_armL=at('rotate', '0 88 178;0 88 178;0 88 178;-3 88 178;-3 88 178;-6 88 178;-6 88 178;0 88 178', 7, 0, KT_S),
                              a_armR=at('rotate', '0 152 178;0 152 178;0 152 178;3 152 178;3 152 178;6 152 178;6 152 178;0 152 178', 7, 0, KT_S))
-# walk: four keys per step (contact, down, passing, up); arms and legs mirror, so one step loops
-WK = [dict(name='Contact', back=(78, 272, 10), front=(152, 270, -16), bob=0, ab=(82, 218), af=(158, 212), tail=22, note='Legs widest. Heel strikes. Arms widest, opposite the legs.'),
-      dict(name='Down', back=(88, 276, 24), front=(142, 276, 0), bob=5, ab=(92, 222), af=(148, 218), tail=26, note='Weight lands. Lowest point. Tail drops late.'),
-      dict(name='Passing', back=(126, 260, -22), front=(112, 276, 0), bob=-2, ab=(108, 224), af=(130, 224), tail=14, note='Free leg passes the standing leg. Arms cross.'),
-      dict(name='Up', back=(150, 258, -26), front=(100, 274, 8), bob=-7, ab=(124, 220), af=(112, 222), tail=8, note='Push off. Highest point. Tail lifts.')]
-def walk4(k, col=HARBOUR, head_bob=None):
-    w_ = WK[k]; hb = WK[k-1]['bob'] if head_bob is None else head_bob          # the head arrives a beat late
-    (bx, by, bl), (fx, fy, fl) = w_['back'], w_['front']
-    legs = leg(104, 238, bx, by, bl) + leg(124, 238, fx, fy, fl)
-    body_ = (f'<ellipse cx="54" cy="238" rx="40" ry="14" transform="rotate({w_["tail"]} 54 238)" fill="{PF}" stroke="{O}" stroke-width="6"></ellipse>' + limb(112, 180, *w_['ab'], col, 4)
-             + f'<path d="M92 166Q118 158 144 166L160 244Q162 254 150 254L84 254Q72 254 74 244Z" fill="{col}" stroke="{O}" stroke-width="7" stroke-linejoin="round"></path>' + limb(124, 178, *w_['af'], col, -4))
-    head_ = (f'<ellipse cx="108" cy="108" rx="62" ry="58" fill="{PF}" stroke="{O}" stroke-width="7"></ellipse>'
-             + f'<circle cx="112" cy="130" r="10" fill="{BL}"></circle><path d="M105 135l5-9M114 135l5-9" stroke="{ST}" stroke-width="3.5" stroke-linecap="round"></path>'
-             + f'<ellipse cx="164" cy="150" rx="40" ry="18" transform="rotate(-4 164 150)" fill="{BILL}" stroke="{O}" stroke-width="6"></ellipse><circle cx="186" cy="141" r="1.8" fill="{O}"></circle>'
-             + f'<path d="M132 111q10 -12 20 0" fill="none" stroke="{O}" stroke-width="6" stroke-linecap="round"></path>' + ACC['clip'](132, 56, WARATAH))
-    return legs + f'<g transform="translate(0 {w_["bob"]})">{body_}</g><g transform="translate(0 {hb})">{head_}</g>'
-ground = f'<g stroke="#C9B89F" stroke-width="5" stroke-linecap="round"><animateTransform attributeName="transform" type="translate" values="0 0;-60 0" dur="0.6s" repeatCount="indefinite"></animateTransform>' + ''.join(f'<path d="M{x0} 296h26"></path>' for x0 in range(-40, 360, 60)) + '</g>'
-def frame_vis(k, n=4): return ';'.join('inline' if i == k else 'none' for i in range(n))
-walkc = shadow() + ground + ''.join(f'<g display="{"inline" if k == 0 else "none"}">{an("display", frame_vis(k), 0.6, 0, None, True)}{walk4(k)}</g>' for k in range(4))
-pose_sheet = ''.join(f'<div style="display: flex; flex-direction: column; gap: 2px; width: 150px"><svg role="img" aria-label="Walk key pose: {w_["name"]}" width="150" height="176" viewBox="0 0 250 304" style="background: {PAPER}; border-radius: 18px"><path d="M0 290H250" stroke="#C9B89F" stroke-width="3"></path><path d="M0 50H250" stroke="#C9B89F" stroke-width="1.5" stroke-dasharray="6 6"></path>{walk4(k)}</svg>'
-                     f'<div style="font-size: 14px; font-weight: 800">{k+1}. {w_["name"]}</div><div style="{T}; font-size: 12px">{w_["note"]}</div></div>' for k, w_ in enumerate(WK))
+# walk: one rig, driven by a few small tables, so the moving loop and the still key poses always agree.
+# Phase runs 0 to 1 over two steps. The near leg leads; the far leg is half a cycle behind.
+WT = 0.84                                                                     # seconds for two steps: a quick toddler waddle
+LEG = [(0, -30), (0.25, -2), (0.5, 28), (0.62, 22), (0.78, -14), (0.92, -34), (1, -30)]   # hip angle: forward is negative
+LIFT = [(0, 0), (0.5, 0), (0.62, -7), (0.78, -11), (0.92, -4), (1, 0)]                    # foot clears the ground on the swing
+BOB = [(0, 0), (0.12, 4.5), (0.26, -1), (0.38, -6), (0.5, 0)]                             # per step: down after contact, up at push-off
+LEAN = [(0, 5), (0.12, 7), (0.38, 3), (0.5, 5)]                                           # she tips forward as the weight lands
+TAILW = [(0, 16), (0.2, 26), (0.45, 10), (0.5, 16)]                                       # counter-swing, late
+def interp(tab, ph, period=1.0):
+    ph = ph % period
+    for (t0, v0), (t1, v1) in zip(tab, tab[1:]):
+        if t0 <= ph <= t1: return v0 + (v1 - v0) * (ph - t0) / ((t1 - t0) or 1)
+    return tab[-1][1]
+def lin(kind, tab, dur, fmt, begin=0.0):
+    return (f'<animateTransform attributeName="transform" type="{kind}" values="{";".join(fmt(v) for _, v in tab)}" keyTimes="{";".join(f"{t/tab[-1][0]:.3f}" for t, _ in tab)}" '
+            f'dur="{dur}s" begin="{begin}s" repeatCount="indefinite"></animateTransform>')
+HIPN, HIPF, SHN, SHF = (120, 240), (110, 240), (122, 182), (112, 184)
+W_BODY = 'M94 166Q118 158 140 166Q168 204 164 244Q164 254 152 254H84Q72 254 74 244Q72 204 94 166Z'       # a rounder tummy in profile
+def w_leg(hip, a=None, lift=None, begin=0.0):
+    hx, hy = hip
+    inner = leg(hx, hy, hx, hy + 36, 0)
+    if a is not None:  # a still pose
+        return f'<g transform="rotate({a:.1f} {hx} {hy})"><g transform="translate(0 {lift:.1f})">{inner}</g></g>'
+    return (f'<g data-m="1">{lin("rotate", LEG, WT, lambda v: f"{v} {hx} {hy}", begin)}<g data-m="1">{lin("translate", LIFT, WT, lambda v: f"0 {v}", begin)}{inner}</g></g>')
+def w_arm(sh, col, a=None, begin=0.0):
+    sx, sy = sh
+    inner = limb(sx, sy, sx + 4, sy + 44, col, -3)
+    ARM = [(t, -v * 0.85) for t, v in LEG]                                    # arms swing opposite their own-side leg
+    if a is not None: return f'<g transform="rotate({a:.1f} {sx} {sy})">{inner}</g>'
+    return f'<g data-m="1">{lin("rotate", ARM, WT, lambda v: f"{v:.1f} {sx} {sy}", begin)}{inner}</g>'
+def w_head():
+    return (f'<ellipse cx="108" cy="108" rx="62" ry="58" fill="{PF}" stroke="{O}" stroke-width="7"></ellipse>'
+            + f'<circle cx="112" cy="130" r="10" fill="{BL}"></circle><path d="M105 135l5-9M114 135l5-9" stroke="{ST}" stroke-width="3.5" stroke-linecap="round"></path>'
+            + f'<ellipse cx="164" cy="150" rx="40" ry="18" transform="rotate(-4 164 150)" fill="{BILL}" stroke="{O}" stroke-width="6"></ellipse><circle cx="186" cy="141" r="1.8" fill="{O}"></circle>'
+            + f'<path d="M132 111q10 -12 20 0" fill="none" stroke="{O}" stroke-width="6" stroke-linecap="round"></path>')
+def w_tail(): return f'<ellipse cx="50" cy="240" rx="40" ry="14" fill="{PF}" stroke="{O}" stroke-width="6"></ellipse>'
+def w_dress(col): return f'<path d="{W_BODY}" fill="{col}" stroke="{O}" stroke-width="7" stroke-linejoin="round"></path>'
+def walk_pose(ph, col=HARBOUR):
+    """A still frame of the walk at phase ph (0 to 1)."""
+    bob, lean = interp(BOB, ph, 0.5), interp(LEAN, ph, 0.5)
+    hb = interp(BOB, ph - 0.06, 0.5)                                         # the head arrives late
+    an_, af = interp(LEG, ph), interp(LEG, ph + 0.5)
+    up = lambda inner: f'<g transform="translate(0 {bob:.1f}) rotate({lean:.1f} 116 250)">{inner}</g>'
+    return (up(f'<g transform="rotate({interp(TAILW, ph - 0.08, 0.5):.1f} 84 240)">{w_tail()}</g>' + w_arm(SHF, col, -af * 0.85))
+            + w_leg(HIPF, af, interp(LIFT, ph + 0.5)) + w_leg(HIPN, an_, interp(LIFT, ph))
+            + up(w_dress(col) + w_arm(SHN, col, -an_ * 0.85) + f'<g transform="translate(0 {hb - bob:.1f})">{w_head()}{ACC["clip"](132, 56, WARATAH)}</g>'))
+def walk_loop(col=HARBOUR):
+    bobA = lambda inner: (f'<g data-m="1">{lin("translate", BOB, WT/2, lambda v: f"0 {v}")}<g data-m="1">{lin("rotate", LEAN, WT/2, lambda v: f"{v} 116 250")}{inner}</g></g>')
+    head_ = f'<g data-m="1">{lin("translate", [(t, v * 0.5) for t, v in BOB], WT/2, lambda v: f"0 {v:.1f}", 0.05)}{w_head()}<g data-m="1">{lin("translate", [(t, v * 0.8) for t, v in BOB], WT/2, lambda v: f"0 {v:.1f}", 0.1)}{ACC["clip"](132, 56, WARATAH)}</g></g>'
+    return (bobA(f'<g data-m="1">{lin("rotate", TAILW, WT/2, lambda v: f"{v} 84 240", 0.07)}{w_tail()}</g>' + w_arm(SHF, col, None, -WT/2))
+            + w_leg(HIPF, None, None, -WT/2) + w_leg(HIPN)
+            + bobA(w_dress(col) + w_arm(SHN, col) + head_))
+GSPEED = 36 * (math.sin(math.radians(30)) + math.sin(math.radians(28))) / (WT / 2)      # how fast the ground must pass under a planted foot
+ground = f'<g stroke="#C9B89F" stroke-width="5" stroke-linecap="round"><animateTransform attributeName="transform" type="translate" values="0 0;-60 0" dur="{60/GSPEED:.3f}s" repeatCount="indefinite"></animateTransform>' + ''.join(f'<path d="M{x0} 296h26"></path>' for x0 in range(-40, 360, 60)) + '</g>'
+walkc = f'<ellipse cx="118" cy="292" rx="60" ry="7" fill="#3A2A20" opacity="0.14"><animate attributeName="rx" values="60;64;54;60" keyTimes="0;0.24;0.76;1" dur="{WT/2}s" repeatCount="indefinite"></animate></ellipse>' + ground + walk_loop()
+WKEYS = [('Contact', 0.0, 'Front heel strikes, legs and arms at their widest. Body level.'), ('Down', 0.12, 'Weight lands on the front leg. Lowest point, leaning in. Tail drops late.'),
+         ('Passing', 0.26, 'The free leg lifts and passes the standing leg. Arms cross.'), ('Up', 0.38, 'Push off the back toes. Highest point; the free foot reaches forward.')]
+pose_sheet = ''.join(f'<div style="display: flex; flex-direction: column; gap: 2px; width: 150px"><svg role="img" aria-label="Walk key pose: {nm}" width="150" height="176" viewBox="0 0 250 304" style="background: {PAPER}; border-radius: 18px"><path d="M0 290H250" stroke="#C9B89F" stroke-width="3"></path><path d="M0 50H250" stroke="#C9B89F" stroke-width="1.5" stroke-dasharray="6 6"></path>{walk_pose(ph)}</svg>'
+                     f'<div style="font-size: 14px; font-weight: 800">{k+1}. {nm}</div><div style="{T}; font-size: 12px">{note}</div></div>' for k, (nm, ph, note) in enumerate(WKEYS))
 
 def tile(inner, name, note, bg=PAPER, vb='-21 -50 290 354'):
     return (f'<div style="display: flex; flex-direction: column; gap: 4px; width: 184px"><svg role="img" aria-label="Puggle animation: {name}" width="184" height="220" viewBox="{vb}" style="background: {bg}; border-radius: 22px">{inner}</svg>'
@@ -152,7 +190,7 @@ p_row = (tile(idle, 'Idle', 'Breathes and blinks; now and then she glances aside
          + tile(wave, 'Wave', 'Snappy. A dip, then the arm swings up beside her head and waves three clear beats. She leans away and her other arm lifts.', SUN)
          + tile(hooray, 'Hooray', 'Snappy. Arms pull in for the crouch, fling up in the air, drop on landing, one small rebound.', MINT)
          + tile(sleepy, 'Falling asleep', 'Eyes droop twice and fight back, the head nods further each time, then she is out.', '#D9DEEF')
-         + tile(walkc, 'Walk', 'Four key poses a step, with the head arriving late. Rive smooths between them.', SHELL))
+         + tile(walkc, 'Walk', 'A toddler waddle: quick short steps, a forward lean as the weight lands, arms opposite the legs, head and clip a beat late.', SHELL))
 
 # ---------- animated scenes ----------
 def bob(svg, dy, dur, begin=0): return G(svg, at('translate', f'0 0;0 {dy};0 0', dur, begin))
