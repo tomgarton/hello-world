@@ -144,6 +144,27 @@ extension Event {
         return banked + max(now.timeIntervalSince(since), 0)
     }
 
+    /// The shortest useful form, for a child's row on Today: "Bottle · 150 ml".
+    /// The rest (which milk, which side) is one tap away in the entry.
+    var brief: String {
+        switch kind {
+        case .bottle:
+            return amountML > 0 ? "Bottle · \(Int(amountML)) ml" : "Bottle"
+        case .breastfeed:
+            let timed = leftSeconds + rightSeconds
+            if timed > 0 { return "Breastfeed · \(Elapsed.minutes(timed))" }
+            if let start = startedAt, let end = endedAt { return "Breastfeed · \(Elapsed.short(from: start, to: end))" }
+            return "Breastfeed"
+        case .sleep:
+            if let start = startedAt, let end = endedAt { return "Slept · \(Elapsed.short(from: start, to: end))" }
+            return "Asleep"
+        case .nappy, .potty, .solids:
+            return (detail ?? "").isEmpty ? kind.title : "\(kind.title) · \(detail!.lowercased())"
+        default:
+            return summary
+        }
+    }
+
     /// A short, human summary for timelines: "Bottle, 150 ml formula".
     var summary: String {
         switch kind {
@@ -265,6 +286,14 @@ enum Elapsed {
         let minutes = max(Int(end.timeIntervalSince(start) / 60), 0)
         let h = minutes / 60, m = minutes % 60
         return h > 0 ? "\(h)h \(String(format: "%02d", m))m" : "\(m) min"
+    }
+
+    /// How long ago, kept short: "just now", "8 min ago", "1h 05m ago", then the day.
+    static func ago(_ date: Date, now: Date = .now) -> String {
+        let seconds = now.timeIntervalSince(date)
+        if seconds < 60 { return "just now" }
+        if seconds < 24 * 3600 { return "\(short(from: date, to: now)) ago" }
+        return date.formatted(.dateTime.weekday(.wide).hour().minute())
     }
 
     /// Whole minutes for a length in seconds, never less than one: "8 min".

@@ -210,17 +210,21 @@ struct ChildStatusRow: View {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 6) {
                             Text(child.displayName).font(.headline)
+                            Text("·").foregroundStyle(quiet)
                             Text(child.ageText).foregroundStyle(quiet)
                         }
-                        if let line = statusLine(now: now, sleep: sleep) {
+                        // Two fixed lines, what then when, so the row is the same height whatever was logged.
+                        let status = statusLines(now: now, sleep: sleep)
+                        ForEach(status, id: \.self) { line in
                             Text(line)
                                 .font(.subheadline)
                                 .foregroundStyle(quiet)
                                 .monospacedDigit()
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.8)
                                 .contentTransition(.numericText())
-                                .animation(.default, value: line)
-                                .multilineTextAlignment(.leading)
                         }
+                        .animation(.default, value: status)
                     }
                     Spacer(minLength: 0)
                 }
@@ -240,24 +244,26 @@ struct ChildStatusRow: View {
 
     /// Asleep and for how long, else the last feed, else the last entry of any kind.
     /// An empty day shows nothing: it is just an empty day.
-    private func statusLine(now: Date, sleep: Event?) -> String? {
+    private func statusLines(now: Date, sleep: Event?) -> [String] {
         // "Just logging": nothing counts up, so only say that they are asleep or feeding.
         if justLog {
-            if sleep != nil { return "Asleep" }
-            return store.activeFeed(for: child) != nil ? "Feeding" : nil
+            if sleep != nil { return ["Asleep"] }
+            return store.activeFeed(for: child) != nil ? ["Feeding"] : []
         }
         if let start = sleep?.startedAt {
-            return "Asleep \(Elapsed.short(from: start, to: now))"
+            return ["Asleep · \(Elapsed.short(from: start, to: now))",
+                    "since \(start.formatted(date: .omitted, time: .shortened))"]
         }
         if let feed = store.activeFeed(for: child) {
-            guard let side = feed.runningSide else { return "Feeding, paused" }
-            return "Feeding, \(side.lowercased()) \(Elapsed.minutes(feed.feedSeconds(side, now: now)))"
+            let started = "since \((feed.startedAt ?? now).formatted(date: .omitted, time: .shortened))"
+            guard let side = feed.runningSide else { return ["Feeding · paused", started] }
+            return ["Feeding · \(side.lowercased()) · \(Elapsed.minutes(feed.feedSeconds(side, now: now)))", started]
         }
         // The later of the last bottle and the last breastfeed.
         let feeds = [store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0 }
         let last = feeds.max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) } ?? store.latest(for: child)
-        guard let last, let at = last.startedAt else { return nil }
-        return "\(last.summary), \(at.formatted(.relative(presentation: .named)))"
+        guard let last, let at = last.startedAt else { return [] }
+        return [last.brief, Elapsed.ago(at, now: now)]
     }
 
     private func sleepButton(now: Date, sleep: Event?) -> some View {
