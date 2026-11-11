@@ -54,6 +54,7 @@ struct TodayView: View {
                             ChildStatusRow(child: child) { dayOf = child }
                         }
                         LastSavedRow { editing = EditTarget(event: $0) }
+                            .animation(.spring(duration: 0.4, bounce: 0.2), value: store.lastSaved?.id)
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                             ForEach(visibleKinds) { kind in
                                 ActivityCard(kind: kind, children: relevant(kind)) {
@@ -232,6 +233,7 @@ struct ChildStatusRow: View {
         .padding(14)
         .foregroundStyle(asleep ? Palette.fixedPaper : Palette.ink)
         .background(asleep ? Palette.night : Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .animation(.easeInOut(duration: 0.35), value: asleep)
     }
 
     /// Asleep and for how long, else the last feed, else the last entry of any kind.
@@ -279,6 +281,7 @@ struct ChildStatusRow: View {
         .frame(minHeight: 44)
         .background(asleep ? Palette.moon : Palette.field, in: Capsule())
         .foregroundStyle(asleep ? Palette.fixedInk : Palette.ink)
+        .buttonStyle(PressStyle())
         .accessibilityLabel(spoken)
         .sensoryFeedback(.success, trigger: asleep)
     }
@@ -306,7 +309,10 @@ struct LastSavedRow: View {
                     .accessibilityElement(children: .combine)
                     Spacer(minLength: 0)
                     if saved.undo != .none {
-                        action("Undo") { store.undoLastSaved() }
+                        action("Undo") {
+                            Haptics.tap()
+                            store.undoLastSaved()
+                        }
                     }
                     if events.count == 1 {
                         action("Change") { onChange(first) }
@@ -316,6 +322,8 @@ struct LastSavedRow: View {
                 .padding(.trailing, 8)
                 .padding(.vertical, 6)
                 .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .id(saved.id)
+                .transition(.asymmetric(insertion: .scale(scale: 0.96).combined(with: .opacity), removal: .opacity))
             }
         }
     }
@@ -327,6 +335,7 @@ struct LastSavedRow: View {
             .padding(.horizontal, 12)
             .frame(minHeight: 44)
             .background(Palette.field, in: Capsule())
+            .buttonStyle(PressStyle())
     }
 }
 
@@ -343,12 +352,16 @@ struct ActivityCard: View {
             HStack(alignment: .top) {
                 ActivityIcon(kind, size: 40)
                 Spacer()
-                Button(action: onAdd) {
+                Button {
+                    Haptics.tap()
+                    onAdd()
+                } label: {
                     Image(systemName: "plus")
                         .font(.headline)
                         .frame(width: 44, height: 44)
                         .background(Palette.paper, in: Circle())
                 }
+                .buttonStyle(PressStyle(scale: 0.9))
                 .foregroundStyle(Palette.ink)
                 .accessibilityLabel("Log \(kind.title.lowercased())")
             }

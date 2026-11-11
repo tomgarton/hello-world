@@ -52,7 +52,10 @@ struct ChildForm: View {
         if draft.asksFeeding {
             Section {
                 ForEach([Feeding.bottle, .breast, .both]) { option in
-                    choiceRow(option.title, isOn: draft.feeding == option) { draft.feeding = option }
+                    choiceRow(option.title, isOn: draft.feeding == option) {
+                        Haptics.selection()
+                        draft.feeding = option
+                    }
                 }
             } header: {
                 Text("How do they feed?")
@@ -71,6 +74,7 @@ struct ChildForm: View {
             HStack(spacing: 14) {
                 ForEach(Palette.childColours.indices, id: \.self) { index in
                     Button {
+                        Haptics.selection()
                         draft.colour = index
                     } label: {
                         Circle()

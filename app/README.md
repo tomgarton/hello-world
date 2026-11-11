@@ -99,6 +99,14 @@ Seventh round, 11 November 2026:
 
 The pictures are in `Assets.xcassets` as SVGs. Still to come from the canvas: the scenes (Morning, Bedtime, Celebration), the friends, the sticker art and the animated Puggle (Rive).
 
+Eighth round, 11 November 2026:
+
+| Flow | In the app |
+|---|---|
+| Haptics | One helper, `Design/Feel.swift`: success when something is saved or finished, selection when a child, chip or colour changes, a notch for each step of an amount, a light tap for + and Undo, and a warning with "Too soon?". Nothing plays for scrolling or navigation |
+| Press states | Buttons give slightly under the finger (`PressStyle`); with Reduce Motion they dim instead |
+| Small animations | "Last saved" eases in when it changes, a child's row fades to night blue when a sleep starts, chips and feed sides animate their selection |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

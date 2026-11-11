@@ -100,7 +100,6 @@ struct LogSheet: View {
                         .background(Palette.sand)
                 }
             }
-            .sensoryFeedback(.success, trigger: saved)
             .alert("Too soon?", isPresented: Binding(get: { tooSoon != nil }, set: { if !$0 { tooSoon = nil } })) {
                 Button("Log anyway") {
                     confirmedTooSoon = true
@@ -207,6 +206,7 @@ struct LogSheet: View {
                     let key = NSManagedObjectIDWrapper(child)
                     let isOn = selected.contains(key)
                     Button {
+                        Haptics.selection()
                         if isEditing {
                             selected = [key]
                         } else if isOn {
@@ -225,7 +225,10 @@ struct LogSheet: View {
                     .accessibilityAddTraits(isOn ? .isSelected : [])
                 }
                 if children.count > 1, !isEditing {
-                    Button("Everyone") { selected = Set(children.map(NSManagedObjectIDWrapper.init)) }
+                    Button("Everyone") {
+                        Haptics.selection()
+                        selected = Set(children.map(NSManagedObjectIDWrapper.init))
+                    }
                         .font(.footnote.weight(.semibold))
                         .foregroundStyle(Palette.ink)
                         .padding(.horizontal, 12)
@@ -316,7 +319,10 @@ struct LogSheet: View {
     }
 
     private func chip(_ title: String, isOn: Bool = false, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button {
+            Haptics.selection()
+            action()
+        } label: {
             HStack(spacing: 4) {
                 if isOn { Image(systemName: "checkmark").font(.caption2.weight(.bold)) }
                 Text(title)
@@ -327,7 +333,9 @@ struct LogSheet: View {
             .frame(minHeight: 44)
             .background(Palette.field, in: Capsule())
             .overlay(Capsule().stroke(Palette.ink, lineWidth: isOn ? 1.5 : 0))
+            .animation(.easeOut(duration: 0.15), value: isOn)
         }
+        .buttonStyle(PressStyle())
         .accessibilityAddTraits(isOn ? .isSelected : [])
     }
 
@@ -547,7 +555,10 @@ struct LogSheet: View {
     }
 
     private func smallStep(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
+        Button {
+            Haptics.step()
+            action()
+        } label: {
             Image(systemName: symbol)
                 .font(.headline)
                 .frame(width: 44, height: 44)
@@ -603,6 +614,7 @@ struct LogSheet: View {
                         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
                         .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
                     }
+                    .buttonStyle(PressStyle())
                     .foregroundStyle(Palette.ink)
                     .disabled(chosenChildren.isEmpty)
                     .accessibilityAddTraits(isOn ? .isSelected : [])
@@ -621,6 +633,7 @@ struct LogSheet: View {
     private func stepButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
         Button {
             amountTouched = true
+            Haptics.step()
             action()
         } label: {
             Image(systemName: symbol)
@@ -657,7 +670,11 @@ struct LogSheet: View {
     }
 
     private func shortcut(_ title: String, action: @escaping () -> Void) -> some View {
-        Button(title, action: action)
+        Button(title) {
+            Haptics.selection()
+            action()
+        }
+        .buttonStyle(PressStyle())
             .font(.footnote.weight(.semibold))
             .foregroundStyle(Palette.ink)
             .padding(.horizontal, 12)
@@ -682,6 +699,7 @@ struct LogSheet: View {
         if kind == .medicine {
             if !isEditing, !confirmedTooSoon, let warning = tooSoonWarning(for: who) {
                 tooSoon = warning
+                Haptics.warning()
                 return
             }
             rememberGap()
@@ -776,12 +794,14 @@ struct LogSheet: View {
             }
             onSaved(events)
         }
-        saved.toggle()
+        // Played here, not from a view modifier: the sheet is already on its way out.
+        Haptics.success()
         dismiss()
     }
 
     private func deleteEntry() {
         guard let event = editing else { return }
+        Haptics.tap()
         dismiss()
         store.delete(event)
     }

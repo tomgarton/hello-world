@@ -74,7 +74,10 @@ struct FeedTimerView: View {
             HStack(spacing: 8) {
                 ForEach(children) { item in
                     let isOn = item.objectID == selected
-                    Button { selected = item.objectID } label: {
+                    Button {
+                        Haptics.selection()
+                        selected = item.objectID
+                    } label: {
                         ChildChip(child: item, selected: isOn, ticked: isOn)
                             .scaleEffect(1.15)
                             .padding(.horizontal, 6)
@@ -104,6 +107,7 @@ struct FeedTimerView: View {
                     .monospacedDigit()
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Button("Finish feed") {
+                    Haptics.success()
                     store.finishFeed(for: child)
                     dismiss()
                 }
@@ -145,7 +149,9 @@ struct FeedTimerView: View {
             .frame(maxWidth: .infinity, minHeight: 170)
             .foregroundStyle(running ? Palette.paper : Palette.ink)
             .background(running ? Palette.ink : Palette.paper, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+            .animation(.easeOut(duration: 0.2), value: running)
         }
+        .buttonStyle(PressStyle(scale: 0.97))
         .accessibilityLabel("\(side) side, \(Elapsed.minutes(seconds)), \(state.lowercased())")
         .accessibilityHint(running ? "Pauses this side" : "Starts this side")
         .sensoryFeedback(.selection, trigger: running)
