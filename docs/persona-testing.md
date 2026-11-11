@@ -63,6 +63,15 @@ Ordered by how many personas raised it.
 - The spec puts the doctor's PDF in Pro; the flows show it free.
 - The accessibility claim above.
 
+## Status (11 November 2026)
+
+- **Tier 1: applied** to the flows and wireframes (`docs/flows.md`, canvas page "Flows", journeys 1 to 10).
+- **Tier 2: drawn** as seven new journeys, 11 to 17. The sticker goal, hand-over lock and quiet-mode change (item 16) went into journey 4, not a journey of their own.
+- **Tier 3: still open.** These are decisions for Tom. Where a flow touches one, it is drawn one way and marked "Open decision".
+- None of this is in the app code yet, and none of it has been tried by a real parent.
+
+Changes made along the way that were not in the list: "Carer" is now "Helper" (the grandparent persona read "Carer" as staff); the bottle reminder is off by default; ranges replace averages in Insights and the summary.
+
 ## Recommended changes
 
 ### Tier 1: fix in the flows before building
