@@ -37,6 +37,7 @@ struct YourDataView: View {
             if !store.isSample {
             Section {
                 Button("Delete everything", role: .destructive) { confirmingDelete = true }
+                    .foregroundStyle(Palette.waratah)
                     .confirmationDialog("Delete everything?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                         Button("Delete every child and entry", role: .destructive) {
                             store.deleteEverything()
@@ -100,7 +101,14 @@ struct HelpView: View {
             }
             .listRowBackground(Palette.paper)
             Section("About") {
-                LabeledContent("Puggle", value: "Version \(version)")
+                HStack(spacing: 14) {
+                    PuggleMark(size: 56)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Wordmark(size: 26)
+                        Text("Version \(version)").font(.subheadline).foregroundStyle(Palette.muted)
+                    }
+                }
+                .padding(.vertical, 4)
             }
             .listRowBackground(Palette.paper)
         }

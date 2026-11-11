@@ -21,8 +21,8 @@ struct MilestonesView: View {
             ForEach(milestones) { event in
                 Button { editing = EditTarget(event: event) } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "star")
-                            .frame(width: 36, height: 36)
+                        ActivityIcon(.milestone, size: 26)
+                            .frame(width: 40, height: 40)
                             .background(Palette.field, in: Circle())
                         VStack(alignment: .leading, spacing: 2) {
                             Text(event.summary).font(.body.weight(.medium))
@@ -103,6 +103,8 @@ private struct Hooray: View {
                     .accessibilityHidden(true)
             }
             VStack(spacing: 10) {
+                PuggleStanding(height: 170)
+                    .scaleEffect(burst ? 1 : 0.8)
                 Text("Hooray!").font(.display(54))
                 Text("\(name): \(title)")
                     .font(.title3.weight(.semibold))

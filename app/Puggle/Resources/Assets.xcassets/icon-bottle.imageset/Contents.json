@@ -1,0 +1,25 @@
+{
+  "images": [
+    {
+      "idiom": "universal",
+      "filename": "icon-bottle.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-bottle-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
+    }
+  ],
+  "info": {
+    "author": "xcode",
+    "version": 1
+  },
+  "properties": {
+    "preserves-vector-representation": true
+  }
+}

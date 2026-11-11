@@ -109,6 +109,7 @@ struct FeedTimerView: View {
                 }
                 .buttonStyle(PillButtonStyle())
                 Button("Discard this feed", role: .destructive) { confirmingDiscard = true }
+                    .foregroundStyle(Palette.waratah)
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .confirmationDialog("Discard this feed?", isPresented: $confirmingDiscard, titleVisibility: .visible) {
                         Button("Discard", role: .destructive) { store.discardFeed(for: child) }

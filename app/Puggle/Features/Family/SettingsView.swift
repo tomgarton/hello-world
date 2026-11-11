@@ -6,6 +6,7 @@ enum Setting {
     static let appearance = "appearance"
     static let justLog = "justLog"
     static let pottyStickers = "pottyStickers"
+    static let lockScreenGlance = "lockScreenGlance"
 }
 
 /// Settings, reached from the Family tab. Short on purpose: who you are,
@@ -16,6 +17,8 @@ struct SettingsView: View {
     @AppStorage(Setting.appearance) private var appearance = "system"
     @AppStorage(Setting.justLog) private var justLog = false
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
+    @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
+    @EnvironmentObject private var store: FamilyStore
 
     var body: some View {
         List {
@@ -44,12 +47,23 @@ struct SettingsView: View {
                     Text("Everything").tag(false)
                     Text("Just logging").tag(true)
                 }
+                .onChange(of: justLog) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
             } footer: {
                 Text(justLog
                      ? "Today shows names and tiles only. Nothing counts up and nothing is totalled, and Insights is hidden. Everything is still saved."
                      : "Today shows how long since the last feed and each child's day so far, and Insights shows the week.")
             }
             .listRowBackground(Palette.paper)
+
+            if !justLog {
+                Section {
+                    Toggle("Last feed on the Lock Screen", isOn: $glanceOn)
+                        .onChange(of: glanceOn) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
+                } footer: {
+                    Text("For babies: how long since the last feed and since they woke, on the Lock Screen and in the Dynamic Island, for up to eight hours. Running sleeps and feeds always show there.")
+                }
+                .listRowBackground(Palette.paper)
+            }
 
             Section {
                 Toggle("Stickers after the potty", isOn: $stickersOn)

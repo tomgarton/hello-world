@@ -66,6 +66,7 @@ struct LogSheet: View {
                         .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     if isEditing {
                         Button("Delete entry", role: .destructive) { confirmingDelete = true }
+                    .foregroundStyle(Palette.waratah)
                             .frame(maxWidth: .infinity, minHeight: 44)
                             .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                                 Button("Delete", role: .destructive) { deleteEntry() }

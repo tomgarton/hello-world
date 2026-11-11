@@ -87,6 +87,18 @@ Sixth round, 11 November 2026:
 
 The timers live in a second target, `PuggleWidgets` (a widget extension), with the shared types in `Shared/`. It needs no entitlements, so the free Apple ID build includes it. A timer started on another phone does not appear on this phone's Lock Screen until the app is opened here.
 
+Seventh round, 11 November 2026:
+
+| Flow | In the app |
+|---|---|
+| One Lock Screen card per child | The card shows a running feed, else a running sleep, else the glance. It changes in place, so "Woke up" on the Lock Screen turns it into "Awake" without opening the app |
+| Feed from the Lock Screen | Left, Right and Finish on the card. Tapping the running side pauses it |
+| The glance | For babies: "Fed … ago" and "Awake …", counting up, for up to eight hours after the last feed or wake. Never "due", nothing turns red. On by default; a switch in Settings; hidden in "Just logging" |
+| Splash | Puggle's mark and the wordmark for about a second on each cold start, matching the launch screen |
+| Illustrations | The 12 Puggle line icons replace SF Symbols on the Today tiles, History and milestones (light and dark versions, from `design/canvas/gen/iconsys3.py`). Puggle stands on the first-run pages, the empty Today and the celebration; her mark is on the splash and in Help |
+
+The pictures are in `Assets.xcassets` as SVGs. Still to come from the canvas: the scenes (Morning, Bedtime, Celebration), the friends, the sticker art and the animated Puggle (Rive).
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

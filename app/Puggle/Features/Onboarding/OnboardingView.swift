@@ -41,8 +41,8 @@ struct OnboardingView: View {
     private var splash: some View {
         VStack(spacing: 12) {
             Spacer()
-            Text("Puggle")
-                .font(.display(56))
+            PuggleMark()
+            Wordmark()
             Text("Baby and family tracker")
                 .foregroundStyle(Palette.muted)
             Spacer()
@@ -61,6 +61,9 @@ struct OnboardingView: View {
                     .frame(minWidth: 44, minHeight: 44)
             }
             Spacer()
+            PuggleStanding(height: 180)
+                .frame(maxWidth: .infinity)
+                .padding(.bottom, 8)
             Text(title).font(.display(34))
             Text(text).font(.title3).foregroundStyle(Palette.muted)
             Spacer()

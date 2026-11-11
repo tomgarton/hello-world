@@ -105,8 +105,8 @@ struct EventRow: View {
 
     var body: some View {
         HStack(spacing: 12) {
-            Image(systemName: event.kind.symbol)
-                .frame(width: 36, height: 36)
+            ActivityIcon(event.kind, size: 26)
+                .frame(width: 40, height: 40)
                 .background(Palette.field, in: Circle())
             VStack(alignment: .leading, spacing: 4) {
                 Text(event.summary).font(.body.weight(.medium))

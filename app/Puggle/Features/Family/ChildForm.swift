@@ -166,6 +166,7 @@ struct ChildDetailView: View {
                 Button("Delete \(draft.trimmedName.isEmpty ? "this child" : draft.trimmedName)", role: .destructive) {
                     confirmingDelete = true
                 }
+                .foregroundStyle(Palette.waratah)
                 .confirmationDialog("Delete \(child.displayName)?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                     Button("Delete", role: .destructive) { confirmingAgain = true }
                     Button("Keep", role: .cancel) {}

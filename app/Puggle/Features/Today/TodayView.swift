@@ -169,6 +169,8 @@ struct TodayView: View {
 
     private var emptyState: some View {
         VStack(alignment: .leading, spacing: 12) {
+            PuggleStanding(height: 150)
+                .frame(maxWidth: .infinity)
             Text("Add your little ones")
                 .font(.title3.weight(.semibold))
             Text("Twins, siblings, as many as you have. Everyone in the family sees the same day.")
@@ -339,9 +341,7 @@ struct ActivityCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
-                Image(systemName: kind.symbol)
-                    .font(.system(size: 26, weight: .regular))
-                    .foregroundStyle(Palette.ink)
+                ActivityIcon(kind, size: 40)
                 Spacer()
                 Button(action: onAdd) {
                     Image(systemName: "plus")
@@ -393,9 +393,7 @@ struct HealthCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top) {
-                Image(systemName: "cross.case")
-                    .font(.system(size: 26, weight: .regular))
-                    .foregroundStyle(Palette.ink)
+                ActivityIcon(.medicine, size: 40)
                 Spacer()
                 Menu {
                     ForEach(EventKind.health) { kind in

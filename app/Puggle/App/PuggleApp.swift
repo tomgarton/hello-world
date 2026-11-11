@@ -16,8 +16,8 @@ struct PuggleApp: App {
         bar.largeTitleTextAttributes = [.foregroundColor: Palette.inkUI]
         bar.titleTextAttributes = [.foregroundColor: Palette.inkUI]
         // The Lock Screen buttons run here, even when the app is opened in the background for them.
-        TimerActions.perform = { kind, childID in
-            FamilyStore.live.handleTimerAction(kind: kind, childID: childID)
+        TimerActions.perform = { action, childID in
+            FamilyStore.live.handleTimerAction(action, childID: childID)
         }
     }
 
@@ -55,8 +55,24 @@ struct RootView: View {
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @AppStorage(Setting.justLog) private var justLog = false
     @State private var inFirstRun = false
+    @State private var splashing = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
+        content
+            .overlay {
+                if splashing {
+                    SplashView().transition(.opacity)
+                }
+            }
+            .task {
+                guard splashing else { return }
+                try? await Task.sleep(for: .seconds(reduceMotion ? 0.6 : 1.1))
+                withAnimation(.easeOut(duration: 0.35)) { splashing = false }
+            }
+    }
+
+    @ViewBuilder private var content: some View {
         // First run shows until it is finished, even once the first child exists.
         if !sample.isOn && !hasOnboarded && (children.isEmpty || inFirstRun) {
             OnboardingView {
