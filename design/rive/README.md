@@ -31,8 +31,15 @@ If `asleep` is true, `greet` and `celebrate` are ignored (she stays asleep).
 
 **Layers**
 
-1. Body: Idle, Wave, Hooray, Sleepy, Walk
-2. Blink: runs all the time over layer 1, except in Sleepy (eyes are closed)
+1. Body: Idle, Wave, Hooray, FallAsleep, Sleepy, Walk
+2. Blink: runs all the time over layer 1, except in FallAsleep and Sleepy
+
+**Motion principles** (what makes it feel alive; keep them when rebuilding)
+
+- Anticipation: a small move the other way first.
+- Squash and stretch: about the feet, volume roughly constant.
+- Follow-through: tail, clip and head start and stop a beat after the body.
+- Idle is not a pure loop: rare one-off moments on a longer cycle.
 
 **Timelines**
 
@@ -40,14 +47,15 @@ Timings come from the motion studies on the canvas ("Motion studies for Rive", C
 
 | Timeline | Length | Loops | What happens |
 |---|---|---|---|
-| `Idle` | 3.2 s | yes | Head sinks 2 px and returns (breath). Arms swing about 3° at the shoulder. Tail rotates between -4° and 5° on a 2.4 s cycle |
+| `Idle` | 3.6 s breath, inside a 7.2 s cycle | yes | Head sinks 2 px and returns (breath); the body follows 0.15 s earlier, the clip 0.3 s later. Arms swing about 3°. Tail drifts between -4° and 5°. Once per 7.2 s: the eyes glance 5 px to one side for a second, and the tail flicks to 12° and back |
 | `Blink` | 4.2 s | yes | Eyes open for most of it; close and reopen over the last 0.4 s |
-| `Wave` | 1.8 s | no | Right arm up, rotates 18° at the shoulder twice. Head tilts 3.5°. Eyes are happy arcs. Tail wags faster |
-| `Hooray` | 1.3 s | no | Squash down 6 px, jump 30 px, land with a small squash, settle. Both arms up. Shadow shrinks at the top of the jump. Four quatrefoils pop around her at the peak |
-| `Sleepy` | 5 s | yes | Eyes closed (downward arcs). Head nods forward 5° and holds, then lifts. Body breathes 3 px. Three small z's float up and fade, 0.9 s apart |
-| `Walk` | 0.56 s | yes | Side view. Stride pose and passing pose, with a 5 px lift on passing. Arms swing opposite the legs |
+| `Wave` | 2.6 s | no | Starts with the arm down. It dips 9° the wrong way (anticipation), swings up 82°, waves twice (82° to 64°), and returns with a 4° overshoot. Head tilts up to 4.5°, starting 0.08 s after the arm. Tail wags 0.12 s late. Clip wobbles 0.14 s late. Eyes are happy arcs |
+| `Hooray` | 1.8 s | no | Crouch (wider 110%, shorter 86%, about the feet). Jump 38 px, stretched (93% wide, 110% tall). Land, squash (112% by 84%), recover with a small overshoot, settle. Arms dip in the crouch and fling up. Tail lags by 0.07 s, head by 0.05 s, clip by 0.1 s. Shadow widens in the crouch and shrinks at the peak. Four quatrefoils pop at the peak |
+| `FallAsleep` | 7 s | no | The transition into Sleepy. Eyes droop, reopen, droop further, reopen less, then close. The head nods 4°, 7°, then 9° and stays. Arms hang lower. Z's begin once the eyes are shut |
+| `Sleepy` | 5 s | yes | Eyes closed (downward arcs). Head stays nodded and rises 1° with each breath. Body breathes 3 px. Three small z's float up and fade, 0.9 s apart |
+| `Walk` | 0.6 s a step | yes | Side view, four keys a step: **Contact** (legs and arms widest, body level), **Down** (weight lands, body 5 px lower, tail drops), **Passing** (free leg passes, arms cross, body 2 px up), **Up** (push off, body 7 px up, tail lifts). The head takes the body's height from the key before, so it arrives late |
 
-**Transitions:** blend 0.15 to 0.25 s between states. Wave and Hooray exit to Idle when they finish. Sleepy blends in and out over 0.5 s.
+**Transitions:** blend 0.15 to 0.25 s between states. Wave and Hooray exit to Idle when they finish. `asleep` turning true plays FallAsleep, then loops Sleepy; turning false blends back to Idle over 0.5 s.
 
 **Rules that hold in every state**
 

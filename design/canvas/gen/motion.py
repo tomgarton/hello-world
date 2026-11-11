@@ -27,40 +27,85 @@ def eyes(kind, blink=True):
         return ''.join(f'<ellipse cx="{x0}" cy="108" rx="7.6" ry="7.6" fill="{O}">{b}</ellipse>' for x0 in (93, 147))
     if kind == 'happy': return ''.join(f'<path d="M{x0-10} 111q10 -12 20 0" fill="none" stroke="{O}" stroke-width="6.5" stroke-linecap="round"></path>' for x0 in (93, 147))
     return ''.join(f'<path d="M{x0-9} 108q9 9 18 0" fill="none" stroke="{O}" stroke-width="6" stroke-linecap="round"></path>' for x0 in (93, 147))
-def headparts(kind, blink=True):
+def headparts(kind, blink=True, a_clip='', a_eyes='', eyes_svg=None):
     return (G(f'<ellipse cx="120" cy="108" rx="70" ry="60" fill="{PF}" stroke="{O}" stroke-width="7"></ellipse>', '', 'head-shape')
             + G(''.join(f'<circle cx="{x0}" cy="127" r="10" fill="{BL}"></circle><path d="M{x0-7} 132l5-9M{x0+2} 132l5-9" stroke="{ST}" stroke-width="3.5" stroke-linecap="round"></path>' for x0 in (67, 173)), '', 'blush')
             + G(f'<ellipse cx="120" cy="151" rx="47" ry="19" fill="{BILL}" stroke="{O}" stroke-width="6"></ellipse><circle cx="114" cy="143" r="1.8" fill="{O}"></circle><circle cx="126" cy="143" r="1.8" fill="{O}"></circle>', '', 'bill')
-            + G(eyes(kind, blink), '', 'eyes') + G(ACC['clip'](160, 56, WARATAH), '', 'clip'))
-def rig(col, arms, eye, a_tail='', a_armL='', a_armR='', a_head='', a_body='', a_all='', blink=True):
+            + G(eyes_svg if eyes_svg is not None else eyes(kind, blink), a_eyes, 'eyes') + G(ACC['clip'](160, 56, WARATAH), a_clip, 'clip'))
+def rig(col, arms, eye, a_tail='', a_armL='', a_armR='', a_head='', a_body='', a_all='', blink=True, a_clip='', a_eyes='', a_squash='', eyes_svg=None):
     (lx0, ly0, lx1, ly1, lb), (rx0, ry0, rx1, ry1, rb) = X['ARMS'][arms]
-    return G(G(p['tail'](PF), a_tail, 'tail') + G(p['legs'](PF) + p['feet'](BILL), '', 'legs')
+    inner = (G(p['tail'](PF), a_tail, 'tail') + G(p['legs'](PF) + p['feet'](BILL), '', 'legs')
              + G(G(p['trap'](col) + p['pocket'](210), '', 'dress') + G(limb(lx0, ly0, lx1, ly1, col, lb), a_armL, 'arm-left') + G(limb(rx0, ry0, rx1, ry1, col, rb), a_armR, 'arm-right')
-                 + G(headparts(eye, blink), a_head, 'head'), a_body, 'upper'), a_all, 'puggle')
+                 + G(headparts(eye, blink, a_clip, a_eyes, eyes_svg), a_head, 'head'), a_body, 'upper'))
+    if a_squash:   # squash and stretch about the feet
+        inner = f'<g transform="translate(120 290)"><g data-m="1">{a_squash}<g transform="translate(-120 -290)">{inner}</g></g></g>'
+    return G(inner, a_all, 'puggle')
 def shadow(anim=''): return f'<ellipse cx="124" cy="290" rx="62" ry="8" fill="#3A2A20" opacity="0.14">{anim}</ellipse>'
 
-idle = shadow() + rig(HARBOUR, 'down', 'open', a_tail=at('rotate', '-4 160 240;5 160 240;-4 160 240', 2.4), a_armL=at('rotate', '0 88 178;3 88 178;0 88 178', 3.2), a_armR=at('rotate', '0 152 178;-3 152 178;0 152 178', 3.2),
-                      a_head=at('translate', '0 0;0 2;0 0', 3.2), a_body=at('translate', '0 0;0 1.2;0 0', 3.2))
-wave = shadow() + rig(HARBOUR, 'wave', 'happy', a_tail=at('rotate', '-6 160 240;8 160 240;-6 160 240', 0.8), a_armR=at('rotate', '0 152 178;-18 152 178;0 152 178;-18 152 178;0 152 178;0 152 178', 1.8, 0, '0;0.18;0.36;0.54;0.72;1'),
-                      a_head=at('rotate', '0 120 170;3.5 120 170;0 120 170', 1.8))
-sparks = ''.join(f'<g fill="{A}" opacity="0">{quatre(x, y, r)}{an("opacity", "0;0;1;0;0", 1.3, 0, "0;0.25;0.42;0.7;1")}</g>' for x, y, r in ((36, 60, 16), (206, 44, 20), (210, 130, 12), (28, 140, 12)))
-hooray = (shadow(an('rx', '62;40;62;62', 1.3, 0, '0;0.36;0.72;1')) + sparks
-          + rig(WARATAH, 'up', 'happy', a_tail=at('rotate', '0 160 240;14 160 240;0 160 240;0 160 240', 1.3, 0, '0;0.36;0.72;1'),
-                a_all=at('translate', '0 6;0 -30;0 6;0 0;0 6', 1.3, 0, '0;0.36;0.72;0.86;1'), a_armL=at('rotate', '0 88 178;8 88 178;0 88 178;0 88 178', 1.3, 0, '0;0.36;0.72;1'), a_armR=at('rotate', '0 152 178;-8 152 178;0 152 178;0 152 178', 1.3, 0, '0;0.36;0.72;1')))
-zz = ''.join(f'<text x="{186 + i*12}" y="{60 - i*8}" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="{26 - i*5}" fill="{O}" opacity="0">z{an("opacity", "0;1;1;0", 3.6, i*0.9, "0;0.2;0.7;1")}{at("translate", "0 10;0 -14", 3.6, i*0.9)}</text>' for i in range(3))
-sleepy = shadow() + zz + rig(SKY, 'down', 'sleepy', a_tail=at('rotate', '0 160 240;3 160 240;0 160 240', 5), a_head=at('rotate', '0 120 170;5 120 170;5 120 170;0 120 170', 5, 0, '0;0.4;0.6;1'),
-                             a_body=at('translate', '0 0;0 3;0 0', 5), blink=False)
-ground = f'<g stroke="#C9B89F" stroke-width="5" stroke-linecap="round">{at("translate", "0 0;-60 0", 0.56)}' + ''.join(f'<path d="M{x0} 296h26"></path>' for x0 in range(-40, 360, 60)) + '</g>'
-walkc = (shadow() + ground + f'<g>{an("display", "inline;none", 0.56, 0, None, True)}{walk(0)}</g><g display="none">{an("display", "none;inline", 0.56, 0, None, True)}{walk(1)}</g>')
+KT_J = '0;0.16;0.42;0.62;0.74;0.86;1'          # hooray: rest, crouch, peak, land, squash, recover, rest
+idle = shadow() + rig(HARBOUR, 'down', 'open',
+                      a_tail=at('rotate', '-4 160 240;5 160 240;-4 160 240;-4 160 240;12 160 240;-6 160 240;-4 160 240', 7.2, 0, '0;0.17;0.34;0.6;0.66;0.74;1'),      # drift, then a flick
+                      a_armL=at('rotate', '0 88 178;3 88 178;0 88 178', 3.6, 0.2), a_armR=at('rotate', '0 152 178;-3 152 178;0 152 178', 3.6, 0.2),
+                      a_head=at('translate', '0 0;0 2;0 0', 3.6, 0.15), a_body=at('translate', '0 0;0 1.4;0 0', 3.6),
+                      a_eyes=at('translate', '0 0;0 0;5 0;5 0;0 0;0 0', 7.2, 0, '0;0.3;0.36;0.5;0.56;1'), a_clip=at('translate', '0 0;0 1.2;0 0', 3.6, 0.3))
+# wave: the arm starts down, dips first (anticipation), swings up, waves twice, comes back; head and tail follow late
+KT_W = '0;0.08;0.24;0.36;0.48;0.6;0.72;0.9;1'
+wave = shadow() + rig(HARBOUR, 'down', 'happy',
+                      a_armR=at('rotate', '0 152 178;9 152 178;-82 152 178;-64 152 178;-82 152 178;-64 152 178;-80 152 178;4 152 178;0 152 178', 2.6, 0, KT_W),
+                      a_head=at('rotate', '0 120 170;-1.5 120 170;4 120 170;3 120 170;4.5 120 170;3 120 170;4 120 170;-1 120 170;0 120 170', 2.6, 0.08, KT_W),
+                      a_body=at('rotate', '0 120 250;-1 120 250;2 120 250;2 120 250;2 120 250;2 120 250;2 120 250;0 120 250;0 120 250', 2.6, 0, KT_W),
+                      a_tail=at('rotate', '0 160 240;-6 160 240;10 160 240;-4 160 240;10 160 240;-4 160 240;8 160 240;-3 160 240;0 160 240', 2.6, 0.12, KT_W),
+                      a_clip=at('rotate', '0 160 70;0 160 70;-10 160 70;6 160 70;-8 160 70;5 160 70;-5 160 70;3 160 70;0 160 70', 2.6, 0.14, KT_W))
+sparks = ''.join(f'<g fill="{A}" opacity="0">{quatre(x, y, r)}{an("opacity", "0;0;1;0;0", 1.8, 0, "0;0.36;0.46;0.7;1")}</g>' for x, y, r in ((36, 60, 16), (206, 44, 20), (210, 130, 12), (28, 140, 12)))
+hooray = (shadow(an('rx', '62;70;38;66;72;62;62', 1.8, 0, KT_J)) + sparks
+          + rig(WARATAH, 'up', 'happy',
+                a_squash=at('scale', '1 1;1.1 0.86;0.93 1.1;1 1;1.12 0.84;0.97 1.04;1 1', 1.8, 0, KT_J),
+                a_all=at('translate', '0 0;0 0;0 -38;0 0;0 0;0 0;0 0', 1.8, 0, KT_J),
+                a_tail=at('rotate', '0 160 240;-10 160 240;18 160 240;-6 160 240;-14 160 240;6 160 240;0 160 240', 1.8, 0.07, KT_J),             # lags the body
+                a_armL=at('rotate', '0 88 178;-34 88 178;6 88 178;0 88 178;-16 88 178;4 88 178;0 88 178', 1.8, 0.04, KT_J),
+                a_armR=at('rotate', '0 152 178;34 152 178;-6 152 178;0 152 178;16 152 178;-4 152 178;0 152 178', 1.8, 0.04, KT_J),
+                a_head=at('translate', '0 0;0 4;0 -3;0 0;0 6;0 -1;0 0', 1.8, 0.05, KT_J),
+                a_clip=at('translate', '0 0;0 3;0 -7;0 2;0 7;0 -3;0 0', 1.8, 0.1, KT_J)))
+# falling asleep: eyes droop in two tries, the head nods further each time, then she is out
+KT_S = '0;0.14;0.24;0.4;0.52;0.66;0.9;1'
+drowsy = ''.join(f'<ellipse cx="{x0}" cy="108" rx="7.6" ry="7.6" fill="{O}">{an("ry", "7.6;3;6.5;2.2;5;1;1;7.6", 7, 0, KT_S)}</ellipse>' for x0 in (93, 147))
+zz = ''.join(f'<text x="{186 + i*12}" y="{60 - i*8}" font-family="Bricolage Grotesque, sans-serif" font-weight="800" font-size="{26 - i*5}" fill="{O}" opacity="0">z{an("opacity", "0;0;1;1;0", 7, 0, "0;%.2f;%.2f;0.9;1" % (0.66 + i*0.05, 0.72 + i*0.05))}{at("translate", "0 10;0 10;0 -12;0 -12", 7, 0, "0;%.2f;0.9;1" % (0.66 + i*0.05))}</text>' for i in range(3))
+sleepy = shadow() + zz + rig(SKY, 'down', 'sleepy', eyes_svg=drowsy, blink=False,
+                             a_head=at('rotate', '0 120 170;4 120 170;1 120 170;7 120 170;2 120 170;9 120 170;9 120 170;0 120 170', 7, 0, KT_S),
+                             a_body=at('translate', '0 0;0 2;0 0;0 3;0 1;0 4;0 4;0 0', 7, 0, KT_S),
+                             a_tail=at('rotate', '0 160 240;2 160 240;0 160 240;4 160 240;2 160 240;8 160 240;8 160 240;0 160 240', 7, 0.2, KT_S),
+                             a_armL=at('rotate', '0 88 178;0 88 178;0 88 178;-3 88 178;-3 88 178;-6 88 178;-6 88 178;0 88 178', 7, 0, KT_S),
+                             a_armR=at('rotate', '0 152 178;0 152 178;0 152 178;3 152 178;3 152 178;6 152 178;6 152 178;0 152 178', 7, 0, KT_S))
+# walk: four keys per step (contact, down, passing, up); arms and legs mirror, so one step loops
+WK = [dict(name='Contact', back=(78, 272, 10), front=(152, 270, -16), bob=0, ab=(82, 218), af=(158, 212), tail=22, note='Legs widest. Heel strikes. Arms widest, opposite the legs.'),
+      dict(name='Down', back=(88, 276, 24), front=(142, 276, 0), bob=5, ab=(92, 222), af=(148, 218), tail=26, note='Weight lands. Lowest point. Tail drops late.'),
+      dict(name='Passing', back=(126, 260, -22), front=(112, 276, 0), bob=-2, ab=(108, 224), af=(130, 224), tail=14, note='Free leg passes the standing leg. Arms cross.'),
+      dict(name='Up', back=(150, 258, -26), front=(100, 274, 8), bob=-7, ab=(124, 220), af=(112, 222), tail=8, note='Push off. Highest point. Tail lifts.')]
+def walk4(k, col=HARBOUR, head_bob=None):
+    w_ = WK[k]; hb = WK[k-1]['bob'] if head_bob is None else head_bob          # the head arrives a beat late
+    (bx, by, bl), (fx, fy, fl) = w_['back'], w_['front']
+    legs = leg(104, 238, bx, by, bl) + leg(124, 238, fx, fy, fl)
+    body_ = (f'<ellipse cx="54" cy="238" rx="40" ry="14" transform="rotate({w_["tail"]} 54 238)" fill="{PF}" stroke="{O}" stroke-width="6"></ellipse>' + limb(112, 180, *w_['ab'], col, 4)
+             + f'<path d="M92 166Q118 158 144 166L160 244Q162 254 150 254L84 254Q72 254 74 244Z" fill="{col}" stroke="{O}" stroke-width="7" stroke-linejoin="round"></path>' + limb(124, 178, *w_['af'], col, -4))
+    head_ = (f'<ellipse cx="108" cy="108" rx="62" ry="58" fill="{PF}" stroke="{O}" stroke-width="7"></ellipse>'
+             + f'<circle cx="112" cy="130" r="10" fill="{BL}"></circle><path d="M105 135l5-9M114 135l5-9" stroke="{ST}" stroke-width="3.5" stroke-linecap="round"></path>'
+             + f'<ellipse cx="164" cy="150" rx="40" ry="18" transform="rotate(-4 164 150)" fill="{BILL}" stroke="{O}" stroke-width="6"></ellipse><circle cx="186" cy="141" r="1.8" fill="{O}"></circle>'
+             + f'<path d="M132 111q10 -12 20 0" fill="none" stroke="{O}" stroke-width="6" stroke-linecap="round"></path>' + ACC['clip'](132, 56, WARATAH))
+    return legs + f'<g transform="translate(0 {w_["bob"]})">{body_}</g><g transform="translate(0 {hb})">{head_}</g>'
+ground = f'<g stroke="#C9B89F" stroke-width="5" stroke-linecap="round"><animateTransform attributeName="transform" type="translate" values="0 0;-60 0" dur="0.6s" repeatCount="indefinite"></animateTransform>' + ''.join(f'<path d="M{x0} 296h26"></path>' for x0 in range(-40, 360, 60)) + '</g>'
+def frame_vis(k, n=4): return ';'.join('inline' if i == k else 'none' for i in range(n))
+walkc = shadow() + ground + ''.join(f'<g display="{"inline" if k == 0 else "none"}">{an("display", frame_vis(k), 0.6, 0, None, True)}{walk4(k)}</g>' for k in range(4))
+pose_sheet = ''.join(f'<div style="display: flex; flex-direction: column; gap: 2px; width: 150px"><svg role="img" aria-label="Walk key pose: {w_["name"]}" width="150" height="176" viewBox="0 0 250 304" style="background: {PAPER}; border-radius: 18px"><path d="M0 290H250" stroke="#C9B89F" stroke-width="3"></path><path d="M0 50H250" stroke="#C9B89F" stroke-width="1.5" stroke-dasharray="6 6"></path>{walk4(k)}</svg>'
+                     f'<div style="font-size: 14px; font-weight: 800">{k+1}. {w_["name"]}</div><div style="{T}; font-size: 12px">{w_["note"]}</div></div>' for k, w_ in enumerate(WK))
 
 def tile(inner, name, note, bg=PAPER, vb='0 0 248 304'):
     return (f'<div style="display: flex; flex-direction: column; gap: 4px; width: 184px"><svg role="img" aria-label="Puggle animation: {name}" width="184" height="220" viewBox="{vb}" style="background: {bg}; border-radius: 22px">{inner}</svg>'
             f'<div style="font-size: 15px; font-weight: 800">{name}</div><div style="{T}; font-size: 12px">{note}</div></div>')
-p_row = (tile(idle, 'Idle', 'Breathes, blinks every four seconds, tail drifts. The default on Today.')
-         + tile(wave, 'Wave', 'Hello on launch and on the splash. Arm from the shoulder, head tilts with it.', SUN)
-         + tile(hooray, 'Hooray', 'After a log or a milestone. Squash, jump, land; quatrefoils pop.', MINT)
-         + tile(sleepy, 'Sleepy', 'When a child is asleep or it is night. Slow breath, nodding head.', '#D9DEEF')
-         + tile(walkc, 'Walk', 'Pull to refresh and the books. Two key poses for now; Rive adds the in-betweens.', SHELL))
+p_row = (tile(idle, 'Idle', 'Breathes and blinks; now and then she glances aside and her tail flicks, so it never reads as a loop.')
+         + tile(wave, 'Wave', 'The arm dips, then swings up and waves twice. Head, tail and clip follow a beat late.', SUN)
+         + tile(hooray, 'Hooray', 'Crouch and squash, stretch into the jump, squash on landing, settle. Tail and clip lag.', MINT)
+         + tile(sleepy, 'Falling asleep', 'Eyes droop twice and fight back, the head nods further each time, then she is out.', '#D9DEEF')
+         + tile(walkc, 'Walk', 'Four key poses a step, with the head arriving late. Rive smooths between them.', SHELL))
 
 # ---------- animated scenes ----------
 def bob(svg, dy, dur, begin=0): return G(svg, at('translate', f'0 0;0 {dy};0 0', dur, begin))
@@ -116,10 +161,14 @@ how = (f'<div style="display: flex; flex-direction: column; gap: 8px; padding: 1
        f'<div style="{T}; font-size: 12px"><b>2. Rig.</b> Pivots at the shoulders, the neck and the tail root; a bone or two for the tail. No mouth to animate: emotion is eyes, marks and body.</div>'
        f'<div style="{T}; font-size: 12px"><b>3. Animate and wire.</b> Rebuild these five loops as timelines, then the state machine on the left. One .riv file for the character.</div>'
        f'<div style="{T}; font-size: 12px"><b>4. Scenes.</b> Each scene is its own artboard with slow ambient loops, with Puggle nested in it. Reduce Motion shows the still scene.</div></div>')
-body = f'''<div style="width: 1080px; height: 1090px; box-sizing: border-box; background: {SAND}; color: #2A1F18; font-family: 'Bricolage Grotesque', system-ui, sans-serif; padding: 40px 48px; display: flex; flex-direction: column; gap: 20px">
+principles = [('Anticipation', 'A small move the other way first: the crouch before the jump, the dip before the wave.'), ('Squash and stretch', 'She squashes wider when she lands and stretches taller in the air, always about her feet.'),
+              ('Follow-through', 'Tail, clip and head start and stop a beat after the body, so nothing moves as one block.'), ('Not a loop', 'Idle has rare one-off moments on a longer cycle than the breath.')]
+prin_html = ''.join(f'<div style="{T}; font-size: 12px"><b>{n}.</b> {d}</div>' for n, d in principles)
+body = f'''<div style="width: 1080px; height: 1400px; box-sizing: border-box; background: {SAND}; color: #2A1F18; font-family: 'Bricolage Grotesque', system-ui, sans-serif; padding: 40px 48px; display: flex; flex-direction: column; gap: 20px">
 <div style="display: flex; flex-direction: column; gap: 6px"><h1 style="margin: 0; font-size: 36px; font-weight: 800; letter-spacing: -0.02em">Motion studies for Rive</h1>
 <div style="{T}; font-size: 15px; max-width: 960px">Moving sketches of how Puggle and the scenes should feel. They loop here on the canvas; the real animations get rebuilt in the Rive editor from these.</div></div>
 <div style="display: flex; flex-direction: column; gap: 10px"><div style="{H}">Puggle</div><div style="display: flex; justify-content: space-between">{p_row}</div></div>
+<div style="display: flex; gap: 22px; align-items: flex-start"><div style="display: flex; flex-direction: column; gap: 8px"><div style="{H}">Walk: the four key poses</div><div style="display: flex; gap: 10px">{pose_sheet}</div></div><div style="display: flex; flex-direction: column; gap: 8px; flex: 1"><div style="{H}">What the second pass added</div>{prin_html}</div></div>
 <div style="display: flex; gap: 16px; align-items: stretch">{machine}{how}</div>
 <div style="display: flex; flex-direction: column; gap: 10px"><div style="{H}">Scenes with ambient motion</div><div style="display: flex; justify-content: space-between">{s_row}</div></div>
 </div>'''
@@ -127,7 +176,7 @@ for nm, sv, need in (('morning', m, 7), ('bedtime', n, 10), ('rainy', r, 6), ('c
     k = sv.count('<animate'); assert k >= need, (nm, k)
 if __name__ == '__main__':
     body = body.replace('<g>', '<g data-m="1">')
-    wrap('Motion studies for Rive', body, 1080, 1090, 'Motion.dc.html', 0)
+    wrap('Motion studies for Rive', body, 1080, 1400, 'Motion.dc.html', 0)
     P = ROOT + '/project/'
     cj = json.load(open(P + 'canvas.json'))
     cj['boards']['Motion.dc.html'].update(page='characters', x=1200, y=4180, is_interactive=True)
