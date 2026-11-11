@@ -38,6 +38,8 @@
 		<key>UIColorName</key>
 		<string>Sand</string>
 	</dict>
+	<key>UIUserInterfaceStyle</key>
+	<string>Light</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
