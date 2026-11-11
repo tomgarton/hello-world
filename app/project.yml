@@ -15,8 +15,8 @@ settings:
     SWIFT_VERSION: "5.10"
     MARKETING_VERSION: "0.1.0"
     CURRENT_PROJECT_VERSION: "1"
-    # Set your Apple Developer Team ID here, or choose the team in Xcode after generating.
-    DEVELOPMENT_TEAM: ""
+    # Apple Developer Team ID (Tom's personal team). Change it here if the team changes.
+    DEVELOPMENT_TEAM: "X2UM64LDU4"
 targets:
   Puggle:
     type: application
