@@ -139,7 +139,7 @@ private struct SampleData {
             else { what = roll < 1 ? "Accident" : (roll < 3 ? "Tried" : (roll < 5 ? "Poo" : "Wee")) }
             guard let event = add(.potty, child, time(day, hour, minute, slot: slot), detail: what, by: (day + slot) % 3) else { return }
             if what != "Accident" {
-                event.sticker = stickers[count % stickers.count].rawValue
+                event.sticker = "\(stickers[count % stickers.count].rawValue):\(Ink.allCases[(count * 3) % Ink.allCases.count].rawValue)"
                 count += 1
             }
         }

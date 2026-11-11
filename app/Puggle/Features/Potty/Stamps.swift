@@ -5,54 +5,94 @@ import UIKit
 // paper card; the sixth space takes a shiny sticker. Finished cards are kept
 // in the stamp book. It only ever adds up: an accident never appears here.
 
-/// An ink stamp. The raw value is what is saved on the potty entry.
-/// The Australiana set is offered; earlier stamps still draw.
-enum Stamp: String, CaseIterable, Identifiable {
-    case thong, esky, hoist, lamington, fairybread, pavlova, surfboard, cricket, zinc
-    case clip, fish, leaf, sun, moon, heart, star, bird, tortoise, ladybird
+/// The colour of an ink pad.
+enum Ink: String, CaseIterable, Identifiable {
+    case red, blue, green, gold, purple, teal, pink, orange
 
-    static let offered: [Stamp] = [.thong, .esky, .hoist, .lamington, .fairybread, .pavlova, .surfboard, .cricket]
+    var id: String { rawValue }
+
+    var colour: Color {
+        switch self {
+        case .red: Color(hex: 0xD9482F)
+        case .blue: Color(hex: 0x2A62B8)
+        case .green: Color(hex: 0x3C8A55)
+        case .gold: Color(hex: 0xC98A0B)
+        case .purple: Color(hex: 0x7B4FA8)
+        case .teal: Color(hex: 0x1E8C8C)
+        case .pink: Color(hex: 0xD2527F)
+        case .orange: Color(hex: 0xE0701F)
+        }
+    }
+}
+
+/// An ink stamp. A potty entry saves "stamp:ink", for example "kangaroo:teal".
+///
+/// The offered set is things a toddler anywhere can name, plus a kangaroo and three
+/// Australian items with a clear outline. Nine pictures are from Phosphor Icons, fill
+/// style (MIT; licence in Resources); the kangaroo, duck, thong and surfboard are drawn
+/// for this app. Stamps from earlier sets still draw.
+enum Stamp: String, CaseIterable, Identifiable {
+    case star, heart, sun, moon, duck, fish, butterfly, train, balloon, kangaroo, thong, surfboard, cricket
+    case esky, hoist, lamington, fairybread, pavlova, zinc, clip, leaf, bird, tortoise, ladybird
+
+    static let offered: [Stamp] = [.star, .heart, .sun, .moon, .duck, .fish, .butterfly, .train, .balloon,
+                                   .kangaroo, .thong, .surfboard, .cricket]
     static let perCard = 5
 
     var id: String { rawValue }
 
-    /// An Australiana stamp: a bold solid drawing in its own ink, with details cut out in paper colour.
+    /// A one-colour picture that takes the ink's colour.
     var art: String? {
         switch self {
-        case .thong: "stamp-thong"
+        case .star, .heart, .sun, .moon, .duck, .fish, .butterfly, .train, .balloon, .kangaroo, .thong, .surfboard, .cricket:
+            "stamp-\(rawValue)"
+        default: nil
+        }
+    }
+
+    /// Details cut out of the picture, drawn in paper colour over it.
+    var cutArt: String? {
+        switch self {
+        case .duck, .thong, .surfboard: "stamp-\(rawValue)-cut"
+        default: nil
+        }
+    }
+
+    /// An earlier Australiana picture with its ink colour drawn in.
+    var fixedArt: String? {
+        switch self {
         case .esky: "stamp-esky"
         case .hoist: "stamp-hills-hoist"
         case .lamington: "stamp-lamington"
         case .fairybread: "stamp-fairy-bread"
         case .pavlova: "stamp-pavlova"
-        case .surfboard: "stamp-surfboard"
-        case .cricket: "stamp-cricket"
         default: nil
         }
     }
 
-    /// For the first stamp set. Nil for Puggle's clip, which is drawn as a quatrefoil.
+    /// For the first stamp set.
     var symbol: String? {
         switch self {
-        case .fish: "fish.fill"
         case .leaf: "leaf.fill"
-        case .sun: "sun.max.fill"
-        case .moon: "moon.fill"
-        case .heart: "heart.fill"
-        case .star: "star.fill"
         case .bird: "bird.fill"
         case .tortoise: "tortoise.fill"
         case .ladybird: "ladybug.fill"
+        case .zinc: "cross.vial.fill"
         default: nil
         }
     }
 
-    /// One ink colour each, like a station stamp.
-    var ink: Color {
+    /// The ink a stamp uses until the child picks a pad.
+    var ink: Ink {
         switch self {
-        case .esky, .lamington, .pavlova, .clip, .sun, .star, .ladybird: Color(hex: 0xD9482F)
-        case .thong, .hoist, .surfboard, .fish, .moon, .bird: Color(hex: 0x2A62B8)
-        case .fairybread, .cricket, .zinc, .leaf, .heart, .tortoise: Color(hex: 0x3C8A55)
+        case .star, .duck: .gold
+        case .heart, .balloon, .esky, .lamington, .pavlova, .clip, .ladybird: .red
+        case .sun, .kangaroo: .orange
+        case .moon: .purple
+        case .fish, .thong: .teal
+        case .butterfly: .pink
+        case .train, .surfboard, .hoist, .bird: .blue
+        case .cricket, .fairybread, .zinc, .leaf, .tortoise: .green
         }
     }
 
@@ -143,6 +183,8 @@ struct CrayonStroke: View {
 /// One impression: two rings, the picture and the date, a little uneven.
 struct StampMark: View {
     let stamp: Stamp
+    /// The ink pad chosen; nil uses the stamp's own.
+    var ink: Ink?
     var date: Date?
     var size: CGFloat = 54
 
@@ -161,7 +203,15 @@ struct StampMark: View {
             Group {
                 if let art = stamp.art {
                     // Drawn large: it should read at a glance from arm's length.
-                    Image(art).resizable().scaledToFit().scaleEffect(date == nil ? 1.5 : 1.4)
+                    ZStack {
+                        Image(art).resizable().scaledToFit()
+                        if let cut = stamp.cutArt {
+                            Image(cut).resizable().scaledToFit().foregroundStyle(Palette.stampSpace)
+                        }
+                    }
+                    .scaleEffect(date == nil ? 1.5 : 1.4)
+                } else if let fixed = stamp.fixedArt {
+                    Image(fixed).resizable().scaledToFit().scaleEffect(date == nil ? 1.5 : 1.4)
                 } else if let symbol = stamp.symbol {
                     Image(systemName: symbol).resizable().scaledToFit()
                 } else {
@@ -179,7 +229,7 @@ struct StampMark: View {
                     .offset(x: CGFloat(sin(radians)) * 20.5 * k, y: CGFloat(cos(radians)) * 20.5 * k)
             }
         }
-        .foregroundStyle(stamp.ink)
+        .foregroundStyle((ink ?? stamp.ink).colour)
         .frame(width: size, height: size)
         // Specks of bare paper where the ink did not take.
         .overlay {
@@ -217,7 +267,8 @@ struct StickerStyle {
     /// The picture in the middle, if any.
     var emblem: String?
 
-    private static let shapes = ["shape-quatrefoil", "shape-blossom", "shape-soft-hexagon", "shape-scallop", "shape-pebble", "shape-soft-square"]
+    // Round shapes only: Puggle's face spilled over the wide, flat scallop.
+    private static let shapes = ["shape-quatrefoil", "shape-blossom", "shape-soft-hexagon", "shape-pebble", "shape-soft-square"]
 
     /// The shiny sticker for a finished card. Each card's is a different shape and foil, with Puggle on it.
     static func card(_ index: Int) -> StickerStyle {
@@ -451,11 +502,15 @@ struct CardCanvas<Content: View>: View {
 struct Impression: Identifiable {
     let id: String
     let stamp: Stamp
+    let ink: Ink?
     let date: Date?
 
     init(_ event: Event) {
         id = event.objectID.uriRepresentation().absoluteString
-        stamp = Stamp(rawValue: event.sticker ?? "") ?? .clip
+        // Saved as "stamp:ink"; older entries have the stamp alone.
+        let parts = (event.sticker ?? "").split(separator: ":").map(String.init)
+        stamp = Stamp(rawValue: parts.first ?? "") ?? .clip
+        ink = parts.count > 1 ? Ink(rawValue: parts[1]) : nil
         date = event.startedAt
     }
 
@@ -504,7 +559,7 @@ struct StampCardFace: View {
             ForEach(Array(StampCard.spaces.enumerated()), id: \.offset) { index, point in
                 Circle().fill(Palette.stampSpace).frame(width: 54, height: 54).position(point)
                 if index < impressions.count {
-                    StampMark(stamp: impressions[index].stamp, date: impressions[index].date)
+                    StampMark(stamp: impressions[index].stamp, ink: impressions[index].ink, date: impressions[index].date)
                         .rotationEffect(.degrees(impressions[index].tilt))
                         .position(point)
                 }

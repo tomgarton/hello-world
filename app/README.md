@@ -180,6 +180,16 @@ Sixteenth round, 11 November 2026:
 | Paper | The ripple and corner curl shaders are on (`Design/Paper.metal`; needs Apple's Metal Toolchain to build). Card drawings have a wax crayon texture |
 | Stamps | Redrawn as bold solid shapes with cut-out details and drawn larger. A cricket bat replaces the zinc stick |
 
+Seventeenth round, 11 November 2026 (stamps, third pass; mockup in `docs/mockups/stamps-v3.html`):
+
+| Change | In the app |
+|---|---|
+| Stamp set | Thirteen: star, heart, sun, moon, duck, fish, butterfly, train, balloon, kangaroo, thong, surfboard, cricket bat. Things a toddler anywhere can name, with a little Australia. The earlier Australian set (esky, Hills Hoist, lamington, fairy bread, pavlova, zinc stick) is no longer offered but still draws on old cards |
+| Icon pack | Nine pictures are from Phosphor Icons, fill style (MIT; `Resources/PhosphorIcons-LICENSE.txt`). This is an exception to "our own drawings only", made for stamps because they must read at a centimetre across. The kangaroo, duck, thong and surfboard are drawn for the app; no pack has them |
+| Ink pads | Eight inks. The child picks a stamp and a pad; the entry saves "stamp:ink" |
+| Date | Runs round the bottom rim in a gap in the inner ring |
+| Card stickers | Round shapes only; the scallop was too flat for Puggle's face |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

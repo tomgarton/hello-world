@@ -10,7 +10,9 @@ struct StampFlowView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let event: Event
 
-    @State private var chosen: Stamp = .thong
+    @State private var chosen: Stamp = .star
+    /// The ink pad picked; nil until one is, so each stamp shows its own colour.
+    @State private var ink: Ink?
     @State private var before: [Impression] = []
     @State private var theme: CardTheme = .beach
     @State private var cardIndex = 0
@@ -57,7 +59,7 @@ struct StampFlowView: View {
                 } else if stamped == nil {
                     tray
                 } else {
-                    Color.clear.frame(height: 160)
+                    Color.clear.frame(height: 250)
                 }
             }
             .zIndex(2)
@@ -202,31 +204,55 @@ struct StampFlowView: View {
 
     // MARK: Stamping
 
-    /// The stamps sit on a sheet of paper, the same in light and dark.
+    /// The stamps and ink pads sit on a sheet of paper, the same in light and dark.
     private var tray: some View {
-        VStack(spacing: 6) {
-            ForEach([Array(Stamp.offered.prefix(4)), Array(Stamp.offered.dropFirst(4))], id: \.first) { row in
-                HStack(spacing: 6) {
-                    ForEach(row) { stamp in
-                        let isOn = stamp == chosen
-                        Button {
-                            chosen = stamp
-                            Haptics.selection()
-                        } label: {
-                            StampMark(stamp: stamp, size: 64)
-                                .padding(5)
-                                .frame(maxWidth: .infinity)
-                                .background(isOn ? Color(hex: 0xE3D8BF) : .clear, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                                .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Palette.fixedInk, lineWidth: isOn ? 2 : 0))
-                        }
-                        .buttonStyle(.plain)
-                        .accessibilityLabel("\(stamp.name) stamp")
-                        .accessibilityAddTraits(isOn ? .isSelected : [])
+        VStack(spacing: 10) {
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 5), spacing: 4) {
+                ForEach(Stamp.offered) { stamp in
+                    let isOn = stamp == chosen
+                    Button {
+                        chosen = stamp
+                        Haptics.selection()
+                    } label: {
+                        StampMark(stamp: stamp, ink: ink, size: 54)
+                            .padding(3)
+                            .frame(maxWidth: .infinity)
+                            .background(isOn ? Color(hex: 0xE3D8BF) : .clear, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Palette.fixedInk, lineWidth: isOn ? 2 : 0))
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(stamp.name) stamp")
+                    .accessibilityAddTraits(isOn ? .isSelected : [])
+                }
+            }
+            // Ink pads: any stamp can be any colour.
+            HStack(spacing: 6) {
+                ForEach(Ink.allCases) { pad in
+                    let isOn = (ink ?? chosen.ink) == pad
+                    Button {
+                        ink = pad
+                        Haptics.selection()
+                    } label: {
+                        RoundedRectangle(cornerRadius: 9, style: .continuous)
+                            .fill(pad.colour)
+                            .overlay(alignment: .bottom) {
+                                // The pad's lower edge, so it reads as a block of ink.
+                                Rectangle().fill(.black.opacity(0.18)).frame(height: 5)
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 9, style: .continuous))
+                            .overlay {
+                                if isOn { Image(systemName: "checkmark").font(.caption.weight(.bold)).foregroundStyle(.white) }
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 44, maxHeight: 44)
+                            .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous).stroke(Palette.fixedInk, lineWidth: isOn ? 2 : 0))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(pad.rawValue.capitalized) ink")
+                    .accessibilityAddTraits(isOn ? .isSelected : [])
                 }
             }
         }
-        .padding(8)
+        .padding(10)
         .background(Palette.stampSpace, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
@@ -239,7 +265,7 @@ struct StampFlowView: View {
             try? await Task.sleep(for: .seconds(reduceMotion ? 0 : 0.18))
             // The hit: the thud, the ink, and the paper giving under it.
             Haptics.thud()
-            store.setSticker(chosen.rawValue, on: event)
+            store.setSticker("\(chosen.rawValue):\((ink ?? chosen.ink).rawValue)", on: event)
             stamped = Impression(event)
             if !reduceMotion {
                 // A real ripple through the paper, from a shader.
