@@ -7,9 +7,12 @@ import SwiftUI
 struct TodayView: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.scenePhase) private var scenePhase
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
+                  predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
 
     @State private var logging: EventKind?
+    @State private var feedTimer = false
+    @State private var pastFeed = false
     @State private var editing: EditTarget?
     @State private var dayOf: Child?
     @State private var addingChild = false
@@ -53,9 +56,10 @@ struct TodayView: View {
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                             ForEach(visibleKinds) { kind in
                                 ActivityCard(kind: kind, children: relevant(kind)) {
-                                    logging = kind
+                                    // Breastfeeds open on the timers; a past feed is one tap from there.
+                                    if kind == .breastfeed { feedTimer = true } else { logging = kind }
                                 } onEdit: {
-                                    editing = EditTarget(event: $0)
+                                    if $0.isRunningFeed { feedTimer = true } else { editing = EditTarget(event: $0) }
                                 }
                             }
                             HealthCard(children: Array(children)) {
@@ -94,6 +98,14 @@ struct TodayView: View {
                     pendingSticker = event
                 }
             }
+        }
+        .sheet(isPresented: $feedTimer, onDismiss: {
+            if pastFeed {
+                pastFeed = false
+                logging = .breastfeed
+            }
+        }) {
+            FeedTimerView(children: relevant(.breastfeed)) { pastFeed = true }
         }
         .fullScreenCover(item: $stickerFor) { target in
             StickerPickerView(event: target.event)
@@ -222,6 +234,10 @@ struct ChildStatusRow: View {
     private func statusLine(now: Date, sleep: Event?) -> String? {
         if let start = sleep?.startedAt {
             return "Asleep \(Elapsed.short(from: start, to: now))"
+        }
+        if let feed = store.activeFeed(for: child) {
+            guard let side = feed.runningSide else { return "Feeding, paused" }
+            return "Feeding, \(side.lowercased()) \(Elapsed.minutes(feed.feedSeconds(side, now: now)))"
         }
         let last = store.latest(.bottle, for: child) ?? store.latest(.breastfeed, for: child) ?? store.latest(for: child)
         guard let last, let at = last.startedAt else { return nil }

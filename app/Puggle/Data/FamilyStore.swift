@@ -127,6 +127,89 @@ final class FamilyStore: ObservableObject {
         return events
     }
 
+    /// Twins fed together: one bottle each, with their own amounts.
+    @discardableResult
+    func logBottles(_ amounts: [(child: Child, ml: Double)], at start: Date, detail: String?, note: String?) -> [Event] {
+        let events = amounts.map { log(.bottle, for: [$0.child], at: start, amountML: $0.ml, detail: detail, note: note) }
+        lastSaved = LastSaved(events: events, undo: .delete)
+        return events
+    }
+
+    // MARK: Breastfeed timers
+
+    /// A feed whose timer has not been finished. One per child.
+    func activeFeed(for child: Child) -> Event? {
+        (child.events ?? []).first { $0.isRunningFeed }
+    }
+
+    /// Starts a side, or pauses it if it is the one running. Starting one side stops the other.
+    func tapFeedSide(_ side: String, for child: Child) {
+        let feed = activeFeed(for: child) ?? log(.breastfeed, for: [child], at: .now)
+        bank(feed)
+        if feed.runningSide == side {
+            feed.runningSide = nil
+            feed.sideStartedAt = nil
+        } else {
+            feed.runningSide = side
+            feed.sideStartedAt = .now
+        }
+        persistence.save()
+    }
+
+    func finishFeed(for child: Child) {
+        guard let feed = activeFeed(for: child) else { return }
+        bank(feed)
+        feed.runningSide = nil
+        feed.sideStartedAt = nil
+        feed.endedAt = .now
+        let left = feed.leftSeconds > 0, right = feed.rightSeconds > 0
+        feed.detail = left && right ? "Both" : (right ? "Right" : "Left")
+        persistence.save()
+        lastSaved = LastSaved(events: [feed], undo: .none)
+    }
+
+    /// A timer started by mistake leaves no entry.
+    func discardFeed(for child: Child) {
+        guard let feed = activeFeed(for: child) else { return }
+        context.delete(feed)
+        persistence.save()
+    }
+
+    /// Adds the stretch that is running to its side's total.
+    private func bank(_ feed: Event) {
+        guard let side = feed.runningSide, let since = feed.sideStartedAt else { return }
+        let extra = max(Date.now.timeIntervalSince(since), 0)
+        if side == "Left" { feed.leftSeconds += extra } else { feed.rightSeconds += extra }
+        feed.sideStartedAt = .now
+    }
+
+    // MARK: Children
+
+    /// Hides a child from Today and keeps everything logged for them.
+    func setArchived(_ archived: Bool, for child: Child) {
+        if archived {
+            if let sleep = activeSleep(for: child) { sleep.endedAt = .now }
+            finishFeed(for: child)
+            lastSaved = nil
+        }
+        child.archived = archived
+        persistence.save()
+    }
+
+    /// Weights, oldest first, for the growth chart.
+    func weights(for child: Child) -> [Event] {
+        (child.events ?? [])
+            .filter { $0.kind == .weight && $0.value > 0 && $0.startedAt != nil }
+            .sorted { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    }
+
+    /// Milestones in order.
+    func milestones(for child: Child) -> [Event] {
+        (child.events ?? [])
+            .filter { $0.kind == .milestone }
+            .sorted { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    }
+
     /// Call after changing an existing entry's fields.
     func saveEdit(_ event: Event) {
         persistence.save()
@@ -271,7 +354,7 @@ final class FamilyStore: ObservableObject {
                 ? "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
                 : value
         }
-        var lines = ["started,ended,child,activity,amount_ml,detail,note,dose,value,sticker"]
+        var lines = ["started,ended,child,activity,amount_ml,detail,note,dose,value,sticker,left_min,right_min"]
         for event in events {
             let names = event.sortedChildren.map(\.displayName).joined(separator: " & ")
             lines.append([
@@ -285,6 +368,8 @@ final class FamilyStore: ObservableObject {
                 cell(event.dose),
                 event.value > 0 ? String(event.value) : "",
                 cell(event.sticker),
+                event.leftSeconds > 0 ? String(Int((event.leftSeconds / 60).rounded())) : "",
+                event.rightSeconds > 0 ? String(Int((event.rightSeconds / 60).rounded())) : "",
             ].joined(separator: ","))
         }
         let day = Date.now.formatted(.iso8601.year().month().day())

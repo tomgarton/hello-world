@@ -25,6 +25,8 @@ final class Child: NSManagedObject, Identifiable {
     /// before the questions existed; they keep every tile.
     @NSManaged var feedingRaw: String?
     @NSManaged var pottyTraining: Bool
+    /// Hidden from Today, with all their history kept. Can be undone.
+    @NSManaged var archived: Bool
     @NSManaged var family: Family?
     @NSManaged var events: Set<Event>?
 }
@@ -60,6 +62,12 @@ final class Event: NSManagedObject, Identifiable {
     @NSManaged var value: Double
     /// Potty: the sticker the child chose, if any.
     @NSManaged var sticker: String?
+    /// Breastfeed timers: time on each side so far, which side is running
+    /// (nil when paused or finished) and when that side was started.
+    @NSManaged var leftSeconds: Double
+    @NSManaged var rightSeconds: Double
+    @NSManaged var runningSide: String?
+    @NSManaged var sideStartedAt: Date?
     @NSManaged var createdAt: Date?
     @NSManaged var family: Family?
     @NSManaged var children: Set<Child>?
@@ -67,7 +75,7 @@ final class Event: NSManagedObject, Identifiable {
 
 enum EventKind: String, CaseIterable, Identifiable {
     case bottle, breastfeed, solids, sleep, nappy, potty, note
-    case weight, medicine, temperature, vaccination
+    case weight, medicine, temperature, vaccination, milestone
 
     /// Health entries share one tile on Today.
     static let health: [EventKind] = [.medicine, .temperature, .vaccination]
@@ -88,6 +96,7 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .medicine: "Medicine"
         case .temperature: "Temperature"
         case .vaccination: "Vaccination"
+        case .milestone: "Milestone"
         }
     }
 
@@ -105,6 +114,7 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .medicine: "pills"
         case .temperature: "thermometer.medium"
         case .vaccination: "syringe"
+        case .milestone: "star"
         }
     }
 }
@@ -122,6 +132,16 @@ extension Event {
         (children ?? []).sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
     }
 
+    /// A breastfeed timer that has not been finished.
+    var isRunningFeed: Bool { kind == .breastfeed && endedAt == nil }
+
+    /// Time on one side so far, counting the stretch that is running now.
+    func feedSeconds(_ side: String, now: Date = .now) -> Double {
+        let banked = side == "Left" ? leftSeconds : rightSeconds
+        guard runningSide == side, let since = sideStartedAt else { return banked }
+        return banked + max(now.timeIntervalSince(since), 0)
+    }
+
     /// A short, human summary for timelines: "Bottle, 150 ml formula".
     var summary: String {
         switch kind {
@@ -134,7 +154,18 @@ extension Event {
                 return "Slept \(Elapsed.short(from: start, to: end))"
             }
             return "Asleep"
-        case .nappy, .potty, .solids, .breastfeed:
+        case .breastfeed:
+            if endedAt == nil { return "Feeding" }
+            if leftSeconds > 0 || rightSeconds > 0 {
+                var parts: [String] = []
+                if leftSeconds > 0 { parts.append("left \(Elapsed.minutes(leftSeconds))") }
+                if rightSeconds > 0 { parts.append("right \(Elapsed.minutes(rightSeconds))") }
+                return "Breastfeed, " + parts.joined(separator: ", ")
+            }
+            let side = (detail ?? "").isEmpty ? "" : ", \(detail!.lowercased())"
+            let length = (startedAt.flatMap { start in endedAt.map { Elapsed.short(from: start, to: $0) } }).map { ", \($0)" } ?? ""
+            return "Breastfeed\(side)\(length)"
+        case .nappy, .potty, .solids:
             let what = (detail ?? "").isEmpty ? "" : ", \(detail!.lowercased())"
             return "\(kind.title)\(what)"
         case .note:
@@ -150,6 +181,8 @@ extension Event {
             return "Temperature \(value.formatted(.number.precision(.fractionLength(1)))) °C\(place)"
         case .vaccination:
             return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination, \(detail!)"
+        case .milestone:
+            return (detail ?? "").isEmpty ? "Milestone" : detail!
         }
     }
 }
@@ -175,7 +208,7 @@ extension Child {
         case .nappy: return !pottyTraining || ageMonths < 36
         case .potty: return pottyTraining || feeding == nil
         case .weight: return ageMonths < 24
-        case .sleep, .note, .medicine, .temperature, .vaccination: return true
+        case .sleep, .note, .medicine, .temperature, .vaccination, .milestone: return true
         }
     }
 
@@ -185,15 +218,18 @@ extension Child {
     /// Compact age for tight spots: "6mo", "1y 3mo", "3w", "2½".
     var ageText: String { age(.abbreviated) }
 
+    /// Their age on a given day, spelled out: for milestones and measurements.
+    func ageText(at date: Date) -> String { age(.full, at: date) }
+
     /// Spelled-out age where there is room: "6 months", "3 weeks", "2½ years".
     var ageTextFull: String { age(.full) }
 
     /// Uses Apple's formatter so the wording follows the phone's language.
     /// The one exception is the half year for children of two and over.
-    private func age(_ style: DateComponentsFormatter.UnitsStyle) -> String {
+    private func age(_ style: DateComponentsFormatter.UnitsStyle, at date: Date = .now) -> String {
         guard let birth = birthDate else { return "" }
         let calendar = Calendar.current
-        let comps = calendar.dateComponents([.year, .month, .weekOfYear, .day], from: birth, to: .now)
+        let comps = calendar.dateComponents([.year, .month, .weekOfYear, .day], from: birth, to: max(date, birth))
         let years = comps.year ?? 0, months = comps.month ?? 0
 
         if years >= 2, months >= 6 {
@@ -227,6 +263,17 @@ enum Elapsed {
         let minutes = max(Int(end.timeIntervalSince(start) / 60), 0)
         let h = minutes / 60, m = minutes % 60
         return h > 0 ? "\(h)h \(String(format: "%02d", m))m" : "\(m) min"
+    }
+
+    /// Whole minutes for a length in seconds, never less than one: "8 min".
+    static func minutes(_ seconds: Double) -> String {
+        "\(max(Int((seconds / 60).rounded()), 1)) min"
+    }
+
+    /// A running clock: "4:05".
+    static func clock(_ seconds: Double) -> String {
+        let total = max(Int(seconds), 0)
+        return "\(total / 60):\(String(format: "%02d", total % 60))"
     }
 }
 
@@ -301,6 +348,7 @@ enum PuggleModel {
             attribute("createdAt", .dateAttributeType),
             attribute("feedingRaw", .stringAttributeType),
             attribute("pottyTraining", .booleanAttributeType, optional: false, defaultValue: false),
+            attribute("archived", .booleanAttributeType, optional: false, defaultValue: false),
             childFamily, childEvents,
         ]
         event.properties = [
@@ -314,6 +362,10 @@ enum PuggleModel {
             attribute("dose", .stringAttributeType),
             attribute("value", .doubleAttributeType, optional: false, defaultValue: 0.0),
             attribute("sticker", .stringAttributeType),
+            attribute("leftSeconds", .doubleAttributeType, optional: false, defaultValue: 0.0),
+            attribute("rightSeconds", .doubleAttributeType, optional: false, defaultValue: 0.0),
+            attribute("runningSide", .stringAttributeType),
+            attribute("sideStartedAt", .dateAttributeType),
             attribute("createdAt", .dateAttributeType),
             eventFamily, eventChildren,
         ]

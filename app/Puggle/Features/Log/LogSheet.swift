@@ -42,6 +42,10 @@ struct LogSheet: View {
     @State private var place = ""
     @State private var vaccine = ""
     @State private var grams: Double?
+    @State private var milestone = ""
+    /// Each child's own amount when a bottle is logged for several at once.
+    @State private var amounts: [NSManagedObjectIDWrapper: Double] = [:]
+    @State private var loadedFeed: (side: String, minutes: Double)?
     @State private var tooSoon: String?
     @State private var confirmedTooSoon = false
     @State private var saved = false
@@ -130,7 +134,13 @@ struct LogSheet: View {
                 amountTouched = true
             case .breastfeed:
                 side = event.detail ?? side
-                if let end = event.endedAt { minutes = max(1, end.timeIntervalSince(time) / 60) }
+                let timed = event.feedSeconds("Left") + event.feedSeconds("Right")
+                if timed > 0 {
+                    minutes = min(max(1, (timed / 60).rounded()), 90)
+                } else if let end = event.endedAt {
+                    minutes = min(max(1, (end.timeIntervalSince(time) / 60).rounded()), 90)
+                }
+                loadedFeed = (side, minutes)
             case .solids:
                 food = event.detail ?? ""
             case .nappy, .potty:
@@ -146,6 +156,8 @@ struct LogSheet: View {
                 vaccine = event.detail ?? ""
             case .weight:
                 grams = event.value > 0 ? event.value : nil
+            case .milestone:
+                milestone = event.detail ?? ""
             case .sleep, .note:
                 break
             }
@@ -235,6 +247,7 @@ struct LogSheet: View {
         case .temperature: return (temperature ?? 0) > 0
         case .vaccination: return !vaccine.trimmingCharacters(in: .whitespaces).isEmpty
         case .weight: return (grams ?? 0) > 0
+        case .milestone: return !milestone.trimmingCharacters(in: .whitespaces).isEmpty
         default: return true
         }
     }
@@ -335,22 +348,26 @@ struct LogSheet: View {
         switch kind {
         case .bottle:
             VStack(spacing: 16) {
-                HStack {
-                    stepButton("minus", label: "Less") { amount = max(10, amount - 10) }
-                    Spacer()
-                    HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        TextField("0", value: $amount, format: .number.precision(.fractionLength(0)))
-                            .keyboardType(.numberPad)
-                            .focused($amountFocused)
-                            .font(.display(64))
-                            .monospacedDigit()
-                            .multilineTextAlignment(.trailing)
-                            .fixedSize()
-                            .accessibilityLabel("Amount in millilitres")
-                        Text("ml").foregroundStyle(Palette.muted)
+                if ownAmounts {
+                    ForEach(chosenChildren) { child in ownAmountRow(child) }
+                } else {
+                    HStack {
+                        stepButton("minus", label: "Less") { amount = max(10, amount - 10) }
+                        Spacer()
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            TextField("0", value: $amount, format: .number.precision(.fractionLength(0)))
+                                .keyboardType(.numberPad)
+                                .focused($amountFocused)
+                                .font(.display(64))
+                                .monospacedDigit()
+                                .multilineTextAlignment(.trailing)
+                                .fixedSize()
+                                .accessibilityLabel("Amount in millilitres")
+                            Text("ml").foregroundStyle(Palette.muted)
+                        }
+                        Spacer()
+                        stepButton("plus", label: "More") { amount = min(400, amount + 10) }
                     }
-                    Spacer()
-                    stepButton("plus", label: "More") { amount = min(400, amount + 10) }
                 }
                 Picker("Milk", selection: $milk) {
                     ForEach(["Formula", "Breast milk", "Mixed"], id: \.self) { Text($0) }
@@ -471,7 +488,72 @@ struct LogSheet: View {
                 timeRow("Time", $time)
                 timeShortcuts
             }
+        case .milestone:
+            VStack(alignment: .leading, spacing: 16) {
+                field("What happened?", text: $milestone)
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(Self.firsts, id: \.self) { item in
+                            chip(item, isOn: milestone == item) { milestone = item }
+                        }
+                    }
+                }
+                timeRow("When", $time)
+            }
         }
+    }
+
+    /// Firsts to pick from. No ages are attached: they happen when they happen.
+    private static let firsts = ["First smile", "First laugh", "Rolled over", "Sat up", "First tooth",
+                                 "First food", "Crawled", "First word", "First steps", "Slept through"]
+
+    // MARK: Own amounts
+
+    /// Several children on one bottle sheet get a row each.
+    private var ownAmounts: Bool { !isEditing && chosenChildren.count > 1 }
+
+    /// A child's amount: what was typed here, else their last bottle, else the sheet's amount.
+    private func ownAmount(_ child: Child) -> Double {
+        if let typed = amounts[NSManagedObjectIDWrapper(child)] { return typed }
+        if let last = store.latest(.bottle, for: child), last.amountML > 0 { return last.amountML }
+        return amount
+    }
+
+    private func ownAmountRow(_ child: Child) -> some View {
+        let key = NSManagedObjectIDWrapper(child)
+        let value = Binding<Double>(get: { ownAmount(child) }, set: { amounts[key] = $0 })
+        return HStack(spacing: 10) {
+            ChildChip(child: child)
+            Spacer(minLength: 0)
+            smallStep("minus", label: "Less for \(child.displayName)") { amounts[key] = max(10, ownAmount(child) - 10) }
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                TextField("0", value: value, format: .number.precision(.fractionLength(0)))
+                    .keyboardType(.numberPad)
+                    .font(.display(34))
+                    .monospacedDigit()
+                    .multilineTextAlignment(.trailing)
+                    .fixedSize()
+                    .accessibilityLabel("\(child.displayName)'s amount in millilitres")
+                Text("ml").foregroundStyle(Palette.muted)
+            }
+            .frame(minWidth: 96, alignment: .trailing)
+            smallStep("plus", label: "More for \(child.displayName)") { amounts[key] = min(400, ownAmount(child) + 10) }
+        }
+        .padding(.horizontal, 14)
+        .frame(minHeight: 64)
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private func smallStep(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.headline)
+                .frame(width: 44, height: 44)
+                .background(Palette.field, in: Circle())
+        }
+        .foregroundStyle(Palette.ink)
+        .buttonRepeatBehavior(.enabled)
+        .accessibilityLabel(label)
     }
 
     /// The change from the first weight logged, as a plain number. The app
@@ -593,6 +675,7 @@ struct LogSheet: View {
         let medicineName = medicine.trimmingCharacters(in: .whitespacesAndNewlines)
         let doseValue = doseText.trimmingCharacters(in: .whitespacesAndNewlines)
         let vaccineName = vaccine.trimmingCharacters(in: .whitespacesAndNewlines)
+        let milestoneName = milestone.trimmingCharacters(in: .whitespacesAndNewlines)
 
         if kind == .medicine {
             if !isEditing, !confirmedTooSoon, let warning = tooSoonWarning(for: who) {
@@ -614,6 +697,13 @@ struct LogSheet: View {
                 event.startedAt = time
                 event.endedAt = time.addingTimeInterval(minutes * 60)
                 event.detail = side
+                // Changing the side or the length replaces what the timers recorded.
+                if loadedFeed?.side != side || loadedFeed?.minutes != minutes || event.runningSide != nil {
+                    event.leftSeconds = 0
+                    event.rightSeconds = 0
+                }
+                event.runningSide = nil
+                event.sideStartedAt = nil
             case .solids:
                 event.startedAt = time
                 event.detail = trimmedFood
@@ -644,13 +734,21 @@ struct LogSheet: View {
             case .weight:
                 event.startedAt = time
                 event.value = grams ?? 0
+            case .milestone:
+                event.startedAt = time
+                event.detail = milestoneName
             }
             store.saveEdit(event)
         } else {
             let events: [Event]
             switch kind {
             case .bottle:
-                events = store.logEach(.bottle, for: who, at: time, amountML: ml, detail: milk, note: noteValue)
+                if ownAmounts {
+                    let each = who.map { (child: $0, ml: min(max(ownAmount($0), 0), 1000)) }
+                    events = store.logBottles(each, at: time, detail: milk, note: noteValue)
+                } else {
+                    events = store.logEach(.bottle, for: who, at: time, amountML: ml, detail: milk, note: noteValue)
+                }
             case .breastfeed:
                 events = store.logEach(.breastfeed, for: who, at: time, end: time.addingTimeInterval(minutes * 60), detail: side, note: noteValue)
             case .solids:
@@ -671,6 +769,8 @@ struct LogSheet: View {
                 events = store.logEach(.vaccination, for: who, at: time, detail: vaccineName, note: noteValue)
             case .weight:
                 events = store.logEach(.weight, for: who, at: time, note: noteValue, value: grams ?? 0)
+            case .milestone:
+                events = store.logEach(.milestone, for: who, at: time, detail: milestoneName, note: noteValue)
             }
             onSaved(events)
         }

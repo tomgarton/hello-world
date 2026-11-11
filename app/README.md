@@ -57,11 +57,24 @@ A third round on 11 November 2026, as thinner versions of journeys 4, 8, 11 and 
 
 New optional fields on Event for these: `dose`, `value` (°C or grams) and `sticker`. Medicine gaps are kept on the phone, not synced.
 
-The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, milestones, the growth chart, and birth weight at setup.
+Fourth round, 11 November 2026:
 
-Not built: the character builder and photos, invitations in first run, archiving a child, the doctor's PDF summary, import, Pro and tips, settings for night mode, units and reminders, a way to contact us from Help, and the "just log" mode. Whole journeys not started: helpers (13), twins' own amounts and pumping (14), large text and night (16), and widgets, Lock Screen and Siri (17).
+| Flow | In the app |
+|---|---|
+| Breastfeed timers (2, 12) | The Breastfeed tile opens a left and a right timer. Tapping a side starts it and stops the other; tapping again pauses. The feed keeps running with the sheet closed and shows on the child's row. "Enter a past feed" is one tap from there. No Lock Screen timer yet |
+| Twins' own amounts (14) | A bottle for several children gives each a row, filled in from their own last bottle |
+| Milestones (8) | On each child's page: pick a first or write your own. The list shows the date and their age then. Saving one plays the one big "Hooray!" |
+| Growth (8) | On each child's page: their weights as a line chart and a list with their age at each. No percentile bands. Always carries the line about the nurse or GP |
+| Summary for the doctor (5) | On each child's page: a one-page PDF of the last seven days, recent weights, and health entries from the last 14 days, to share or print |
+| Hide a child (7) | "Hide from Today" on the child's page keeps their history and can be undone from the Family tab |
 
-Left out of those two journeys: the Lock Screen timer (needs a widget extension), the breastfeed timers, "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, per-child amounts for "Both", and Puggle's nod on save.
+Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
+
+The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.
+
+Not built: the character builder and photos, invitations in first run, import, Pro and tips, settings for night mode, units and reminders, a way to contact us from Help, and the "just log" mode. Whole journeys not started: helpers (13), pumping (14), large text and night (16), and widgets, Lock Screen and Siri (17).
+
+Left out of those two journeys: the Lock Screen timer (needs a widget extension), "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, and Puggle's nod on save.
 
 Not yet: Live Activities, widgets, the custom Puggle icons (SF Symbols stand in), characters, potty sticker chart, growth, onboarding, import.
 
@@ -112,6 +125,7 @@ app/
     Features/Log/             Log sheet
     Features/History/         History
     Features/Family/          Children and sharing
+    Features/Growing/         Milestones, growth, summary for the doctor
     Resources/                Info.plist, entitlements, assets
 ```
 

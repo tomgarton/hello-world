@@ -4,7 +4,8 @@ import SwiftUI
 /// bars with a value on each. No averages, no comparisons between children.
 struct InsightsView: View {
     @EnvironmentObject private var store: FamilyStore
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
+                  predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
 
     var body: some View {
         NavigationStack {

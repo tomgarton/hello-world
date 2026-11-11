@@ -146,7 +146,21 @@ struct ChildDetailView: View {
 
     var body: some View {
         Form {
+            Section {
+                NavigationLink { MilestonesView(child: child) } label: { Label("Milestones", systemImage: "star") }
+                NavigationLink { GrowthView(child: child) } label: { Label("Growth", systemImage: "scalemass") }
+                NavigationLink { SummaryView(child: child) } label: { Label("Summary for the doctor", systemImage: "doc.text") }
+            }
             ChildForm(draft: $draft)
+            Section {
+                Button(child.archived ? "Show on Today again" : "Hide from Today") {
+                    store.setArchived(!child.archived, for: child)
+                }
+            } footer: {
+                Text(child.archived
+                     ? "\(child.displayName) is hidden from Today and Insights. Everything logged for them is kept."
+                     : "Hides \(child.displayName) from Today and Insights and keeps everything logged for them. You can bring them back any time.")
+            }
             Section {
                 Button("Delete \(draft.trimmedName.isEmpty ? "this child" : draft.trimmedName)", role: .destructive) {
                     confirmingDelete = true

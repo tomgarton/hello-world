@@ -17,7 +17,7 @@ struct FamilyView: View {
         NavigationStack {
             List {
                 Section("Children") {
-                    ForEach(children) { child in
+                    ForEach(children.filter { !$0.archived }) { child in
                         NavigationLink {
                             ChildDetailView(child: child)
                         } label: {
@@ -33,6 +33,25 @@ struct FamilyView: View {
                     }
                     Button("Add a child") { addingChild = true }
                         .listRowBackground(Palette.paper)
+                }
+                if children.contains(where: \.archived) {
+                    Section {
+                        ForEach(children.filter(\.archived)) { child in
+                            NavigationLink {
+                                ChildDetailView(child: child)
+                            } label: {
+                                HStack(spacing: 12) {
+                                    ChildAvatar(child: child, size: 40)
+                                    Text(child.displayName).font(.headline)
+                                }
+                            }
+                            .listRowBackground(Palette.paper)
+                        }
+                    } header: {
+                        Text("Hidden from Today")
+                    } footer: {
+                        Text("Their history is kept. Open a child to bring them back.")
+                    }
                 }
                 if Persistence.cloudSyncEnabled {
                     Section {
