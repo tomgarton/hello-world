@@ -4,41 +4,12 @@ _m = open(ROOT + '/gen/motion.py').read()
 exec(_m[:_m.index('def tile(')])                    # rig, loops, helpers, colours
 dot, blush = X['dot'], X['blush']
 
-# ---------- pose-to-pose helper: hold each pose, pop to the next ----------
-def snap(kind, poses, starts, dur, move=0.05, begin=0):
-    vals, kts = [poses[0]], [0.0]
-    for v, s_ in zip(poses[1:], starts[1:]):
-        vals += [vals[-1], v]; kts += [round(s_ - move, 3), s_]
-    vals.append(vals[-1]); kts.append(1.0)
-    n = len(vals)
-    return (f'<animateTransform attributeName="transform" type="{kind}" values="{";".join(vals)}" keyTimes="{";".join(str(k) for k in kts)}" dur="{dur}s" begin="{begin}s" repeatCount="indefinite" '
-            f'calcMode="spline" keySplines="{";".join(["0.3 0 0.2 1"] * (n - 1))}"></animateTransform>')
-def snap_attr(attr, poses, starts, dur, move=0.05):
-    vals, kts = [poses[0]], [0.0]
-    for v, s_ in zip(poses[1:], starts[1:]):
-        vals += [vals[-1], v]; kts += [round(s_ - move, 3), s_]
-    vals.append(vals[-1]); kts.append(1.0)
-    return f'<animate attributeName="{attr}" values="{";".join(vals)}" keyTimes="{";".join(str(k) for k in kts)}" dur="{dur}s" repeatCount="indefinite"></animate>'
-SJ = [0, 0.16, 0.30, 0.56, 0.70]        # hooray poses: rest, crouch, air, land, rest
-hooray_snap = (shadow(snap_attr('rx', ['62', '72', '38', '74', '62'], SJ, 1.5)) + sparks.replace('dur="1.8s"', 'dur="1.5s"')
-               + rig(WARATAH, 'up', 'happy',
-                     a_squash=snap('scale', ['1 1', '1.14 0.82', '0.92 1.12', '1.16 0.8', '1 1'], SJ, 1.5),
-                     a_all=snap('translate', ['0 0', '0 0', '0 -40', '0 0', '0 0'], SJ, 1.5),
-                     a_tail=snap('rotate', ['0 160 240', '-12 160 240', '22 160 240', '-16 160 240', '0 160 240'], SJ, 1.5, 0.05, 0.06),
-                     a_armL=snap('rotate', ['0 88 178', '-36 88 178', '8 88 178', '-18 88 178', '0 88 178'], SJ, 1.5),
-                     a_armR=snap('rotate', ['0 152 178', '36 152 178', '-8 152 178', '18 152 178', '0 152 178'], SJ, 1.5),
-                     a_clip=snap('translate', ['0 0', '0 4', '0 -8', '0 8', '0 0'], SJ, 1.5, 0.05, 0.08)))
-SW_ = [0, 0.08, 0.2, 0.36, 0.5, 0.64, 0.8]   # wave poses: down, dip, up, tilt, up, tilt, down
-wave_snap = shadow() + rig(HARBOUR, 'down', 'happy',
-                           a_armR=snap('rotate', ['0 152 178', '10 152 178', '-84 152 178', '-60 152 178', '-84 152 178', '-60 152 178', '0 152 178'], SW_, 2.0),
-                           a_head=snap('rotate', ['0 120 170', '-2 120 170', '5 120 170', '2 120 170', '5 120 170', '2 120 170', '0 120 170'], SW_, 2.0, 0.05, 0.06),
-                           a_tail=snap('rotate', ['0 160 240', '-6 160 240', '12 160 240', '-4 160 240', '12 160 240', '-4 160 240', '0 160 240'], SW_, 2.0, 0.05, 0.1),
-                           a_clip=snap('rotate', ['0 160 70', '0 160 70', '-12 160 70', '8 160 70', '-10 160 70', '6 160 70', '0 160 70'], SW_, 2.0, 0.05, 0.1))
 def mtile(inner, name, note, bg=PAPER):
-    return (f'<div style="display: flex; flex-direction: column; gap: 4px; width: 170px"><svg role="img" aria-label="Puggle animation: {name}" width="170" height="204" viewBox="-21 -50 290 354" style="background: {bg}; border-radius: 20px">{inner}</svg>'
+    return (f'<div style="display: flex; flex-direction: column; gap: 4px; width: 186px"><svg role="img" aria-label="Puggle animation: {name}" width="186" height="226" viewBox="-21 -50 290 354" style="background: {bg}; border-radius: 20px">{inner}</svg>'
             f'<div style="font-size: 14px; font-weight: 800">{name}</div><div style="{T}; font-size: 12px">{note}</div></div>')
-timing_row = (mtile(hooray, 'Hooray, smooth', 'Eased the whole way. Soft, a little floaty.', MINT) + mtile(hooray_snap, 'Hooray, snappy', 'Holds each pose, pops to the next. Bouncier, more toddler.', MINT)
-              + mtile(wave, 'Wave, smooth', 'Arm swings continuously.', SUN) + mtile(wave_snap, 'Wave, snappy', 'Clear up, tilt, up, tilt. Reads faster.', SUN))
+timing_row = (mtile(hooray_smooth, 'Hooray, smooth (before)', 'Eased the whole way. Soft, a little floaty.', MINT) + mtile(hooray, 'Hooray, snappy (chosen)', 'Holds each pose and pops to the next. Arms start down, so the fling reads.', MINT)
+              + mtile(wave_smooth, 'Wave, smooth (before)', 'Arm swings continuously, and only to cheek height.', SUN) + mtile(wave, 'Wave, snappy (chosen)', 'Arm up beside the head, clear of it; three beats.', SUN)
+              + mtile(nod, 'Nod (new)', 'The everyday “saved” reaction: dip, pop, settle in 0.4 s.', PAPER))
 
 # ---------- tail mood sheet ----------
 def tail(rot, dx=0, dy=0, rx=34, extra=''):
@@ -125,7 +96,7 @@ body = f'''<div style="width: 1080px; height: 2000px; box-sizing: border-box; ba
 <div style="{T}; font-size: 15px; max-width: 960px">What to settle before opening Rive: when she reacts, how her tail shows feeling, how snappy she is, and a few moves taken from a real toddler.</div></div>
 {sec('1. Reaction map', 'Every moment she responds to, and the rules that keep her kind to tired parents.', f'<div style="display: flex; gap: 22px; align-items: flex-start">{table}<div style="display: flex; flex-direction: column; gap: 9px; flex: 1"><div style="{H}">Rules</div>{rules_html}</div></div>')}
 {sec('2. The tail shows the feeling', 'She has no mouth or brows, so the tail is her mood signal, with her eyes. One position per feeling.', f'<div style="display: flex; justify-content: space-between">{tail_row}</div>')}
-{sec('3. Smooth or snappy', 'The same two moves in two timings. Smooth eases all the way; snappy holds each pose and pops to the next.', f'<div style="display: flex; gap: 16px; align-items: flex-start">{timing_row}<div style="flex: 1; {T}"><b>My pick: snappy</b> for reactions (wave, hooray, nod), <b>smooth</b> for anything ambient (breathing, sleeping, scenes). Snappy reads faster at a glance and feels like a small child; smooth keeps the background calm.</div></div>')}
+{sec('3. Reactions are snappy', 'Decided: reactions hold each pose and pop to the next; breathing, sleeping and scenes stay smooth. The earlier smooth versions are shown for comparison.', f'<div style="display: flex; gap: 12px; align-items: flex-start">{timing_row}</div>')}
 {sec('4. Moves from a real toddler', 'Key poses in a three-quarter view. Each is one clear silhouette to animate into and hold.', f'<div style="display: flex; justify-content: space-between">{move_row}</div>')}
 </div>'''
 if __name__ == '__main__':

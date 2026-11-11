@@ -66,6 +66,53 @@ hooray = (shadow(an('rx', '62;70;38;66;72;62;62', 1.8, 0, KT_J)) + sparks
                 a_armR=at('rotate', '0 152 178;34 152 178;-6 152 178;0 152 178;16 152 178;-4 152 178;0 152 178', 1.8, 0.04, KT_J),
                 a_head=at('translate', '0 0;0 4;0 -3;0 0;0 6;0 -1;0 0', 1.8, 0.05, KT_J),
                 a_clip=at('translate', '0 0;0 3;0 -7;0 2;0 7;0 -3;0 0', 1.8, 0.1, KT_J)))
+# ---------- snappy, pose-to-pose reactions (the chosen timing) ----------
+def snap(kind, poses, starts, dur, move=0.05, begin=0):
+    vals, kts = [poses[0]], [0.0]
+    for v, s_ in zip(poses[1:], starts[1:]):
+        vals += [vals[-1], v]; kts += [round(s_ - move, 3), s_]
+    vals.append(vals[-1]); kts.append(1.0)
+    n = len(vals)
+    return (f'<animateTransform attributeName="transform" type="{kind}" values="{";".join(vals)}" keyTimes="{";".join(str(k) for k in kts)}" dur="{dur}s" begin="{begin}s" repeatCount="indefinite" '
+            f'calcMode="spline" keySplines="{";".join(["0.3 0 0.2 1"] * (n - 1))}"></animateTransform>')
+def snap_attr(attr, poses, starts, dur, move=0.05):
+    vals, kts = [poses[0]], [0.0]
+    for v, s_ in zip(poses[1:], starts[1:]):
+        vals += [vals[-1], v]; kts += [round(s_ - move, 3), s_]
+    vals.append(vals[-1]); kts.append(1.0)
+    return f'<animate attributeName="{attr}" values="{";".join(vals)}" keyTimes="{";".join(str(k) for k in kts)}" dur="{dur}s" repeatCount="indefinite"></animate>'
+hooray_smooth, wave_smooth = hooray, wave
+# Hooray: rest (arms down) | crouch, arms swing back | air, arms fling up, stretched | land, arms out, squashed | small rebound | rest
+SJ = [0, 0.12, 0.26, 0.52, 0.62, 0.72]
+DJ = 1.7
+sparks_s = ''.join(f'<g fill="{A}" opacity="0">{quatre(x, y, r)}{snap_attr("opacity", ["0", "0", "1", "0", "0", "0"], SJ, DJ, 0.04)}</g>' for x, y, r in ((30, 40, 16), (212, 24, 20), (222, 110, 12), (22, 120, 12)))
+hooray = (shadow(snap_attr('rx', ['62', '68', '40', '70', '60', '62'], SJ, DJ)) + sparks_s
+          + rig(WARATAH, 'down', 'happy',
+                a_squash=snap('scale', ['1 1', '1.06 0.9', '0.96 1.06', '1.08 0.88', '0.98 1.03', '1 1'], SJ, DJ),
+                a_all=snap('translate', ['0 0', '0 0', '0 -42', '0 0', '0 -5', '0 0'], SJ, DJ),
+                a_armL=snap('rotate', ['0 88 178', '-22 88 178', '74 88 178', '18 88 178', '-6 88 178', '0 88 178'], SJ, DJ),
+                a_armR=snap('rotate', ['0 152 178', '22 152 178', '-74 152 178', '-18 152 178', '6 152 178', '0 152 178'], SJ, DJ),
+                a_tail=snap('rotate', ['0 160 240', '-10 160 240', '24 160 240', '-14 160 240', '6 160 240', '0 160 240'], SJ, DJ, 0.05, 0.05),
+                a_head=snap('translate', ['0 0', '0 3', '0 -3', '0 5', '0 -1', '0 0'], SJ, DJ, 0.05, 0.03),
+                a_clip=snap('translate', ['0 0', '0 3', '0 -8', '0 7', '0 -3', '0 0'], SJ, DJ, 0.05, 0.07)))
+# Wave: rest | dip | arm right up beside the head | out | up | out | up | rest. The other arm lifts a little for balance; she leans away from the wave.
+SW_ = [0, 0.07, 0.17, 0.32, 0.45, 0.58, 0.71, 0.84]
+DW = 2.2
+wave = shadow() + rig(HARBOUR, 'down', 'happy',
+                      a_armR=snap('rotate', ['0 152 178', '12 152 178', '-90 152 178', '-56 152 178', '-90 152 178', '-56 152 178', '-90 152 178', '0 152 178'], SW_, DW),
+                      a_armL=snap('rotate', ['0 88 178', '-4 88 178', '14 88 178', '10 88 178', '14 88 178', '10 88 178', '14 88 178', '0 88 178'], SW_, DW, 0.05, 0.03),
+                      a_body=snap('rotate', ['0 120 280', '1.5 120 280', '-3 120 280', '-2 120 280', '-3 120 280', '-2 120 280', '-3 120 280', '0 120 280'], SW_, DW),
+                      a_head=snap('rotate', ['0 120 170', '-2 120 170', '7 120 170', '3 120 170', '7 120 170', '3 120 170', '7 120 170', '0 120 170'], SW_, DW, 0.05, 0.05),
+                      a_tail=snap('rotate', ['0 160 240', '-6 160 240', '14 160 240', '-4 160 240', '14 160 240', '-4 160 240', '12 160 240', '0 160 240'], SW_, DW, 0.05, 0.09),
+                      a_clip=snap('rotate', ['0 160 70', '0 160 70', '-12 160 70', '8 160 70', '-10 160 70', '6 160 70', '-8 160 70', '0 160 70'], SW_, DW, 0.05, 0.09))
+# Nod: the everyday "saved" reaction. Dip, pop, settle, all inside 0.4 s, then rest.
+SN = [0, 0.08, 0.16, 0.24]
+DN = 1.6
+nod = shadow(snap_attr('rx', ['62', '66', '54', '62'], SN, DN, 0.04)) + rig(HARBOUR, 'down', 'happy',
+          a_squash=snap('scale', ['1 1', '1.05 0.93', '0.98 1.03', '1 1'], SN, DN, 0.04), a_all=snap('translate', ['0 0', '0 0', '0 -9', '0 0'], SN, DN, 0.04),
+          a_tail=snap('rotate', ['0 160 240', '-6 160 240', '14 160 240', '0 160 240'], SN, DN, 0.04, 0.05), a_clip=snap('translate', ['0 0', '0 2', '0 -4', '0 0'], SN, DN, 0.04, 0.06),
+          a_armL=snap('rotate', ['0 88 178', '-6 88 178', '12 88 178', '0 88 178'], SN, DN, 0.04), a_armR=snap('rotate', ['0 152 178', '6 152 178', '-12 152 178', '0 152 178'], SN, DN, 0.04))
+
 # falling asleep: eyes droop in two tries, the head nods further each time, then she is out
 KT_S = '0;0.14;0.24;0.4;0.52;0.66;0.9;1'
 drowsy = ''.join(f'<ellipse cx="{x0}" cy="108" rx="7.6" ry="7.6" fill="{O}">{an("ry", "7.6;3;6.5;2.2;5;1;1;7.6", 7, 0, KT_S)}</ellipse>' for x0 in (93, 147))
@@ -98,12 +145,12 @@ walkc = shadow() + ground + ''.join(f'<g display="{"inline" if k == 0 else "none
 pose_sheet = ''.join(f'<div style="display: flex; flex-direction: column; gap: 2px; width: 150px"><svg role="img" aria-label="Walk key pose: {w_["name"]}" width="150" height="176" viewBox="0 0 250 304" style="background: {PAPER}; border-radius: 18px"><path d="M0 290H250" stroke="#C9B89F" stroke-width="3"></path><path d="M0 50H250" stroke="#C9B89F" stroke-width="1.5" stroke-dasharray="6 6"></path>{walk4(k)}</svg>'
                      f'<div style="font-size: 14px; font-weight: 800">{k+1}. {w_["name"]}</div><div style="{T}; font-size: 12px">{w_["note"]}</div></div>' for k, w_ in enumerate(WK))
 
-def tile(inner, name, note, bg=PAPER, vb='0 0 248 304'):
+def tile(inner, name, note, bg=PAPER, vb='-21 -50 290 354'):
     return (f'<div style="display: flex; flex-direction: column; gap: 4px; width: 184px"><svg role="img" aria-label="Puggle animation: {name}" width="184" height="220" viewBox="{vb}" style="background: {bg}; border-radius: 22px">{inner}</svg>'
             f'<div style="font-size: 15px; font-weight: 800">{name}</div><div style="{T}; font-size: 12px">{note}</div></div>')
 p_row = (tile(idle, 'Idle', 'Breathes and blinks; now and then she glances aside and her tail flicks, so it never reads as a loop.')
-         + tile(wave, 'Wave', 'The arm dips, then swings up and waves twice. Head, tail and clip follow a beat late.', SUN)
-         + tile(hooray, 'Hooray', 'Crouch and squash, stretch into the jump, squash on landing, settle. Tail and clip lag.', MINT)
+         + tile(wave, 'Wave', 'Snappy. A dip, then the arm swings up beside her head and waves three clear beats. She leans away and her other arm lifts.', SUN)
+         + tile(hooray, 'Hooray', 'Snappy. Arms pull in for the crouch, fling up in the air, drop on landing, one small rebound.', MINT)
          + tile(sleepy, 'Falling asleep', 'Eyes droop twice and fight back, the head nods further each time, then she is out.', '#D9DEEF')
          + tile(walkc, 'Walk', 'Four key poses a step, with the head arriving late. Rive smooths between them.', SHELL))
 

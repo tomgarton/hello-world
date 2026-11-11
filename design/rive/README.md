@@ -47,7 +47,9 @@ If `asleep` is true, every trigger except `wake` is ignored (she stays asleep).
 
 ## Timing: snappy for reactions, smooth for ambient
 
-Reactions (Wave, Hooray, nod, proud) are pose-to-pose: hold each pose, move to the next in about 0.05 to 0.1 s. Breathing, sleeping and scene loops ease all the way. Tom to confirm after watching both on the canvas.
+**Decided (Tom, 2026-11-11): snappy for reactions.** Wave, Hooray, nod and proud are pose-to-pose: hold each pose, move to the next in about 0.05 to 0.1 s. Breathing, sleeping and scene loops ease all the way.
+
+Two things learned from looking at captured frames, worth keeping in Rive: a raised hand must stay clear of her head or it vanishes behind it, and arms straight out on landing look stiff, so they drop.
 
 ## The tail shows the feeling
 
@@ -67,7 +69,7 @@ Reactions are staged in the three-quarter view where possible. Key poses to buil
 
 **Layers**
 
-1. Body: Idle, Wave, Hooray, FallAsleep, Sleepy, Walk
+1. Body: Idle, Wave, Hooray, Nod, FallAsleep, Sleepy, Walk
 2. Blink: runs all the time over layer 1, except in FallAsleep and Sleepy
 
 **Motion principles** (what makes it feel alive; keep them when rebuilding)
@@ -85,8 +87,9 @@ Timings come from the motion studies on the canvas ("Motion studies for Rive", C
 |---|---|---|---|
 | `Idle` | 3.6 s breath, inside a 7.2 s cycle | yes | Head sinks 2 px and returns (breath); the body follows 0.15 s earlier, the clip 0.3 s later. Arms swing about 3°. Tail drifts between -4° and 5°. Once per 7.2 s: the eyes glance 5 px to one side for a second, and the tail flicks to 12° and back |
 | `Blink` | 4.2 s | yes | Eyes open for most of it; close and reopen over the last 0.4 s |
-| `Wave` | 2.6 s | no | Starts with the arm down. It dips 9° the wrong way (anticipation), swings up 82°, waves twice (82° to 64°), and returns with a 4° overshoot. Head tilts up to 4.5°, starting 0.08 s after the arm. Tail wags 0.12 s late. Clip wobbles 0.14 s late. Eyes are happy arcs |
-| `Hooray` | 1.8 s | no | Crouch (wider 110%, shorter 86%, about the feet). Jump 38 px, stretched (93% wide, 110% tall). Land, squash (112% by 84%), recover with a small overshoot, settle. Arms dip in the crouch and fling up. Tail lags by 0.07 s, head by 0.05 s, clip by 0.1 s. Shadow widens in the crouch and shrinks at the peak. Four quatrefoils pop at the peak |
+| `Wave` | 2.2 s | no | Snappy. Poses, each held: rest; dip (arm 12° the wrong way); arm up beside the head (90° from rest, hand clear of the head); out (56°); up; out; up; rest. She leans 3° away from the waving arm, the other arm lifts 14° for balance, the head tilts 7° towards the hand. Tail and clip follow about 0.09 s late. Eyes are happy arcs |
+| `Hooray` | 1.7 s | no | Snappy. Poses: rest, arms down; crouch (106% wide, 90% tall, about the feet), arms pull in 22°; air (jump 42 px, 96% by 106%), arms fling up 74° into a V; land (108% by 88%), arms drop to 18°; rebound (5 px, 98% by 103%); rest. Tail lags 0.05 s, head 0.03 s, clip 0.07 s. Shadow shrinks in the air. Four quatrefoils show only while she is in the air |
+| `Nod` | 0.4 s | no | The everyday "saved" reaction. Dip (105% by 93%), pop up 9 px (98% by 103%), settle. Arms and tail flick out and back. Small enough to play many times a day |
 | `FallAsleep` | 7 s | no | The transition into Sleepy. Eyes droop, reopen, droop further, reopen less, then close. The head nods 4°, 7°, then 9° and stays. Arms hang lower. Z's begin once the eyes are shut |
 | `Sleepy` | 5 s | yes | Eyes closed (downward arcs). Head stays nodded and rises 1° with each breath. Body breathes 3 px. Three small z's float up and fade, 0.9 s apart |
 | `Walk` | 0.6 s a step | yes | Side view, four keys a step: **Contact** (legs and arms widest, body level), **Down** (weight lands, body 5 px lower, tail drops), **Passing** (free leg passes, arms cross, body 2 px up), **Up** (push off, body 7 px up, tail lifts). The head takes the body's height from the key before, so it arrives late |

@@ -27,3 +27,4 @@ Things to know:
 - Each script also writes a plain `.html` preview into `gen/`; `shot39.js` (Playwright) shows how previews were screenshotted for checking.
 - `iconsys3.py` needs the Lucide and Phosphor icon packages, which are not in this repo. It is superseded by `style.py`.
 - After changing a board file, publish it to the artifact from a Claude session that has the artifacts tools.
+- `strip.py` and `strip.js` capture evenly spaced frames of an animation as a filmstrip (they pause the SVG and step its clock), which is how the motion was checked without watching it play.
