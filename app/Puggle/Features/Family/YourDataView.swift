@@ -78,9 +78,9 @@ struct HelpView: View {
             ("How do I fix a mistake?",
              "Straight after saving, use Undo or Change on the Last saved bar. Later, tap the entry in History, or touch and hold its tile on Today."),
             ("I forgot to start the sleep timer",
-             "Tap + on the Sleep tile and enter when they fell asleep and woke up."),
+             "Tap the child's row on Today and choose Add a past sleep, then enter when they fell asleep and woke up."),
             ("I forgot to stop the sleep timer",
-             "Touch and hold the Sleep tile and choose the sleep to change, then switch off Still asleep and set when they woke."),
+             "Open History, tap the sleep, switch off Still asleep and set when they woke. The app also asks about a timer left running for 14 hours."),
             ("Can someone else log too?",
              Persistence.cloudSyncEnabled
                 ? "Yes. Invite them from the Family tab. They need an iPhone and their own Apple Account."

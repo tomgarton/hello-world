@@ -8,6 +8,9 @@ enum Setting {
     static let pottyStickers = "pottyStickers"
     static let lockScreenGlance = "lockScreenGlance"
     static let haptics = "haptics"
+    static let tilesCustom = "tilesCustom"
+    static let tilesMain = "tilesMain"
+    static let tilesHidden = "tilesHidden"
     static let appLock = "appLock"
     /// Set by the "Night look" Focus filter, not by a switch in the app.
     static let focusNight = "focusNight"

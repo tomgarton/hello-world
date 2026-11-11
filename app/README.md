@@ -141,6 +141,14 @@ Twelfth round, 11 November 2026 (a calmer Today):
 | Tiles | The whole tile is the button; the + circles are gone, leaving a small + as a hint. One quiet line shows the latest in the last 24 hours ("Ollie 19:27 · Bea 20:55"), so every tile is the same height. Touch and hold a tile to change the latest entry |
 | Last saved | Floats above the tab bar, so saving never moves the tiles |
 
+Thirteenth round, 11 November 2026 (Today, option C from `docs/mockups/today-proposed.html`):
+
+| Change | In the app |
+|---|---|
+| Header | The date with Puggle beside it, in place of the children's names. Tap her and she hops; while a child sleeps she sways instead. She hops once on the first open of each day. Wired to `PuggleController`, so the animated character takes over when the Rive file exists |
+| Tiles | Up to three large tiles in a row and the rest as chips (`Features/Today/Tiles.swift`). Suggested from what the children use; "Edit" opens a chooser where each is a main tile, a chip or hidden |
+| Sleep | No Sleep tile. Sleep starts from each child's row; "Add a past sleep" is in the child's day sheet |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

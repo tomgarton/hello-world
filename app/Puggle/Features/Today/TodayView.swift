@@ -1,9 +1,8 @@
 import CoreData
 import SwiftUI
 
-/// Today: every child at once, then a card per activity showing the latest
-/// entry for each child. Tapping + opens the log sheet for that activity;
-/// tapping an entry opens it to change.
+/// Today: the date with Puggle, every child at once, then the tiles the
+/// family chose: up to three large ones and the rest as chips.
 struct TodayView: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.scenePhase) private var scenePhase
@@ -23,11 +22,34 @@ struct TodayView: View {
     @State private var staleSleep: Event?
     @State private var askedAbout: Set<NSManagedObjectID> = []
 
-    private let cardKinds: [EventKind] = [.bottle, .breastfeed, .sleep, .nappy, .potty, .solids, .weight]
+    @State private var wantsPastSleep: Child?
+    @State private var pastSleepFor: Child?
+    @State private var choosingTiles = false
+    @AppStorage(Setting.tilesCustom) private var tilesCustom = false
+    @AppStorage(Setting.tilesMain) private var tilesMain = ""
+    @AppStorage(Setting.tilesHidden) private var tilesHidden = ""
 
-    /// Tiles follow each child's setup answers and age.
-    private var visibleKinds: [EventKind] {
-        cardKinds.filter { kind in children.contains { $0.uses(kind) } }
+    /// Tiles that apply to at least one child, from their setup answers and age.
+    private var availableTiles: [Tile] {
+        Tile.all.filter { tile in
+            guard let kind = tile.kind else { return true }
+            return children.contains { $0.uses(kind) }
+        }
+    }
+
+    private var tileLayout: TileLayout {
+        tilesCustom
+            ? .custom(main: tilesMain, hidden: tilesHidden, available: availableTiles)
+            : .suggested(from: availableTiles)
+    }
+
+    private func tileButton(_ tile: Tile, large: Bool) -> some View {
+        TileButton(tile: tile, children: tile.kind.map(relevant) ?? Array(children), large: large) { kind in
+            // Breastfeeds open on the timers; a past feed is one tap from there.
+            if kind == .breastfeed { feedTimer = true } else { logging = kind }
+        } onEdit: {
+            if $0.isRunningFeed { feedTimer = true } else { editing = EditTarget(event: $0) }
+        }
     }
 
     /// Children with a sticker chart: potty training, or with stickers already.
@@ -53,20 +75,20 @@ struct TodayView: View {
                         ForEach(children) { child in
                             ChildStatusRow(child: child) { dayOf = child }
                         }
-                        LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
-                            ForEach(visibleKinds) { kind in
-                                ActivityCard(kind: kind, children: relevant(kind)) {
-                                    // Breastfeeds open on the timers; a past feed is one tap from there.
-                                    if kind == .breastfeed { feedTimer = true } else { logging = kind }
-                                } onEdit: {
-                                    if $0.isRunningFeed { feedTimer = true } else { editing = EditTarget(event: $0) }
-                                }
+                        let layout = tileLayout
+                        if !layout.main.isEmpty {
+                            HStack(spacing: 10) {
+                                ForEach(layout.main) { tileButton($0, large: true) }
                             }
-                            HealthCard(children: Array(children)) {
-                                logging = $0
-                            } onEdit: {
-                                editing = EditTarget(event: $0)
-                            }
+                        }
+                        FlowLayout(spacing: 8) {
+                            ForEach(layout.chips) { tileButton($0, large: false) }
+                            Button("Edit") { choosingTiles = true }
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Palette.muted)
+                                .padding(.horizontal, 10)
+                                .frame(minHeight: 44)
+                                .accessibilityLabel("Choose the tiles on Today")
                         }
                         if stickersOn, !stickerChildren.isEmpty {
                             Button { showingStickers = true } label: {
@@ -123,8 +145,20 @@ struct TodayView: View {
         .sheet(item: $editing) { target in
             LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)
         }
-        .sheet(item: $dayOf) { child in
-            DaySoFarView(child: child)
+        .sheet(item: $dayOf, onDismiss: {
+            // Open the sleep sheet once the day sheet has gone, so the two never overlap.
+            if let child = wantsPastSleep {
+                wantsPastSleep = nil
+                pastSleepFor = child
+            }
+        }) { child in
+            DaySoFarView(child: child) { wantsPastSleep = child }
+        }
+        .sheet(item: $pastSleepFor) { child in
+            LogSheet(kind: .sleep, children: [child])
+        }
+        .sheet(isPresented: $choosingTiles) {
+            TileChooserView(available: availableTiles)
         }
         .sheet(isPresented: $addingChild) {
             AddChildView()
@@ -162,15 +196,7 @@ struct TodayView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))
-                .font(.subheadline)
-                .foregroundStyle(Palette.muted)
-            Text(children.isEmpty ? "Today" : ListFormatter.localizedString(byJoining: children.map(\.displayName)))
-                .displayFont(32)
-                .foregroundStyle(Palette.ink)
-        }
-        .padding(.top, 12)
+        PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil })
     }
 
     private var emptyState: some View {
@@ -236,9 +262,8 @@ struct ChildStatusRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .disabled(justLog)
             .accessibilityElement(children: .combine)
-            .accessibilityHint(justLog ? "" : "Shows \(child.displayName)'s day so far")
+            .accessibilityHint(justLog ? "Add a past sleep for \(child.displayName)" : "Shows \(child.displayName)'s day so far")
             sleepButton(now: now, sleep: sleep)
         }
         .padding(14)
@@ -357,134 +382,14 @@ struct LastSavedRow: View {
     }
 }
 
-/// The body of a tile: the picture, the name, and one quiet line saying when
-/// it last happened. Every tile is the same height whether or not there is a line.
-private struct TileFace: View {
-    let icon: String
-    let title: String
-    let latest: String
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .top) {
-                ActivityIcon(named: icon, size: 40)
-                Spacer()
-                // A hint that the tile adds something, without being a second button.
-                Image(systemName: "plus")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Palette.muted)
-                    .accessibilityHidden(true)
-            }
-            Text(title).font(.title3.weight(.semibold))
-            Text(latest.isEmpty ? " " : latest)
-                .font(.footnote)
-                .foregroundStyle(Palette.muted)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .accessibilityHidden(latest.isEmpty)
-        }
-        .padding(14)
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .foregroundStyle(Palette.ink)
-        .background(Palette.card, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
-        .contentShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-    }
-}
-
-/// The latest entries in the last 24 hours as one line: "Ollie 20:10 · Bea 19:13".
-/// Named whenever the tile is for more than one child, so a time is never ambiguous.
-@MainActor
-private func latestLine(_ entries: [(child: Child, event: Event)], named: Bool) -> String {
-    let cutoff = Date.now.addingTimeInterval(-24 * 3600)
-    let recent = entries.filter { ($0.event.startedAt ?? .distantPast) > cutoff }
-    return recent.map { entry in
-        let time = (entry.event.startedAt ?? .now).formatted(date: .omitted, time: .shortened)
-        return named ? "\(entry.child.displayName) \(time)" : time
-    }.joined(separator: " · ")
-}
-
-/// A tile per activity. Tapping anywhere on it logs; touching and holding
-/// offers the latest entry for each child to change.
-struct ActivityCard: View {
-    @EnvironmentObject private var store: FamilyStore
-    let kind: EventKind
-    let children: [Child]
-    let onAdd: () -> Void
-    let onEdit: (Event) -> Void
-
-    private var entries: [(child: Child, event: Event)] {
-        children.compactMap { child in store.latest(kind, for: child).map { (child, $0) } }
-    }
-
-    var body: some View {
-        let entries = self.entries
-        Button {
-            Haptics.tap()
-            onAdd()
-        } label: {
-            TileFace(icon: kind.iconName, title: kind.title, latest: latestLine(entries.map { ($0.child, $0.event) }, named: children.count > 1))
-        }
-        .buttonStyle(PressStyle(scale: 0.97))
-        .accessibilityLabel("Log \(kind.title.lowercased())")
-        .accessibilityValue(latestLine(entries.map { ($0.child, $0.event) }, named: children.count > 1))
-        .contextMenu {
-            ForEach(entries, id: \.event.objectID) { entry in
-                Button {
-                    onEdit(entry.event)
-                } label: {
-                    Label("Change \(entry.child.displayName)'s last: \(entry.event.summary)", systemImage: "pencil")
-                }
-            }
-        }
-    }
-}
-
-/// One tile for medicine, temperature and vaccinations. Logged plainly:
-/// no colour, no "high", no alarm. Tapping it asks which of the three.
-struct HealthCard: View {
-    @EnvironmentObject private var store: FamilyStore
-    let children: [Child]
-    let onAdd: (EventKind) -> Void
-    let onEdit: (Event) -> Void
-
-    private var entries: [(child: Child, event: Event)] {
-        children.compactMap { child in
-            (child.events ?? [])
-                .filter { $0.kind.isHealth }
-                .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
-                .map { (child, $0) }
-        }
-    }
-
-    var body: some View {
-        let entries = self.entries
-        Menu {
-            ForEach(EventKind.health) { kind in
-                Button { onAdd(kind) } label: { Label(kind.title, systemImage: kind.symbol) }
-            }
-            if !entries.isEmpty {
-                Divider()
-                ForEach(entries, id: \.event.objectID) { entry in
-                    Button {
-                        onEdit(entry.event)
-                    } label: {
-                        Label("Change \(entry.child.displayName)'s last: \(entry.event.summary)", systemImage: "pencil")
-                    }
-                }
-            }
-        } label: {
-            TileFace(icon: EventKind.medicine.iconName, title: "Health", latest: latestLine(entries.map { ($0.child, $0.event) }, named: children.count > 1))
-        }
-        .accessibilityLabel("Log health")
-    }
-}
-
 /// A child's day so far: plain counts for today and the last 24 hours.
 struct DaySoFarView: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var child: Child
+    /// Called when the parent chooses "Add a past sleep".
+    var onAddSleep: () -> Void = {}
+    @AppStorage(Setting.justLog) private var justLog = false
 
     private struct Line: Identifiable {
         let id: String
@@ -496,7 +401,10 @@ struct DaySoFarView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    if lines.isEmpty {
+                    if justLog {
+                        // "Just logging": no counts, only the way to add a sleep after the fact.
+                        EmptyView()
+                    } else if lines.isEmpty {
                         Text("Entries for \(child.displayName) show up here as they're logged.")
                             .foregroundStyle(Palette.muted)
                     } else {
@@ -521,6 +429,11 @@ struct DaySoFarView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     }
+                    Button("Add a past sleep") {
+                        onAddSleep()
+                        dismiss()
+                    }
+                    .buttonStyle(PillButtonStyle(primary: false))
                 }
                 .padding(18)
                 .foregroundStyle(Palette.ink)
