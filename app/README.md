@@ -190,6 +190,16 @@ Seventeenth round, 11 November 2026 (stamps, third pass; mockup in `docs/mockups
 | Date | Runs round the bottom rim in a gap in the inner ring |
 | Card stickers | Round shapes only; the scallop was too flat for Puggle's face |
 
+Eighteenth round, 11 November 2026 (the stamper; prototype in `docs/mockups/stamper-prototype.html`):
+
+| Change | In the app |
+|---|---|
+| Page one: get your stamp ready | Pick a picture (13, in rows of five), press the wooden stamper on one of eight ink pads, and try it on scrap paper. Play stamps fade over about ten seconds and never count. The ink lasts eight presses, the last three fading. "Stamp my card" wiggles after fifteen seconds of play |
+| Page two: stamp your card | Opens on the whole card, moves in on the glowing space, and back out once stamped. The stamp lands where it was pressed, up to a little off centre, and the screen closes by itself. The shiny sticker follows on the fifth |
+| Stamp wear | Modelled on real postmarks: uneven pressure fading softly to one side, paper specks, lighter middles, breaks in the ring, and the odd heavy or doubled print (`StampWear`). Card stamps are gentler so the picture always reads. Each stamp saves its seed and offset ("stamp:ink:seed:dx:dy") so it looks the same every time |
+| Skip | For grown-ups: a ring fills over two seconds while held, and drains if let go |
+| Tap or drag | Everything that can be dragged can also be tapped |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

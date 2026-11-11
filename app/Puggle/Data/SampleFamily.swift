@@ -139,7 +139,8 @@ private struct SampleData {
             else { what = roll < 1 ? "Accident" : (roll < 3 ? "Tried" : (roll < 5 ? "Poo" : "Wee")) }
             guard let event = add(.potty, child, time(day, hour, minute, slot: slot), detail: what, by: (day + slot) % 3) else { return }
             if what != "Accident" {
-                event.sticker = "\(stickers[count % stickers.count].rawValue):\(Ink.allCases[(count * 3) % Ink.allCases.count].rawValue)"
+                event.sticker = "\(stickers[count % stickers.count].rawValue):\(Ink.allCases[(count * 3) % Ink.allCases.count].rawValue):"
+                    + "\(UInt64.random(in: 1...999_999)):\(String(format: "%.1f", Double.random(in: -4...4))):\(String(format: "%.1f", Double.random(in: -4...4)))"
                 count += 1
             }
         }

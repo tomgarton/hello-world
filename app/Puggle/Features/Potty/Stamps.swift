@@ -180,63 +180,196 @@ struct CrayonStroke: View {
     }
 }
 
-/// One impression: two rings, the picture and the date, a little uneven.
+/// A stamp's picture alone, in the current foreground colour.
+struct StampPicture: View {
+    let stamp: Stamp
+
+    var body: some View {
+        Group {
+            if let art = stamp.art {
+                ZStack {
+                    Image(art).resizable().scaledToFit()
+                    if let cut = stamp.cutArt {
+                        Image(cut).resizable().scaledToFit().foregroundStyle(Palette.stampSpace)
+                    }
+                }
+            } else if let fixed = stamp.fixedArt {
+                Image(fixed).resizable().scaledToFit()
+            } else if let symbol = stamp.symbol {
+                Image(systemName: symbol).resizable().scaledToFit()
+            } else {
+                Quatrefoil()
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// A small, repeatable random sequence, so a stamp's wear is the same every time it is drawn.
+struct SeededRandom {
+    private var state: UInt64
+
+    init(_ seed: UInt64) { state = seed }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
+    }
+
+    mutating func unit() -> Double { Double(next() >> 11) / Double(UInt64(1) << 53) }
+    mutating func range(_ low: Double, _ high: Double) -> Double { low + unit() * (high - low) }
+}
+
+/// How one impression came out. Modelled on real postmarks and hand stamps:
+/// pressure is uneven, so one side prints strongly and the other fades softly;
+/// the paper's tooth leaves fine specks, more where the ink is thin; solid shapes
+/// are lighter in the middle; the ring breaks in places; and now and then the stamp
+/// is over-inked, or rocks and leaves a faint second edge.
+/// `gentle` is for the stamp kept on the card: the same character, but it always reads.
+struct StampWear {
+    enum Kind { case crisp, worn, heavy }
+
+    let seed: UInt64
+    let gentle: Bool
+    let kind: Kind
+    /// A faint second edge, where the stamp rocked. Never on the card.
+    let ghost: CGSize?
+
+    init(seed: UInt64, gentle: Bool) {
+        self.seed = seed
+        self.gentle = gentle
+        var random = SeededRandom(seed)
+        let roll = random.unit()
+        kind = roll < 0.22 ? .crisp : (roll < (gentle ? 0.3 : 0.36) ? .heavy : .worn)
+        let rocked = random.unit() < 0.2
+        ghost = !gentle && kind != .heavy && rocked
+            ? CGSize(width: random.range(-0.9, 0.9), height: random.range(-0.9, 0.9)) : nil
+    }
+}
+
+/// The mask for one impression: opaque where ink took, clear where it missed.
+struct StampWearMask: View {
+    let wear: StampWear
+
+    var body: some View {
+        Canvas { context, size in
+            let unit = size.width / 54
+            let centre = CGPoint(x: size.width / 2, y: size.height / 2)
+            func point(_ x: Double, _ y: Double) -> CGPoint { CGPoint(x: centre.x + x * unit, y: centre.y + y * unit) }
+            var random = SeededRandom(wear.seed &+ 7)
+            let all = Path(CGRect(origin: .zero, size: size))
+            context.fill(all, with: .color(.white))
+            context.blendMode = .destinationOut
+            let gentle = wear.gentle
+
+            if wear.kind == .worn {
+                // One side pressed lighter, fading softly towards it.
+                let angle = random.range(0, 2 * .pi)
+                let floor = gentle ? random.range(0.62, 0.85) : random.range(0.22, 0.7)
+                let reach = random.range(0.35, 0.75)
+                let fade = Gradient(stops: [.init(color: .black.opacity(0), location: 0),
+                                            .init(color: .black.opacity(0), location: reach),
+                                            .init(color: .black.opacity(1 - floor), location: 1)])
+                context.fill(all, with: .linearGradient(fade, startPoint: point(-cos(angle) * 26, -sin(angle) * 26),
+                                                        endPoint: point(cos(angle) * 26, sin(angle) * 26)))
+                // Gaps in the ring, on the weak side.
+                let breaks = gentle ? (random.unit() < 0.5 ? 1 : 0) : Int(random.range(0, 2.999))
+                for _ in 0..<breaks {
+                    let middle = angle + random.range(-0.9, 0.9)
+                    let half = gentle ? random.range(0.08, 0.2) : random.range(0.12, 0.45)
+                    var arc = Path()
+                    arc.addArc(center: centre, radius: 24 * unit, startAngle: .radians(middle - half),
+                               endAngle: .radians(middle + half), clockwise: false)
+                    context.stroke(arc, with: .color(.black.opacity(random.range(0.55, 1))),
+                                   style: StrokeStyle(lineWidth: random.range(2.6, 4) * unit, lineCap: .round))
+                }
+            }
+            if wear.kind != .heavy {
+                // Lighter middles, where the ink was squeezed out to the edges.
+                let blots = Int(random.range(2, gentle ? 3.999 : 5.999))
+                for _ in 0..<blots {
+                    let x = random.range(-10, 10), y = random.range(-12, 8)
+                    let rx = random.range(3, 7), ry = random.range(2.5, 6)
+                    let strength = random.range(0.12, gentle ? 0.24 : 0.34)
+                    let rect = CGRect(x: centre.x + (x - rx) * unit, y: centre.y + (y - ry) * unit,
+                                      width: 2 * rx * unit, height: 2 * ry * unit)
+                    context.fill(Path(ellipseIn: rect),
+                                 with: .radialGradient(Gradient(colors: [.black.opacity(strength), .black.opacity(0)]),
+                                                       center: CGPoint(x: rect.midX, y: rect.midY),
+                                                       startRadius: 0, endRadius: max(rx, ry) * unit))
+                }
+            }
+            // The paper's tooth.
+            let specks: Int
+            switch wear.kind {
+            case .heavy: specks = 14
+            case .crisp: specks = 34
+            case .worn: specks = Int(random.range(60, gentle ? 85 : 130))
+            }
+            let largest = wear.kind == .worn ? 0.75 : 0.5
+            for _ in 0..<specks {
+                let angle = random.range(0, 2 * .pi), distance = sqrt(random.unit()) * 26, radius = random.range(0.18, largest)
+                context.fill(Path(ellipseIn: CGRect(x: centre.x + (cos(angle) * distance - radius) * unit,
+                                                    y: centre.y + (sin(angle) * distance - radius) * unit,
+                                                    width: 2 * radius * unit, height: 2 * radius * unit)),
+                             with: .color(.black))
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+/// One impression: two rings, the picture and the date, worn the way real stamps are.
 struct StampMark: View {
     let stamp: Stamp
     /// The ink pad chosen; nil uses the stamp's own.
     var ink: Ink?
     var date: Date?
     var size: CGFloat = 54
+    /// Nil draws it clean.
+    var wear: StampWear?
 
     var body: some View {
         let k = size / 54
+        let heavy = wear?.kind == .heavy
         // The date runs round the bottom rim, in a gap in the inner ring, so it is never cut off.
         let letters = date.map { Array($0.formatted(.dateTime.day().month(.abbreviated)).uppercased()) } ?? []
         let step = 12.5
         let gap = letters.isEmpty ? 0 : (Double(letters.count) * step / 2 + 5) / 360
+        let colour = (ink ?? stamp.ink).colour
         ZStack {
-            Circle().stroke(lineWidth: 2.2 * k).frame(width: 48 * k, height: 48 * k)
+            Circle().stroke(lineWidth: (heavy ? 2.9 : 2.2) * k).frame(width: 48 * k, height: 48 * k)
             Circle().trim(from: gap, to: 1 - gap)
                 .stroke(style: StrokeStyle(lineWidth: 0.9 * k, lineCap: .round))
                 .rotationEffect(.degrees(90))
                 .frame(width: 41 * k, height: 41 * k)
-            Group {
-                if let art = stamp.art {
-                    // Drawn large: it should read at a glance from arm's length.
-                    ZStack {
-                        Image(art).resizable().scaledToFit()
-                        if let cut = stamp.cutArt {
-                            Image(cut).resizable().scaledToFit().foregroundStyle(Palette.stampSpace)
-                        }
-                    }
-                    .scaleEffect(date == nil ? 1.5 : 1.4)
-                } else if let fixed = stamp.fixedArt {
-                    Image(fixed).resizable().scaledToFit().scaleEffect(date == nil ? 1.5 : 1.4)
-                } else if let symbol = stamp.symbol {
-                    Image(systemName: symbol).resizable().scaledToFit()
-                } else {
-                    Quatrefoil()
-                }
-            }
-            .frame(width: 22 * k, height: 22 * k)
-            .offset(y: date == nil ? 0 : -1.5 * k)
+            // Drawn large: it should read at a glance from arm's length.
+            StampPicture(stamp: stamp)
+                .scaleEffect(date == nil ? 1.5 : 1.4)
+                .frame(width: 22 * k, height: 22 * k)
+                .offset(y: date == nil ? 0 : -1.5 * k)
+                // Over-inked: the edges spread a little.
+                .shadow(color: heavy ? colour : .clear, radius: 0.5 * k)
             ForEach(Array(letters.enumerated()), id: \.offset) { index, letter in
                 let angle = (Double(index) - Double(letters.count - 1) / 2) * step
                 let radians = angle * .pi / 180
                 Text(String(letter))
-                    .font(.system(size: 5.4 * k, weight: .bold))
+                    .font(.system(size: 5.4 * k, weight: heavy ? .heavy : .bold))
                     .rotationEffect(.degrees(-angle))
                     .offset(x: CGFloat(sin(radians)) * 20.5 * k, y: CGFloat(cos(radians)) * 20.5 * k)
             }
         }
-        .foregroundStyle((ink ?? stamp.ink).colour)
+        .foregroundStyle(colour)
         .frame(width: size, height: size)
-        // Specks of bare paper where the ink did not take.
-        .overlay {
-            Image(uiImage: Grain.image).resizable(resizingMode: .tile)
-                .foregroundStyle(Palette.stampSpace)
-                .opacity(0.55)
-                .clipShape(Circle())
+        .mask {
+            if let wear {
+                StampWearMask(wear: wear)
+            } else {
+                Rectangle()
+            }
         }
         .accessibilityHidden(true)
     }
@@ -504,14 +637,21 @@ struct Impression: Identifiable {
     let stamp: Stamp
     let ink: Ink?
     let date: Date?
+    /// Decides how this impression came out. Saved, so it looks the same every time.
+    let seed: UInt64
+    /// How far off the centre of its space it landed, in card points.
+    let offset: CGSize
 
     init(_ event: Event) {
         id = event.objectID.uriRepresentation().absoluteString
-        // Saved as "stamp:ink"; older entries have the stamp alone.
+        // Saved as "stamp:ink:seed:dx:dy". Older entries have fewer parts.
         let parts = (event.sticker ?? "").split(separator: ":").map(String.init)
         stamp = Stamp(rawValue: parts.first ?? "") ?? .clip
         ink = parts.count > 1 ? Ink(rawValue: parts[1]) : nil
         date = event.startedAt
+        let fallback = id.unicodeScalars.reduce(UInt64(14_695_981_039_346_656_037)) { ($0 ^ UInt64($1.value)) &* 1_099_511_628_211 }
+        seed = parts.count > 2 ? (UInt64(parts[2]) ?? fallback) : fallback
+        offset = parts.count > 4 ? CGSize(width: Double(parts[3]) ?? 0, height: Double(parts[4]) ?? 0) : .zero
     }
 
     /// Each lands a little crooked, and the same way every time it is drawn.
@@ -559,9 +699,11 @@ struct StampCardFace: View {
             ForEach(Array(StampCard.spaces.enumerated()), id: \.offset) { index, point in
                 Circle().fill(Palette.stampSpace).frame(width: 54, height: 54).position(point)
                 if index < impressions.count {
-                    StampMark(stamp: impressions[index].stamp, ink: impressions[index].ink, date: impressions[index].date)
-                        .rotationEffect(.degrees(impressions[index].tilt))
-                        .position(point)
+                    let impression = impressions[index]
+                    StampMark(stamp: impression.stamp, ink: impression.ink, date: impression.date,
+                              wear: StampWear(seed: impression.seed, gentle: true))
+                        .rotationEffect(.degrees(impression.tilt))
+                        .position(x: point.x + impression.offset.width, y: point.y + impression.offset.height)
                 }
             }
             Image(sticker.shape).resizable().scaledToFit().foregroundStyle(Palette.stampSpace)
