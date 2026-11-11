@@ -2,7 +2,7 @@
 
 The first working version of Puggle, for our own family: two children on one screen, quick logging, a shared history, and sharing with a partner through iCloud. See `docs/baby-tracker-spec.md` §11 step 3.
 
-> **Status:** written in a cloud session without a Mac, so it has **not been compiled yet**. Expect a handful of small compile fixes on the first build. The quickest way through them is to open this repo in Claude Code on your Mac and ask it to build and fix.
+> **Status:** builds for the iOS simulator (first built on a Mac on 11 November 2026). Not yet installed on a phone, and CloudKit sync and sharing have not been tested between two Apple Accounts. There are no automated tests.
 
 ## What's in v0.1
 

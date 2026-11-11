@@ -1,39 +1,54 @@
-# Puggle: handoff to the Mac
+# Puggle: where things are
 
-Written at the end of the cloud session on 2026-11-10, so work can carry on in Claude Code on Tom's Mac.
+Updated 11 November 2026. Work now happens in two places on the same branch: Claude Code on Tom's Mac builds the app, and the cloud session does design, flows and documents. Pull before starting; both push here.
 
 ## Where everything is
 
 | What | Where |
 |---|---|
-| Plan and spec (decisions, rules, open items) | `docs/baby-tracker-spec.md` |
+| Plan and spec (decisions, rules, open items, App Store launch checklist in §13) | `docs/baby-tracker-spec.md` |
 | Flows and journeys (seventeen journeys, step by step, with rules and edge cases) | `docs/flows.md`; screens on the canvas page "Flows" |
-| Persona walkthroughs of the flows: findings and recommended changes | `docs/persona-testing.md` |
+| Persona walkthroughs of the flows: findings, what has been applied, open decisions | `docs/persona-testing.md` |
 | Review of Apollo and other well-crafted iOS apps | `docs/ios-craft-review.md` |
-| iOS app, v0.1 (never compiled) | `app/`, start with `app/README.md` |
+| iOS app, v0.1 | `app/`, start with `app/README.md` |
 | Design canvas (live) | https://claude.ai/artifact/7YuMrXnyazxos3Hnfr6uAd |
 | Canvas sources (generator scripts and board files) | `design/canvas/`, see `design/canvas/README.md` |
 | Rive contract (names, timings, order of work) | `design/rive/README.md` |
 | Puggle's parts for Rive (named groups) | `design/rive/puggle-parts.svg` |
-| App view that plays the Rive file | `app/Puggle/Design/PuggleView.swift` (not compiled yet; works without Rive) |
-| Branch | `claude/baby-tracking-app-spec-fhtvex` |
+| App view that plays the Rive file | `app/Puggle/Design/PuggleView.swift` |
+| Branch and pull request | `claude/baby-tracking-app-spec-fhtvex`, PR #2 |
 
-## First job on the Mac: build v0.1
+## State of the app
 
-The app was written without a Mac. Expect a handful of small compile fixes.
+As reported in the Mac session's commits on 11 November 2026. The cloud session has not built or run the app.
 
-1. `brew install xcodegen`
-2. `cd app && xcodegen`, then open `Puggle.xcodeproj`
-3. Change the placeholder bundle ID and iCloud container (three places, listed in `app/README.md`)
-4. Pick a team in Signing & Capabilities, build, fix errors, run on a phone
+- **It builds.** v0.1 built for the iOS simulator on the Mac with two small fixes to Today.
+- **Two schemes.** **Puggle** uses CloudKit sync and sharing and needs a paid Apple Developer account. **Puggle Local** runs without iCloud on a free Apple ID: data stays on the phone and sharing is off. Steps for both are in `app/README.md`.
+- **The bundle ID is real:** `com.tomgarton.puggle`, with a matching iCloud container.
+- **Journeys 2 and 3 are built** (everyday logging and sleep): Last saved with Undo and Change, edit and delete, typed bottle amounts, logging earlier, the day so far, Start sleep with Cancel, and the "still asleep?" question. `app/README.md` lists each step and what was left out.
 
-Sync and sharing use CloudKit, which needs a paid Apple Developer account. Without one, the quickest way to see the app run is to make the store local-only for now (swap `NSPersistentCloudKitContainer` for `NSPersistentContainer` and drop the shared store in `app/Puggle/Data/Persistence.swift`), then put CloudKit back once the account exists.
+Not yet verified by anyone:
 
-A good first prompt for Claude Code on the Mac:
+- Installing on a phone (both schemes build for the simulator only so far).
+- CloudKit sync and sharing between two Apple Accounts.
+- The Rive path in `PuggleView`. The file compiles and shows a placeholder; the Rive calls were written from memory and there is no `.riv` file yet.
+- There are no automated tests.
 
-> Read docs/HANDOFF.md and app/README.md. Generate the Xcode project, build the Puggle app for the simulator, and fix compile errors until it runs. Tell me before changing how sync works.
+## What to build next
 
-## After it builds (v0.2, from the spec)
+In the order the flows suggest. Each journey in `docs/flows.md` lists its steps, rules and edge cases.
+
+1. The rest of journeys 2 and 3: breastfeed timers and past-feed entry, per-child amounts for "Both", a night waking inside a sleep.
+2. Journey 12, setup that fits the child: the two questions and a newborn's Today.
+3. Journey 11, health: medicine, temperature, vaccinations.
+4. Journey 4, potty: the sticker moment and chart.
+5. Journey 16, large text, VoiceOver and night. Better done alongside each screen than at the end.
+6. Journey 17, outside the app: Lock Screen timers and widgets (needs a widget extension).
+7. Journeys 13 to 15: helpers, twins and pumping, calm and private.
+
+Before any of the sharing journeys: a paid Apple Developer account, and a test with two phones.
+
+## From the original v0.2 list
 
 1. Live Activity and Lock Screen timer for sleep
 2. Home Screen widgets
@@ -42,7 +57,7 @@ A good first prompt for Claude Code on the Mac:
 5. Potty sticker chart, including the holographic stickers
 6. Onboarding and the splash screen
 
-## Design state at handoff
+## Design state
 
 Settled and on the canvas:
 
@@ -59,7 +74,7 @@ Proposed, not yet decided (Characters page, "Puggle: three additions"):
 - A flat, no-outline Puggle
 - A side-on walk (the roughest of the three; needs another pass)
 
-Open decisions are listed at the top of the spec: Apple Developer account, Pebble's name, Pro price, potty method, Today as list or cards, trade mark checks.
+Open decisions are listed at the top of the spec: Apple Developer account, Pebble's name, Pro price, potty method, Today as list or cards, trade mark checks. The persona walkthroughs added seven more (Tier 3 in `docs/persona-testing.md`): helpers without an iPhone, how deep Insights goes, what Pro contains, premature babies, twins side by side, day care, and ownership.
 
 ## Rules worth remembering
 
