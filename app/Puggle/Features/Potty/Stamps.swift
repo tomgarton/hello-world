@@ -148,13 +148,20 @@ struct StampMark: View {
 
     var body: some View {
         let k = size / 54
+        // The date runs round the bottom rim, in a gap in the inner ring, so it is never cut off.
+        let letters = date.map { Array($0.formatted(.dateTime.day().month(.abbreviated)).uppercased()) } ?? []
+        let step = 12.5
+        let gap = letters.isEmpty ? 0 : (Double(letters.count) * step / 2 + 5) / 360
         ZStack {
             Circle().stroke(lineWidth: 2.2 * k).frame(width: 48 * k, height: 48 * k)
-            Circle().stroke(lineWidth: 0.9 * k).frame(width: 41 * k, height: 41 * k)
+            Circle().trim(from: gap, to: 1 - gap)
+                .stroke(style: StrokeStyle(lineWidth: 0.9 * k, lineCap: .round))
+                .rotationEffect(.degrees(90))
+                .frame(width: 41 * k, height: 41 * k)
             Group {
                 if let art = stamp.art {
                     // Drawn large: it should read at a glance from arm's length.
-                    Image(art).resizable().scaledToFit().scaleEffect(date == nil ? 1.5 : 1.36)
+                    Image(art).resizable().scaledToFit().scaleEffect(date == nil ? 1.5 : 1.4)
                 } else if let symbol = stamp.symbol {
                     Image(systemName: symbol).resizable().scaledToFit()
                 } else {
@@ -162,12 +169,14 @@ struct StampMark: View {
                 }
             }
             .frame(width: 22 * k, height: 22 * k)
-            .offset(y: date == nil ? 0 : -3 * k)
-            if let date {
-                Text(date.formatted(.dateTime.day().month(.abbreviated)).uppercased())
-                    .font(.system(size: 5.6 * k, weight: .bold))
-                    .kerning(0.6 * k)
-                    .offset(y: 16.5 * k)
+            .offset(y: date == nil ? 0 : -1.5 * k)
+            ForEach(Array(letters.enumerated()), id: \.offset) { index, letter in
+                let angle = (Double(index) - Double(letters.count - 1) / 2) * step
+                let radians = angle * .pi / 180
+                Text(String(letter))
+                    .font(.system(size: 5.4 * k, weight: .bold))
+                    .rotationEffect(.degrees(-angle))
+                    .offset(x: CGFloat(sin(radians)) * 20.5 * k, y: CGFloat(cos(radians)) * 20.5 * k)
             }
         }
         .foregroundStyle(stamp.ink)
