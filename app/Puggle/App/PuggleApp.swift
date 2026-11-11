@@ -1,4 +1,5 @@
 import CloudKit
+import CoreData
 import SwiftUI
 import UIKit
 
@@ -8,8 +9,10 @@ struct PuggleApp: App {
     @StateObject private var store = FamilyStore.live
     @StateObject private var sample = SampleFamily()
     @StateObject private var lock = AppLock()
+    @StateObject private var night = NightMode(anyChildAsleep: PuggleApp.anyChildAsleep(in: FamilyStore.live))
     @AppStorage(Setting.focusNight) private var focusNight = false
     @AppStorage(Setting.appearance) private var appearance = "system"
+    @AppStorage(Setting.nightMode) private var nightSetting = Setting.nightModeDefault
     @Environment(\.scenePhase) private var scenePhase
 
     init() {
@@ -24,8 +27,8 @@ struct PuggleApp: App {
     }
 
     private var scheme: ColorScheme? {
-        // A Focus with the Night look filter wins over the usual choice.
-        if focusNight { return .dark }
+        // The night look, or a Focus with the Night look filter, wins over the usual choice.
+        if night.isNight || focusNight { return .dark }
         switch appearance {
         case "light": return .light
         case "dark": return .dark
@@ -33,25 +36,50 @@ struct PuggleApp: App {
         }
     }
 
+    /// For the night look: whether any child on Today has a sleep running.
+    @MainActor private static func anyChildAsleep(in store: FamilyStore) -> Bool {
+        let request = NSFetchRequest<Child>(entityName: "Child")
+        request.predicate = NSPredicate(format: "archived != YES")
+        let children = (try? store.context.fetch(request)) ?? []
+        return children.contains { store.activeSleep(for: $0) != nil }
+    }
+
+    @MainActor private func refreshNight(with store: FamilyStore) {
+        night.refresh(anyChildAsleep: PuggleApp.anyChildAsleep(in: store))
+    }
+
     var body: some Scene {
         WindowGroup {
             // The sample family is a separate, in-memory store swapped in whole.
             let active = sample.store ?? store
             RootView()
-                .id(sample.isOn)
+                // Rebuilt when the night look switches, so every colour is resolved again.
+                .id("\(sample.isOn)-\(night.isNight)")
                 .environment(\.managedObjectContext, active.persistence.viewContext)
                 .environmentObject(active)
                 .environmentObject(sample)
+                .environmentObject(night)
                 .overlay {
                     if lock.isLocked {
                         LockedView { lock.unlock() }
                     }
                 }
                 .preferredColorScheme(scheme)
+                // A sleep starting or ending, or the sample family swapping in, may change the night look.
+                .onReceive(active.objectWillChange) { _ in
+                    // Only looked up when sleep is part of the setting.
+                    guard night.usesSleep else { return }
+                    Task { @MainActor in refreshNight(with: active) }
+                }
+                .onChange(of: nightSetting) { _, _ in refreshNight(with: active) }
+                .onChange(of: sample.isOn) { _, _ in
+                    Task { @MainActor in refreshNight(with: sample.store ?? store) }
+                }
                 .onChange(of: scenePhase) { _, phase in
                     switch phase {
                     case .active:
                         LiveTimers.shared.sync(with: store)
+                        refreshNight(with: active)
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()
                     case .background:
@@ -73,7 +101,7 @@ struct RootView: View {
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @AppStorage(Setting.justLog) private var justLog = false
     @State private var inFirstRun = false
-    @State private var splashing = true
+    @State private var splashing = !Palette.nightJustChanged
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {

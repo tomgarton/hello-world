@@ -2,7 +2,7 @@
   "images": [
     {
       "idiom": "universal",
-      "filename": "stamp-zinc-stick.svg"
+      "filename": "stamp-cricket.svg"
     }
   ],
   "info": {
@@ -10,7 +10,6 @@
     "version": 1
   },
   "properties": {
-    "preserves-vector-representation": true,
-    "template-rendering-intent": "template"
+    "preserves-vector-representation": true
   }
 }

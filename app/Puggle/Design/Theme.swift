@@ -4,26 +4,37 @@ import SwiftUI
 /// Palette from the spec (§10 Palette and type). Each surface and text
 /// colour has a dark twin: warm text on near-black, with no white anywhere.
 enum Palette {
-    static let ink = Color(light: 0x3A2A20, dark: 0xEBDDC4)
-    static let paper = Color(light: 0xFBF6E9, dark: 0x2A2420)
-    static let sand = Color(light: 0xF2ECDD, dark: 0x14110F)
-    static let field = Color(light: 0xEAE2D2, dark: 0x3B332D)
-    static let card = Color(light: 0xECE4D4, dark: 0x1F1A17)
-    static let muted = Color(light: 0x6B5E52, dark: 0xB3A590)
+    /// True while the night look is on. Set by `NightMode`, on the main thread only.
+    /// Colours read it when they are resolved, so the root view is rebuilt when it changes.
+    static var isNight = false
+    /// When the night look last switched while the app was running.
+    static var nightChangedAt: Date?
+    /// True for a moment after a switch, so the rebuilt root does not replay the splash.
+    static var nightJustChanged: Bool {
+        guard let nightChangedAt else { return false }
+        return Date.now.timeIntervalSince(nightChangedAt) < 2
+    }
+
+    static let ink = Color(light: 0x3A2A20, dark: 0xEBDDC4, night: 0xC2A988)
+    static let paper = Color(light: 0xFBF6E9, dark: 0x2A2420, night: 0x15110E)
+    static let sand = Color(light: 0xF2ECDD, dark: 0x14110F, night: 0x0A0807)
+    static let field = Color(light: 0xEAE2D2, dark: 0x3B332D, night: 0x221C18)
+    static let card = Color(light: 0xECE4D4, dark: 0x1F1A17, night: 0x100D0B)
+    static let muted = Color(light: 0x6B5E52, dark: 0xB3A590, night: 0x9C8A72)
     /// The sleeping row. A touch lighter in dark so it still reads as blue.
-    static let night = Color(light: 0x1B2440, dark: 0x25315A)
-    static let moon = Color(hex: 0xF3E0B8)
+    static let night = Color(light: 0x1B2440, dark: 0x25315A, night: 0x161C33)
+    static let moon = Color(light: 0xF3E0B8, dark: 0xF3E0B8, night: 0xC4B08C)
 
     /// Ink for UIKit, which draws the navigation titles.
     static let inkUI = UIColor { traits in
-        traits.userInterfaceStyle == .dark
-            ? UIColor(red: 0xEB / 255, green: 0xDD / 255, blue: 0xC4 / 255, alpha: 1)
-            : UIColor(red: 0x3A / 255, green: 0x2A / 255, blue: 0x20 / 255, alpha: 1)
+        if Palette.isNight { return UIColor(hex: 0xC2A988) }
+        return UIColor(hex: traits.userInterfaceStyle == .dark ? 0xEBDDC4 : 0x3A2A20)
     }
 
     /// The same in light and dark, for text on a coloured ground (night, moon, wattle).
     static let fixedInk = Color(hex: 0x3A2A20)
-    static let fixedPaper = Color(hex: 0xFBF6E9)
+    /// Dimmed at night only, so nothing near white is left on screen.
+    static let fixedPaper = Color(light: 0xFBF6E9, dark: 0xFBF6E9, night: 0xC9BEA8)
 
     static let wattle = Color(hex: 0xF4BE2C)
     static let harbour = Color(hex: 0x2A62B8)
@@ -32,10 +43,10 @@ enum Palette {
 
     /// Soft fields: one per child.
     static let childColours: [Color] = [
-        Color(light: 0xBFD9F5, dark: 0x2C4763), // Sky
-        Color(light: 0xF3D9C9, dark: 0x5E4234), // Shell
-        Color(light: 0xCFE5D2, dark: 0x33523C), // Mint
-        Color(light: 0xF4E7B0, dark: 0x5C5024), // Sun
+        Color(light: 0xBFD9F5, dark: 0x2C4763, night: 0x1F3246), // Sky
+        Color(light: 0xF3D9C9, dark: 0x5E4234, night: 0x422E25), // Shell
+        Color(light: 0xCFE5D2, dark: 0x33523C, night: 0x243A2B), // Mint
+        Color(light: 0xF4E7B0, dark: 0x5C5024, night: 0x40381A), // Sun
     ]
 
     static func childColour(_ index: Int16) -> Color {
@@ -43,15 +54,22 @@ enum Palette {
     }
 }
 
+extension UIColor {
+    convenience init(hex: UInt32) {
+        self.init(red: CGFloat((hex >> 16) & 0xFF) / 255,
+                  green: CGFloat((hex >> 8) & 0xFF) / 255,
+                  blue: CGFloat(hex & 0xFF) / 255,
+                  alpha: 1)
+    }
+}
+
 extension Color {
-    /// A colour that follows the phone's light or dark appearance.
-    init(light: UInt32, dark: UInt32) {
+    /// A colour that follows the phone's light or dark appearance, with an
+    /// optional dimmer value for the night look (see `Palette.isNight`).
+    init(light: UInt32, dark: UInt32, night: UInt32? = nil) {
         self.init(uiColor: UIColor { traits in
-            let hex = traits.userInterfaceStyle == .dark ? dark : light
-            return UIColor(red: CGFloat((hex >> 16) & 0xFF) / 255,
-                           green: CGFloat((hex >> 8) & 0xFF) / 255,
-                           blue: CGFloat(hex & 0xFF) / 255,
-                           alpha: 1)
+            if let night, Palette.isNight { return UIColor(hex: night) }
+            return UIColor(hex: traits.userInterfaceStyle == .dark ? dark : light)
         })
     }
 

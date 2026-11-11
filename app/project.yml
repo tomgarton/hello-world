@@ -22,10 +22,8 @@ targets:
     type: application
     platform: iOS
     sources:
+      # Design/Paper.metal needs Apple's Metal Toolchain: xcodebuild -downloadComponent MetalToolchain
       - path: Puggle
-        # The paper shaders need Apple's Metal Toolchain (xcodebuild -downloadComponent MetalToolchain).
-        # Remove this line and set PaperEffects.shadersBuilt to true once it is installed.
-        excludes: ["**/*.metal"]
       - path: Shared
     dependencies:
       - target: PuggleWidgets

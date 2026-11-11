@@ -8,15 +8,15 @@ import UIKit
 /// An ink stamp. The raw value is what is saved on the potty entry.
 /// The Australiana set is offered; earlier stamps still draw.
 enum Stamp: String, CaseIterable, Identifiable {
-    case thong, esky, hoist, lamington, fairybread, pavlova, surfboard, zinc
+    case thong, esky, hoist, lamington, fairybread, pavlova, surfboard, cricket, zinc
     case clip, fish, leaf, sun, moon, heart, star, bird, tortoise, ladybird
 
-    static let offered: [Stamp] = [.thong, .esky, .hoist, .lamington, .fairybread, .pavlova, .surfboard, .zinc]
+    static let offered: [Stamp] = [.thong, .esky, .hoist, .lamington, .fairybread, .pavlova, .surfboard, .cricket]
     static let perCard = 5
 
     var id: String { rawValue }
 
-    /// A drawing from the Australiana set (`design/canvas/gen/world_style.py`), as a one-colour image.
+    /// An Australiana stamp: a bold solid drawing in its own ink, with details cut out in paper colour.
     var art: String? {
         switch self {
         case .thong: "stamp-thong"
@@ -26,7 +26,7 @@ enum Stamp: String, CaseIterable, Identifiable {
         case .fairybread: "stamp-fairy-bread"
         case .pavlova: "stamp-pavlova"
         case .surfboard: "stamp-surfboard"
-        case .zinc: "stamp-zinc-stick"
+        case .cricket: "stamp-cricket"
         default: nil
         }
     }
@@ -52,7 +52,7 @@ enum Stamp: String, CaseIterable, Identifiable {
         switch self {
         case .esky, .lamington, .pavlova, .clip, .sun, .star, .ladybird: Color(hex: 0xD9482F)
         case .thong, .hoist, .surfboard, .fish, .moon, .bird: Color(hex: 0x2A62B8)
-        case .fairybread, .zinc, .leaf, .heart, .tortoise: Color(hex: 0x3C8A55)
+        case .fairybread, .cricket, .zinc, .leaf, .heart, .tortoise: Color(hex: 0x3C8A55)
         }
     }
 
@@ -61,6 +61,7 @@ enum Stamp: String, CaseIterable, Identifiable {
         case .clip: "Puggle's clip"
         case .hoist: "Hills Hoist"
         case .fairybread: "Fairy bread"
+        case .cricket: "Cricket bat"
         case .zinc: "Zinc stick"
         default: rawValue.capitalized
         }
@@ -92,6 +93,51 @@ enum Grain {
             }
         }.withRenderingMode(.alwaysTemplate)
     }()
+
+    /// The tooth of the paper showing through wax crayon: short slanted streaks.
+    static let crayon: UIImage = {
+        let size = CGSize(width: 120, height: 120)
+        return UIGraphicsImageRenderer(size: size).image { context in
+            let cg = context.cgContext
+            cg.setLineCap(.round)
+            for _ in 0..<950 {
+                let x = CGFloat.random(in: -4..<124), y = CGFloat.random(in: -4..<124)
+                let angle = CGFloat.random(in: -0.95 ... -0.35), length = CGFloat.random(in: 1.5...7)
+                cg.setStrokeColor(UIColor(white: 0, alpha: .random(in: 0.3...1)).cgColor)
+                cg.setLineWidth(.random(in: 0.5...1.3))
+                cg.move(to: CGPoint(x: x, y: y))
+                cg.addLine(to: CGPoint(x: x + cos(angle) * length, y: y + sin(angle) * length))
+                cg.strokePath()
+            }
+        }.withRenderingMode(.alwaysTemplate)
+    }()
+}
+
+/// A line drawn in wax crayon: a ragged edge, a solid middle that is not
+/// quite even, and the paper showing through in streaks.
+struct CrayonStroke: View {
+    let path: Path
+    let colour: Color
+    let width: CGFloat
+    let paper: Color
+
+    var body: some View {
+        let solid = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
+        ZStack {
+            // The edge: broken, where the crayon skipped.
+            path.stroke(colour.opacity(0.5), style: StrokeStyle(lineWidth: width + 1.8, lineCap: .round, lineJoin: .round, dash: [1.3, 2.4]))
+            path.stroke(colour.opacity(0.35), style: StrokeStyle(lineWidth: width + 0.8, lineCap: .round, lineJoin: .round, dash: [3.1, 1.7], dashPhase: 2))
+            // The body, and a second pass a hair off it, the way a child goes over a line.
+            path.stroke(colour.opacity(0.92), style: StrokeStyle(lineWidth: width - 0.8, lineCap: .round, lineJoin: .round))
+            path.offsetBy(dx: 0.7, dy: -0.5).stroke(colour.opacity(0.45), style: StrokeStyle(lineWidth: width * 0.55, lineCap: .round, lineJoin: .round))
+            // The paper's tooth.
+            Image(uiImage: Grain.crayon).resizable(resizingMode: .tile)
+                .foregroundStyle(paper)
+                .opacity(0.62)
+                .clipShape(path.strokedPath(StrokeStyle(lineWidth: width + 1.8, lineCap: .round, lineJoin: .round)))
+        }
+        .accessibilityHidden(true)
+    }
 }
 
 /// One impression: two rings, the picture and the date, a little uneven.
@@ -107,7 +153,8 @@ struct StampMark: View {
             Circle().stroke(lineWidth: 0.9 * k).frame(width: 41 * k, height: 41 * k)
             Group {
                 if let art = stamp.art {
-                    Image(art).resizable().scaledToFit().scaleEffect(1.25)
+                    // Drawn large: it should read at a glance from arm's length.
+                    Image(art).resizable().scaledToFit().scaleEffect(date == nil ? 1.5 : 1.36)
                 } else if let symbol = stamp.symbol {
                     Image(systemName: symbol).resizable().scaledToFit()
                 } else {
@@ -239,9 +286,9 @@ struct PaperEdge: Shape {
 
 /// Paper that moves: a ring running out from a stamp, and a corner that folds over.
 struct PaperEffects: ViewModifier, Animatable {
-    /// False while `Design/Paper.metal` is left out of the build (see project.yml).
+    /// Set to false to build without `Design/Paper.metal` (it needs Apple's Metal Toolchain).
     /// The card then moves as a flat sheet: no ripple and no folded corner.
-    static let shadersBuilt = false
+    static let shadersBuilt = true
 
     /// How far the corner is folded in, in points.
     var curl: CGFloat
@@ -437,15 +484,12 @@ struct StampCardFace: View {
             // The cut edge is a touch darker, as card is.
             PaperEdge().stroke(.black.opacity(0.14), lineWidth: 1.2)
 
-            Path { path in
+            CrayonStroke(path: Path { path in
                 path.move(to: CGPoint(x: -10, y: 165))
                 path.addLines(StampCard.spaces + [StampCard.last])
-            }
-            .stroke(theme.trail, style: StrokeStyle(lineWidth: 9, lineCap: .round, lineJoin: .round))
-            .opacity(0.9)
+            }, colour: theme.trail, width: 9, paper: theme.paper)
             ForEach(Array(theme.strokes.enumerated()), id: \.offset) { _, stroke in
-                stroke.0.stroke(stroke.1, style: StrokeStyle(lineWidth: stroke.2, lineCap: .round, lineJoin: .round))
-                    .opacity(0.9)
+                CrayonStroke(path: stroke.0, colour: stroke.1, width: stroke.2 + 1, paper: theme.paper)
             }
 
             ForEach(Array(StampCard.spaces.enumerated()), id: \.offset) { index, point in

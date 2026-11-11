@@ -169,7 +169,16 @@ Fifteenth round, 11 November 2026 (stamp cards, second pass):
 | Stamps | The eight Australiana drawings from `design/canvas/gen/world_style.py` (thong, esky, Hills Hoist, lamington, fairy bread, pavlova, surfboard, zinc stick), exported as one-colour images. The selector is two rows of larger stamps on a paper sheet that stays light in dark mode |
 | Stickers | Each uses one of the soft shapes (quatrefoil, blossom, soft hexagon, scallop, pebble, soft square) and one of five foils (rainbow, sea, sunset, pearl, gold), with a quatrefoil repeat pressed into the foil. Card stickers carry Puggle's face; others carry their activity icon |
 | Peel and fold | The shiny sticker sits on a backing sheet, leaves its outline when lifted, and folds down onto the last space |
-| Ripple and curl | Written (`Design/Paper.metal`, `PaperEffects`) but switched off: compiling shaders needs Apple's Metal Toolchain, which is not installed. See the note in `project.yml` |
+
+Sixteenth round, 11 November 2026:
+
+| Change | In the app |
+|---|---|
+| First run (1, 12, 15) | Eight steps: welcome (with "Look around a sample family first"), two short pages, your name, add a child, "Anyone else?", "How much to see", and "You're set". Back, Skip and progress dots. `Features/Onboarding/` |
+| Night look (16) | Very dim warm text on near-black. Comes on by itself at set times (default 9 pm to 6 am), while a child sleeps, or both; `Design/NightMode.swift`. The root view is rebuilt when it flips, which closes open sheets |
+| Settings (9) | Grouped: You, Look and feel (Appearance and night, Units, Touch feedback), Today (How much to see, Tiles on Today, Lock Screen), Privacy, and the rest. Units are stored but entries still show millilitres, grams and Celsius |
+| Paper | The ripple and corner curl shaders are on (`Design/Paper.metal`; needs Apple's Metal Toolchain to build). Card drawings have a wax crayon texture |
+| Stamps | Redrawn as bold solid shapes with cut-out details and drawn larger. A cricket bat replaces the zinc stick |
 
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
