@@ -79,13 +79,21 @@ Fifth round, 11 November 2026:
 | Just logging (15) | Today shows names and tiles only, no elapsed times or day so far, and Insights is hidden. Not yet asked in setup |
 | Sample family | Two made-up children with two weeks of entries, in memory only and labelled on Today and Family. The real family is untouched; nothing done there is kept |
 
+Sixth round, 11 November 2026:
+
+| Flow | In the app |
+|---|---|
+| Lock Screen and Dynamic Island timers (3, 17) | A Live Activity for each running sleep and each running breastfeed, one per child. The Lock Screen shows the name, a clock that counts by itself and a button: "Woke up" for a sleep, "Finish" for a feed. The Dynamic Island shows a moon or heart and the clock, with the button when expanded. iOS ends a Live Activity after about eight hours; the sleep itself keeps running in the app |
+
+The timers live in a second target, `PuggleWidgets` (a widget extension), with the shared types in `Shared/`. It needs no entitlements, so the free Apple ID build includes it. A timer started on another phone does not appear on this phone's Lock Screen until the app is opened here.
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.
 
 Not built: the character builder and photos, invitations in first run, import, Pro and tips, automatic night mode, units and reminders, a way to contact us from Help, and "how much to see" in setup. Whole journeys not started: helpers (13), pumping (14), large text and night (16), and widgets, Lock Screen and Siri (17).
 
-Left out of those two journeys: the Lock Screen timer (needs a widget extension), "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, and Puggle's nod on save.
+Left out of those two journeys: "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, and Puggle's nod on save.
 
 Not yet: Live Activities, widgets, the custom Puggle icons (SF Symbols stand in), characters, potty sticker chart, growth, onboarding, import.
 
@@ -134,6 +142,7 @@ app/
     Design/PuggleView.swift   Animated Puggle (Rive), still image without it; see design/rive/README.md
     Features/Today/           Today screen
     Features/Log/             Log sheet
+    (PuggleWidgets/ and Shared/ sit beside Puggle/: the Lock Screen timers)
     Features/History/         History
     Features/Family/          Children and sharing
     Features/Growing/         Milestones, growth, summary for the doctor

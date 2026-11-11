@@ -39,7 +39,11 @@ final class FamilyStore: ObservableObject {
             object: persistence.viewContext,
             queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.objectWillChange.send() }
+            MainActor.assumeIsolated {
+                guard let self else { return }
+                self.objectWillChange.send()
+                LiveTimers.shared.sync(with: self)
+            }
         }
     }
 

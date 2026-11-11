@@ -5,15 +5,20 @@ import UIKit
 @main
 struct PuggleApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
-    @StateObject private var store = FamilyStore()
+    @StateObject private var store = FamilyStore.live
     @StateObject private var sample = SampleFamily()
     @AppStorage(Setting.appearance) private var appearance = "system"
+    @Environment(\.scenePhase) private var scenePhase
 
     init() {
         // Navigation titles are drawn by UIKit; give them the warm ink too.
         let bar = UINavigationBar.appearance()
         bar.largeTitleTextAttributes = [.foregroundColor: Palette.inkUI]
         bar.titleTextAttributes = [.foregroundColor: Palette.inkUI]
+        // The Lock Screen buttons run here, even when the app is opened in the background for them.
+        TimerActions.perform = { kind, childID in
+            FamilyStore.live.handleTimerAction(kind: kind, childID: childID)
+        }
     }
 
     private var scheme: ColorScheme? {
@@ -34,6 +39,9 @@ struct PuggleApp: App {
                 .environmentObject(active)
                 .environmentObject(sample)
                 .preferredColorScheme(scheme)
+                .onChange(of: scenePhase) { _, phase in
+                    if phase == .active { LiveTimers.shared.sync(with: store) }
+                }
                 .tint(Palette.ink)
                 // Warm ink everywhere by default, so nothing falls back to white in dark.
                 .foregroundStyle(Palette.ink)

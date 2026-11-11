@@ -23,6 +23,9 @@ targets:
     platform: iOS
     sources:
       - path: Puggle
+      - path: Shared
+    dependencies:
+      - target: PuggleWidgets
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle
@@ -35,6 +38,19 @@ targets:
         Local:
           CODE_SIGN_ENTITLEMENTS: ""
           SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG LOCAL_ONLY
+  # Lock Screen and Dynamic Island timers. Needs no entitlements, so a free Apple ID can sign it.
+  PuggleWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: PuggleWidgets
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle.widgets
+        TARGETED_DEVICE_FAMILY: "1"
+        INFOPLIST_FILE: PuggleWidgets/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
 schemes:
   Puggle:
     build:
