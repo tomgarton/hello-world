@@ -20,25 +20,38 @@ struct TimerLiveActivity: Widget {
                         .lineLimit(1)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
-                    if context.state.mode != "glance" {
-                        Clock(state: context.state)
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(Tone.moon)
-                            .frame(maxWidth: 110, alignment: .trailing)
+                    // The number that matters, large, as on the system timer.
+                    VStack(alignment: .trailing, spacing: 0) {
+                        if context.state.mode == "glance" {
+                            if let fed = context.state.fedSince {
+                                Since(date: fed).font(.title2.weight(.semibold))
+                                Text("since a feed").font(.caption2).foregroundStyle(Tone.cream.opacity(0.7))
+                            }
+                        } else {
+                            Clock(state: context.state).font(.title.weight(.semibold))
+                            Text(context.state.label).font(.caption2).foregroundStyle(Tone.cream.opacity(0.7))
+                        }
                     }
+                    .foregroundStyle(Tone.moon)
+                    .frame(maxWidth: 150, alignment: .trailing)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     switch context.state.mode {
                     case "glance":
-                        GlanceLines(state: context.state)
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                        HStack {
+                            if let awake = context.state.awakeSince {
+                                (Text("Awake ") + Since.text(awake))
+                                    .font(.subheadline)
+                                    .foregroundStyle(Tone.cream.opacity(0.8))
+                            }
+                            Spacer()
+                            ActionButton("Start sleep", action: TimerActions.startSleep, attributes: context.attributes,
+                                         spoken: "Start \(context.attributes.childName)'s sleep")
+                        }
                     case "feed":
                         FeedButtons(attributes: context.attributes, state: context.state)
                     default:
                         HStack {
-                            Text(context.state.label)
-                                .font(.subheadline)
-                                .foregroundStyle(Tone.cream.opacity(0.8))
                             Spacer()
                             ActionButton("Woke up", action: TimerActions.wokeUp, attributes: context.attributes,
                                          spoken: "\(context.attributes.childName) woke up")
@@ -48,9 +61,16 @@ struct TimerLiveActivity: Widget {
             } compactLeading: {
                 Image(systemName: symbol(context.state)).foregroundStyle(Tone.moon)
             } compactTrailing: {
-                Clock(state: context.state)
-                    .foregroundStyle(Tone.moon)
-                    .frame(maxWidth: 56)
+                Group {
+                    if context.state.mode == "glance", let fed = context.state.fedSince {
+                        Since(date: fed, short: true)
+                    } else {
+                        Clock(state: context.state)
+                    }
+                }
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Tone.moon)
+                .frame(maxWidth: 64)
             } minimal: {
                 Image(systemName: symbol(context.state)).foregroundStyle(Tone.moon)
             }
@@ -106,6 +126,9 @@ private struct LockScreenCard: View {
                 if state.mode == "sleep" {
                     ActionButton("Woke up", action: TimerActions.wokeUp, attributes: context.attributes,
                                  spoken: "\(context.attributes.childName) woke up")
+                } else if state.mode == "glance" {
+                    ActionButton("Start sleep", action: TimerActions.startSleep, attributes: context.attributes,
+                                 spoken: "Start \(context.attributes.childName)'s sleep")
                 }
             }
             if state.mode == "feed" {
@@ -122,16 +145,39 @@ private struct GlanceLines: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 1) {
+            // One line each: the text shrinks a little before it would wrap.
             if let fed = state.fedSince {
-                (Text("Fed ") + Text(fed, style: .relative) + Text(" ago"))
+                (Text("Fed ") + Since.text(fed) + Text(" ago"))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
             if let awake = state.awakeSince {
-                (Text("Awake ") + Text(awake, style: .relative))
+                (Text("Awake ") + Since.text(awake))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
             }
         }
         .font(.subheadline)
         .foregroundStyle(Tone.moon)
         .monospacedDigit()
+    }
+}
+
+/// "23 min" or "1 hr, 3 min", updating by itself, with no seconds ticking.
+private struct Since: View {
+    let date: Date
+    var short = false
+
+    var body: some View {
+        Since.text(date, short: short).monospacedDigit()
+    }
+
+    static func text(_ date: Date, short: Bool = false) -> Text {
+        if #available(iOS 18.0, *) {
+            return Text(.currentDate, format: .offset(to: date, allowedFields: [.hour, .minute],
+                                                      maxFieldCount: short ? 1 : 2, sign: .never))
+        }
+        return Text(date, style: .relative)
     }
 }
 

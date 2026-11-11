@@ -30,6 +30,7 @@ struct TimerAttributes: ActivityAttributes {
 /// The buttons on a Lock Screen card. They run inside the app, which sets `perform` at launch.
 enum TimerActions {
     static let wokeUp = "wokeUp"
+    static let startSleep = "startSleep"
     static let finishFeed = "finishFeed"
     static let feedLeft = "feedLeft"
     static let feedRight = "feedRight"

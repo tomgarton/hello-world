@@ -67,7 +67,7 @@ final class LiveTimers {
             } else if let sleep = store.activeSleep(for: child), let start = sleep.startedAt {
                 result[id] = Wanted(attributes: attributes,
                                     state: .init(mode: "sleep", label: "Asleep", since: start))
-            } else if glanceOn, child.uses(.bottle) || child.uses(.breastfeed) {
+            } else if glanceOn, child.ageMonths < 24, child.uses(.bottle) || child.uses(.breastfeed) {
                 let cutoff = Date.now.addingTimeInterval(-glanceHours * 3600)
                 var state = TimerAttributes.ContentState(mode: "glance")
                 let feeds = [store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)]
@@ -78,10 +78,11 @@ final class LiveTimers {
                     .filter { $0.kind == .sleep }
                     .compactMap(\.endedAt)
                     .max()
-                if let woke, woke > cutoff, woke <= .now {
+                // "Awake" is for young babies, and only beside a feed: on its own it is just a clock.
+                if let woke, woke > cutoff, woke <= .now, child.ageMonths < 18, state.fedSince != nil {
                     state.awakeSince = woke
                 }
-                if state.fedSince != nil || state.awakeSince != nil {
+                if state.fedSince != nil {
                     result[id] = Wanted(attributes: attributes, state: state)
                 }
             }
@@ -140,6 +141,7 @@ extension FamilyStore {
         if let child = children.first(where: { $0.id?.uuidString == childID }) {
             switch action {
             case TimerActions.wokeUp: endSleep(for: child)
+            case TimerActions.startSleep: startSleep(for: child)
             case TimerActions.finishFeed: finishFeed(for: child)
             case TimerActions.feedLeft: tapFeedSide("Left", for: child)
             case TimerActions.feedRight: tapFeedSide("Right", for: child)

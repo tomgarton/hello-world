@@ -217,9 +217,7 @@ struct LogSheet: View {
                             selected.insert(key)
                         }
                     } label: {
-                        ChildChip(child: child, selected: isOn, ticked: isOn)
-                            .scaleEffect(1.15)
-                            .padding(.horizontal, 6)
+                        ChildChip(child: child, selected: isOn, ticked: isOn, large: true)
                             .frame(minHeight: 44)
                             .contentShape(Rectangle())
                     }
@@ -231,10 +229,10 @@ struct LogSheet: View {
                         Haptics.selection()
                         selected = Set(children.map(NSManagedObjectIDWrapper.init))
                     }
-                        .font(.footnote.weight(.semibold))
+                        .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Palette.ink)
-                        .padding(.horizontal, 12)
-                        .frame(minHeight: 44)
+                        .padding(.horizontal, 14)
+                        .frame(minHeight: 40)
                         .background(Palette.field, in: Capsule())
                 }
             }

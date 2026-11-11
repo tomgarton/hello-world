@@ -96,6 +96,8 @@ struct ChildChip: View {
     var selected = true
     /// For pickers: selection shows as a tick and a border as well as the colour.
     var ticked = false
+    /// Picker size: tall enough to tap, and the same as the buttons beside it.
+    var large = false
 
     var body: some View {
         HStack(spacing: 4) {
@@ -104,9 +106,9 @@ struct ChildChip: View {
             }
             Text(child.displayName)
         }
-        .font(.footnote.weight(.semibold))
-        .padding(.horizontal, 10)
-        .frame(minHeight: 26)
+        .font((large ? Font.subheadline : .footnote).weight(.semibold))
+        .padding(.horizontal, large ? 14 : 10)
+        .frame(minHeight: large ? 40 : 26)
         .background(selected ? Palette.childColour(child.colourIndex) : Palette.field, in: Capsule())
         .overlay(Capsule().stroke(Palette.ink, lineWidth: ticked ? 1.5 : 0))
         .foregroundStyle(Palette.ink)

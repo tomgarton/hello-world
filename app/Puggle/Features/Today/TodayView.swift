@@ -306,7 +306,9 @@ struct LastSavedRow: View {
                         Text("Last saved")
                             .font(.caption)
                             .foregroundStyle(Palette.muted)
-                        Text("\(names): \(first.summary)")
+                        Text(Set(events.map(\.summary)).count == 1
+                             ? "\(names): \(first.summary)"
+                             : events.map { "\($0.sortedChildren.first?.displayName ?? ""): \($0.summary)" }.joined(separator: "\n"))
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(Palette.ink)
                     }

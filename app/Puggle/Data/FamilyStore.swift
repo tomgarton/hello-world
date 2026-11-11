@@ -254,7 +254,16 @@ final class FamilyStore: ObservableObject {
         guard let sleep = activeSleep(for: child) else { return }
         sleep.endedAt = .now
         persistence.save()
-        lastSaved = LastSaved(events: [sleep], undo: .resumeSleep)
+        // Twins waking together: sleeps stopped within two minutes share one Undo.
+        var together = [sleep]
+        if let saved = lastSaved, saved.undo == .resumeSleep {
+            let recent = saved.events.filter { event in
+                event.isLive && event != sleep
+                    && (event.endedAt.map { Date.now.timeIntervalSince($0) < 120 } ?? false)
+            }
+            together = recent + together
+        }
+        lastSaved = LastSaved(events: together, undo: .resumeSleep)
     }
 
     /// A stray tap on "Start sleep" leaves no entry.

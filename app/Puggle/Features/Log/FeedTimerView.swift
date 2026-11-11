@@ -78,9 +78,7 @@ struct FeedTimerView: View {
                         Haptics.selection()
                         selected = item.objectID
                     } label: {
-                        ChildChip(child: item, selected: isOn, ticked: isOn)
-                            .scaleEffect(1.15)
-                            .padding(.horizontal, 6)
+                        ChildChip(child: item, selected: isOn, ticked: isOn, large: true)
                             .frame(minHeight: 44)
                             .contentShape(Rectangle())
                     }

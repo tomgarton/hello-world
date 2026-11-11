@@ -124,6 +124,15 @@ Tenth round, 11 November 2026:
 | Lock with Face ID | Settings: asks for Face ID or the passcode each time the app is opened. Lock Screen timers and Siri still work |
 | Milestone haptic | A composed pattern (three rising ticks, then a full beat) timed to the celebration's windup. The only custom pattern |
 
+Eleventh round, 11 November 2026 (from testing on the phone):
+
+| Fix | In the app |
+|---|---|
+| Undo for twins | Sleeps stopped within two minutes of each other share one "Last saved" row, and Undo resumes them all |
+| Child picker | Child chips and "Everyone" are one size |
+| Dynamic Island | Expanded: the name on the left, the number that matters large on the right, the buttons beneath. Compact: icon and time |
+| Glance | Hours and minutes with no ticking seconds. Shown for children under two with a feed in the last eight hours; "Awake" is added only under 18 months. The glance has a Start sleep button |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.
