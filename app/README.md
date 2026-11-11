@@ -107,6 +107,14 @@ Eighth round, 11 November 2026:
 | Press states | Buttons give slightly under the finger (`PressStyle`); with Reduce Motion they dim instead |
 | Small animations | "Last saved" eases in when it changes, a child's row fades to night blue when a sleep starts, chips and feed sides animate their selection |
 
+Ninth round, 11 November 2026:
+
+| Flow | In the app |
+|---|---|
+| Touch feedback switch | Settings: turns every haptic off |
+| Calmer motion | Everyday buttons press with no bounce; the milestone celebration winds up, then lets go; the feed clocks and a child's status line roll between values |
+| Liquid Glass | On iOS 26 the + buttons on the tiles and the sleep button are interactive glass, so they lift and warp when pressed (`glassControl` in `Design/Feel.swift`). Earlier versions keep the flat fill. Cards, rows and the pinned Save button stay solid: glass on content hurt legibility, and a glass Save button all but vanished when disabled |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

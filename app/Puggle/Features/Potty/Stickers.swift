@@ -98,7 +98,7 @@ struct StickerPickerView: View {
         .background(Palette.sand.ignoresSafeArea())
         .foregroundStyle(Palette.ink)
         .animation(.spring(duration: 0.3), value: chosen)
-        .sensoryFeedback(.success, trigger: chosen)
+        .sensoryFeedback(trigger: chosen) { _, _ in Haptics.isOn ? .success : nil }
     }
 
     private func pick(_ sticker: Sticker) {

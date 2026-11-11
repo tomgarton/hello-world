@@ -91,6 +91,8 @@ struct LogSheet: View {
             }
             .safeAreaInset(edge: .bottom) {
                 if needsSaveButton {
+                    // Solid on purpose: as glass, the main action let the form show through
+                    // and all but vanished when disabled.
                     Button(isEditing ? "Save changes" : "Save \(kind.title.lowercased())") { save() }
                         .buttonStyle(PillButtonStyle())
                         .disabled(!canSave)

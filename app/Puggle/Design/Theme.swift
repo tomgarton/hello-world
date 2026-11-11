@@ -86,7 +86,7 @@ struct PillButtonStyle: ButtonStyle {
             .background(primary ? Palette.ink : Palette.field, in: Capsule())
             .opacity(configuration.isPressed ? 0.8 : 1)
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
-            .animation(.spring(duration: 0.2, bounce: 0.3), value: configuration.isPressed)
+            .animation(.spring(duration: 0.2, bounce: 0), value: configuration.isPressed)
     }
 }
 

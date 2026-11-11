@@ -140,6 +140,8 @@ struct FeedTimerView: View {
                 Text(Elapsed.clock(seconds))
                     .font(.display(44))
                     .monospacedDigit()
+                    .contentTransition(.numericText())
+                    .animation(.default, value: Int(seconds))
                 HStack(spacing: 4) {
                     if running { Image(systemName: "checkmark").font(.caption.weight(.bold)) }
                     Text(state)
@@ -154,6 +156,6 @@ struct FeedTimerView: View {
         .buttonStyle(PressStyle(scale: 0.97))
         .accessibilityLabel("\(side) side, \(Elapsed.minutes(seconds)), \(state.lowercased())")
         .accessibilityHint(running ? "Pauses this side" : "Starts this side")
-        .sensoryFeedback(.selection, trigger: running)
+        .sensoryFeedback(trigger: running) { _, _ in Haptics.isOn ? .selection : nil }
     }
 }

@@ -87,6 +87,8 @@ private struct Hooray: View {
     let title: String
     let onDone: () -> Void
 
+    /// The windup: she gathers for a moment, then lets go.
+    @State private var wound = false
     @State private var burst = false
 
     var body: some View {
@@ -104,11 +106,14 @@ private struct Hooray: View {
             }
             VStack(spacing: 10) {
                 PuggleStanding(height: 170)
-                    .scaleEffect(burst ? 1 : 0.8)
+                    .scaleEffect(burst ? 1 : (wound ? 0.72 : 0.85), anchor: .bottom)
                 Text("Hooray!").font(.display(54))
+                    .scaleEffect(burst ? 1 : 0.6)
+                    .opacity(burst ? 1 : 0)
                 Text("\(name): \(title)")
                     .font(.title3.weight(.semibold))
                     .multilineTextAlignment(.center)
+                    .opacity(burst ? 1 : 0)
             }
             .foregroundStyle(Palette.fixedInk)
             .padding(24)
@@ -118,12 +123,15 @@ private struct Hooray: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isButton)
         .accessibilityHint("Closes")
-        .sensoryFeedback(.success, trigger: burst)
+        .sensoryFeedback(trigger: burst) { _, _ in Haptics.isOn ? .success : nil }
         .task {
             if reduceMotion {
                 burst = true
             } else {
-                withAnimation(.spring(duration: 0.7, bounce: 0.4)) { burst = true }
+                // Every big action needs a windup: a short squash, then the release.
+                withAnimation(.easeIn(duration: 0.28)) { wound = true }
+                try? await Task.sleep(for: .seconds(0.28))
+                withAnimation(.spring(duration: 0.6, bounce: 0.35)) { burst = true }
             }
             try? await Task.sleep(for: .seconds(3))
             onDone()

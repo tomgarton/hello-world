@@ -7,6 +7,7 @@ enum Setting {
     static let justLog = "justLog"
     static let pottyStickers = "pottyStickers"
     static let lockScreenGlance = "lockScreenGlance"
+    static let haptics = "haptics"
 }
 
 /// Settings, reached from the Family tab. Short on purpose: who you are,
@@ -18,6 +19,7 @@ struct SettingsView: View {
     @AppStorage(Setting.justLog) private var justLog = false
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
+    @AppStorage(Setting.haptics) private var hapticsOn = true
     @EnvironmentObject private var store: FamilyStore
 
     var body: some View {
@@ -39,6 +41,13 @@ struct SettingsView: View {
                     Text("Light").tag("light")
                     Text("Dark").tag("dark")
                 }
+            }
+            .listRowBackground(Palette.paper)
+
+            Section {
+                Toggle("Touch feedback", isOn: $hapticsOn)
+            } footer: {
+                Text("A small tap you can feel when something is saved or a choice changes.")
             }
             .listRowBackground(Palette.paper)
 

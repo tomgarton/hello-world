@@ -217,6 +217,8 @@ struct ChildStatusRow: View {
                                 .font(.subheadline)
                                 .foregroundStyle(quiet)
                                 .monospacedDigit()
+                                .contentTransition(.numericText())
+                                .animation(.default, value: line)
                                 .multilineTextAlignment(.leading)
                         }
                     }
@@ -265,7 +267,7 @@ struct ChildStatusRow: View {
         let justStarted = sleep?.startedAt.map { now.timeIntervalSince($0) < 60 } ?? false
         let title = !asleep ? "Start sleep" : (justStarted ? "Cancel" : "Woke up")
         let spoken = !asleep ? "Start \(name)'s sleep" : (justStarted ? "Cancel \(name)'s sleep" : "\(name) woke up")
-        return Button(title) {
+        return Button {
             if let start = store.activeSleep(for: child)?.startedAt {
                 if Date.now.timeIntervalSince(start) < 60 {
                     store.cancelSleep(for: child)
@@ -275,15 +277,17 @@ struct ChildStatusRow: View {
             } else {
                 store.startSleep(for: child)
             }
+        } label: {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+                .padding(.horizontal, 14)
+                .frame(minHeight: 44)
+                .foregroundStyle(asleep ? Palette.fixedInk : Palette.ink)
+                .glassControl(Capsule(), fallback: Palette.field, tint: asleep ? Palette.moon : nil)
         }
-        .font(.subheadline.weight(.semibold))
-        .padding(.horizontal, 14)
-        .frame(minHeight: 44)
-        .background(asleep ? Palette.moon : Palette.field, in: Capsule())
-        .foregroundStyle(asleep ? Palette.fixedInk : Palette.ink)
-        .buttonStyle(PressStyle())
+        .buttonStyle(.plain)
         .accessibilityLabel(spoken)
-        .sensoryFeedback(.success, trigger: asleep)
+        .sensoryFeedback(trigger: asleep) { _, _ in Haptics.isOn ? .success : nil }
     }
 }
 
@@ -359,9 +363,9 @@ struct ActivityCard: View {
                     Image(systemName: "plus")
                         .font(.headline)
                         .frame(width: 44, height: 44)
-                        .background(Palette.paper, in: Circle())
+                        .glassControl(Circle(), fallback: Palette.paper)
                 }
-                .buttonStyle(PressStyle(scale: 0.9))
+                .buttonStyle(.plain)
                 .foregroundStyle(Palette.ink)
                 .accessibilityLabel("Log \(kind.title.lowercased())")
             }
