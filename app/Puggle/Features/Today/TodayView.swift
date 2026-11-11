@@ -365,7 +365,7 @@ struct ActivityCard: View {
                     Image(systemName: "plus")
                         .font(.headline)
                         .frame(width: 44, height: 44)
-                        .glassControl(Circle(), fallback: Palette.paper)
+                        .glassControl(Circle(), fallback: Palette.field, tint: Palette.field, quiet: true)
                 }
                 .buttonStyle(.plain)
                 .foregroundStyle(Palette.ink)
@@ -422,7 +422,7 @@ struct HealthCard: View {
                     Image(systemName: "plus")
                         .font(.headline)
                         .frame(width: 44, height: 44)
-                        .background(Palette.paper, in: Circle())
+                        .glassControl(Circle(), fallback: Palette.field, tint: Palette.field, quiet: true)
                 }
                 .foregroundStyle(Palette.ink)
                 .accessibilityLabel("Log health")

@@ -113,7 +113,7 @@ Ninth round, 11 November 2026:
 |---|---|
 | Touch feedback switch | Settings: turns every haptic off |
 | Calmer motion | Everyday buttons press with no bounce; the milestone celebration winds up, then lets go; the feed clocks and a child's status line roll between values |
-| Liquid Glass | On iOS 26 the + buttons on the tiles and the sleep button are interactive glass, so they lift and warp when pressed (`glassControl` in `Design/Feel.swift`). Earlier versions keep the flat fill. Cards, rows and the pinned Save button stay solid: glass on content hurt legibility, and a glass Save button all but vanished when disabled |
+| Liquid Glass | On iOS 26 the + buttons on the tiles and the sleep button are interactive glass, so they lift and warp when pressed. The + buttons use the quiet variant (clear glass tinted to the tile), because seven bright raised circles outshone the children's rows (`glassControl` in `Design/Feel.swift`). Earlier versions keep the flat fill. Cards, rows and the pinned Save button stay solid: glass on content hurt legibility, and a glass Save button all but vanished when disabled |
 
 Tenth round, 11 November 2026:
 

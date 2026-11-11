@@ -71,9 +71,11 @@ extension View {
     /// warps under the finger. Earlier versions keep the flat fill.
     /// Only for controls; content such as cards and rows stays solid.
     @ViewBuilder
-    func glassControl<S: Shape>(_ shape: S, fallback: Color, tint: Color? = nil) -> some View {
+    func glassControl<S: Shape>(_ shape: S, fallback: Color, tint: Color? = nil, quiet: Bool = false) -> some View {
         if #available(iOS 26.0, *) {
-            self.glassEffect(.regular.tint(tint).interactive(), in: shape)
+            // "Quiet" is the clear glass: it takes the colour of what is under it, so a
+            // row of them does not outshine the content. It still lifts when pressed.
+            self.glassEffect((quiet ? Glass.clear : Glass.regular).tint(tint).interactive(), in: shape)
         } else {
             self.background(tint ?? fallback, in: shape)
         }
