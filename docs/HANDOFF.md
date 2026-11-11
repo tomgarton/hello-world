@@ -7,6 +7,7 @@ Written at the end of the cloud session on 2026-11-10, so work can carry on in C
 | What | Where |
 |---|---|
 | Plan and spec (decisions, rules, open items) | `docs/baby-tracker-spec.md` |
+| Flows and journeys (ten journeys, step by step, with rules and edge cases) | `docs/flows.md`; screens on the canvas page "Flows" |
 | iOS app, v0.1 (never compiled) | `app/`, start with `app/README.md` |
 | Design canvas (live) | https://claude.ai/artifact/7YuMrXnyazxos3Hnfr6uAd |
 | Canvas sources (generator scripts and board files) | `design/canvas/`, see `design/canvas/README.md` |
