@@ -105,9 +105,9 @@ struct SettingsView: View {
             }
 
             Section {
-                Toggle("Stickers after the potty", isOn: $stickersOn)
+                Toggle("Stamps after the potty", isOn: $stickersOn)
             } footer: {
-                Text("After a wee, a poo or a try, the phone offers a sticker to choose.")
+                Text("After a wee, a poo or a try, the phone offers a stamp for their card. Five stamps earn a shiny sticker.")
             }
             .listRowBackground(Palette.paper)
 

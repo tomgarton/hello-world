@@ -149,6 +149,18 @@ Thirteenth round, 11 November 2026 (Today, option C from `docs/mockups/today-pro
 | Tiles | Up to three large tiles in a row and the rest as chips (`Features/Today/Tiles.swift`). Suggested from what the children use; "Edit" opens a chooser where each is a main tile, a chip or hidden |
 | Sleep | No Sleep tile. Sleep starts from each child's row; "Add a past sleep" is in the child's day sheet |
 
+Fourteenth round, 11 November 2026 (stamp cards; prototype in `docs/mockups/stamp-prototype.html`):
+
+| Change | In the app |
+|---|---|
+| Stamp cards (4) | Replaces the sticker chart. Each wee, poo or try earns one ink stamp on a kraft paper card: one ink colour, a little crooked, dated. Five stamps fill a card and the sixth space takes a shiny sticker. Cards take turns between three crayon pictures (Beach, Backyard, Night) |
+| Stamping | The stamper drops, the card dips and settles, a ring runs out through the paper and a heavy haptic lands. Dragging the card tilts it. The paper is matte; only the sticker shines |
+| The shiny sticker | After the fifth stamp the child drags it (or taps it) onto the last space. The card lifts and quatrefoils scatter |
+| Stamp book | The card being filled, finished cards, and stickers earned |
+| Earned stickers | For finished cards, firsts on the potty, new foods tried, milestones and dry days in total (`Features/Potty/StampBook.swift`). Only earned ones are shown. No streaks, nothing expires, nothing for logging. Also on each child's page |
+
+The stamps use system symbols and the card pictures are simple strokes: stand-ins for the sticker art on the canvas. Not built: a paper ripple or curl shader, foil that follows the phone's tilt, sound.
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

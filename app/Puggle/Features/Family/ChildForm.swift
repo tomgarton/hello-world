@@ -154,6 +154,7 @@ struct ChildDetailView: View {
             Section {
                 NavigationLink { MilestonesView(child: child) } label: { Label("Milestones", systemImage: "star") }
                 NavigationLink { GrowthView(child: child) } label: { Label("Growth", systemImage: "scalemass") }
+                NavigationLink { EarnedStickersView(child: child) } label: { Label("Stickers", systemImage: "seal") }
                 NavigationLink { SummaryView(child: child) } label: { Label("Summary for the doctor", systemImage: "doc.text") }
             }
             ChildForm(draft: $draft)

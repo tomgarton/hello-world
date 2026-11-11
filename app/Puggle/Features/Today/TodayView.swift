@@ -94,7 +94,7 @@ struct TodayView: View {
                             Button { showingStickers = true } label: {
                                 HStack {
                                     Image(systemName: "star.circle")
-                                    Text("Sticker chart").fontWeight(.semibold)
+                                    Text("Stamp book").fontWeight(.semibold)
                                     Spacer()
                                     Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Palette.muted)
                                 }
@@ -137,10 +137,10 @@ struct TodayView: View {
             FeedTimerView(children: relevant(.breastfeed)) { pastFeed = true }
         }
         .fullScreenCover(item: $stickerFor) { target in
-            StickerPickerView(event: target.event)
+            StampFlowView(event: target.event)
         }
         .sheet(isPresented: $showingStickers) {
-            StickerChartView(children: stickerChildren)
+            StampBookView(children: stickerChildren)
         }
         .sheet(item: $editing) { target in
             LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)

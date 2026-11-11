@@ -49,6 +49,9 @@ enum Haptics {
         }
     }
 
+    /// A stamp landing on paper: one heavy hit.
+    static func thud() { guard isOn else { return }; UIImpactFeedbackGenerator(style: .heavy).impactOccurred(intensity: 1) }
+
     /// One notch of a stepper.
     static func step() { guard isOn else { return }; UIImpactFeedbackGenerator(style: .rigid).impactOccurred(intensity: 0.6) }
 }

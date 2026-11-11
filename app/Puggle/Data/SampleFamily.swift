@@ -128,7 +128,7 @@ private struct SampleData {
         let breakfasts = ["Porridge", "Toast and egg", "Weet-bix style cereal", "Yoghurt and fruit"]
         let lunches = ["Cheese sandwich", "Pasta", "Rice and vegetables", "Soup and bread"]
         let dinners = ["Fish and peas", "Chicken and rice", "Spaghetti", "Vegetable fritters"]
-        let stickers = Sticker.allCases
+        let stickers = Stamp.offered.map { $0 }
         var count = 0
 
         func potty(_ day: Int, _ hour: Int, _ minute: Int, slot: Int) {
