@@ -27,7 +27,43 @@ Keep a link to the Rive editor file in this README once it exists, so the source
 | `asleep` | Boolean | A sleep timer is running for the child shown, or it is night | True: go to Sleepy and stay. False: back to Idle |
 | `walking` | Boolean | Pull to refresh is in progress | True: Walk loop. False: back to Idle |
 
-If `asleep` is true, `greet` and `celebrate` are ignored (she stays asleep).
+| `nod` | Trigger | An everyday log is saved (bottle, nappy, solids) | One small happy bounce, 0.4 s |
+| `proud` | Trigger | A potty success | Ta-da, tail straight up, 1.5 s |
+| `wake` | Trigger | A sleep ends | Stretch and wake, 1.2 s, then Idle |
+| `energy` | Number, 0 to 1 | The app sets 1 by day and 0.5 at night (about 10 pm to 6 am) | Scales how big and fast reactions are. Below 1 there are no jumps |
+| `lookX`, `lookY` | Number, -1 to 1 | A finger is on or near her | Her eyes shift up to 5 px towards it. Back to 0 when the finger lifts |
+
+If `asleep` is true, every trigger except `wake` is ignored (she stays asleep).
+
+`celebrate` is now only for milestones; everyday logs use `nod`.
+
+## Reaction rules (canvas: "Motion direction")
+
+- **Never in the way.** Nothing in the app waits for an animation.
+- **No guilt.** She is never sad, worried or disappointed about what a parent did or did not log. There is no input for it, on purpose.
+- **Quiet at night.** `energy` drops; idle becomes Sleepy while a child is asleep.
+- **Silent by default.** Sound only if switched on; a soft haptic when she lands.
+- **One thing at a time.** While she reacts, the scene's ambient loops pause.
+
+## Timing: snappy for reactions, smooth for ambient
+
+Reactions (Wave, Hooray, nod, proud) are pose-to-pose: hold each pose, move to the next in about 0.05 to 0.1 s. Breathing, sleeping and scene loops ease all the way. Tom to confirm after watching both on the canvas.
+
+## The tail shows the feeling
+
+| Feeling | Tail |
+|---|---|
+| Calm | Resting, slightly raised (the default) |
+| Happy | Up and wagging |
+| Proud | Straight up |
+| Surprised | Stiff, straight out |
+| Sad | Drooping to the ground (her own stories only) |
+| Shy | Tucked close, half hidden |
+| Sleepy | Curled around her feet |
+
+## Acting view and toddler moves
+
+Reactions are staged in the three-quarter view where possible. Key poses to build towards: **potty dance** (knees together, hands at the front of her dress, tail stiff), **flop-sit** (bottom lands, legs out, arms up), **tippy-toe reach** (on her toes, one arm stretched, tail as counterweight).
 
 **Layers**
 
