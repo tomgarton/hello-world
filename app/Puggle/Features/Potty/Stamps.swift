@@ -6,19 +6,34 @@ import UIKit
 // in the stamp book. It only ever adds up: an accident never appears here.
 
 /// An ink stamp. The raw value is what is saved on the potty entry.
-/// The first six are offered; the others are from the first sticker set and still draw.
+/// The Australiana set is offered; earlier stamps still draw.
 enum Stamp: String, CaseIterable, Identifiable {
+    case thong, esky, hoist, lamington, fairybread, pavlova, surfboard, zinc
     case clip, fish, leaf, sun, moon, heart, star, bird, tortoise, ladybird
 
-    static let offered: [Stamp] = [.clip, .fish, .leaf, .sun, .moon, .heart]
+    static let offered: [Stamp] = [.thong, .esky, .hoist, .lamington, .fairybread, .pavlova, .surfboard, .zinc]
     static let perCard = 5
 
     var id: String { rawValue }
 
-    /// Nil for Puggle's clip, which is drawn as a quatrefoil.
+    /// A drawing from the Australiana set (`design/canvas/gen/world_style.py`), as a one-colour image.
+    var art: String? {
+        switch self {
+        case .thong: "stamp-thong"
+        case .esky: "stamp-esky"
+        case .hoist: "stamp-hills-hoist"
+        case .lamington: "stamp-lamington"
+        case .fairybread: "stamp-fairy-bread"
+        case .pavlova: "stamp-pavlova"
+        case .surfboard: "stamp-surfboard"
+        case .zinc: "stamp-zinc-stick"
+        default: nil
+        }
+    }
+
+    /// For the first stamp set. Nil for Puggle's clip, which is drawn as a quatrefoil.
     var symbol: String? {
         switch self {
-        case .clip: nil
         case .fish: "fish.fill"
         case .leaf: "leaf.fill"
         case .sun: "sun.max.fill"
@@ -28,19 +43,28 @@ enum Stamp: String, CaseIterable, Identifiable {
         case .bird: "bird.fill"
         case .tortoise: "tortoise.fill"
         case .ladybird: "ladybug.fill"
+        default: nil
         }
     }
 
     /// One ink colour each, like a station stamp.
     var ink: Color {
         switch self {
-        case .clip, .sun, .star, .ladybird: Color(hex: 0xD9482F)
-        case .fish, .moon, .bird: Color(hex: 0x2A62B8)
-        case .leaf, .heart, .tortoise: Color(hex: 0x3C8A55)
+        case .esky, .lamington, .pavlova, .clip, .sun, .star, .ladybird: Color(hex: 0xD9482F)
+        case .thong, .hoist, .surfboard, .fish, .moon, .bird: Color(hex: 0x2A62B8)
+        case .fairybread, .zinc, .leaf, .heart, .tortoise: Color(hex: 0x3C8A55)
         }
     }
 
-    var name: String { self == .clip ? "Puggle's clip" : rawValue.capitalized }
+    var name: String {
+        switch self {
+        case .clip: "Puggle's clip"
+        case .hoist: "Hills Hoist"
+        case .fairybread: "Fairy bread"
+        case .zinc: "Zinc stick"
+        default: rawValue.capitalized
+        }
+    }
 }
 
 /// Puggle's hair clip: four round lobes. The app's sparkle and sticker shape.
@@ -82,7 +106,9 @@ struct StampMark: View {
             Circle().stroke(lineWidth: 2.2 * k).frame(width: 48 * k, height: 48 * k)
             Circle().stroke(lineWidth: 0.9 * k).frame(width: 41 * k, height: 41 * k)
             Group {
-                if let symbol = stamp.symbol {
+                if let art = stamp.art {
+                    Image(art).resizable().scaledToFit().scaleEffect(1.25)
+                } else if let symbol = stamp.symbol {
                     Image(systemName: symbol).resizable().scaledToFit()
                 } else {
                     Quatrefoil()
@@ -110,30 +136,144 @@ struct StampMark: View {
     }
 }
 
-/// A sticker: die-cut white edge, colour or foil inside, sitting on the paper.
-struct StickerView: View {
+/// How a sticker's surface catches the light.
+enum Foil: CaseIterable {
+    case rainbow, sea, sunset, pearl, gold
+
+    var colours: [Color] {
+        switch self {
+        case .rainbow: [0xF9C6D8, 0xFBE9A6, 0xB9F0D2, 0xB5D8FA, 0xDCC3F7].map { Color(hex: $0) }
+        case .sea: [0xB5F0E4, 0x8FD3F4, 0xC2C7FA, 0xA8EDD0].map { Color(hex: $0) }
+        case .sunset: [0xFFD3A5, 0xFD9BB0, 0xF7B2E0, 0xFFE29A].map { Color(hex: $0) }
+        case .pearl: [0xFFFFFF, 0xF3E3EE, 0xE2EEF9, 0xFBF3E0].map { Color(hex: $0) }
+        case .gold: [0xFBE59A, 0xF4BE2C, 0xFFF1C2, 0xE9A917].map { Color(hex: $0) }
+        }
+    }
+}
+
+/// What a sticker looks like: one of the soft shapes, a surface, and a picture.
+struct StickerStyle {
+    /// A soft shape from the asset catalogue: "shape-quatrefoil", "shape-blossom" and so on.
+    var shape = "shape-quatrefoil"
+    var foil: Foil? = .rainbow
+    /// A flat colour in place of foil.
     var colour: Color?
+    /// The picture in the middle, if any.
+    var emblem: String?
+
+    private static let shapes = ["shape-quatrefoil", "shape-blossom", "shape-soft-hexagon", "shape-scallop", "shape-pebble", "shape-soft-square"]
+
+    /// The shiny sticker for a finished card. Each card's is a different shape and foil, with Puggle on it.
+    static func card(_ index: Int) -> StickerStyle {
+        StickerStyle(shape: shapes[index % shapes.count], foil: Foil.allCases[index % Foil.allCases.count], emblem: "PuggleFace")
+    }
+}
+
+/// A sticker: die-cut white edge, foil or colour inside, sitting on the paper.
+/// The foil carries a faint quatrefoil repeat, the way printed foil has a pattern in it.
+struct StickerView: View {
+    var style = StickerStyle()
     var size: CGFloat = 62
 
-    private static let foil = LinearGradient(
-        colors: [0xF9C6D8, 0xFBE9A6, 0xB9F0D2, 0xB5D8FA, 0xDCC3F7].map { Color(hex: $0) },
-        startPoint: .topLeading, endPoint: .bottomTrailing)
+    private var mask: some View { Image(style.shape).resizable().scaledToFit() }
 
     var body: some View {
         ZStack {
-            Quatrefoil().fill(.white)
-            Group {
-                if let colour { Quatrefoil().fill(colour) } else { Quatrefoil().fill(Self.foil) }
+            mask.foregroundStyle(.white)
+            ZStack {
+                if let colour = style.colour {
+                    colour
+                } else {
+                    LinearGradient(colors: (style.foil ?? .rainbow).colours, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    // The repeat pattern, pressed into the foil.
+                    VStack(spacing: size * 0.03) {
+                        ForEach(0..<5, id: \.self) { row in
+                            HStack(spacing: size * 0.03) {
+                                ForEach(0..<5, id: \.self) { _ in
+                                    Quatrefoil().fill(.white.opacity(0.38)).frame(width: size * 0.17, height: size * 0.17)
+                                }
+                            }
+                            .offset(x: row.isMultiple(of: 2) ? 0 : size * 0.1)
+                        }
+                    }
+                    .rotationEffect(.degrees(-20))
+                }
+                LinearGradient(colors: [.white.opacity(0.5), .white.opacity(0)], startPoint: .top, endPoint: .center)
             }
-            .scaleEffect(0.88)
-            // The one shiny thing on the card.
-            Quatrefoil()
-                .fill(LinearGradient(colors: [.white.opacity(0.55), .white.opacity(0)], startPoint: .top, endPoint: .center))
-                .scaleEffect(0.88)
+            .mask(mask)
+            .scaleEffect(0.86)
+            if let emblem = style.emblem {
+                Image(emblem).resizable().scaledToFit()
+                    .frame(width: size * 0.46, height: size * 0.46)
+                    // The pictures are drawn for light paper, whatever the phone is set to.
+                    .environment(\.colorScheme, .light)
+            }
         }
         .frame(width: size, height: size)
         .shadow(color: .black.opacity(0.28), radius: 2.5, y: 2)
         .accessibilityHidden(true)
+    }
+}
+
+/// The edge of a card: nearly a rounded rectangle, but cut by hand.
+struct PaperEdge: Shape {
+    func path(in rect: CGRect) -> Path {
+        let count = 150, power = 2.0 / 9.0
+        var points: [CGPoint] = []
+        for i in 0..<count {
+            let angle = Double(i) / Double(count) * 2 * .pi
+            let c = cos(angle), s = sin(angle)
+            // A squircle, with each point nudged in or out a little.
+            let noise = (sin(Double(i) * 12.9898) * 43758.5453).truncatingRemainder(dividingBy: 1)
+            let wobble = 1 - abs(noise) * 0.011 - (i % 23 == 0 ? 0.008 : 0)
+            let x = rect.midX + rect.width / 2 * CGFloat((c < 0 ? -1 : 1) * pow(abs(c), power) * wobble)
+            let y = rect.midY + rect.height / 2 * CGFloat((s < 0 ? -1 : 1) * pow(abs(s), power) * wobble)
+            points.append(CGPoint(x: x, y: y))
+        }
+        var path = Path()
+        path.addLines(points)
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Paper that moves: a ring running out from a stamp, and a corner that folds over.
+struct PaperEffects: ViewModifier, Animatable {
+    /// False while `Design/Paper.metal` is left out of the build (see project.yml).
+    /// The card then moves as a flat sheet: no ripple and no folded corner.
+    static let shadersBuilt = false
+
+    /// How far the corner is folded in, in points.
+    var curl: CGFloat
+    var corner: CGPoint
+    var rippleOrigin: CGPoint
+    var rippleStart: Date?
+    var size = StampCard.size
+    var back = Color(hex: 0xE6D9B8)
+
+    var animatableData: CGFloat {
+        get { curl }
+        set { curl = newValue }
+    }
+
+    @ViewBuilder func body(content: Content) -> some View {
+        if Self.shadersBuilt { moving(content) } else { content }
+    }
+
+    private func moving(_ content: Content) -> some View {
+        let centre = CGPoint(x: size.width / 2, y: size.height / 2)
+        let length = max(hypot(centre.x - corner.x, centre.y - corner.y), 1)
+        let pull = CGPoint(x: (centre.x - corner.x) / length * curl, y: (centre.y - corner.y) / length * curl)
+        return TimelineView(.animation(paused: rippleStart == nil)) { timeline in
+            let elapsed = rippleStart.map { timeline.date.timeIntervalSince($0) } ?? 0
+            content
+                .distortionEffect(ShaderLibrary.paperRipple(.float2(rippleOrigin), .float(elapsed)),
+                                  maxSampleOffset: CGSize(width: 12, height: 12),
+                                  isEnabled: rippleStart != nil)
+                .layerEffect(ShaderLibrary.paperCurl(.float2(size), .float2(corner), .float2(pull), .color(back)),
+                             maxSampleOffset: CGSize(width: 120, height: 120),
+                             isEnabled: curl > 0.5)
+        }
     }
 }
 
@@ -282,18 +422,20 @@ enum StampCard {
 struct StampCardFace: View {
     let theme: CardTheme
     let impressions: [Impression]
+    /// The shiny sticker that goes on the last space of this card.
+    var sticker = StickerStyle()
     var hasSticker = false
 
     var body: some View {
         ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(theme.paper)
+            PaperEdge().fill(theme.paper)
             // Matte paper: fibres, no sheen.
             Image(uiImage: Grain.image).resizable(resizingMode: .tile)
                 .foregroundStyle(theme == .night ? Color.white : Color(hex: 0x5A4320))
                 .opacity(theme == .night ? 0.05 : 0.13)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .strokeBorder(.black.opacity(0.12), lineWidth: 1.5)
+                .clipShape(PaperEdge())
+            // The cut edge is a touch darker, as card is.
+            PaperEdge().stroke(.black.opacity(0.14), lineWidth: 1.2)
 
             Path { path in
                 path.move(to: CGPoint(x: -10, y: 165))
@@ -314,13 +456,14 @@ struct StampCardFace: View {
                         .position(point)
                 }
             }
-            Quatrefoil().fill(Palette.stampSpace).frame(width: 70, height: 70).position(StampCard.last)
+            Image(sticker.shape).resizable().scaledToFit().foregroundStyle(Palette.stampSpace)
+                .frame(width: 70, height: 70).position(StampCard.last)
             if hasSticker {
-                StickerView(size: 66).rotationEffect(.degrees(-8)).position(StampCard.last)
+                StickerView(style: sticker, size: 68).rotationEffect(.degrees(-8)).position(StampCard.last)
             }
         }
         .frame(width: StampCard.size.width, height: StampCard.size.height)
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .clipShape(PaperEdge())
         .accessibilityElement()
         .accessibilityLabel("\(theme.name) card, \(impressions.count) of \(Stamp.perCard) stamps\(hasSticker ? ", with its shiny sticker" : "")")
     }

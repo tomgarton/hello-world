@@ -161,6 +161,16 @@ Fourteenth round, 11 November 2026 (stamp cards; prototype in `docs/mockups/stam
 
 The stamps use system symbols and the card pictures are simple strokes: stand-ins for the sticker art on the canvas. Not built: a paper ripple or curl shader, foil that follows the phone's tilt, sound.
 
+Fifteenth round, 11 November 2026 (stamp cards, second pass):
+
+| Change | In the app |
+|---|---|
+| Card edge | Cut by hand: `PaperEdge`, a slightly uneven outline in place of a perfect rounded rectangle |
+| Stamps | The eight Australiana drawings from `design/canvas/gen/world_style.py` (thong, esky, Hills Hoist, lamington, fairy bread, pavlova, surfboard, zinc stick), exported as one-colour images. The selector is two rows of larger stamps on a paper sheet that stays light in dark mode |
+| Stickers | Each uses one of the soft shapes (quatrefoil, blossom, soft hexagon, scallop, pebble, soft square) and one of five foils (rainbow, sea, sunset, pearl, gold), with a quatrefoil repeat pressed into the foil. Card stickers carry Puggle's face; others carry their activity icon |
+| Peel and fold | The shiny sticker sits on a backing sheet, leaves its outline when lifted, and folds down onto the last space |
+| Ripple and curl | Written (`Design/Paper.metal`, `PaperEffects`) but switched off: compiling shaders needs Apple's Metal Toolchain, which is not installed. See the note in `project.yml` |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.
