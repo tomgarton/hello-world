@@ -115,6 +115,9 @@ struct EventRow: View {
                     if let note = event.note, !note.isEmpty {
                         Text(note).font(.footnote).foregroundStyle(Palette.muted).lineLimit(1)
                     }
+                    if let who = event.loggedBy, !who.isEmpty {
+                        Text("by \(who)").font(.footnote).foregroundStyle(Palette.muted).lineLimit(1)
+                    }
                 }
             }
             Spacer()

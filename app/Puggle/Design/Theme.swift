@@ -13,6 +13,13 @@ enum Palette {
     static let night = Color(light: 0x1B2440, dark: 0x25315A)
     static let moon = Color(hex: 0xF3E0B8)
 
+    /// Ink for UIKit, which draws the navigation titles.
+    static let inkUI = UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0xEB / 255, green: 0xDD / 255, blue: 0xC4 / 255, alpha: 1)
+            : UIColor(red: 0x3A / 255, green: 0x2A / 255, blue: 0x20 / 255, alpha: 1)
+    }
+
     /// The same in light and dark, for text on a coloured ground (night, moon, wattle).
     static let fixedInk = Color(hex: 0x3A2A20)
     static let fixedPaper = Color(hex: 0xFBF6E9)

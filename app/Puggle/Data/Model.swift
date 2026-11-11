@@ -68,6 +68,8 @@ final class Event: NSManagedObject, Identifiable {
     @NSManaged var rightSeconds: Double
     @NSManaged var runningSide: String?
     @NSManaged var sideStartedAt: Date?
+    /// The name of whoever added the entry, from their Settings. Optional.
+    @NSManaged var loggedBy: String?
     @NSManaged var createdAt: Date?
     @NSManaged var family: Family?
     @NSManaged var children: Set<Child>?
@@ -366,6 +368,7 @@ enum PuggleModel {
             attribute("rightSeconds", .doubleAttributeType, optional: false, defaultValue: 0.0),
             attribute("runningSide", .stringAttributeType),
             attribute("sideStartedAt", .dateAttributeType),
+            attribute("loggedBy", .stringAttributeType),
             attribute("createdAt", .dateAttributeType),
             eventFamily, eventChildren,
         ]

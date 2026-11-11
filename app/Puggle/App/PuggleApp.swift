@@ -6,12 +6,34 @@ import UIKit
 struct PuggleApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @StateObject private var store = FamilyStore()
+    @StateObject private var sample = SampleFamily()
+    @AppStorage(Setting.appearance) private var appearance = "system"
+
+    init() {
+        // Navigation titles are drawn by UIKit; give them the warm ink too.
+        let bar = UINavigationBar.appearance()
+        bar.largeTitleTextAttributes = [.foregroundColor: Palette.inkUI]
+        bar.titleTextAttributes = [.foregroundColor: Palette.inkUI]
+    }
+
+    private var scheme: ColorScheme? {
+        switch appearance {
+        case "light": .light
+        case "dark": .dark
+        default: nil
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
+            // The sample family is a separate, in-memory store swapped in whole.
+            let active = sample.store ?? store
             RootView()
-                .environment(\.managedObjectContext, store.persistence.viewContext)
-                .environmentObject(store)
+                .id(sample.isOn)
+                .environment(\.managedObjectContext, active.persistence.viewContext)
+                .environmentObject(active)
+                .environmentObject(sample)
+                .preferredColorScheme(scheme)
                 .tint(Palette.ink)
                 // Warm ink everywhere by default, so nothing falls back to white in dark.
                 .foregroundStyle(Palette.ink)
@@ -21,12 +43,14 @@ struct PuggleApp: App {
 
 struct RootView: View {
     @FetchRequest(sortDescriptors: []) private var children: FetchedResults<Child>
+    @EnvironmentObject private var sample: SampleFamily
     @AppStorage("hasOnboarded") private var hasOnboarded = false
+    @AppStorage(Setting.justLog) private var justLog = false
     @State private var inFirstRun = false
 
     var body: some View {
         // First run shows until it is finished, even once the first child exists.
-        if !hasOnboarded && (children.isEmpty || inFirstRun) {
+        if !sample.isOn && !hasOnboarded && (children.isEmpty || inFirstRun) {
             OnboardingView {
                 hasOnboarded = true
                 inFirstRun = false
@@ -38,8 +62,10 @@ struct RootView: View {
                     .tabItem { Label("Today", systemImage: "house") }
                 HistoryView()
                     .tabItem { Label("History", systemImage: "calendar") }
-                InsightsView()
-                    .tabItem { Label("Insights", systemImage: "chart.bar") }
+                if !justLog {
+                    InsightsView()
+                        .tabItem { Label("Insights", systemImage: "chart.bar") }
+                }
                 FamilyView()
                     .tabItem { Label("Family", systemImage: "person.2") }
             }
@@ -76,4 +102,5 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     return RootView()
         .environment(\.managedObjectContext, persistence.viewContext)
         .environmentObject(store)
+        .environmentObject(SampleFamily())
 }

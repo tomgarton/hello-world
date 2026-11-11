@@ -16,7 +16,7 @@ struct TodayView: View {
     @State private var editing: EditTarget?
     @State private var dayOf: Child?
     @State private var addingChild = false
-    @AppStorage("pottyStickers") private var stickersOn = true
+    @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @State private var pendingSticker: Event?
     @State private var stickerFor: EditTarget?
     @State private var showingStickers = false
@@ -46,6 +46,7 @@ struct TodayView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     header
+                    SampleBanner()
                     if children.isEmpty {
                         emptyState
                     } else {
@@ -186,6 +187,7 @@ struct ChildStatusRow: View {
     @EnvironmentObject private var store: FamilyStore
     @ObservedObject var child: Child
     let onOpen: () -> Void
+    @AppStorage(Setting.justLog) private var justLog = false
 
     var body: some View {
         // Ticks so the elapsed time and "5 minutes ago" stay current.
@@ -220,8 +222,9 @@ struct ChildStatusRow: View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
+            .disabled(justLog)
             .accessibilityElement(children: .combine)
-            .accessibilityHint("Shows \(child.displayName)'s day so far")
+            .accessibilityHint(justLog ? "" : "Shows \(child.displayName)'s day so far")
             sleepButton(now: now, sleep: sleep)
         }
         .padding(14)
@@ -232,6 +235,11 @@ struct ChildStatusRow: View {
     /// Asleep and for how long, else the last feed, else the last entry of any kind.
     /// An empty day shows nothing: it is just an empty day.
     private func statusLine(now: Date, sleep: Event?) -> String? {
+        // "Just logging": nothing counts up, so only say that they are asleep or feeding.
+        if justLog {
+            if sleep != nil { return "Asleep" }
+            return store.activeFeed(for: child) != nil ? "Feeding" : nil
+        }
         if let start = sleep?.startedAt {
             return "Asleep \(Elapsed.short(from: start, to: now))"
         }
@@ -239,7 +247,9 @@ struct ChildStatusRow: View {
             guard let side = feed.runningSide else { return "Feeding, paused" }
             return "Feeding, \(side.lowercased()) \(Elapsed.minutes(feed.feedSeconds(side, now: now)))"
         }
-        let last = store.latest(.bottle, for: child) ?? store.latest(.breastfeed, for: child) ?? store.latest(for: child)
+        // The later of the last bottle and the last breastfeed.
+        let feeds = [store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0 }
+        let last = feeds.max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) } ?? store.latest(for: child)
         guard let last, let at = last.startedAt else { return nil }
         return "\(last.summary), \(at.formatted(.relative(presentation: .named)))"
     }

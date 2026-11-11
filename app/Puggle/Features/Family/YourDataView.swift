@@ -15,6 +15,9 @@ struct YourDataView: View {
                      ? "Everything you log is kept on this iPhone and in your own iCloud, so it reaches the people you invite. We hold none of it."
                      : "Everything you log is kept on this iPhone only. This build does not use iCloud, so nothing leaves the phone and nothing is shared.")
                 Text("No ads, no tracking, no analytics.")
+                if store.isSample {
+                    Text("You are looking at the sample family. An export from here holds the made-up entries, not yours.")
+                }
             }
             .listRowBackground(Palette.paper)
 
@@ -31,6 +34,7 @@ struct YourDataView: View {
             }
             .listRowBackground(Palette.paper)
 
+            if !store.isSample {
             Section {
                 Button("Delete everything", role: .destructive) { confirmingDelete = true }
                     .confirmationDialog("Delete everything?", isPresented: $confirmingDelete, titleVisibility: .visible) {
@@ -48,6 +52,7 @@ struct YourDataView: View {
                 Text("The app goes back to the start afterwards.")
             }
             .listRowBackground(Palette.paper)
+            }
         }
         .scrollContentBackground(.hidden)
         .background(Palette.sand)

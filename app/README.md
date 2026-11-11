@@ -68,11 +68,22 @@ Fourth round, 11 November 2026:
 | Summary for the doctor (5) | On each child's page: a one-page PDF of the last seven days, recent weights, and health entries from the last 14 days, to share or print |
 | Hide a child (7) | "Hide from Today" on the child's page keeps their history and can be undone from the Family tab |
 
+Fifth round, 11 November 2026:
+
+| Flow | In the app |
+|---|---|
+| App icon | `Puggle/Resources/AppIcon.icon`, an Icon Composer document: Puggle's face on Wattle in three layers (head, face, clip), made from `design/rive/puggle-parts.svg`. Open it in Icon Composer to adjust. Light, dark and tinted versions come from the one file |
+| Settings (9) | Family tab, top row. Your name, appearance, how much to see, potty stickers, the sample family, Your data, Help |
+| Who logged it (6) | The name in Settings is saved on each new entry and shown in History and the export |
+| Appearance | Same as iPhone, Light or Dark. The palette has a dark twin for every colour |
+| Just logging (15) | Today shows names and tiles only, no elapsed times or day so far, and Insights is hidden. Not yet asked in setup |
+| Sample family | Two made-up children with two weeks of entries, in memory only and labelled on Today and Family. The real family is untouched; nothing done there is kept |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.
 
-Not built: the character builder and photos, invitations in first run, import, Pro and tips, settings for night mode, units and reminders, a way to contact us from Help, and the "just log" mode. Whole journeys not started: helpers (13), pumping (14), large text and night (16), and widgets, Lock Screen and Siri (17).
+Not built: the character builder and photos, invitations in first run, import, Pro and tips, automatic night mode, units and reminders, a way to contact us from Help, and "how much to see" in setup. Whole journeys not started: helpers (13), pumping (14), large text and night (16), and widgets, Lock Screen and Siri (17).
 
 Left out of those two journeys: the Lock Screen timer (needs a widget extension), "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, and Puggle's nod on save.
 

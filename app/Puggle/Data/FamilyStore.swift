@@ -17,6 +17,16 @@ final class FamilyStore: ObservableObject {
     var context: NSManagedObjectContext { persistence.viewContext }
 
     @Published var lastSaved: LastSaved?
+    /// True for the made-up sample family, which lives in memory only.
+    var isSample = false
+    /// Who new entries are marked as added by. Nil uses the name in Settings.
+    var authorOverride: String?
+
+    private var author: String? {
+        if let authorOverride { return authorOverride }
+        let name = (UserDefaults.standard.string(forKey: "yourName") ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return name.isEmpty ? nil : name
+    }
     private var changeObserver: NSObjectProtocol?
 
     init(persistence: Persistence = .shared) {
@@ -103,6 +113,7 @@ final class FamilyStore: ObservableObject {
         event.dose = dose
         event.value = value
         event.createdAt = .now
+        event.loggedBy = author
         event.family = family
         event.children = Set(children)
         persistence.save()
@@ -355,7 +366,7 @@ final class FamilyStore: ObservableObject {
                 ? "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
                 : value
         }
-        var lines = ["started,ended,child,activity,amount_ml,detail,note,dose,value,sticker,left_min,right_min"]
+        var lines = ["started,ended,child,activity,amount_ml,detail,note,dose,value,sticker,left_min,right_min,logged_by"]
         for event in events {
             let names = event.sortedChildren.map(\.displayName).joined(separator: " & ")
             lines.append([
@@ -371,6 +382,7 @@ final class FamilyStore: ObservableObject {
                 cell(event.sticker),
                 event.leftSeconds > 0 ? String(Int((event.leftSeconds / 60).rounded())) : "",
                 event.rightSeconds > 0 ? String(Int((event.rightSeconds / 60).rounded())) : "",
+                cell(event.loggedBy),
             ].joined(separator: ","))
         }
         let day = Date.now.formatted(.iso8601.year().month().day())

@@ -11,11 +11,33 @@ struct FamilyView: View {
     @State private var addingChild = false
     @State private var sharing: SharingItem?
     @State private var shareError: String?
-    @AppStorage("pottyStickers") private var stickersOn = true
+    @EnvironmentObject private var sample: SampleFamily
+    @AppStorage(Setting.yourName) private var yourName = ""
 
     var body: some View {
         NavigationStack {
             List {
+                if sample.isOn {
+                    SampleBanner()
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
+                Section {
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "person.crop.circle")
+                                .font(.system(size: 34))
+                                .frame(width: 40, height: 40)
+                            VStack(alignment: .leading) {
+                                Text(yourName.trimmingCharacters(in: .whitespaces).isEmpty ? "You" : yourName).font(.headline)
+                                Text("Settings, your data and help").font(.subheadline).foregroundStyle(Palette.muted)
+                            }
+                        }
+                    }
+                    .listRowBackground(Palette.paper)
+                }
                 Section("Children") {
                     ForEach(children.filter { !$0.archived }) { child in
                         NavigationLink {
@@ -53,7 +75,9 @@ struct FamilyView: View {
                         Text("Their history is kept. Open a child to bring them back.")
                     }
                 }
-                if Persistence.cloudSyncEnabled {
+                if sample.isOn {
+                    EmptyView()
+                } else if Persistence.cloudSyncEnabled {
                     Section {
                         Button("Invite someone") { Task { await startSharing() } }
                             .listRowBackground(Palette.paper)
@@ -70,20 +94,6 @@ struct FamilyView: View {
                     } header: {
                         Text("Sharing")
                     }
-                }
-                if children.contains(where: \.pottyTraining) {
-                    Section {
-                        Toggle("Stickers after the potty", isOn: $stickersOn)
-                            .listRowBackground(Palette.paper)
-                    } footer: {
-                        Text("After a wee, a poo or a try, the phone offers a sticker to choose.")
-                    }
-                }
-                Section {
-                    NavigationLink("Your data") { YourDataView() }
-                        .listRowBackground(Palette.paper)
-                    NavigationLink("Help and about") { HelpView() }
-                        .listRowBackground(Palette.paper)
                 }
                 if let shareError {
                     Text(shareError).font(.footnote).foregroundStyle(Palette.waratah)
