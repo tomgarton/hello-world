@@ -805,6 +805,49 @@ I have left out durations. They depend on how many hours a week Tom has, and I w
 - Website, App Store listing, screenshots and preview, launch plan, beta families (including twin parents).
 - Support, feedback and roadmap channel.
 
+### App Store launch checklist (added 2026-11-11)
+
+What sits under the headings above, written while getting the first build running on the Mac. Items marked **[verify]** have not been checked against current rules.
+
+**Decide early (most likely to cause rework)**
+- **Health data in iCloud.** App Review guideline 5.1.3 says apps may not store personal health information in iCloud. Many baby trackers sync through CloudKit, so it appears to be tolerated, but how Apple applies it to feed and nappy logs is unchecked **[verify]**. Settle this before the design rests on CloudKit.
+- **Individual or organisation developer account.** The seller name on the listing is Tom's personal name unless we enrol as a company, which needs a legal entity and a D-U-N-S number. Switching later is slow.
+- **CloudKit production schema.** The schema is deployed to Production before release; after that fields can be added but never removed or renamed. The data model must be settled by beta.
+- **Reserve the name.** Creating the app record in App Store Connect holds "Puggle" on the store. Needs the developer account.
+
+**Apple's required paperwork**
+- Privacy policy URL and support URL, both live before review.
+- Privacy labels, age rating questionnaire, privacy manifest file (`PrivacyInfo.xcprivacy`), export-compliance flag (`ITSAppUsesNonExemptEncryption`).
+- For the tip jar and Pro: Paid Apps agreement, bank and tax forms, a Restore Purchases button, and the Small Business Program (15% commission instead of 30%).
+- If we sell in the EU, trader contact details are shown publicly on the listing **[verify]**.
+- A real app icon, and screenshots at the required sizes.
+
+**Emailing people**
+- With no accounts we hold no user email addresses. That is the privacy story, and it means we cannot announce anything to users directly.
+- A `support@` mailbox on our own domain, with SPF, DKIM and DMARC set up.
+- An opt-in newsletter on the website for launch and update news. Australia's Spam Act requires consent and an unsubscribe link.
+- In-app "Contact us" that opens a pre-filled email with app version and diagnostics. No server needed.
+
+**Security**
+- CloudKit data is encrypted, but not end-to-end by default; sensitive fields can be marked for it **[verify which fields]**.
+- Share links: invitations should work only for the invited person, not anyone holding the link. Add a way to remove a caregiver.
+- Data loss is the realistic risk, more than theft: export, soft deletes, and migration tests.
+- A "delete everything" option, and optionally a Face ID lock.
+- Crash reports from Apple's own tools, so the "no third-party SDKs" promise holds.
+
+**Help**
+- A sync status screen ("last synced", iCloud signed in or not). "My partner can't see the data" will be the top support request.
+- A short FAQ on the website, linked from the in-app Help screen.
+- A "not medical advice" line wherever insights or growth charts appear (see §7, the regulatory line).
+
+**Website**
+- Domain, landing page, privacy policy, terms (Apple's standard licence can stand in), support page, press kit.
+- The web view for invite links listed in §10 may not be needed: CloudKit share links are Apple's own.
+
+**Legal (an hour with a lawyer)**
+- Children's and health data rules in each launch country. Australia's children's privacy code was still being finalised at the time of writing **[verify]**.
+- The trade mark search and the IP agreement already listed above.
+
 ## Sources
 
 Competitors and pricing

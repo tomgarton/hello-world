@@ -107,8 +107,10 @@ struct ChildStatusRow: View {
             }
         } else if let feed = store.latest(.bottle, for: child) ?? store.latest(.breastfeed, for: child), let at = feed.startedAt {
             Text("\(feed.summary), \(at.formatted(.relative(presentation: .named)))")
+        } else if let event = store.latest(for: child), let at = event.startedAt {
+            Text("\(event.summary), \(at.formatted(.relative(presentation: .named)))")
         } else {
-            Text("Nothing logged yet today")
+            Text("Nothing logged yet")
         }
     }
 
@@ -160,7 +162,7 @@ struct ActivityCard: View {
             }
         }
         .padding(14)
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .background(Palette.card, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 }

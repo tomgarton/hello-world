@@ -99,6 +99,12 @@ final class FamilyStore: ObservableObject {
             .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
     }
 
+    /// The most recent entry of any kind, for the status line when there is no feed yet.
+    func latest(for child: Child) -> Event? {
+        (child.events ?? [])
+            .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    }
+
     func delete(_ event: Event) {
         context.delete(event)
         persistence.save()
