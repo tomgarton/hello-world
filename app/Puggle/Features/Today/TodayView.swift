@@ -53,8 +53,6 @@ struct TodayView: View {
                         ForEach(children) { child in
                             ChildStatusRow(child: child) { dayOf = child }
                         }
-                        LastSavedRow { editing = EditTarget(event: $0) }
-                            .animation(.spring(duration: 0.4, bounce: 0.2), value: store.lastSaved?.id)
                         LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                             ForEach(visibleKinds) { kind in
                                 ActivityCard(kind: kind, children: relevant(kind)) {
@@ -91,6 +89,13 @@ struct TodayView: View {
             }
             .background(Palette.sand)
             .toolbar(.hidden, for: .navigationBar)
+            // Floats above the tab bar, so saving never moves the tile under your thumb.
+            .safeAreaInset(edge: .bottom) {
+                LastSavedRow { editing = EditTarget(event: $0) }
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 6)
+                    .animation(.spring(duration: 0.4, bounce: 0), value: store.lastSaved?.id)
+            }
         }
         .sheet(item: $logging, onDismiss: offerSticker) { kind in
             LogSheet(kind: kind, children: relevant(kind)) { events in
@@ -334,8 +339,9 @@ struct LastSavedRow: View {
                 .padding(.trailing, 8)
                 .padding(.vertical, 6)
                 .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
                 .id(saved.id)
-                .transition(.asymmetric(insertion: .scale(scale: 0.96).combined(with: .opacity), removal: .opacity))
+                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
             }
         }
     }
@@ -351,7 +357,55 @@ struct LastSavedRow: View {
     }
 }
 
-/// A card per activity, listing the latest entry for each child.
+/// The body of a tile: the picture, the name, and one quiet line saying when
+/// it last happened. Every tile is the same height whether or not there is a line.
+private struct TileFace: View {
+    let icon: String
+    let title: String
+    let latest: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .top) {
+                ActivityIcon(named: icon, size: 40)
+                Spacer()
+                // A hint that the tile adds something, without being a second button.
+                Image(systemName: "plus")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Palette.muted)
+                    .accessibilityHidden(true)
+            }
+            Text(title).font(.title3.weight(.semibold))
+            Text(latest.isEmpty ? " " : latest)
+                .font(.footnote)
+                .foregroundStyle(Palette.muted)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .accessibilityHidden(latest.isEmpty)
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+        .foregroundStyle(Palette.ink)
+        .background(Palette.card, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
+    }
+}
+
+/// The latest entries in the last 24 hours as one line: "Ollie 20:10 · Bea 19:13".
+/// Named whenever the tile is for more than one child, so a time is never ambiguous.
+@MainActor
+private func latestLine(_ entries: [(child: Child, event: Event)], named: Bool) -> String {
+    let cutoff = Date.now.addingTimeInterval(-24 * 3600)
+    let recent = entries.filter { ($0.event.startedAt ?? .distantPast) > cutoff }
+    return recent.map { entry in
+        let time = (entry.event.startedAt ?? .now).formatted(date: .omitted, time: .shortened)
+        return named ? "\(entry.child.displayName) \(time)" : time
+    }.joined(separator: " · ")
+}
+
+/// A tile per activity. Tapping anywhere on it logs; touching and holding
+/// offers the latest entry for each child to change.
 struct ActivityCard: View {
     @EnvironmentObject private var store: FamilyStore
     let kind: EventKind
@@ -359,101 +413,70 @@ struct ActivityCard: View {
     let onAdd: () -> Void
     let onEdit: (Event) -> Void
 
+    private var entries: [(child: Child, event: Event)] {
+        children.compactMap { child in store.latest(kind, for: child).map { (child, $0) } }
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
-                ActivityIcon(kind, size: 40)
-                Spacer()
+        let entries = self.entries
+        Button {
+            Haptics.tap()
+            onAdd()
+        } label: {
+            TileFace(icon: kind.iconName, title: kind.title, latest: latestLine(entries.map { ($0.child, $0.event) }, named: children.count > 1))
+        }
+        .buttonStyle(PressStyle(scale: 0.97))
+        .accessibilityLabel("Log \(kind.title.lowercased())")
+        .accessibilityValue(latestLine(entries.map { ($0.child, $0.event) }, named: children.count > 1))
+        .contextMenu {
+            ForEach(entries, id: \.event.objectID) { entry in
                 Button {
-                    Haptics.tap()
-                    onAdd()
+                    onEdit(entry.event)
                 } label: {
-                    Image(systemName: "plus")
-                        .font(.headline)
-                        .frame(width: 44, height: 44)
-                        .glassControl(Circle(), fallback: Palette.field, tint: Palette.field, quiet: true)
-                }
-                .buttonStyle(.plain)
-                .foregroundStyle(Palette.ink)
-                .accessibilityLabel("Log \(kind.title.lowercased())")
-            }
-            Text(kind.title).font(.title3.weight(.semibold))
-            ForEach(children) { child in
-                if let event = store.latest(kind, for: child), let at = event.startedAt {
-                    Button { onEdit(event) } label: {
-                        HStack(spacing: 6) {
-                            ChildChip(child: child)
-                            Text(at, style: .time).font(.footnote).foregroundStyle(Palette.muted)
-                            Spacer(minLength: 0)
-                        }
-                        .frame(minHeight: 32)
-                        .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("\(child.displayName), \(event.summary), \(at.formatted(date: .omitted, time: .shortened))")
-                    .accessibilityHint("Opens this entry to change it")
+                    Label("Change \(entry.child.displayName)'s last: \(entry.event.summary)", systemImage: "pencil")
                 }
             }
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Palette.card, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
     }
 }
 
 /// One tile for medicine, temperature and vaccinations. Logged plainly:
-/// no colour, no "high", no alarm.
+/// no colour, no "high", no alarm. Tapping it asks which of the three.
 struct HealthCard: View {
     @EnvironmentObject private var store: FamilyStore
     let children: [Child]
     let onAdd: (EventKind) -> Void
     let onEdit: (Event) -> Void
 
-    private func latest(for child: Child) -> Event? {
-        (child.events ?? [])
-            .filter { $0.kind.isHealth }
-            .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    private var entries: [(child: Child, event: Event)] {
+        children.compactMap { child in
+            (child.events ?? [])
+                .filter { $0.kind.isHealth }
+                .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+                .map { (child, $0) }
+        }
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top) {
-                ActivityIcon(.medicine, size: 40)
-                Spacer()
-                Menu {
-                    ForEach(EventKind.health) { kind in
-                        Button { onAdd(kind) } label: { Label(kind.title, systemImage: kind.symbol) }
-                    }
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.headline)
-                        .frame(width: 44, height: 44)
-                        .glassControl(Circle(), fallback: Palette.field, tint: Palette.field, quiet: true)
-                }
-                .foregroundStyle(Palette.ink)
-                .accessibilityLabel("Log health")
+        let entries = self.entries
+        Menu {
+            ForEach(EventKind.health) { kind in
+                Button { onAdd(kind) } label: { Label(kind.title, systemImage: kind.symbol) }
             }
-            Text("Health").font(.title3.weight(.semibold))
-            ForEach(children) { child in
-                if let event = latest(for: child), let at = event.startedAt {
-                    Button { onEdit(event) } label: {
-                        HStack(spacing: 6) {
-                            ChildChip(child: child)
-                            Text(at, style: .time).font(.footnote).foregroundStyle(Palette.muted)
-                            Spacer(minLength: 0)
-                        }
-                        .frame(minHeight: 32)
-                        .contentShape(Rectangle())
+            if !entries.isEmpty {
+                Divider()
+                ForEach(entries, id: \.event.objectID) { entry in
+                    Button {
+                        onEdit(entry.event)
+                    } label: {
+                        Label("Change \(entry.child.displayName)'s last: \(entry.event.summary)", systemImage: "pencil")
                     }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("\(child.displayName), \(event.summary), \(at.formatted(date: .omitted, time: .shortened))")
-                    .accessibilityHint("Opens this entry to change it")
                 }
             }
+        } label: {
+            TileFace(icon: EventKind.medicine.iconName, title: "Health", latest: latestLine(entries.map { ($0.child, $0.event) }, named: children.count > 1))
         }
-        .padding(14)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .background(Palette.card, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .accessibilityLabel("Log health")
     }
 }
 

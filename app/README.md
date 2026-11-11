@@ -133,6 +133,14 @@ Eleventh round, 11 November 2026 (from testing on the phone):
 | Dynamic Island | Expanded: the name on the left, the number that matters large on the right, the buttons beneath. Compact: icon and time |
 | Glance | Hours and minutes with no ticking seconds. Shown for children under two with a feed in the last eight hours; "Awake" is added only under 18 months. The glance has a Start sleep button |
 
+Twelfth round, 11 November 2026 (a calmer Today):
+
+| Change | In the app |
+|---|---|
+| Child rows | Two fixed lines, what then when, with interpuncts: "Bottle · 150 ml" over "14 min ago". Every row is the same height |
+| Tiles | The whole tile is the button; the + circles are gone, leaving a small + as a hint. One quiet line shows the latest in the last 24 hours ("Ollie 19:27 · Bea 20:55"), so every tile is the same height. Touch and hold a tile to change the latest entry |
+| Last saved | Floats above the tab bar, so saving never moves the tiles |
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

@@ -76,11 +76,11 @@ struct HelpView: View {
     private var answers: [(String, String)] {
         [
             ("How do I fix a mistake?",
-             "Tap any entry on Today or in History to change or delete it. Straight after saving, use Undo or Change on the Last saved row."),
+             "Straight after saving, use Undo or Change on the Last saved bar. Later, tap the entry in History, or touch and hold its tile on Today."),
             ("I forgot to start the sleep timer",
              "Tap + on the Sleep tile and enter when they fell asleep and woke up."),
             ("I forgot to stop the sleep timer",
-             "Tap the sleep on the Sleep tile, switch off Still asleep and set when they woke."),
+             "Touch and hold the Sleep tile and choose the sleep to change, then switch off Still asleep and set when they woke."),
             ("Can someone else log too?",
              Persistence.cloudSyncEnabled
                 ? "Yes. Invite them from the Family tab. They need an iPhone and their own Apple Account."
