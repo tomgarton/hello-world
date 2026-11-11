@@ -13,6 +13,8 @@ struct PuggleApp: App {
                 .environment(\.managedObjectContext, store.persistence.viewContext)
                 .environmentObject(store)
                 .tint(Palette.ink)
+                // Warm ink everywhere by default, so nothing falls back to white in dark.
+                .foregroundStyle(Palette.ink)
         }
     }
 }

@@ -225,7 +225,7 @@ struct ChildStatusRow: View {
             sleepButton(now: now, sleep: sleep)
         }
         .padding(14)
-        .foregroundStyle(asleep ? Palette.paper : Palette.ink)
+        .foregroundStyle(asleep ? Palette.fixedPaper : Palette.ink)
         .background(asleep ? Palette.night : Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
@@ -266,7 +266,7 @@ struct ChildStatusRow: View {
         .padding(.horizontal, 14)
         .frame(minHeight: 44)
         .background(asleep ? Palette.moon : Palette.field, in: Capsule())
-        .foregroundStyle(Palette.ink)
+        .foregroundStyle(asleep ? Palette.fixedInk : Palette.ink)
         .accessibilityLabel(spoken)
         .sensoryFeedback(.success, trigger: asleep)
     }

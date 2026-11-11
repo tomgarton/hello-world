@@ -97,7 +97,7 @@ private struct Hooray: View {
                 let angle = Double(index) / 10 * 2 * .pi
                 Image(systemName: "star.fill")
                     .font(.system(size: index.isMultiple(of: 2) ? 30 : 20))
-                    .foregroundStyle(Palette.paper)
+                    .foregroundStyle(Palette.fixedPaper)
                     .offset(x: cos(angle) * (burst ? 150 : 40), y: sin(angle) * (burst ? 210 : 60))
                     .opacity(burst ? 1 : 0)
                     .accessibilityHidden(true)
@@ -108,7 +108,7 @@ private struct Hooray: View {
                     .font(.title3.weight(.semibold))
                     .multilineTextAlignment(.center)
             }
-            .foregroundStyle(Palette.ink)
+            .foregroundStyle(Palette.fixedInk)
             .padding(24)
         }
         .contentShape(Rectangle())

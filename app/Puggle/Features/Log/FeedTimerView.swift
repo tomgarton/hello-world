@@ -47,6 +47,7 @@ struct FeedTimerView: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Close") { dismiss() } }
             }
         }
+        .foregroundStyle(Palette.ink)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .onAppear(perform: chooseChild)

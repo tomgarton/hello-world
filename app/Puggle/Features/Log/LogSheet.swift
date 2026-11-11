@@ -110,6 +110,7 @@ struct LogSheet: View {
                 Text(tooSoon ?? "")
             }
         }
+        .foregroundStyle(Palette.ink)
         .presentationDetents(isEditing ? [.large] : [.medium, .large])
         .presentationDragIndicator(.visible)
         .onAppear(perform: load)

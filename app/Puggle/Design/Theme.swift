@@ -1,15 +1,21 @@
 import SwiftUI
 
-/// Palette from the spec (§10 Palette and type).
+/// Palette from the spec (§10 Palette and type). Each surface and text
+/// colour has a dark twin: warm text on near-black, with no white anywhere.
 enum Palette {
-    static let ink = Color(hex: 0x3A2A20)
-    static let paper = Color(hex: 0xFBF6E9)
-    static let sand = Color(hex: 0xF2ECDD)
-    static let field = Color(hex: 0xEAE2D2)
-    static let card = Color(hex: 0xECE4D4)
-    static let muted = Color(hex: 0x6B5E52)
-    static let night = Color(hex: 0x1B2440)
+    static let ink = Color(light: 0x3A2A20, dark: 0xEBDDC4)
+    static let paper = Color(light: 0xFBF6E9, dark: 0x2A2420)
+    static let sand = Color(light: 0xF2ECDD, dark: 0x14110F)
+    static let field = Color(light: 0xEAE2D2, dark: 0x3B332D)
+    static let card = Color(light: 0xECE4D4, dark: 0x1F1A17)
+    static let muted = Color(light: 0x6B5E52, dark: 0xB3A590)
+    /// The sleeping row. A touch lighter in dark so it still reads as blue.
+    static let night = Color(light: 0x1B2440, dark: 0x25315A)
     static let moon = Color(hex: 0xF3E0B8)
+
+    /// The same in light and dark, for text on a coloured ground (night, moon, wattle).
+    static let fixedInk = Color(hex: 0x3A2A20)
+    static let fixedPaper = Color(hex: 0xFBF6E9)
 
     static let wattle = Color(hex: 0xF4BE2C)
     static let harbour = Color(hex: 0x2A62B8)
@@ -18,10 +24,10 @@ enum Palette {
 
     /// Soft fields: one per child.
     static let childColours: [Color] = [
-        Color(hex: 0xBFD9F5), // Sky
-        Color(hex: 0xF3D9C9), // Shell
-        Color(hex: 0xCFE5D2), // Mint
-        Color(hex: 0xF4E7B0), // Sun
+        Color(light: 0xBFD9F5, dark: 0x2C4763), // Sky
+        Color(light: 0xF3D9C9, dark: 0x5E4234), // Shell
+        Color(light: 0xCFE5D2, dark: 0x33523C), // Mint
+        Color(light: 0xF4E7B0, dark: 0x5C5024), // Sun
     ]
 
     static func childColour(_ index: Int16) -> Color {
@@ -30,6 +36,17 @@ enum Palette {
 }
 
 extension Color {
+    /// A colour that follows the phone's light or dark appearance.
+    init(light: UInt32, dark: UInt32) {
+        self.init(uiColor: UIColor { traits in
+            let hex = traits.userInterfaceStyle == .dark ? dark : light
+            return UIColor(red: CGFloat((hex >> 16) & 0xFF) / 255,
+                           green: CGFloat((hex >> 8) & 0xFF) / 255,
+                           blue: CGFloat(hex & 0xFF) / 255,
+                           alpha: 1)
+        })
+    }
+
     init(hex: UInt32) {
         self.init(
             red: Double((hex >> 16) & 0xFF) / 255,

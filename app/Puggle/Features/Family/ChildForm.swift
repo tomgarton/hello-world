@@ -131,6 +131,7 @@ struct AddChildView: View {
                 }
                 .onAppear { draft.colour = children.count % Palette.childColours.count }
         }
+        .foregroundStyle(Palette.ink)
     }
 }
 

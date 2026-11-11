@@ -307,6 +307,7 @@ final class FamilyStore: ObservableObject {
     /// The most recent entry of any kind, for the status line when there is no feed yet.
     func latest(for child: Child) -> Event? {
         (child.events ?? [])
+            .filter { $0.kind != .milestone }
             .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
     }
 
