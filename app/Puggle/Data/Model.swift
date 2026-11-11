@@ -54,6 +54,12 @@ final class Event: NSManagedObject, Identifiable {
     @NSManaged var amountML: Double
     @NSManaged var detail: String?
     @NSManaged var note: String?
+    /// Medicine: the dose as the parent wrote it ("5 ml", "1 tablet").
+    @NSManaged var dose: String?
+    /// Temperature in °C, or weight in grams.
+    @NSManaged var value: Double
+    /// Potty: the sticker the child chose, if any.
+    @NSManaged var sticker: String?
     @NSManaged var createdAt: Date?
     @NSManaged var family: Family?
     @NSManaged var children: Set<Child>?
@@ -61,6 +67,11 @@ final class Event: NSManagedObject, Identifiable {
 
 enum EventKind: String, CaseIterable, Identifiable {
     case bottle, breastfeed, solids, sleep, nappy, potty, note
+    case weight, medicine, temperature, vaccination
+
+    /// Health entries share one tile on Today.
+    static let health: [EventKind] = [.medicine, .temperature, .vaccination]
+    var isHealth: Bool { Self.health.contains(self) }
 
     var id: String { rawValue }
 
@@ -73,6 +84,10 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .nappy: "Nappy"
         case .potty: "Potty"
         case .note: "Note"
+        case .weight: "Weight"
+        case .medicine: "Medicine"
+        case .temperature: "Temperature"
+        case .vaccination: "Vaccination"
         }
     }
 
@@ -86,6 +101,10 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .nappy: "drop"
         case .potty: "toilet"
         case .note: "note.text"
+        case .weight: "scalemass"
+        case .medicine: "pills"
+        case .temperature: "thermometer.medium"
+        case .vaccination: "syringe"
         }
     }
 }
@@ -120,6 +139,17 @@ extension Event {
             return "\(kind.title)\(what)"
         case .note:
             return note ?? "Note"
+        case .weight:
+            return "Weight \(Int(value).formatted()) g"
+        case .medicine:
+            let name = (detail ?? "").isEmpty ? "Medicine" : detail!
+            let amount = (dose ?? "").isEmpty ? "" : ", \(dose!)"
+            return "\(name)\(amount)"
+        case .temperature:
+            let place = (detail ?? "").isEmpty ? "" : ", \(detail!.lowercased())"
+            return "Temperature \(value.formatted(.number.precision(.fractionLength(1)))) °C\(place)"
+        case .vaccination:
+            return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination, \(detail!)"
         }
     }
 }
@@ -144,7 +174,8 @@ extension Child {
         case .solids: return ageMonths >= 4
         case .nappy: return !pottyTraining || ageMonths < 36
         case .potty: return pottyTraining || feeding == nil
-        case .sleep, .note: return true
+        case .weight: return ageMonths < 24
+        case .sleep, .note, .medicine, .temperature, .vaccination: return true
         }
     }
 
@@ -280,6 +311,9 @@ enum PuggleModel {
             attribute("amountML", .doubleAttributeType, optional: false, defaultValue: 0.0),
             attribute("detail", .stringAttributeType),
             attribute("note", .stringAttributeType),
+            attribute("dose", .stringAttributeType),
+            attribute("value", .doubleAttributeType, optional: false, defaultValue: 0.0),
+            attribute("sticker", .stringAttributeType),
             attribute("createdAt", .dateAttributeType),
             eventFamily, eventChildren,
         ]

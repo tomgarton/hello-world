@@ -13,14 +13,23 @@ struct TodayView: View {
     @State private var editing: EditTarget?
     @State private var dayOf: Child?
     @State private var addingChild = false
+    @AppStorage("pottyStickers") private var stickersOn = true
+    @State private var pendingSticker: Event?
+    @State private var stickerFor: EditTarget?
+    @State private var showingStickers = false
     @State private var staleSleep: Event?
     @State private var askedAbout: Set<NSManagedObjectID> = []
 
-    private let cardKinds: [EventKind] = [.bottle, .breastfeed, .sleep, .nappy, .potty, .solids]
+    private let cardKinds: [EventKind] = [.bottle, .breastfeed, .sleep, .nappy, .potty, .solids, .weight]
 
     /// Tiles follow each child's setup answers and age.
     private var visibleKinds: [EventKind] {
         cardKinds.filter { kind in children.contains { $0.uses(kind) } }
+    }
+
+    /// Children with a sticker chart: potty training, or with stickers already.
+    private var stickerChildren: [Child] {
+        children.filter { $0.pottyTraining || !store.stickers(for: $0).isEmpty }
     }
 
     /// The children an activity applies to; everyone if that would be nobody.
@@ -49,6 +58,25 @@ struct TodayView: View {
                                     editing = EditTarget(event: $0)
                                 }
                             }
+                            HealthCard(children: Array(children)) {
+                                logging = $0
+                            } onEdit: {
+                                editing = EditTarget(event: $0)
+                            }
+                        }
+                        if stickersOn, !stickerChildren.isEmpty {
+                            Button { showingStickers = true } label: {
+                                HStack {
+                                    Image(systemName: "star.circle")
+                                    Text("Sticker chart").fontWeight(.semibold)
+                                    Spacer()
+                                    Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Palette.muted)
+                                }
+                                .padding(.horizontal, 16)
+                                .frame(minHeight: 52)
+                                .foregroundStyle(Palette.ink)
+                                .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            }
                         }
                     }
                 }
@@ -58,8 +86,20 @@ struct TodayView: View {
             .background(Palette.sand)
             .toolbar(.hidden, for: .navigationBar)
         }
-        .sheet(item: $logging) { kind in
-            LogSheet(kind: kind, children: relevant(kind))
+        .sheet(item: $logging, onDismiss: offerSticker) { kind in
+            LogSheet(kind: kind, children: relevant(kind)) { events in
+                // After a wee, a poo or a try, the child picks a sticker.
+                if kind == .potty, stickersOn, events.count == 1,
+                   let event = events.first, event.detail != "Accident" {
+                    pendingSticker = event
+                }
+            }
+        }
+        .fullScreenCover(item: $stickerFor) { target in
+            StickerPickerView(event: target.event)
+        }
+        .sheet(isPresented: $showingStickers) {
+            StickerChartView(children: stickerChildren)
         }
         .sheet(item: $editing) { target in
             LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)
@@ -84,6 +124,13 @@ struct TodayView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { checkForStaleSleep() }
         }
+    }
+
+    /// Runs once the log sheet has gone, so the two never overlap.
+    private func offerSticker() {
+        guard let event = pendingSticker, event.isLive else { return }
+        pendingSticker = nil
+        stickerFor = EditTarget(event: event)
     }
 
     /// A timer left running for 14 hours gets one gentle question each time the app opens.
@@ -303,6 +350,64 @@ struct ActivityCard: View {
     }
 }
 
+/// One tile for medicine, temperature and vaccinations. Logged plainly:
+/// no colour, no "high", no alarm.
+struct HealthCard: View {
+    @EnvironmentObject private var store: FamilyStore
+    let children: [Child]
+    let onAdd: (EventKind) -> Void
+    let onEdit: (Event) -> Void
+
+    private func latest(for child: Child) -> Event? {
+        (child.events ?? [])
+            .filter { $0.kind.isHealth }
+            .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(alignment: .top) {
+                Image(systemName: "cross.case")
+                    .font(.system(size: 26, weight: .regular))
+                    .foregroundStyle(Palette.ink)
+                Spacer()
+                Menu {
+                    ForEach(EventKind.health) { kind in
+                        Button { onAdd(kind) } label: { Label(kind.title, systemImage: kind.symbol) }
+                    }
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.headline)
+                        .frame(width: 44, height: 44)
+                        .background(Palette.paper, in: Circle())
+                }
+                .foregroundStyle(Palette.ink)
+                .accessibilityLabel("Log health")
+            }
+            Text("Health").font(.title3.weight(.semibold))
+            ForEach(children) { child in
+                if let event = latest(for: child), let at = event.startedAt {
+                    Button { onEdit(event) } label: {
+                        HStack(spacing: 6) {
+                            ChildChip(child: child)
+                            Text(at, style: .time).font(.footnote).foregroundStyle(Palette.muted)
+                            Spacer(minLength: 0)
+                        }
+                        .frame(minHeight: 32)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(child.displayName), \(event.summary), \(at.formatted(date: .omitted, time: .shortened))")
+                    .accessibilityHint("Opens this entry to change it")
+                }
+            }
+        }
+        .padding(14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .background(Palette.card, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+    }
+}
+
 /// A child's day so far: plain counts for today and the last 24 hours.
 struct DaySoFarView: View {
     @EnvironmentObject private var store: FamilyStore
@@ -404,6 +509,7 @@ struct DaySoFarView: View {
         }
         add("Nappies", count(.nappy))
         add("Potty", count(.potty))
+        add("Medicine", count(.medicine))
         return result
     }
 }

@@ -11,6 +11,7 @@ struct FamilyView: View {
     @State private var addingChild = false
     @State private var sharing: SharingItem?
     @State private var shareError: String?
+    @AppStorage("pottyStickers") private var stickersOn = true
 
     var body: some View {
         NavigationStack {
@@ -49,6 +50,14 @@ struct FamilyView: View {
                             .listRowBackground(Palette.paper)
                     } header: {
                         Text("Sharing")
+                    }
+                }
+                if children.contains(where: \.pottyTraining) {
+                    Section {
+                        Toggle("Stickers after the potty", isOn: $stickersOn)
+                            .listRowBackground(Palette.paper)
+                    } footer: {
+                        Text("After a wee, a poo or a try, the phone offers a sticker to choose.")
                     }
                 }
                 Section {

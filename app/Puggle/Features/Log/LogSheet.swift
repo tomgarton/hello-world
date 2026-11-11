@@ -20,6 +20,8 @@ struct LogSheet: View {
     let children: [Child]
     var editing: Event?
     var endingSleep = false
+    /// Called with the new entries after a save (not after an edit).
+    var onSaved: ([Event]) -> Void = { _ in }
 
     @State private var selected: Set<NSManagedObjectIDWrapper> = []
     @State private var time = Date.now
@@ -33,6 +35,15 @@ struct LogSheet: View {
     @State private var food = ""
     @State private var choice: String?
     @State private var note = ""
+    @State private var medicine = ""
+    @State private var doseText = ""
+    @State private var gapText = ""
+    @State private var temperature: Double?
+    @State private var place = ""
+    @State private var vaccine = ""
+    @State private var grams: Double?
+    @State private var tooSoon: String?
+    @State private var confirmedTooSoon = false
     @State private var saved = false
     @State private var confirmingDelete = false
     @State private var loaded = false
@@ -67,20 +78,33 @@ struct LogSheet: View {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
-                    Button("Done") { amountFocused = false }
+                    Button("Done") {
+                        amountFocused = false
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+                    }
                 }
             }
             .safeAreaInset(edge: .bottom) {
                 if needsSaveButton {
                     Button(isEditing ? "Save changes" : "Save \(kind.title.lowercased())") { save() }
                         .buttonStyle(PillButtonStyle())
-                        .disabled(chosenChildren.isEmpty)
+                        .disabled(!canSave)
+                        .opacity(canSave ? 1 : 0.5)
                         .padding(.horizontal, 18)
                         .padding(.vertical, 8)
                         .background(Palette.sand)
                 }
             }
             .sensoryFeedback(.success, trigger: saved)
+            .alert("Too soon?", isPresented: Binding(get: { tooSoon != nil }, set: { if !$0 { tooSoon = nil } })) {
+                Button("Log anyway") {
+                    confirmedTooSoon = true
+                    save()
+                }
+                Button("Don't log", role: .cancel) {}
+            } message: {
+                Text(tooSoon ?? "")
+            }
         }
         .presentationDetents(isEditing ? [.large] : [.medium, .large])
         .presentationDragIndicator(.visible)
@@ -111,6 +135,17 @@ struct LogSheet: View {
                 food = event.detail ?? ""
             case .nappy, .potty:
                 choice = event.detail
+            case .medicine:
+                medicine = event.detail ?? ""
+                doseText = event.dose ?? ""
+                gapText = Self.savedGap(for: medicine)
+            case .temperature:
+                temperature = event.value > 0 ? event.value : nil
+                place = event.detail ?? ""
+            case .vaccination:
+                vaccine = event.detail ?? ""
+            case .weight:
+                grams = event.value > 0 ? event.value : nil
             case .sleep, .note:
                 break
             }
@@ -192,6 +227,109 @@ struct LogSheet: View {
 
     /// A new nappy or potty entry saves from its choice buttons.
     private var needsSaveButton: Bool { isEditing || !(kind == .nappy || kind == .potty) }
+
+    private var canSave: Bool {
+        guard !chosenChildren.isEmpty else { return false }
+        switch kind {
+        case .medicine: return !medicine.trimmingCharacters(in: .whitespaces).isEmpty
+        case .temperature: return (temperature ?? 0) > 0
+        case .vaccination: return !vaccine.trimmingCharacters(in: .whitespaces).isEmpty
+        case .weight: return (grams ?? 0) > 0
+        default: return true
+        }
+    }
+
+    // MARK: Medicine gaps
+
+    /// The smallest gap the parent set for each medicine, in hours, by name.
+    /// The app only ever checks against this; it never suggests one.
+    private static func savedGap(for name: String) -> String {
+        let gaps = UserDefaults.standard.dictionary(forKey: "medicineGaps") as? [String: Double] ?? [:]
+        guard let hours = gaps[name.trimmingCharacters(in: .whitespaces).lowercased()], hours > 0 else { return "" }
+        return hours.formatted(.number.precision(.fractionLength(0...1)))
+    }
+
+    private var gapHours: Double? {
+        Double(gapText.replacingOccurrences(of: ",", with: ".")).flatMap { $0 > 0 ? $0 : nil }
+    }
+
+    private func rememberGap() {
+        let key = medicine.trimmingCharacters(in: .whitespaces).lowercased()
+        guard !key.isEmpty else { return }
+        var gaps = UserDefaults.standard.dictionary(forKey: "medicineGaps") as? [String: Double] ?? [:]
+        gaps[key] = gapHours
+        UserDefaults.standard.set(gaps, forKey: "medicineGaps")
+    }
+
+    private func tooSoonWarning(for who: [Child]) -> String? {
+        guard let gap = gapHours else { return nil }
+        let name = medicine.trimmingCharacters(in: .whitespaces)
+        for child in who {
+            guard let last = store.lastDose(of: name, for: child), let at = last.startedAt else { continue }
+            let since = time.timeIntervalSince(at)
+            if since >= 0 && since < gap * 3600 {
+                let hours = gap.formatted(.number.precision(.fractionLength(0...1)))
+                return "\(child.displayName) had \(name) \(Elapsed.short(from: at, to: time)) ago. The gap you set is \(hours) hours."
+            }
+        }
+        return nil
+    }
+
+    /// Medicines this family has logged, newest first, with the last dose written.
+    private var pastMedicines: [(name: String, dose: String)] {
+        var all: [Event] = []
+        for child in children {
+            all += (child.events ?? []).filter { $0.kind == .medicine }
+        }
+        all.sort { ($0.startedAt ?? .distantPast) > ($1.startedAt ?? .distantPast) }
+        var seen = Set<String>()
+        var result: [(name: String, dose: String)] = []
+        for event in all {
+            let name = (event.detail ?? "").trimmingCharacters(in: .whitespaces)
+            if !name.isEmpty, seen.insert(name.lowercased()).inserted {
+                result.append((name, event.dose ?? ""))
+            }
+            if result.count == 6 { break }
+        }
+        return result
+    }
+
+    private func field(_ prompt: String, text: Binding<String>) -> some View {
+        TextField(prompt, text: text)
+            .padding(14)
+            .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    private func chip(_ title: String, isOn: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if isOn { Image(systemName: "checkmark").font(.caption2.weight(.bold)) }
+                Text(title)
+            }
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(Palette.ink)
+            .padding(.horizontal, 12)
+            .frame(minHeight: 44)
+            .background(Palette.field, in: Capsule())
+            .overlay(Capsule().stroke(Palette.ink, lineWidth: isOn ? 1.5 : 0))
+        }
+        .accessibilityAddTraits(isOn ? .isSelected : [])
+    }
+
+    private func bigNumber(_ prompt: String, value: Binding<Double?>, digits: Int, unit: String, label: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Spacer()
+            TextField(prompt, value: value, format: .number.precision(.fractionLength(digits)))
+                .keyboardType(digits == 0 ? .numberPad : .decimalPad)
+                .font(.display(56))
+                .monospacedDigit()
+                .multilineTextAlignment(.trailing)
+                .fixedSize()
+                .accessibilityLabel(label)
+            Text(unit).foregroundStyle(Palette.muted)
+            Spacer()
+        }
+    }
 
     @ViewBuilder private var details: some View {
         switch kind {
@@ -277,10 +415,74 @@ struct LogSheet: View {
         case .nappy:
             quickChoices(["Wet", "Dirty", "Both", "Dry"])
         case .potty:
-            quickChoices(["Wee", "Poo", "Accident", "Sat, nothing"])
+            quickChoices(["Wee", "Poo", "Tried", "Accident"])
         case .note:
             timeRow("Time", $time)
+        case .medicine:
+            VStack(alignment: .leading, spacing: 16) {
+                field("Which medicine?", text: $medicine)
+                if !pastMedicines.isEmpty {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(pastMedicines, id: \.name) { item in
+                                chip(item.dose.isEmpty ? item.name : "\(item.name), \(item.dose)") {
+                                    medicine = item.name
+                                    doseText = item.dose
+                                    gapText = Self.savedGap(for: item.name)
+                                }
+                            }
+                        }
+                    }
+                }
+                field("Dose, as on the label or as prescribed", text: $doseText)
+                TextField("Smallest gap between doses, in hours (optional)", text: $gapText)
+                    .keyboardType(.decimalPad)
+                    .padding(14)
+                    .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                Text("If you enter a gap, the app asks once before logging a dose inside it. It never suggests a dose or a gap.")
+                    .font(.footnote)
+                    .foregroundStyle(Palette.muted)
+                timeRow("Time", $time)
+                timeShortcuts
+            }
+        case .temperature:
+            VStack(alignment: .leading, spacing: 16) {
+                bigNumber("0.0", value: $temperature, digits: 1, unit: "°C", label: "Temperature in degrees Celsius")
+                HStack(spacing: 8) {
+                    ForEach(["Ear", "Forehead", "Underarm", "Mouth"], id: \.self) { option in
+                        chip(option, isOn: place == option) { place = (place == option ? "" : option) }
+                    }
+                }
+                timeRow("Time", $time)
+                timeShortcuts
+            }
+        case .vaccination:
+            VStack(alignment: .leading, spacing: 16) {
+                field("Which vaccination?", text: $vaccine)
+                timeRow("Time", $time)
+                timeShortcuts
+            }
+        case .weight:
+            VStack(alignment: .leading, spacing: 16) {
+                bigNumber("0", value: $grams, digits: 0, unit: "g", label: "Weight in grams")
+                if let change = weightChange {
+                    Text(change).foregroundStyle(Palette.muted)
+                }
+                timeRow("Time", $time)
+                timeShortcuts
+            }
         }
+    }
+
+    /// The change from the first weight logged, as a plain number. The app
+    /// does not say whether it is fine.
+    private var weightChange: String? {
+        guard chosenChildren.count == 1, let child = chosenChildren.first,
+              let first = store.firstWeight(for: child), first != editing,
+              let now = grams, now > 0 else { return nil }
+        let diff = Int(now - first.value)
+        let sign = diff > 0 ? "+" : ""
+        return "Change since the first weight logged: \(sign)\(diff.formatted()) g"
     }
 
     /// Foods this family has logged before, newest first.
@@ -388,6 +590,17 @@ struct LogSheet: View {
         let noteValue = trimmedNote.isEmpty ? nil : trimmedNote
         let ml = min(max(amount, 0), 1000)
         let trimmedFood = food.trimmingCharacters(in: .whitespacesAndNewlines)
+        let medicineName = medicine.trimmingCharacters(in: .whitespacesAndNewlines)
+        let doseValue = doseText.trimmingCharacters(in: .whitespacesAndNewlines)
+        let vaccineName = vaccine.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if kind == .medicine {
+            if !isEditing, !confirmedTooSoon, let warning = tooSoonWarning(for: who) {
+                tooSoon = warning
+                return
+            }
+            rememberGap()
+        }
 
         if let event = editing {
             event.children = Set(who)
@@ -417,23 +630,49 @@ struct LogSheet: View {
                 event.detail = choice
             case .note:
                 event.startedAt = time
+            case .medicine:
+                event.startedAt = time
+                event.detail = medicineName
+                event.dose = doseValue.isEmpty ? nil : doseValue
+            case .temperature:
+                event.startedAt = time
+                event.value = temperature ?? 0
+                event.detail = place.isEmpty ? nil : place
+            case .vaccination:
+                event.startedAt = time
+                event.detail = vaccineName
+            case .weight:
+                event.startedAt = time
+                event.value = grams ?? 0
             }
             store.saveEdit(event)
         } else {
+            let events: [Event]
             switch kind {
             case .bottle:
-                store.logEach(.bottle, for: who, at: time, amountML: ml, detail: milk, note: noteValue)
+                events = store.logEach(.bottle, for: who, at: time, amountML: ml, detail: milk, note: noteValue)
             case .breastfeed:
-                store.logEach(.breastfeed, for: who, at: time, end: time.addingTimeInterval(minutes * 60), detail: side, note: noteValue)
+                events = store.logEach(.breastfeed, for: who, at: time, end: time.addingTimeInterval(minutes * 60), detail: side, note: noteValue)
             case .solids:
-                store.logEach(.solids, for: who, at: time, detail: trimmedFood, note: noteValue)
+                events = store.logEach(.solids, for: who, at: time, detail: trimmedFood, note: noteValue)
             case .sleep:
-                store.logEach(.sleep, for: who, at: min(time, endTime), end: max(time, endTime), note: noteValue)
+                events = store.logEach(.sleep, for: who, at: min(time, endTime), end: max(time, endTime), note: noteValue)
             case .nappy, .potty:
-                store.logEach(kind, for: who, at: time, detail: detail, note: noteValue)
+                events = store.logEach(kind, for: who, at: time, detail: detail, note: noteValue)
             case .note:
-                store.logEach(.note, for: who, at: time, note: noteValue)
+                events = store.logEach(.note, for: who, at: time, note: noteValue)
+            case .medicine:
+                events = store.logEach(.medicine, for: who, at: time, detail: medicineName, note: noteValue,
+                                       dose: doseValue.isEmpty ? nil : doseValue)
+            case .temperature:
+                events = store.logEach(.temperature, for: who, at: time, detail: place.isEmpty ? nil : place,
+                                       note: noteValue, value: temperature ?? 0)
+            case .vaccination:
+                events = store.logEach(.vaccination, for: who, at: time, detail: vaccineName, note: noteValue)
+            case .weight:
+                events = store.logEach(.weight, for: who, at: time, note: noteValue, value: grams ?? 0)
             }
+            onSaved(events)
         }
         saved.toggle()
         dismiss()

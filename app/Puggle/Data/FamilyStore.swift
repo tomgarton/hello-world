@@ -87,7 +87,9 @@ final class FamilyStore: ObservableObject {
              end: Date? = nil,
              amountML: Double = 0,
              detail: String? = nil,
-             note: String? = nil) -> Event {
+             note: String? = nil,
+             dose: String? = nil,
+             value: Double = 0) -> Event {
         let family = currentFamily()
         let event = Event(context: context)
         place(event, with: family)
@@ -98,6 +100,8 @@ final class FamilyStore: ObservableObject {
         event.amountML = amountML
         event.detail = detail
         event.note = note
+        event.dose = dose
+        event.value = value
         event.createdAt = .now
         event.family = family
         event.children = Set(children)
@@ -113,9 +117,11 @@ final class FamilyStore: ObservableObject {
                  end: Date? = nil,
                  amountML: Double = 0,
                  detail: String? = nil,
-                 note: String? = nil) -> [Event] {
+                 note: String? = nil,
+                 dose: String? = nil,
+                 value: Double = 0) -> [Event] {
         let events = children.map {
-            log(kind, for: [$0], at: start, end: end, amountML: amountML, detail: detail, note: note)
+            log(kind, for: [$0], at: start, end: end, amountML: amountML, detail: detail, note: note, dose: dose, value: value)
         }
         lastSaved = LastSaved(events: events, undo: .delete)
         return events
@@ -171,6 +177,34 @@ final class FamilyStore: ObservableObject {
         children
             .compactMap { child in latest(kind, for: child)?.startedAt.map { (child, $0) } }
             .max { $0.1 < $1.1 }?.0
+    }
+
+    /// The most recent dose of a medicine by name, for the "too soon?" question.
+    func lastDose(of medicine: String, for child: Child) -> Event? {
+        let wanted = medicine.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        return (child.events ?? [])
+            .filter { $0.kind == .medicine && ($0.detail ?? "").lowercased() == wanted }
+            .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    }
+
+    /// The first weight logged for a child, used for "change since".
+    func firstWeight(for child: Child) -> Event? {
+        (child.events ?? [])
+            .filter { $0.kind == .weight && $0.value > 0 }
+            .min { ($0.startedAt ?? .distantFuture) < ($1.startedAt ?? .distantFuture) }
+    }
+
+    /// The child's potty stickers, oldest first. Accidents never appear here.
+    func stickers(for child: Child) -> [Event] {
+        (child.events ?? [])
+            .filter { $0.kind == .potty && !($0.sticker ?? "").isEmpty }
+            .sorted { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+    }
+
+    func setSticker(_ sticker: String, on event: Event) {
+        guard event.isLive else { return }
+        event.sticker = sticker
+        persistence.save()
     }
 
     func events(for child: Child, since: Date) -> [Event] {
@@ -237,7 +271,7 @@ final class FamilyStore: ObservableObject {
                 ? "\"" + value.replacingOccurrences(of: "\"", with: "\"\"") + "\""
                 : value
         }
-        var lines = ["started,ended,child,activity,amount_ml,detail,note"]
+        var lines = ["started,ended,child,activity,amount_ml,detail,note,dose,value,sticker"]
         for event in events {
             let names = event.sortedChildren.map(\.displayName).joined(separator: " & ")
             lines.append([
@@ -248,6 +282,9 @@ final class FamilyStore: ObservableObject {
                 event.amountML > 0 ? String(Int(event.amountML)) : "",
                 cell(event.detail),
                 cell(event.note),
+                cell(event.dose),
+                event.value > 0 ? String(event.value) : "",
+                cell(event.sticker),
             ].joined(separator: ","))
         }
         let day = Date.now.formatted(.iso8601.year().month().day())
