@@ -78,11 +78,16 @@ enum DisplayType {
     private static let weight = 0x7767_6874      // 'wght'
     private static let width = 0x7764_7468       // 'wdth'
 
-    /// Names to try: the variable family first, then the static ExtraBold cut.
-    private static let names = ["BricolageGrotesque-ExtraBold", "Bricolage Grotesque", "BricolageGrotesque-Regular"]
+    private static let family = "Bricolage Grotesque"
+    /// The face to start from, by its exact name, or nil if the font file is not in the app.
+    /// Looked up by name: asking for the family alone falls back to the system font.
+    private static let faceName: String? = {
+        let names = UIFont.fontNames(forFamilyName: family)
+        return names.first { !$0.contains("_") } ?? names.first
+    }()
 
     static func font(_ size: CGFloat) -> Font {
-        guard let base = names.lazy.compactMap({ UIFont(name: $0, size: size) }).first else {
+        guard let faceName, let base = UIFont(name: faceName, size: size) else {
             return .system(size: size, weight: .heavy, design: .rounded)
         }
         // Which axes this file has; a static cut has none and is used as it is.

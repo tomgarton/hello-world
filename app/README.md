@@ -170,9 +170,9 @@ The CloudKit code is untouched. Installing a build from the **Puggle** scheme ov
 
 Sharing needs two different Apple Accounts. On your phone, go to Family → Invite someone and send the link to your partner. When they open it on their iPhone with Puggle installed, your family appears in their app and both of you can log.
 
-### Optional: the brand font
+### The brand font
 
-Titles and big numbers use Bricolage Grotesque when it's present; until then the system rounded font stands in. Download it from Google Fonts (Open Font License) and add it to `Puggle/Resources` and to `Info.plist` under `UIAppFonts`. Prefer the variable file (`BricolageGrotesque[opsz,wdth,wght].ttf`): it has an optical-size axis, and `DisplayType` in `Design/Theme.swift` sets that axis to the point size being drawn, so large numerals and small titles each get the right cut. The static `BricolageGrotesque-ExtraBold.ttf` also works, with one cut at every size.
+Titles and big numbers use Bricolage Grotesque (SIL Open Font License; the licence is beside the font in `Puggle/Resources`). The file is the variable font from Google Fonts, `BricolageGrotesque-Variable.ttf`, listed in `Info.plist` under `UIAppFonts`. It has an optical-size axis from 12 to 96, and left alone it draws the 96-point cut at every size. `DisplayType` in `Design/Theme.swift` sets the axis to the point size being drawn, so a 32-point heading gets the open, sturdy cut and 64-point numerals get the tight display cut. If the file is removed, the system rounded font stands in.
 
 All display type goes through `.displayFont(size)`, which also follows Dynamic Type up to one and a half times the design size. Interface text uses the system text styles, which choose their own optical size.
 
