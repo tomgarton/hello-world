@@ -162,7 +162,7 @@ struct TodayView: View {
                 .font(.subheadline)
                 .foregroundStyle(Palette.muted)
             Text(children.isEmpty ? "Today" : ListFormatter.localizedString(byJoining: children.map(\.displayName)))
-                .font(.display(32))
+                .displayFont(32)
                 .foregroundStyle(Palette.ink)
         }
         .padding(.top, 12)

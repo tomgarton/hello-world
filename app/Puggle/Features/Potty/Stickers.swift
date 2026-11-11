@@ -68,7 +68,7 @@ struct StickerPickerView: View {
         VStack(spacing: 24) {
             Spacer()
             Text(chosen == nil ? "Pick a sticker\(name.isEmpty ? "" : ", \(name)")!" : "On it goes!")
-                .font(.display(34))
+                .displayFont(34)
                 .multilineTextAlignment(.center)
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 16), count: 3), spacing: 16) {
                 ForEach(Sticker.allCases) { sticker in

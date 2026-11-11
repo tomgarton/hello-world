@@ -136,7 +136,7 @@ struct FeedTimerView: View {
             VStack(spacing: 6) {
                 Text(side).font(.title3.weight(.semibold))
                 Text(Elapsed.clock(seconds))
-                    .font(.display(44))
+                    .displayFont(44)
                     .monospacedDigit()
                     .contentTransition(.numericText())
                     .animation(.default, value: Int(seconds))

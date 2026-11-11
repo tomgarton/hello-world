@@ -77,7 +77,7 @@ struct Wordmark: View {
 
     var body: some View {
         Text("puggle")
-            .font(.display(size))
+            .displayFont(size)
             .tracking(-size * 0.04)
             .foregroundStyle(Palette.ink)
             .accessibilityLabel("Puggle")

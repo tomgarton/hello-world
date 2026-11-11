@@ -172,7 +172,9 @@ Sharing needs two different Apple Accounts. On your phone, go to Family → Invi
 
 ### Optional: the brand font
 
-Titles use Bricolage Grotesque when it's present. Download it from Google Fonts (Open Font License), add `BricolageGrotesque-ExtraBold.ttf` to `Puggle/Resources`, and add it to `Info.plist` under `UIAppFonts`. Until then, the system rounded font stands in.
+Titles and big numbers use Bricolage Grotesque when it's present; until then the system rounded font stands in. Download it from Google Fonts (Open Font License) and add it to `Puggle/Resources` and to `Info.plist` under `UIAppFonts`. Prefer the variable file (`BricolageGrotesque[opsz,wdth,wght].ttf`): it has an optical-size axis, and `DisplayType` in `Design/Theme.swift` sets that axis to the point size being drawn, so large numerals and small titles each get the right cut. The static `BricolageGrotesque-ExtraBold.ttf` also works, with one cut at every size.
+
+All display type goes through `.displayFont(size)`, which also follows Dynamic Type up to one and a half times the design size. Interface text uses the system text styles, which choose their own optical size.
 
 ## Layout
 

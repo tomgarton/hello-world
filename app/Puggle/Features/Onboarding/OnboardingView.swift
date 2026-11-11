@@ -64,7 +64,7 @@ struct OnboardingView: View {
             PuggleStanding(height: 180)
                 .frame(maxWidth: .infinity)
                 .padding(.bottom, 8)
-            Text(title).font(.display(34))
+            Text(title).displayFont(34)
             Text(text).font(.title3).foregroundStyle(Palette.muted)
             Spacer()
             Button("Continue") { step = next }
@@ -105,7 +105,7 @@ struct OnboardingView: View {
     private var moreStep: some View {
         VStack(alignment: .leading, spacing: 14) {
             Spacer()
-            Text("Anyone else?").font(.display(34))
+            Text("Anyone else?").displayFont(34)
             Text("Twins and siblings share one Today. Add them now, or later from the Family tab.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
