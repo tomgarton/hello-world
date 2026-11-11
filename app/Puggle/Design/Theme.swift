@@ -68,14 +68,22 @@ struct PillButtonStyle: ButtonStyle {
 struct ChildChip: View {
     let child: Child
     var selected = true
+    /// For pickers: selection shows as a tick and a border as well as the colour.
+    var ticked = false
 
     var body: some View {
-        Text(child.displayName)
-            .font(.footnote.weight(.semibold))
-            .padding(.horizontal, 10)
-            .frame(minHeight: 26)
-            .background(selected ? Palette.childColour(child.colourIndex) : Palette.field, in: Capsule())
-            .foregroundStyle(Palette.ink)
+        HStack(spacing: 4) {
+            if ticked {
+                Image(systemName: "checkmark").font(.caption2.weight(.bold))
+            }
+            Text(child.displayName)
+        }
+        .font(.footnote.weight(.semibold))
+        .padding(.horizontal, 10)
+        .frame(minHeight: 26)
+        .background(selected ? Palette.childColour(child.colourIndex) : Palette.field, in: Capsule())
+        .overlay(Capsule().stroke(Palette.ink, lineWidth: ticked ? 1.5 : 0))
+        .foregroundStyle(Palette.ink)
     }
 }
 

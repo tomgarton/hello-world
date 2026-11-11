@@ -14,6 +14,26 @@ The first working version of Puggle, for our own family: two children on one scr
 | Family | Add children (name, birth date, colour). Invite someone with Apple's sharing sheet |
 | Sync and sharing | Core Data with CloudKit: private store for your family, shared store for a family someone shared with you. No server, no sign-up |
 
+### Flows built so far (from `docs/flows.md`)
+
+Journeys 2 (everyday logging) and 3 (sleep), built on 11 November 2026 and checked in the simulator:
+
+| Flow step | In the app |
+|---|---|
+| Last saved, with Undo and Change | A row on Today that stays until the next save. It resets when the app restarts |
+| Edit or delete | Tap any entry on a Today card or in History. Delete asks once |
+| Bottle | Opens on the child's last amount and milk. The number can be typed |
+| Log something earlier | "Now", "Earlier today" (back one hour per tap) and "Yesterday" under the time |
+| Who it's for | Opens on the child last logged for that activity, shown with a tick. Children born on the same day: no guess. Several children get one entry each |
+| Solids | Foods logged before appear as chips |
+| The day so far | Tap a child's row: counts for today and the last 24 hours |
+| Start sleep | A verb, read by VoiceOver with the name. The row turns night blue with a live timer |
+| Cancel | For the first minute the button reads "Cancel" and leaves no entry |
+| Woke up | Ends the sleep and shows its length in Last saved; Change adjusts start and end |
+| Still asleep? | A timer running 14 hours or more gets one question when the app opens, with "Set wake time" |
+
+Left out of those two journeys: the Lock Screen timer (needs a widget extension), the breastfeed timers, "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, per-child amounts for "Both", and Puggle's nod on save.
+
 Not yet: Live Activities, widgets, the custom Puggle icons (SF Symbols stand in), characters, potty sticker chart, growth, onboarding, import.
 
 ## Build it on your Mac

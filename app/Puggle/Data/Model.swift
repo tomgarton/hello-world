@@ -76,6 +76,9 @@ extension Event {
         set { kindRaw = newValue.rawValue }
     }
 
+    /// False once the entry has been deleted, here or on another phone.
+    var isLive: Bool { !isDeleted && managedObjectContext != nil }
+
     var sortedChildren: [Child] {
         (children ?? []).sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
     }

@@ -5,7 +5,9 @@ import SwiftUI
 struct HistoryView: View {
     @EnvironmentObject private var store: FamilyStore
     @FetchRequest(sortDescriptors: [SortDescriptor(\Event.startedAt, order: .reverse)]) private var events: FetchedResults<Event>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
     @State private var filter: EventKind?
+    @State private var editing: EditTarget?
 
     private var filtered: [Event] {
         guard let filter else { return Array(events) }
@@ -35,7 +37,12 @@ struct HistoryView: View {
                 ForEach(days) { group in
                     Section(group.day.formatted(.dateTime.weekday(.wide).day().month(.wide))) {
                         ForEach(group.events) { event in
-                            EventRow(event: event)
+                            Button { editing = EditTarget(event: event) } label: {
+                                EventRow(event: event)
+                            }
+                            .buttonStyle(.plain)
+                            .listRowBackground(Palette.paper)
+                            .accessibilityHint("Opens this entry to change it")
                         }
                         .onDelete { offsets in
                             offsets.map { group.events[$0] }.forEach(store.delete)
@@ -46,6 +53,9 @@ struct HistoryView: View {
             .scrollContentBackground(.hidden)
             .background(Palette.sand)
             .navigationTitle("History")
+            .sheet(item: $editing) { target in
+                LogSheet(kind: target.event.kind, children: Array(children), editing: target.event)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -88,6 +98,6 @@ struct EventRow: View {
             }
         }
         .padding(.vertical, 4)
-        .listRowBackground(Palette.paper)
+        .contentShape(Rectangle())
     }
 }
