@@ -11,16 +11,17 @@ enum Ink: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    /// Brighter after dark, so the ink still reads on dimmed paper.
     var colour: Color {
         switch self {
-        case .red: Color(hex: 0xD9482F)
-        case .blue: Color(hex: 0x2A62B8)
-        case .green: Color(hex: 0x3C8A55)
-        case .gold: Color(hex: 0xC98A0B)
-        case .purple: Color(hex: 0x7B4FA8)
-        case .teal: Color(hex: 0x1E8C8C)
-        case .pink: Color(hex: 0xD2527F)
-        case .orange: Color(hex: 0xE0701F)
+        case .red: Color(light: 0xD9482F, dark: 0xEC6A50)
+        case .blue: Color(light: 0x2A62B8, dark: 0x6A9AE6)
+        case .green: Color(light: 0x3C8A55, dark: 0x5DB676)
+        case .gold: Color(light: 0xC98A0B, dark: 0xE2AE3E)
+        case .purple: Color(light: 0x7B4FA8, dark: 0xA783D6)
+        case .teal: Color(light: 0x1E8C8C, dark: 0x3DB6B3)
+        case .pink: Color(light: 0xD2527F, dark: 0xE87FA4)
+        case .orange: Color(light: 0xE0701F, dark: 0xF28F47)
         }
     }
 }
@@ -533,9 +534,10 @@ enum CardTheme: CaseIterable {
 
     var paper: Color {
         switch self {
-        case .beach: Color(hex: 0xD2BF92)
-        case .backyard: Color(hex: 0xCDBB8E)
-        case .night: Color(hex: 0x1F2A4D)
+        // Kraft card, dimmed in dark mode and dimmer again at night.
+        case .beach: Color(light: 0xD2BF92, dark: 0x6A5C40, night: 0x463D2B)
+        case .backyard: Color(light: 0xCDBB8E, dark: 0x655A3E, night: 0x433B29)
+        case .night: Color(light: 0x1F2A4D, dark: 0x1B2442, night: 0x141B33)
         }
     }
 
@@ -720,8 +722,10 @@ struct StampCardFace: View {
 }
 
 extension Palette {
-    /// The blank spaces on a card. The same in light and dark: it is paper.
-    static let stampSpace = Color(hex: 0xF4ECDA)
+    /// The blank spaces on a card, and the sheet the stamps sit on. Paper, dimmed after dark.
+    static let stampSpace = Color(light: 0xF4ECDA, dark: 0x3E352D, night: 0x2A231E)
+    /// Scrap paper for trying a stamp.
+    static let scrap = Color(light: 0xFBF6E9, dark: 0x302923, night: 0x1E1916)
 }
 
 extension FamilyStore {

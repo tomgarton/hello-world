@@ -85,7 +85,7 @@ struct StampFlowView: View {
     private var space: CGPoint { StampCard.spaces[min(before.count, Stamp.perCard - 1)] }
     private var isFull: Bool { impressions.count == Stamp.perCard }
     private var sticker: StickerStyle { .card(cardIndex) }
-    private var inkColour: Color { ink?.colour ?? Palette.fixedInk }
+    private var inkColour: Color { ink?.colour ?? Palette.ink }
 
     var body: some View {
         GeometryReader { geometry in
@@ -160,14 +160,14 @@ struct StampFlowView: View {
     /// Somewhere to try the stamp. Nothing here counts; it fades as it dries.
     private var scrapPaper: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color(hex: 0xFBF6E9))
+            RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Palette.scrap)
             Image(uiImage: Grain.image).resizable(resizingMode: .tile)
-                .foregroundStyle(Color(hex: 0x5A4320))
+                .foregroundStyle(Palette.ink)
                 .opacity(0.06)
             if loose.isEmpty {
                 Text("Try your stamp here")
                     .font(.subheadline)
-                    .foregroundStyle(Color(hex: 0xB9AC97))
+                    .foregroundStyle(Palette.muted)
             }
             ForEach(loose) { mark in
                 LooseStampView(mark: mark) { loose.removeAll { $0.id == mark.id } }
@@ -201,8 +201,8 @@ struct StampFlowView: View {
                         .foregroundStyle(inkColour)
                         .frame(width: 38, height: 38)
                         .frame(maxWidth: .infinity, minHeight: 58)
-                        .background(isOn ? Color(hex: 0xE3D8BF) : .clear, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Palette.fixedInk, lineWidth: isOn ? 2 : 0))
+                        .background(isOn ? Palette.field : .clear, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel("\(stamp.name) stamp")
@@ -228,7 +228,7 @@ struct StampFlowView: View {
                         .overlay {
                             if isOn { Image(systemName: "checkmark").font(.subheadline.weight(.bold)).foregroundStyle(.white) }
                         }
-                        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).stroke(Palette.fixedInk, lineWidth: isOn ? 2 : 0))
+                        .overlay(RoundedRectangle(cornerRadius: 11, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
                         .frame(height: 46)
                         .scaleEffect(x: squished == pad ? 0.9 : 1, y: squished == pad ? 0.82 : 1, anchor: .bottom)
                         .shadow(color: .black.opacity(0.2), radius: 2, y: 2)
@@ -650,7 +650,7 @@ struct StampFlowView: View {
             ZStack {
                 // Where it was: the outline left on the backing.
                 Image(sticker.shape).resizable().scaledToFit()
-                    .foregroundStyle(Color(hex: 0xEDE7DA))
+                    .foregroundStyle(Palette.field)
                     .frame(width: 80, height: 80)
                 StickerView(style: sticker, size: 84)
                     .modifier(PaperEffects(curl: reduceMotion ? 0 : (peeled ? 26 : 0), corner: CGPoint(x: 84, y: 0),
@@ -692,12 +692,12 @@ struct StampFlowView: View {
             }
             Text("Peel it off and stick it on the card.")
                 .font(.subheadline)
-                .foregroundStyle(Palette.fixedInk.opacity(0.7))
+                .foregroundStyle(Palette.muted)
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 18)
         .frame(height: 120)
-        .background(Color.white, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .shadow(color: .black.opacity(0.12), radius: 6, y: 3)
         .transition(.move(edge: .bottom).combined(with: .opacity))
     }
