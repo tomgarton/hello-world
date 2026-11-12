@@ -370,10 +370,25 @@ struct PuggleHeader: View {
             if now == .background { appeared = false }
             if old == .background, now != .background, !splashing { playEntrance() }
         }
-        .onChange(of: quiet) { _, now in controller.asleep = now }
-        // A small nod each time something is saved. No sound or tap: the save has its own.
+        // Asleep while a child sleeps; a stretch and a yawn when the last one wakes.
+        .onChange(of: quiet) { _, now in
+            if now { controller.asleep = true } else { controller.wake() }
+        }
+        // She answers each save: a nod for everyday things, more for the big ones.
+        // No sound or tap: the save has its own. Nothing waits for her.
         .onChange(of: store.lastSaved?.id) { _, id in
             guard id != nil, !reduceMotion else { return }
+            controller.setEnergy(night ? 0.5 : 1)
+            let events = store.lastSaved?.events ?? []
+            if events.contains(where: { $0.kind == .milestone }) {
+                controller.celebrate()
+            } else if events.contains(where: { $0.kind == .potty && $0.detail != "Accident" }) {
+                controller.proud()
+            } else {
+                controller.nod()
+            }
+            // Without her rig she is one picture, so the whole picture nods.
+            guard controller.rig == nil else { return }
             withAnimation(.easeOut(duration: 0.14)) { nod = quiet ? 0.5 : 1 }
             withAnimation(.spring(duration: 0.35, bounce: 0.3).delay(0.14)) { nod = 0 }
         }
