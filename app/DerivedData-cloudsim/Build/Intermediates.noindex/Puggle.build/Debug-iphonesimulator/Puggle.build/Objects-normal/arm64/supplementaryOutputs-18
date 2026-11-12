@@ -1,0 +1,23 @@
+{
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Design/Feel.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Feel.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Feel.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Feel.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Feel.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Feel.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Family/FamilyView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FamilyView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FamilyView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FamilyView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FamilyView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FamilyView.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Log/FeedTimerView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FeedTimerView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FeedTimerView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FeedTimerView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FeedTimerView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/FeedTimerView.swiftdeps"
+  }
+}

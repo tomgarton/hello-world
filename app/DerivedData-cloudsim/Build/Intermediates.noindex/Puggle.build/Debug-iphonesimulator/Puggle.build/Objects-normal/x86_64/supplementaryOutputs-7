@@ -1,0 +1,23 @@
+{
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Data/Persistence.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/Persistence.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/Persistence.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/Persistence.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/Persistence.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/Persistence.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Onboarding/OnboardingParts.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingParts.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingParts.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingParts.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingParts.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingParts.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Onboarding/OnboardingView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/x86_64/OnboardingView.swiftdeps"
+  }
+}

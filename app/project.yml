@@ -52,6 +52,11 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_FILE: PuggleWidgets/Info.plist
         GENERATE_INFOPLIST_FILE: NO
+        # Reads the app's summary from the shared App Group (paid account only).
+        CODE_SIGN_ENTITLEMENTS: PuggleWidgets/PuggleWidgets.entitlements
+      configs:
+        Local:
+          CODE_SIGN_ENTITLEMENTS: ""
   # The store's logic, tested against an in-memory database.
   PuggleTests:
     type: bundle.unit-test

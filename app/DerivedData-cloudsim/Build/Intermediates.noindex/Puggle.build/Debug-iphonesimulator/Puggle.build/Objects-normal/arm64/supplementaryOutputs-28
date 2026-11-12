@@ -1,0 +1,23 @@
+{
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Design/Skeleton.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Skeleton.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Skeleton.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Skeleton.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Skeleton.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Skeleton.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Design/Squiggle.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Squiggle.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Squiggle.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Squiggle.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Squiggle.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/Squiggle.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Family/SiriView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/SiriView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/SiriView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/SiriView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/SiriView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/SiriView.swiftdeps"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/DerivedSources/GeneratedAssetSymbols.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/GeneratedAssetSymbols.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/GeneratedAssetSymbols.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/GeneratedAssetSymbols.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/GeneratedAssetSymbols.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Family/YouView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YouView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YouView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YouView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YouView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YouView.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Family/YourDataView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YourDataView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YourDataView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YourDataView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YourDataView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/Puggle.build/Objects-normal/arm64/YourDataView.swiftdeps"
+  }
+}

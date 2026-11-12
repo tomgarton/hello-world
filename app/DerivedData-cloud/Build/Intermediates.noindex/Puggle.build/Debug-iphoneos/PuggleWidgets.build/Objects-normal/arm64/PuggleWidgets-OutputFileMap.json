@@ -1,0 +1,59 @@
+{
+  "" : {
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgets-primary.dia",
+    "emit-module-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgets-primary-emit-module.d",
+    "emit-module-diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgets-primary-emit-module.dia",
+    "pch" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgets-primary-Bridging-header.pch",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgets-primary.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/PuggleWidgets/FamilyWidgets.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets.dia",
+    "index-unit-output-path" : "/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets.o",
+    "llvm-bc" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets.bc",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets.swiftdeps",
+    "swiftmodule" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/FamilyWidgets~partial.swiftmodule"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/PuggleWidgets/PuggleWidgetsBundle.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle.dia",
+    "index-unit-output-path" : "/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle.o",
+    "llvm-bc" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle.bc",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle.swiftdeps",
+    "swiftmodule" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/PuggleWidgetsBundle~partial.swiftmodule"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/PuggleWidgets/TimerLiveActivity.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity.dia",
+    "index-unit-output-path" : "/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity.o",
+    "llvm-bc" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity.bc",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity.swiftdeps",
+    "swiftmodule" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerLiveActivity~partial.swiftmodule"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Shared/TimerActivity.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity.dia",
+    "index-unit-output-path" : "/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity.o",
+    "llvm-bc" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity.bc",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity.swiftdeps",
+    "swiftmodule" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/TimerActivity~partial.swiftmodule"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Shared/WidgetSnapshot.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot.dia",
+    "index-unit-output-path" : "/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot.o",
+    "llvm-bc" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot.bc",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot.swiftdeps",
+    "swiftmodule" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloud/Build/Intermediates.noindex/Puggle.build/Debug-iphoneos/PuggleWidgets.build/Objects-normal/arm64/WidgetSnapshot~partial.swiftmodule"
+  }
+}

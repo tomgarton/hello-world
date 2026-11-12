@@ -1,0 +1,23 @@
+{
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Growing/GrowthView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/GrowthView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/GrowthView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/GrowthView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/GrowthView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/GrowthView.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/History/HistoryView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/HistoryView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/HistoryView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/HistoryView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/HistoryView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/HistoryView.swiftdeps"
+  },
+  "/Users/tomgarton/Desktop/Claude Code/hello-world/app/Puggle/Features/Insights/InsightsView.swift" : {
+    "const-values" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/InsightsView.swiftconstvalues",
+    "dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/InsightsView.d",
+    "diagnostics" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/InsightsView.dia",
+    "object" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/InsightsView.o",
+    "swift-dependencies" : "/Users/tomgarton/Desktop/Claude Code/hello-world/app/DerivedData-cloudsim/Build/Intermediates.noindex/Puggle.build/Debug-iphonesimulator/Puggle.build/Objects-normal/arm64/InsightsView.swiftdeps"
+  }
+}

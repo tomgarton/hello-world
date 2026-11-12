@@ -72,7 +72,10 @@ struct PuggleApp: App {
                 // A sleep starting or ending, or the sample family swapping in, may change the night look.
                 .onReceive(store.objectWillChange) { _ in
                     // A feed logged here or on another phone moves the "time since a feed" reminder.
-                    Task { @MainActor in ReminderStore.shared.reschedule(with: store) }
+                    Task { @MainActor in
+                        ReminderStore.shared.reschedule(with: store)
+                        WidgetFeed.update(from: store)
+                    }
                 }
                 .onReceive(active.objectWillChange) { _ in
                     // Only looked up when sleep is part of the setting.
@@ -89,6 +92,7 @@ struct PuggleApp: App {
                         if !lock.isLocked { PrivacyShield.shared.hide() }
                         LiveTimers.shared.sync(with: store)
                         ReminderStore.shared.reschedule(with: store)
+                        WidgetFeed.update(from: store)
                         refreshNight(with: active)
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()

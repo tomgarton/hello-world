@@ -145,6 +145,9 @@ extension FamilyStore {
             case TimerActions.finishFeed: finishFeed(for: child)
             case TimerActions.feedLeft: tapFeedSide("Left", for: child)
             case TimerActions.feedRight: tapFeedSide("Right", for: child)
+            case TimerActions.nappyWet:
+                logEach(.nappy, for: [child], detail: "Wet")
+                Haptics.success()
             default: break
             }
         }

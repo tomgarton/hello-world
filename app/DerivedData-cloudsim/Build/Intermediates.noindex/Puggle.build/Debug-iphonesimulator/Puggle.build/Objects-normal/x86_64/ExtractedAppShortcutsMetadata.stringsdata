@@ -1,0 +1,145 @@
+{
+  "source" : "\/Users\/tomgarton\/Desktop\/Claude Code\/hello-world\/app\/Puggle\/App\/Shortcuts.swift",
+  "tables" : {
+    "AppShortcuts" : [
+      {
+        "appShortcutMetadata" : [
+          {
+            "parameterDisplayRepresentations" : {
+              "ChildEntity" : [
+                "Child"
+              ]
+            },
+            "index" : 0,
+            "title" : "Start sleep",
+            "actionIdentifier" : "StartSleepIntent",
+            "parameterTypes" : {
+              "child" : "ChildEntity"
+            }
+          }
+        ],
+        "location" : {
+          "startingLine" : 178,
+          "startingColumn" : 0
+        },
+        "key" : "Start a sleep in ${applicationName}",
+        "values" : [
+          "Start a sleep in ${applicationName}",
+          "Start sleep for ${child} in ${applicationName}"
+        ]
+      },
+      {
+        "appShortcutMetadata" : [
+          {
+            "parameterDisplayRepresentations" : {
+              "ChildEntity" : [
+                "Child"
+              ]
+            },
+            "index" : 1,
+            "title" : "Woke up",
+            "parameterTypes" : {
+              "child" : "ChildEntity"
+            },
+            "actionIdentifier" : "WokeUpIntent"
+          }
+        ],
+        "location" : {
+          "startingColumn" : 0,
+          "startingLine" : 178
+        },
+        "key" : "Woke up in ${applicationName}",
+        "values" : [
+          "Woke up in ${applicationName}",
+          "${child} woke up in ${applicationName}"
+        ]
+      },
+      {
+        "appShortcutMetadata" : [
+          {
+            "actionIdentifier" : "LogNappyIntent",
+            "index" : 2,
+            "parameterDisplayRepresentations" : {
+              "NappyKind" : [
+                "Wet",
+                "Dirty",
+                "Both",
+                "Dry"
+              ],
+              "ChildEntity" : [
+                "Child"
+              ]
+            },
+            "title" : "Log a nappy",
+            "parameterTypes" : {
+              "nappy" : "NappyKind",
+              "child" : "ChildEntity"
+            }
+          }
+        ],
+        "location" : {
+          "startingLine" : 178,
+          "startingColumn" : 0
+        },
+        "key" : "Log a nappy in ${applicationName}",
+        "values" : [
+          "Log a nappy in ${applicationName}",
+          "Log a nappy for ${child} in ${applicationName}"
+        ]
+      },
+      {
+        "appShortcutMetadata" : [
+          {
+            "index" : 3,
+            "parameterTypes" : {
+              "child" : "ChildEntity"
+            },
+            "actionIdentifier" : "LogBottleIntent",
+            "title" : "Log a bottle",
+            "parameterDisplayRepresentations" : {
+              "ChildEntity" : [
+                "Child"
+              ]
+            }
+          }
+        ],
+        "location" : {
+          "startingLine" : 178,
+          "startingColumn" : 0
+        },
+        "key" : "Log a bottle in ${applicationName}",
+        "values" : [
+          "Log a bottle in ${applicationName}",
+          "Log a bottle for ${child} in ${applicationName}"
+        ]
+      },
+      {
+        "appShortcutMetadata" : [
+          {
+            "parameterDisplayRepresentations" : {
+              "ChildEntity" : [
+                "Child"
+              ]
+            },
+            "index" : 4,
+            "title" : "Last feed",
+            "actionIdentifier" : "LastFeedIntent",
+            "parameterTypes" : {
+              "child" : "ChildEntity"
+            }
+          }
+        ],
+        "location" : {
+          "startingColumn" : 0,
+          "startingLine" : 178
+        },
+        "key" : "Last feed in ${applicationName}",
+        "values" : [
+          "Last feed in ${applicationName}",
+          "When was ${child} last fed in ${applicationName}"
+        ]
+      }
+    ]
+  },
+  "version" : 2
+}

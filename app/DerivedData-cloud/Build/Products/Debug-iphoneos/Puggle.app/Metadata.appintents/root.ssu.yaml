@@ -1,0 +1,78 @@
+apiVersion: ssu/v1
+nlu:
+  shortcuts:
+    bundleIdentifier: com.tomgarton.puggle
+    intents:
+    - metadata:
+        name: StartSleepIntent_0
+        title: Start sleep
+      corpuses:
+        training:
+        - locale: en-AU
+          utterances:
+          - Start a sleep in ${+applicationName}
+          - Start sleep for ${ChildEntity} in ${+applicationName}
+    - metadata:
+        name: WokeUpIntent_1
+        title: Woke up
+      corpuses:
+        training:
+        - locale: en-AU
+          utterances:
+          - Woke up in ${+applicationName}
+          - ${ChildEntity} woke up in ${+applicationName}
+    - metadata:
+        name: LogNappyIntent_2
+        title: Log a nappy
+      corpuses:
+        training:
+        - locale: en-AU
+          utterances:
+          - Log a nappy in ${+applicationName}
+          - Log a nappy for ${ChildEntity} in ${+applicationName}
+    - metadata:
+        name: LogBottleIntent_3
+        title: Log a bottle
+      corpuses:
+        training:
+        - locale: en-AU
+          utterances:
+          - Log a bottle in ${+applicationName}
+          - Log a bottle for ${ChildEntity} in ${+applicationName}
+    - metadata:
+        name: LastFeedIntent_4
+        title: Last feed
+      corpuses:
+        training:
+        - locale: en-AU
+          utterances:
+          - Last feed in ${+applicationName}
+          - When was ${ChildEntity} last fed in ${+applicationName}
+    - metadata:
+        name: +negative
+      corpuses:
+        training:
+        - locale: en-AU
+          utterances: []
+variables:
+- name: +applicationName
+  type: ssu/expansion
+  definitions:
+  - locale: en-AU
+    synomyms:
+    - Puggle
+- name: ChildEntity
+  type: ssu/parameter
+  definitions:
+  - locale: en-AU
+    synomyms:
+    - Child
+- name: NappyKind
+  type: ssu/parameter
+  definitions:
+  - locale: en-AU
+    synomyms:
+    - Wet
+    - Dirty
+    - Both
+    - Dry
