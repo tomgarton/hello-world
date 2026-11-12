@@ -52,9 +52,11 @@ struct PuggleScene: View {
     var weather: Weather?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("debugWeather") private var chosenWeather = ""
+    @AppStorage(WeatherWatch.liveKey) private var liveWeather = ""
+    @AppStorage(WeatherWatch.onKey) private var weatherOn = false
 
     var body: some View {
-        let weather = weather ?? Weather(rawValue: chosenWeather) ?? .clear
+        let weather = weather ?? WeatherWatch.resolve(chosen: chosenWeather, live: liveWeather, on: weatherOn)
         if still || reduceMotion {
             // Half a second in, so rain and snow are already falling in a still picture.
             SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather)

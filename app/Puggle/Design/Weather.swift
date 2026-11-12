@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// The weather a scene is showing. For now it is chosen in the Developer menu;
-/// later it can come from the real weather where the family is. Everything a
+/// The weather a scene is showing. It comes from the real weather where the
+/// family is, if they have switched that on (see WeatherWatch), or from the
+/// Developer menu. Everything a
 /// scene needs to know about a kind of weather is here, so the source can
 /// change without the scenes changing.
 enum Weather: String, CaseIterable, Identifiable {
@@ -9,7 +10,13 @@ enum Weather: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    static var current: Weather { Weather(rawValue: UserDefaults.standard.string(forKey: "debugWeather") ?? "") ?? .clear }
+    /// The weather to show now: the Developer menu's choice, else the real weather if that is switched on, else fine.
+    @MainActor static var current: Weather {
+        let defaults = UserDefaults.standard
+        return WeatherWatch.resolve(chosen: defaults.string(forKey: "debugWeather") ?? "",
+                                    live: defaults.string(forKey: WeatherWatch.liveKey) ?? "",
+                                    on: defaults.bool(forKey: WeatherWatch.onKey))
+    }
 
     var name: String {
         switch self {

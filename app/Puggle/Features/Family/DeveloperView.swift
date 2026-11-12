@@ -40,7 +40,8 @@ struct DeveloperView: View {
                     Text("Bush and kookaburra").tag("3")
                 }
                 Picker("Weather", selection: $weather) {
-                    ForEach(Weather.allCases) { Text($0.name).tag($0 == .clear ? "" : $0.rawValue) }
+                    Text("The real weather, if switched on").tag("")
+                    ForEach(Weather.allCases) { Text($0.name).tag($0.rawValue) }
                 }
                 Picker("Character outlines", selection: $lineStyle) {
                     Text("Coloured lines").tag("tinted")

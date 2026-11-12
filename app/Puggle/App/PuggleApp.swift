@@ -93,6 +93,8 @@ struct PuggleApp: App {
                         LiveTimers.shared.sync(with: store)
                         ReminderStore.shared.reschedule(with: store)
                         WidgetFeed.update(from: store)
+                        // Only does anything if the parent has switched the weather on.
+                        WeatherWatch.shared.refresh()
                         refreshNight(with: active)
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()

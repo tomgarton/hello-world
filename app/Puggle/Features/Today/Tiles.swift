@@ -339,7 +339,9 @@ struct PuggleHeader: View {
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
     /// The weather chosen in the Developer menu (later, the real one). Read here so she changes with it.
     @AppStorage("debugWeather") private var chosenWeather = ""
-    private var weather: Weather { Weather(rawValue: chosenWeather) ?? .clear }
+    @AppStorage(WeatherWatch.liveKey) private var liveWeather = ""
+    @AppStorage(WeatherWatch.onKey) private var weatherOn = false
+    private var weather: Weather { WeatherWatch.resolve(chosen: chosenWeather, live: liveWeather, on: weatherOn) }
     @State private var lift: CGFloat = 0
     @State private var tilt: Double = 0
 

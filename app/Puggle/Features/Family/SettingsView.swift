@@ -91,6 +91,7 @@ struct SettingsView: View {
         Section {
             NavigationLink("Appearance and night") { AppearanceSettingsView() }
             NavigationLink("Units and words") { UnitsSettingsView() }
+            NavigationLink("Weather on Today") { WeatherSettingsView() }
             NavigationLink("Reminders") { RemindersView() }
             Toggle("Touch feedback", isOn: $hapticsOn)
         } header: {

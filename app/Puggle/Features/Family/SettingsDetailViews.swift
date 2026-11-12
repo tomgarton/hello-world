@@ -142,3 +142,59 @@ struct UnitsSettingsView: View {
         }
     }
 }
+
+/// The one place the app asks about location: to show the weather outside at the top of Today.
+struct WeatherSettingsView: View {
+    @AppStorage(WeatherWatch.onKey) private var isOn = false
+    @AppStorage(WeatherWatch.liveKey) private var live = ""
+    @ObservedObject private var watch = WeatherWatch.shared
+
+    var body: some View {
+        List {
+            Section {
+                Toggle("Match the weather outside", isOn: Binding(get: { isOn }, set: { on in
+                    if on { watch.turnOn() } else { watch.turnOff() }
+                }))
+            } footer: {
+                Text("The picture at the top of Today shows rain, sun, wind or snow, as it is where you are, and the little platypus dresses for it.")
+            }
+            .listRowBackground(Palette.paper)
+
+            Section {
+                Label("It uses your rough location, to within a few kilometres.", systemImage: "location")
+                Label("Your location isn't saved, and isn't shared with your family or with us.", systemImage: "lock")
+                Label("Nothing else in the app uses it. Switch this off and it stops.", systemImage: "hand.raised")
+            } header: {
+                Text("What this uses")
+            }
+            .font(.subheadline)
+            .foregroundStyle(Palette.ink)
+            .listRowBackground(Palette.paper)
+
+            if isOn {
+                Section {
+                    if let trouble = watch.trouble {
+                        Text(trouble).foregroundStyle(Palette.ink)
+                    } else if let now = Weather(rawValue: live) {
+                        Text("Now: \(now.name.lowercased()).").foregroundStyle(Palette.ink)
+                    } else {
+                        Text("Looking outside.").foregroundStyle(Palette.muted)
+                    }
+                } footer: {
+                    // Apple asks that its weather service is named wherever its data is used.
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Weather from \u{F8FF} Weather.")
+                        if let link = URL(string: "https://weatherkit.apple.com/legal-attribution.html") {
+                            Link("Where the weather comes from", destination: link)
+                        }
+                    }
+                }
+                .listRowBackground(Palette.paper)
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Palette.sand)
+        .navigationTitle("Weather on Today")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}

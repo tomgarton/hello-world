@@ -30,6 +30,10 @@
 	<string>Reads the directions on a medicine box so you don't have to type them. The photo is not kept.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Unlocks the app when you have switched on its lock.</string>
+	<key>NSLocationDefaultAccuracyReduced</key>
+	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>To show the weather outside in the picture at the top of Today. Your location is not saved or shared.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Saves a drawing from the play pad to your photos.</string>
 	<key>NSSupportsLiveActivities</key>
