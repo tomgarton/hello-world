@@ -756,7 +756,7 @@ struct CardBack: View {
         Path(ellipseIn: CGRect(x: x - rx, y: y - ry, width: rx * 2, height: ry * 2))
     }
 
-    private var strokes: [(Path, Color, CGFloat)] {
+    var strokes: [(Path, Color, CGFloat)] {
         // Head and a round body, a little wonky, as a child draws them.
         var head = Path()
         head.move(to: CGPoint(x: 180, y: 34))

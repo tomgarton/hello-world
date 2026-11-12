@@ -1,0 +1,450 @@
+import SwiftUI
+
+/// What the child is holding.
+enum PadTool: String, CaseIterable, Identifiable {
+    case stamp, crayon, marker
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .stamp: "Stamp"
+        case .crayon: "Crayon"
+        case .marker: "Pen"
+        }
+    }
+}
+
+/// A sheet of paper: blank, or with a picture to colour in.
+enum PadPage: Int, CaseIterable, Identifiable {
+    case blank, puggle, beach, backyard, night
+    var id: Int { rawValue }
+
+    var title: String {
+        switch self {
+        case .blank: "Plain paper"
+        case .puggle: "Puggle"
+        case .beach: "At the beach"
+        case .backyard: "In the backyard"
+        case .night: "Night sky"
+        }
+    }
+
+    /// The outline to colour in, on the card's 360 by 215 sheet.
+    var outline: [Path] {
+        switch self {
+        case .blank: []
+        case .puggle: CardBack(theme: .beach).strokes.map(\.0)
+        case .beach: CardTheme.beach.strokes.map(\.0)
+        case .backyard: CardTheme.backyard.strokes.map(\.0)
+        case .night: CardTheme.night.strokes.map(\.0)
+        }
+    }
+}
+
+/// One thing on the paper. Points are measured from the middle of the paper,
+/// so turning the phone keeps the middle of the picture where it was.
+struct PadMark: Identifiable {
+    enum Kind { case stamp(Stamp, seed: UInt64, tilt: Double), stroke(PadTool) }
+    let id = UUID()
+    let kind: Kind
+    let ink: Ink
+    var points: [CGPoint]
+}
+
+/// Somewhere to play: stamps, crayons and pens on plain paper or a picture to
+/// colour in. Nothing here counts towards a card, and nothing is kept once it
+/// is closed. Tap to stamp, or drag and let go. Works either way up.
+struct PlayPadView: View {
+    @Environment(\.dismiss) private var dismiss
+    @State private var tool: PadTool = .stamp
+    @State private var ink: Ink = .red
+    @State private var stamp: Stamp = .star
+    @State private var page: PadPage = .blank
+    @State private var marks: [PadPage: [PadMark]] = [:]
+    @State private var drawing: PadMark?
+    @State private var hover: CGPoint?
+    @State private var confirmingClear = false
+
+    private var pageMarks: [PadMark] { marks[page] ?? [] }
+
+    var body: some View {
+        GeometryReader { geometry in
+            let landscape = geometry.size.width > geometry.size.height
+            Group {
+                if landscape {
+                    HStack(spacing: 12) {
+                        VStack(spacing: 8) {
+                            topBar
+                            paper
+                        }
+                        ScrollView(showsIndicators: false) { controls(columns: 4) }
+                            .frame(width: 216)
+                    }
+                } else {
+                    VStack(spacing: 10) {
+                        topBar
+                        paper
+                        controls(columns: 8)
+                    }
+                }
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 8)
+        }
+        .background(Palette.sand.ignoresSafeArea())
+        .foregroundStyle(Palette.ink)
+        .onAppear { Orientation.allowLandscape(true) }
+        .onDisappear { Orientation.allowLandscape(false) }
+        .confirmationDialog("Start a new sheet?", isPresented: $confirmingClear, titleVisibility: .visible) {
+            Button("New sheet", role: .destructive) {
+                withAnimation(.easeOut(duration: 0.25)) { marks[page] = [] }
+            }
+            Button("Keep it", role: .cancel) {}
+        }
+    }
+
+    // MARK: Top bar
+
+    private var topBar: some View {
+        HStack(spacing: 8) {
+            round("xmark", label: "Close") { dismiss() }
+            Spacer(minLength: 0)
+            round("chevron.left", label: "Previous page") { turn(-1) }
+            Text(page.title)
+                .font(.headline)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(minWidth: 110)
+            round("chevron.right", label: "Next page") { turn(1) }
+            Spacer(minLength: 0)
+            round("arrow.uturn.backward", label: "Undo") {
+                guard !(marks[page] ?? []).isEmpty else { return }
+                marks[page]?.removeLast()
+            }
+            .opacity(pageMarks.isEmpty ? 0.35 : 1)
+            round("doc", label: "New sheet") { if !pageMarks.isEmpty { confirmingClear = true } }
+                .opacity(pageMarks.isEmpty ? 0.35 : 1)
+        }
+    }
+
+    private func round(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.tap()
+            action()
+        } label: {
+            Image(systemName: symbol)
+                .font(.subheadline.weight(.bold))
+                .frame(width: 44, height: 44)
+                .background(Palette.field, in: Circle())
+        }
+        .buttonStyle(PressStyle())
+        .accessibilityLabel(label)
+    }
+
+    private func turn(_ by: Int) {
+        let all = PadPage.allCases
+        let index = (page.rawValue + by + all.count) % all.count
+        withAnimation(.easeInOut(duration: 0.2)) { page = all[index] }
+    }
+
+    // MARK: Paper
+
+    private var paper: some View {
+        GeometryReader { geometry in
+            let size = geometry.size
+            let centre = CGPoint(x: size.width / 2, y: size.height / 2)
+            ZStack {
+                RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Palette.scrap)
+                Image(uiImage: Grain.image).resizable(resizingMode: .tile)
+                    .foregroundStyle(Palette.ink)
+                    .opacity(0.06)
+                if pageMarks.isEmpty, drawing == nil, page == .blank {
+                    Text(tool == .stamp ? "Tap to stamp" : "Draw with your finger")
+                        .font(.subheadline)
+                        .foregroundStyle(Palette.muted)
+                }
+                // Crayon and pen, in the order they were drawn.
+                Canvas { context, _ in
+                    for mark in pageMarks + (drawing.map { [$0] } ?? []) {
+                        guard case .stroke(let tool) = mark.kind else { continue }
+                        let path = Self.line(through: mark.points, centre: centre)
+                        if tool == .crayon {
+                            context.stroke(path, with: .color(mark.ink.colour.opacity(0.35)),
+                                           style: StrokeStyle(lineWidth: 15, lineCap: .round, lineJoin: .round, dash: [1.6, 2.6]))
+                            context.stroke(path, with: .color(mark.ink.colour.opacity(0.78)),
+                                           style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
+                        } else {
+                            context.stroke(path, with: .color(mark.ink.colour),
+                                           style: StrokeStyle(lineWidth: 5.5, lineCap: .round, lineJoin: .round))
+                        }
+                    }
+                }
+                .allowsHitTesting(false)
+                ForEach(pageMarks) { mark in
+                    if case .stamp(let stamp, let seed, let tilt) = mark.kind, let point = mark.points.first {
+                        StampMark(stamp: stamp, ink: mark.ink, size: 70, wear: StampWear(seed: seed, gentle: true))
+                            .rotationEffect(.degrees(tilt))
+                            .position(x: centre.x + point.x, y: centre.y + point.y)
+                            .transition(.scale(scale: 1.5).combined(with: .opacity))
+                    }
+                }
+                // The picture to colour in sits on top, so the lines always show.
+                outline(in: size)
+                // The stamper, under the finger until it is let go.
+                if let hover, tool == .stamp {
+                    StampMark(stamp: stamp, ink: ink, size: 70)
+                        .opacity(0.35)
+                        .scaleEffect(1.15)
+                        .position(hover)
+                        .allowsHitTesting(false)
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 6, y: 3)
+            .contentShape(Rectangle())
+            .gesture(
+                DragGesture(minimumDistance: 0)
+                    .onChanged { value in touch(value.location, centre: centre) }
+                    .onEnded { value in lift(value.location, centre: centre, size: size) }
+            )
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(page.title), for stamping and drawing")
+            .accessibilityAction(named: "Stamp the middle") { place(.zero) }
+        }
+    }
+
+    private func outline(in size: CGSize) -> some View {
+        let scale = min(size.width / StampCard.size.width, size.height / StampCard.size.height) * 0.94
+        return ZStack(alignment: .topLeading) {
+            ForEach(Array(page.outline.enumerated()), id: \.offset) { _, path in
+                path.stroke(Palette.ink.opacity(0.85), style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round))
+            }
+        }
+        .frame(width: StampCard.size.width, height: StampCard.size.height, alignment: .topLeading)
+        .scaleEffect(scale)
+        .frame(width: size.width, height: size.height)
+        .allowsHitTesting(false)
+    }
+
+    private static func line(through points: [CGPoint], centre: CGPoint) -> Path {
+        var path = Path()
+        let moved = points.map { CGPoint(x: centre.x + $0.x, y: centre.y + $0.y) }
+        guard let first = moved.first else { return path }
+        path.move(to: first)
+        if moved.count == 1 {
+            path.addLine(to: CGPoint(x: first.x + 0.1, y: first.y + 0.1))
+            return path
+        }
+        // Through the midpoints, so a quick scribble is round and not jagged.
+        for index in 1..<moved.count {
+            let previous = moved[index - 1], current = moved[index]
+            path.addQuadCurve(to: CGPoint(x: (previous.x + current.x) / 2, y: (previous.y + current.y) / 2), control: previous)
+        }
+        if let last = moved.last { path.addLine(to: last) }
+        return path
+    }
+
+    private func touch(_ location: CGPoint, centre: CGPoint) {
+        if tool == .stamp {
+            hover = location
+            return
+        }
+        let point = CGPoint(x: location.x - centre.x, y: location.y - centre.y)
+        if drawing == nil {
+            drawing = PadMark(kind: .stroke(tool), ink: ink, points: [point])
+        } else if let last = drawing?.points.last, hypot(last.x - point.x, last.y - point.y) > 1.5 {
+            drawing?.points.append(point)
+        }
+    }
+
+    private func lift(_ location: CGPoint, centre: CGPoint, size: CGSize) {
+        if tool == .stamp {
+            hover = nil
+            // Let go off the paper and nothing is stamped.
+            guard CGRect(origin: .zero, size: size).contains(location) else { return }
+            place(CGPoint(x: location.x - centre.x, y: location.y - centre.y))
+        } else if let finished = drawing {
+            drawing = nil
+            add(finished)
+        }
+    }
+
+    private func place(_ point: CGPoint) {
+        Haptics.tap()
+        let mark = PadMark(kind: .stamp(stamp, seed: UInt64.random(in: 0...UInt64.max), tilt: Double.random(in: -9...9)),
+                           ink: ink, points: [point])
+        withAnimation(.spring(duration: 0.25, bounce: 0.4)) { add(mark) }
+    }
+
+    private func add(_ mark: PadMark) {
+        var all = marks[page] ?? []
+        all.append(mark)
+        // A very busy sheet drops its oldest marks, so it never slows down.
+        if all.count > 400 { all.removeFirst(all.count - 400) }
+        marks[page] = all
+    }
+
+    // MARK: Controls
+
+    private func controls(columns: Int) -> some View {
+        VStack(spacing: 10) {
+            HStack(spacing: 8) {
+                ForEach(PadTool.allCases) { option in
+                    let isOn = tool == option
+                    Button {
+                        Haptics.selection()
+                        tool = option
+                    } label: {
+                        VStack(spacing: 2) {
+                            toolIcon(option).frame(height: 34)
+                            Text(option.title).font(.caption.weight(.semibold))
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 62)
+                        .background(isOn ? Palette.field : Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
+                    }
+                    .buttonStyle(PressStyle())
+                    .accessibilityLabel(option.title)
+                    .accessibilityAddTraits(isOn ? .isSelected : [])
+                }
+            }
+            // Ink pads for the stamp; crayons and pens for drawing.
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: columns), spacing: 6) {
+                ForEach(Ink.allCases) { option in
+                    let isOn = ink == option
+                    Button {
+                        Haptics.selection()
+                        withAnimation(.spring(duration: 0.25, bounce: 0.4)) { ink = option }
+                    } label: {
+                        colourPiece(option)
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 58, alignment: .bottom)
+                            .offset(y: isOn ? -8 : 0)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("\(option.rawValue.capitalized) \(tool == .stamp ? "ink pad" : tool.title.lowercased())")
+                    .accessibilityAddTraits(isOn ? .isSelected : [])
+                }
+            }
+            .padding(.top, 8)
+            .padding(.horizontal, 6)
+            .background(Palette.stampSpace, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            if tool == .stamp {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 6) {
+                        ForEach(Stamp.offered) { option in
+                            let isOn = stamp == option
+                            Button {
+                                Haptics.selection()
+                                stamp = option
+                            } label: {
+                                StampPicture(stamp: option)
+                                    .frame(width: 30, height: 30)
+                                    .foregroundStyle(ink.colour)
+                                    .frame(width: 48, height: 48)
+                                    .background(isOn ? Palette.field : .clear, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                                    .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(option.rawValue.capitalized) stamp")
+                            .accessibilityAddTraits(isOn ? .isSelected : [])
+                        }
+                    }
+                    .padding(6)
+                }
+                .background(Palette.stampSpace, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: tool)
+    }
+
+    @ViewBuilder private func toolIcon(_ option: PadTool) -> some View {
+        switch option {
+        case .stamp:
+            StampMark(stamp: stamp, ink: ink, size: 34)
+        case .crayon:
+            CrayonPiece(colour: ink.colour).frame(width: 13, height: 34).rotationEffect(.degrees(28))
+        case .marker:
+            MarkerPiece(colour: ink.colour).frame(width: 12, height: 34).rotationEffect(.degrees(28))
+        }
+    }
+
+    @ViewBuilder private func colourPiece(_ option: Ink) -> some View {
+        switch tool {
+        case .stamp:
+            RoundedRectangle(cornerRadius: 9, style: .continuous)
+                .fill(option.colour)
+                .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous).stroke(.black.opacity(0.18), lineWidth: 1))
+                .frame(height: 34)
+                .padding(.horizontal, 3)
+                .padding(.bottom, 8)
+        case .crayon:
+            CrayonPiece(colour: option.colour).frame(width: 20, height: 54)
+        case .marker:
+            MarkerPiece(colour: option.colour).frame(width: 17, height: 54)
+        }
+    }
+}
+
+/// A wax crayon, point up, with its paper sleeve.
+struct CrayonPiece: View {
+    let colour: Color
+    var body: some View {
+        GeometryReader { g in
+            let w = g.size.width, h = g.size.height
+            ZStack(alignment: .top) {
+                Path { p in
+                    p.move(to: CGPoint(x: w * 0.5, y: 0))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.88, y: h * 0.24), control: CGPoint(x: w * 0.8, y: h * 0.06))
+                    p.addLine(to: CGPoint(x: w * 0.12, y: h * 0.24))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.5, y: 0), control: CGPoint(x: w * 0.2, y: h * 0.06))
+                }
+                .fill(colour)
+                RoundedRectangle(cornerRadius: 2).fill(colour).frame(width: w, height: h * 0.78).offset(y: h * 0.22)
+                // The sleeve.
+                Rectangle().fill(.white.opacity(0.32)).frame(width: w, height: h * 0.44).offset(y: h * 0.38)
+                Rectangle().fill(.black.opacity(0.16)).frame(width: w, height: 1.5).offset(y: h * 0.38)
+                Rectangle().fill(.black.opacity(0.16)).frame(width: w, height: 1.5).offset(y: h * 0.82)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// A felt pen, tip up, with its coloured cap and band.
+struct MarkerPiece: View {
+    let colour: Color
+    var body: some View {
+        GeometryReader { g in
+            let w = g.size.width, h = g.size.height
+            ZStack(alignment: .top) {
+                Capsule().fill(colour).frame(width: w * 0.34, height: h * 0.16)
+                RoundedRectangle(cornerRadius: 2).fill(colour).frame(width: w * 0.7, height: h * 0.16).offset(y: h * 0.1)
+                RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Palette.paper)
+                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).stroke(.black.opacity(0.18), lineWidth: 1))
+                    .frame(width: w, height: h * 0.76).offset(y: h * 0.24)
+                Rectangle().fill(colour).frame(width: w, height: h * 0.2).offset(y: h * 0.62)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// The app is upright everywhere except the play pad, which works either way up.
+enum Orientation {
+    static var landscapeAllowed = false
+
+    @MainActor static func allowLandscape(_ allowed: Bool) {
+        landscapeAllowed = allowed
+        for case let scene as UIWindowScene in UIApplication.shared.connectedScenes {
+            for window in scene.windows {
+                window.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+                window.rootViewController?.presentedViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+            }
+            if !allowed {
+                scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+            }
+        }
+    }
+}

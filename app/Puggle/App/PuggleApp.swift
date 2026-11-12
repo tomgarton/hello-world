@@ -130,6 +130,19 @@ struct RootView: View {
     }
 
     @ViewBuilder private var content: some View {
+        #if DEBUG
+        // For checking the play pad: launch with "-debugPad 1".
+        if UserDefaults.standard.string(forKey: "debugPad") == "1" {
+            PlayPadView()
+        } else {
+            mainContent
+        }
+        #else
+        mainContent
+        #endif
+    }
+
+    @ViewBuilder private var mainContent: some View {
         // First run shows until it is finished, even once the first child exists.
         if !sample.isOn && !hasOnboarded && (children.isEmpty || inFirstRun) {
             OnboardingView {
@@ -156,6 +169,11 @@ struct RootView: View {
 
 /// Accepting an invitation arrives through the scene delegate.
 final class AppDelegate: NSObject, UIApplicationDelegate {
+    /// Upright everywhere, except while the play pad is open.
+    func application(_ application: UIApplication, supportedInterfaceOrientationsFor window: UIWindow?) -> UIInterfaceOrientationMask {
+        Orientation.landscapeAllowed ? .allButUpsideDown : .portrait
+    }
+
     func application(_ application: UIApplication,
                      configurationForConnecting connectingSceneSession: UISceneSession,
                      options: UIScene.ConnectionOptions) -> UISceneConfiguration {

@@ -124,11 +124,30 @@ struct StampBookView: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.dismiss) private var dismiss
     let children: [Child]
+    @State private var playing = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
+                    // Back to the stamps, crayons and pens, just to play.
+                    Button { playing = true } label: {
+                        HStack(spacing: 12) {
+                            StampMark(stamp: .star, ink: .red, size: 40)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Stamps, crayons and pens").font(.headline)
+                                Text("Play and colour in. Nothing here counts.")
+                                    .font(.footnote)
+                                    .foregroundStyle(Palette.muted)
+                            }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Palette.muted)
+                        }
+                        .padding(14)
+                        .foregroundStyle(Palette.ink)
+                        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    }
+                    .buttonStyle(PressStyle(scale: 0.98))
                     ForEach(children) { child in
                         book(for: child)
                     }
@@ -137,6 +156,7 @@ struct StampBookView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .background(Palette.sand)
+            .fullScreenCover(isPresented: $playing) { PlayPadView() }
             .navigationTitle("Stamp book")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
