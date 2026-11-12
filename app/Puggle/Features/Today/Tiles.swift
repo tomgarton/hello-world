@@ -454,6 +454,8 @@ struct PuggleHeader: View {
     /// Pulling the sky down and letting go past the balloon makes Puggle hop.
     private func pulled(to amount: CGFloat) {
         pull = amount
+        // While the sky is being pulled down she walks on the spot.
+        controller.walking = amount > 24 && !quiet
         if amount > furthest { furthest = amount }
         if amount < 4 {
             if furthest > 120 { react() }

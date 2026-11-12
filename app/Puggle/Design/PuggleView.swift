@@ -103,6 +103,7 @@ final class PuggleController: ObservableObject {
 
     private func push() {
         rig?.asleep = asleep
+        rig?.walking = walking
         #if canImport(RiveRuntime)
         rive?.setInput(PuggleRive.Input.asleep, value: asleep)
         rive?.setInput(PuggleRive.Input.walking, value: walking)

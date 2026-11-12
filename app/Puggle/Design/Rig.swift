@@ -62,6 +62,8 @@ struct Rig: Codable {
         var keys: [Key]
         /// Seconds until the move is over and ambient motion is all there is.
         var length: Double
+        /// Goes round again from the start until it is stopped (walking).
+        var loops: Bool?
 
         struct Key: Codable {
             var t: Double
@@ -327,6 +329,13 @@ final class RigRuntime {
     var asleep = false
     /// 1 by day, 0.5 at night: scales how big her reactions are.
     var energy = 1.0
+    /// Walking on the spot for as long as this is true.
+    var walking = false {
+        didSet {
+            guard walking != oldValue else { return }
+            if walking { play("walk") } else if playing["body"]?.name == "walk" { playing["body"] = nil }
+        }
+    }
 
     /// One move per track.
     private var playing: [String: (name: String, start: Date)] = [:]
@@ -407,7 +416,8 @@ final class RigRuntime {
         // Each track's current pose, held until its next one.
         for (track, now) in playing.sorted(by: { $0.key < $1.key }) {
             guard let script = rig.moves?[now.name] else { continue }
-            let into = date.timeIntervalSince(now.start)
+            var into = date.timeIntervalSince(now.start)
+            if script.loops == true { into = into.truncatingRemainder(dividingBy: script.length) }
             if into >= script.length {
                 playing[track] = nil
             } else if let key = script.keys.last(where: { $0.t <= into }) {

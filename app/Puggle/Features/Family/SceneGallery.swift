@@ -94,6 +94,7 @@ struct SceneGalleryView: View {
         let start = Date.now
         _ = runtime.advance(to: start)
         if move == "asleep" { runtime.asleep = true }
+        if move == "walk" { runtime.walking = true }
         if let move { runtime.play(move, at: start) }
         if move == "greet" || move == "nod" { runtime.play("wag", at: start) }
         var frames: [(Double, [String: PartState], [String: String])] = []
