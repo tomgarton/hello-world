@@ -10,6 +10,12 @@ struct TodayView: View {
                   predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
 
     @State private var logging: EventKind?
+    /// Set when logging from a child's panel, so the sheet is for that child only.
+    @State private var loggingChild: Child?
+    @State private var wantsLog: (kind: EventKind, child: Child)?
+    @State private var showingYou = false
+    @AppStorage(Setting.yourName) private var yourName = ""
+    @AppStorage(Setting.justLog) private var justLog = false
     @State private var pumping = false
     @State private var feedTimer = false
     @State private var pastFeed = false
@@ -34,6 +40,7 @@ struct TodayView: View {
     /// Tiles that apply to at least one child, from their setup answers and age.
     private var availableTiles: [Tile] {
         Tile.all.filter { tile in
+            if tile == .feeding { return children.contains { $0.uses(.bottle) || $0.uses(.breastfeed) } }
             guard let kind = tile.kind else { return true }
             return children.contains { $0.uses(kind) }
         }
@@ -46,7 +53,10 @@ struct TodayView: View {
     }
 
     private func tileButton(_ tile: Tile, large: Bool) -> some View {
-        TileButton(tile: tile, children: tile.kind.map(relevant) ?? Array(children), large: large) { kind in
+        let who = tile == .feeding
+            ? (children.filter { $0.uses(.bottle) || $0.uses(.breastfeed) }.nilIfEmpty ?? Array(children))
+            : (tile.kind.map(relevant) ?? Array(children))
+        return TileButton(tile: tile, children: who, large: large) { kind in
             // Breastfeeds open on the timers; a past feed is one tap from there.
             if kind == .breastfeed { feedTimer = true } else if kind == .pump { pumping = true } else { logging = kind }
         } onEdit: {
@@ -84,8 +94,12 @@ struct TodayView: View {
                                 ForEach(layout.main) { tileButton($0, large: true) }
                             }
                         }
-                        FlowLayout(spacing: 8) {
-                            ForEach(layout.chips) { tileButton($0, large: false) }
+                        // Everything else is in each child's panel.
+                        HStack(spacing: 6) {
+                            Text(layout.chips.isEmpty ? "" : "More in each child's panel: tap their name.")
+                                .font(.footnote)
+                                .foregroundStyle(Palette.muted)
+                            Spacer(minLength: 0)
                             Button("Edit") { choosingTiles = true }
                                 .font(.subheadline.weight(.semibold))
                                 .foregroundStyle(Palette.muted)
@@ -114,6 +128,8 @@ struct TodayView: View {
                 .padding(.bottom, 24)
             }
             .background(Palette.sand)
+            // The sky runs up under the status bar.
+            .ignoresSafeArea(edges: .top)
             .toolbar(.hidden, for: .navigationBar)
             // Floats above the tab bar, so saving never moves the tile under your thumb.
             .safeAreaInset(edge: .bottom) {
@@ -123,8 +139,11 @@ struct TodayView: View {
                     .animation(.spring(duration: 0.4, bounce: 0), value: store.lastSaved?.id)
             }
         }
-        .sheet(item: $logging, onDismiss: offerSticker) { kind in
-            LogSheet(kind: kind, children: relevant(kind)) { events in
+        .sheet(item: $logging, onDismiss: {
+            loggingChild = nil
+            offerSticker()
+        }) { kind in
+            LogSheet(kind: kind, children: loggingChild.map { [$0] } ?? relevant(kind)) { events in
                 // After a wee, a poo or a try, the child picks a sticker.
                 if kind == .potty, stickersOn, events.count == 1,
                    let event = events.first, event.detail != "Accident" {
@@ -157,14 +176,24 @@ struct TodayView: View {
             }
         }
         .sheet(item: $dayOf, onDismiss: {
-            // Open the sleep sheet once the day sheet has gone, so the two never overlap.
+            // Open the next sheet once the panel has gone, so the two never overlap.
             if let child = wantsPastSleep {
                 wantsPastSleep = nil
                 pastSleepFor = child
+            } else if let want = wantsLog {
+                wantsLog = nil
+                switch want.kind {
+                case .pump: pumping = true
+                case .breastfeed: feedTimer = true
+                default:
+                    loggingChild = want.child
+                    logging = want.kind
+                }
             }
         }) { child in
-            DaySoFarView(child: child) { wantsPastSleep = child }
+            DaySoFarView(child: child, onAddSleep: { wantsPastSleep = child }, onLog: { wantsLog = ($0, child) })
         }
+        .sheet(isPresented: $showingYou) { YouView() }
         .sheet(item: $pastSleepFor) { child in
             LogSheet(kind: .sleep, children: [child])
         }
@@ -255,7 +284,42 @@ struct TodayView: View {
     }
 
     private var header: some View {
-        PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil })
+        PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil }, line: headerLine) {
+            showingYou = true
+        }
+    }
+
+    /// One plain line about the day: a greeting, then what is happening, or
+    /// how the night went in the morning. Nothing to do and nothing to beat.
+    private var headerLine: String {
+        let hour = Calendar.current.component(.hour, from: .now)
+        let greeting = switch hour {
+        case 5..<12: "Morning"
+        case 12..<17: "Afternoon"
+        case 17..<22: "Evening"
+        default: "Hello"
+        }
+        let name = yourName.trimmingCharacters(in: .whitespaces)
+        let hello = name.isEmpty ? "\(greeting)." : "\(greeting), \(name)."
+        guard !justLog, !children.isEmpty else { return hello }
+        let asleep = children.filter { store.activeSleep(for: $0) != nil }.map(\.displayName)
+        if !asleep.isEmpty {
+            return "\(hello) \(ListFormatter.localizedString(byJoining: asleep)) \(asleep.count == 1 ? "is" : "are") asleep."
+        }
+        // In the morning: the longest sleep that ended today, for the first child who had one.
+        if hour < 12 {
+            let today = Calendar.current.startOfDay(for: .now)
+            for child in children {
+                let night = (child.events ?? [])
+                    .filter { $0.kind == .sleep && ($0.endedAt ?? .distantPast) >= today }
+                    .max { ($0.endedAt ?? .now).timeIntervalSince($0.startedAt ?? .now) < ($1.endedAt ?? .now).timeIntervalSince($1.startedAt ?? .now) }
+                if let night, let start = night.startedAt, let end = night.endedAt, end.timeIntervalSince(start) >= 3 * 3600 {
+                    return "\(hello) \(child.displayName) slept \(Elapsed.short(seconds: night.asleepSeconds(from: start, to: end))) last night."
+                }
+            }
+        }
+        let count = children.reduce(0) { $0 + store.events(for: $1, since: Calendar.current.startOfDay(for: .now)).count }
+        return count == 0 ? hello : "\(hello) \(count) \(count == 1 ? "thing" : "things") logged today."
     }
 
     private var emptyState: some View {
@@ -520,6 +584,51 @@ struct DaySoFarView: View {
     @ObservedObject var child: Child
     /// Called when the parent chooses "Add a past sleep".
     var onAddSleep: () -> Void = {}
+    /// Called with what to log for this child; Today opens it once the panel has gone.
+    var onLog: (EventKind) -> Void = { _ in }
+
+    /// Everything that can be logged for this child, in the usual order.
+    private var kinds: [EventKind] {
+        let order: [EventKind] = [.bottle, .breastfeed, .solids, .nappy, .potty, .pump, .weight,
+                                  .medicine, .temperature, .vaccination, .milestone, .note]
+        return order.filter { child.uses($0) }
+    }
+
+    private var logGrid: some View {
+        LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 8)], spacing: 8) {
+            ForEach(kinds) { kind in
+                Button {
+                    Haptics.tap()
+                    onLog(kind)
+                    dismiss()
+                } label: {
+                    VStack(spacing: 4) {
+                        ActivityIcon(kind, size: 28)
+                        Text(kind.title).font(.footnote.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 70)
+                    .foregroundStyle(Palette.ink)
+                    .background(Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                }
+                .buttonStyle(PressStyle(scale: 0.96))
+                .accessibilityLabel("Log \(kind.title.lowercased()) for \(child.displayName)")
+            }
+            Button {
+                onAddSleep()
+                dismiss()
+            } label: {
+                VStack(spacing: 4) {
+                    ActivityIcon(.sleep, size: 28)
+                    Text("Past sleep").font(.footnote.weight(.semibold))
+                }
+                .frame(maxWidth: .infinity, minHeight: 70)
+                .foregroundStyle(Palette.ink)
+                .background(Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+            .buttonStyle(PressStyle(scale: 0.96))
+            .accessibilityLabel("Add a past sleep for \(child.displayName)")
+        }
+    }
     @AppStorage(Setting.justLog) private var justLog = false
 
     private struct Line: Identifiable {
@@ -532,6 +641,16 @@ struct DaySoFarView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    Text("Log for \(child.displayName)")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Palette.muted)
+                    logGrid
+                    if !justLog {
+                        Text("So far")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Palette.muted)
+                            .padding(.top, 6)
+                    }
                     if justLog {
                         // "Just logging": no counts, only the way to add a sleep after the fact.
                         EmptyView()
@@ -560,11 +679,6 @@ struct DaySoFarView: View {
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     }
-                    Button("Add a past sleep") {
-                        onAddSleep()
-                        dismiss()
-                    }
-                    .buttonStyle(PillButtonStyle(primary: false))
                 }
                 .padding(18)
                 .foregroundStyle(Palette.ink)
@@ -627,4 +741,8 @@ struct DaySoFarView: View {
         add("Medicine", count(.medicine))
         return result
     }
+}
+
+extension Array {
+    var nilIfEmpty: [Element]? { isEmpty ? nil : self }
 }

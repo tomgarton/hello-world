@@ -6,12 +6,23 @@ struct Tile: Identifiable, Hashable {
     let id: String
 
     static let health = Tile(id: "health")
+    /// Bottle and breastfeed together: one tap when a family uses one, a choice when both.
+    static let feeding = Tile(id: "feeding")
     /// The order tiles are offered in. Sleep is not here: it starts from each child's row.
-    static let all: [Tile] = [EventKind.bottle, .breastfeed, .nappy, .potty, .solids, .weight, .pump].map { Tile(id: $0.rawValue) } + [health]
+    static let all: [Tile] = [feeding] + [EventKind.nappy, .potty, .solids, .weight, .pump].map { Tile(id: $0.rawValue) } + [health]
 
     var kind: EventKind? { EventKind(rawValue: id) }
-    var title: String { kind?.title ?? "Health" }
-    var iconName: String { (kind ?? .medicine).iconName }
+    var title: String { self == .feeding ? "Feeding" : (kind?.title ?? "Health") }
+    var iconName: String { self == .feeding ? EventKind.bottle.iconName : (kind ?? .medicine).iconName }
+
+    /// The kinds a tile without a single kind offers.
+    var choices: [EventKind] {
+        switch self {
+        case .feeding: [.bottle, .breastfeed]
+        case .health: EventKind.health
+        default: kind.map { [$0] } ?? []
+        }
+    }
 }
 
 /// Which tiles are large, which are chips and which are hidden. Until the
@@ -23,15 +34,21 @@ struct TileLayout {
     var chips: [Tile]
     var hidden: [Tile]
 
-    /// The first three everyday things the children use are large; the rest are chips.
+    /// Feeding and nappies (and the potty, while training) are on Today;
+    /// everything else is in each child's panel.
     static func suggested(from available: [Tile]) -> TileLayout {
-        let main = Array(available.filter { $0 != .health && $0.kind != .weight && $0.kind != .pump }.prefix(mainLimit))
-        return TileLayout(main: main, chips: available.filter { !main.contains($0) }, hidden: [])
+        let main = available.filter { $0 == .feeding || $0.kind == .nappy || $0.kind == .potty }
+        return TileLayout(main: Array(main.prefix(mainLimit)), chips: available.filter { !main.contains($0) }, hidden: [])
     }
 
     /// The parent's own choice, kept to tiles that still apply.
     static func custom(main: String, hidden: String, available: [Tile]) -> TileLayout {
-        let mainIDs = main.split(separator: ",").map(String.init)
+        // Bottle and breastfeed were separate tiles before Feeding.
+        var mainIDs: [String] = []
+        for id in main.split(separator: ",").map(String.init) {
+            let mapped = (id == "bottle" || id == "breastfeed") ? "feeding" : id
+            if !mainIDs.contains(mapped) { mainIDs.append(mapped) }
+        }
         let hiddenIDs = Set(hidden.split(separator: ",").map(String.init))
         let chosen = Array(mainIDs.compactMap { id in available.first { $0.id == id } }.prefix(mainLimit))
         let hiddenTiles = available.filter { hiddenIDs.contains($0.id) && !chosen.contains($0) }
@@ -66,13 +83,10 @@ struct TileButton: View {
     private var entries: [(child: Child, event: Event)] {
         children.compactMap { child in
             let latest: Event?
-            if let kind = tile.kind {
-                latest = store.latest(kind, for: child)
-            } else {
-                latest = (child.events ?? [])
-                    .filter { $0.kind.isHealth }
-                    .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
-            }
+            let kinds = tile.choices
+            latest = (child.events ?? [])
+                .filter { kinds.contains($0.kind) }
+                .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
             return latest.map { (child, $0) }
         }
     }
@@ -81,7 +95,8 @@ struct TileButton: View {
         let entries = self.entries
         let latest = latestLine(entries, named: children.count > 1)
         Group {
-            if let kind = tile.kind {
+            let choices = tile.choices.filter { kind in children.contains { $0.uses(kind) } }
+            if choices.count <= 1, let kind = choices.first ?? tile.choices.first {
                 Button {
                     Haptics.tap()
                     onAdd(kind)
@@ -92,7 +107,7 @@ struct TileButton: View {
                 .contextMenu { editItems(entries) }
             } else {
                 Menu {
-                    ForEach(EventKind.health) { kind in
+                    ForEach(choices) { kind in
                         Button { onAdd(kind) } label: { Label(kind.title, systemImage: kind.symbol) }
                     }
                     if !entries.isEmpty {
@@ -199,7 +214,7 @@ struct TileChooserView: View {
     @AppStorage(Setting.tilesHidden) private var hiddenStored = ""
 
     private enum Place: String, CaseIterable, Identifiable {
-        case main = "Main tile", chip = "Chip", hidden = "Hidden"
+        case main = "On Today", chip = "Child's panel", hidden = "Hidden"
         var id: String { rawValue }
     }
 
@@ -252,7 +267,7 @@ struct TileChooserView: View {
                         .listRowBackground(Palette.paper)
                     }
                 } footer: {
-                    Text("Up to three main tiles; the rest sit beneath as chips. Sleep starts from each child's row. Hiding a tile keeps everything already logged.")
+                    Text("Up to three tiles on Today. The rest are in each child's panel, which opens when you tap their row. Sleep starts from each child's row. Hiding one keeps everything already logged.")
                 }
                 if custom {
                     Section {
@@ -278,47 +293,47 @@ struct TileChooserView: View {
     }
 }
 
-/// The top of Today: the date, with Puggle beside it.
+/// The top of Today: Puggle standing on a hill under a sky that follows the
+/// time of day, the date, and one plain line about the day. Your photo, top
+/// right, opens the "You" sheet.
 ///
 /// Tapping her is just for fun: a small hop. While a child sleeps she sways
-/// instead, quietly. She hops once on the first open of each day. When the
-/// animated character exists, the same tap plays her real wave.
+/// instead, quietly. She hops once on the first open of each day, and nods
+/// each time something is saved.
 struct PuggleHeader: View {
     /// True while any child is asleep.
     let quiet: Bool
+    let line: String
+    let onYou: () -> Void
 
     @StateObject private var controller = PuggleController()
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.puggleNight) private var night
     @State private var nod: CGFloat = 0
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
     @State private var lift: CGFloat = 0
     @State private var tilt: Double = 0
 
+    static let sceneHeight: CGFloat = 250
+
     var body: some View {
-        HStack(alignment: .bottom) {
-            VStack(alignment: .leading, spacing: 0) {
-                Text(Date.now, format: .dateTime.weekday(.wide))
-                    .font(.subheadline)
-                    .foregroundStyle(Palette.muted)
-                Text(Date.now, format: .dateTime.day().month(.wide))
+        VStack(alignment: .leading, spacing: 10) {
+            scene
+            VStack(alignment: .leading, spacing: 2) {
+                Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))
                     .displayFont(28)
                     .foregroundStyle(Palette.ink)
+                if !line.isEmpty {
+                    Text(line)
+                        .font(.body)
+                        .foregroundStyle(Palette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
             .accessibilityElement(children: .combine)
-            Spacer()
-            Button(action: react) {
-                PuggleView(controller: controller)
-                    .frame(height: 78)
-                    .scaleEffect(x: 1, y: 1 - nod * 0.06, anchor: .bottom)
-                    .offset(y: lift + nod * 3)
-                    .rotationEffect(.degrees(tilt), anchor: .bottom)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
-            .accessibilityHint("Says hello")
         }
-        .padding(.top, 8)
         .onAppear { controller.asleep = quiet }
         .onChange(of: quiet) { _, now in controller.asleep = now }
         // A small nod each time something is saved. No sound or tap: the save has its own.
@@ -337,6 +352,31 @@ struct PuggleHeader: View {
         }
     }
 
+    /// Full width, running up under the status bar.
+    private var scene: some View {
+        ZStack(alignment: .bottom) {
+            SkyScene(dark: scheme == .dark || night)
+            Button(action: react) {
+                PuggleView(controller: controller)
+                    .frame(height: 118)
+                    .scaleEffect(x: 1, y: 1 - nod * 0.06, anchor: .bottom)
+                    .offset(y: lift + nod * 3)
+                    .rotationEffect(.degrees(tilt), anchor: .bottom)
+            }
+            .buttonStyle(.plain)
+            .padding(.bottom, 26)
+            .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
+            .accessibilityHint("Says hello")
+        }
+        .frame(height: Self.sceneHeight)
+        .overlay(alignment: .topTrailing) {
+            YouButton(action: onYou)
+                .padding(.top, 58)
+                .padding(.trailing, 16)
+        }
+        .padding(.horizontal, -16)
+    }
+
     private func react() {
         controller.greet()
         guard !controller.isAnimated, !reduceMotion else {
@@ -352,5 +392,89 @@ struct PuggleHeader: View {
             withAnimation(.spring(duration: 0.18, bounce: 0)) { lift = -12 }
             withAnimation(.spring(duration: 0.4, bounce: 0.45).delay(0.18)) { lift = 0 }
         }
+    }
+}
+
+/// A sky that follows the time of day, a few clouds (or stars after dark),
+/// and a soft hill in the page colour for Puggle to stand on.
+struct SkyScene: View {
+    let dark: Bool
+
+    private var colours: [Color] {
+        if dark { return [Color(hex: 0x101A2E), Color(hex: 0x1E2236), Palette.sand] }
+        let hour = Calendar.current.component(.hour, from: .now)
+        switch hour {
+        case 5..<9: return [Color(hex: 0xF6CDB4), Color(hex: 0xF8E3CF), Palette.sand]
+        case 17..<21: return [Color(hex: 0xC9B6D9), Color(hex: 0xF4CDB0), Palette.sand]
+        case 21..<24, 0..<5: return [Color(hex: 0x2A3556), Color(hex: 0x4A4870), Palette.sand]
+        default: return [Color(hex: 0xBFDDF0), Color(hex: 0xE3EEF1), Palette.sand]
+        }
+    }
+
+    private var starry: Bool {
+        let hour = Calendar.current.component(.hour, from: .now)
+        return dark || hour >= 21 || hour < 5
+    }
+
+    var body: some View {
+        GeometryReader { geometry in
+            let w = geometry.size.width, h = geometry.size.height
+            ZStack {
+                LinearGradient(colors: colours, startPoint: .top, endPoint: .bottom)
+                if starry {
+                    ForEach(0..<14, id: \.self) { i in
+                        var random = SeededRandom(UInt64(i) &* 977 &+ 11)
+                        let x = random.range(0.04, 0.96) * w, y = random.range(0.25, 0.62) * h
+                        Circle().fill(Color(hex: 0xF3E0B8).opacity(random.range(0.35, 0.8)))
+                            .frame(width: random.range(1.5, 3.2), height: random.range(1.5, 3.2))
+                            .position(x: x, y: y)
+                    }
+                    Circle().fill(Color(hex: 0xF3E0B8).opacity(0.85)).frame(width: 26, height: 26)
+                        .overlay(Circle().fill(colours[0]).frame(width: 22, height: 22).offset(x: 8, y: -5))
+                        .position(x: w * 0.18, y: h * 0.36)
+                } else {
+                    cloud(width: 92).position(x: w * 0.2, y: h * 0.38)
+                    cloud(width: 120).position(x: w * 0.8, y: h * 0.5)
+                    cloud(width: 60).position(x: w * 0.55, y: h * 0.3)
+                }
+                // The hill, in the page colour, so the scene runs into Today.
+                Path { path in
+                    path.move(to: CGPoint(x: 0, y: h * 0.8))
+                    path.addQuadCurve(to: CGPoint(x: w, y: h * 0.78), control: CGPoint(x: w * 0.5, y: h * 0.6))
+                    path.addLine(to: CGPoint(x: w, y: h))
+                    path.addLine(to: CGPoint(x: 0, y: h))
+                    path.closeSubpath()
+                }
+                .fill(Palette.sand)
+            }
+        }
+        .accessibilityHidden(true)
+    }
+
+    private func cloud(width: CGFloat) -> some View {
+        let fill = Color.white.opacity(0.75)
+        return ZStack(alignment: .bottom) {
+            Capsule().fill(fill).frame(width: width, height: width * 0.32)
+            Circle().fill(fill).frame(width: width * 0.45).offset(x: -width * 0.12, y: -width * 0.1)
+            Circle().fill(fill).frame(width: width * 0.36).offset(x: width * 0.16, y: -width * 0.06)
+        }
+        .frame(width: width, height: width * 0.6, alignment: .bottom)
+    }
+}
+
+/// Your photo (or initial), top right of Today. Opens the "You" sheet.
+struct YouButton: View {
+    let action: () -> Void
+    @AppStorage(Setting.yourName) private var yourName = ""
+    @ObservedObject private var photo = YourPhoto.shared
+
+    var body: some View {
+        Button(action: action) {
+            YourAvatar(size: 44)
+                .overlay(Circle().stroke(Palette.paper, lineWidth: 2))
+                .shadow(color: .black.opacity(0.18), radius: 4, y: 2)
+        }
+        .buttonStyle(PressStyle())
+        .accessibilityLabel(yourName.isEmpty ? "You and settings" : "\(yourName), and settings")
     }
 }
