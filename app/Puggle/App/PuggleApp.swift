@@ -20,6 +20,8 @@ struct PuggleApp: App {
         let bar = UINavigationBar.appearance()
         bar.largeTitleTextAttributes = [.foregroundColor: Palette.inkUI]
         bar.titleTextAttributes = [.foregroundColor: Palette.inkUI]
+        // Unselected tabs in warm muted ink, so nothing is near-white at night.
+        UITabBar.appearance().unselectedItemTintColor = Palette.mutedUI
         // The Lock Screen buttons run here, even when the app is opened in the background for them.
         TimerActions.perform = { action, childID in
             FamilyStore.live.handleTimerAction(action, childID: childID)
@@ -53,8 +55,9 @@ struct PuggleApp: App {
             // The sample family is a separate, in-memory store swapped in whole.
             let active = sample.store ?? store
             RootView()
-                // Rebuilt when the night look switches, so every colour is resolved again.
-                .id("\(sample.isOn)-\(night.isNight)")
+                .id(sample.isOn)
+                // The night look reaches every colour as a trait, so the app is not rebuilt.
+                .environment(\.puggleNight, night.isNight)
                 .environment(\.managedObjectContext, active.persistence.viewContext)
                 .environmentObject(active)
                 .environmentObject(sample)

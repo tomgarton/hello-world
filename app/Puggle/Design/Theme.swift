@@ -5,7 +5,7 @@ import SwiftUI
 /// colour has a dark twin: warm text on near-black, with no white anywhere.
 enum Palette {
     /// True while the night look is on. Set by `NightMode`, on the main thread only.
-    /// Colours read it when they are resolved, so the root view is rebuilt when it changes.
+    /// Colours read the `NightTrait` in preference; this is for code with no traits to hand.
     static var isNight = false
     /// When the night look last switched while the app was running.
     static var nightChangedAt: Date?
@@ -27,8 +27,14 @@ enum Palette {
 
     /// Ink for UIKit, which draws the navigation titles.
     static let inkUI = UIColor { traits in
-        if Palette.isNight { return UIColor(hex: 0xC2A988) }
+        if traits[NightTrait.self] { return UIColor(hex: 0xC2A988) }
         return UIColor(hex: traits.userInterfaceStyle == .dark ? 0xEBDDC4 : 0x3A2A20)
+    }
+
+    /// Muted ink for UIKit: the tab bar's unselected items.
+    static let mutedUI = UIColor { traits in
+        if traits[NightTrait.self] { return UIColor(hex: 0x9C8A72) }
+        return UIColor(hex: traits.userInterfaceStyle == .dark ? 0xB3A590 : 0x6B5E52)
     }
 
     /// The same in light and dark, for text on a coloured ground (night, moon, wattle).
@@ -68,7 +74,7 @@ extension Color {
     /// optional dimmer value for the night look (see `Palette.isNight`).
     init(light: UInt32, dark: UInt32, night: UInt32? = nil) {
         self.init(uiColor: UIColor { traits in
-            if let night, Palette.isNight { return UIColor(hex: night) }
+            if let night, traits[NightTrait.self] { return UIColor(hex: night) }
             return UIColor(hex: traits.userInterfaceStyle == .dark ? dark : light)
         })
     }
@@ -195,4 +201,29 @@ struct ChildAvatar: View {
             .foregroundStyle(Palette.ink)
             .accessibilityLabel(child.displayName)
     }
+}
+
+/// The night look, as a trait iOS knows about. Changing it re-resolves every
+/// colour in place, so nothing is rebuilt and open sheets stay open.
+struct NightTrait: UITraitDefinition {
+    static let defaultValue = false
+    static let affectsColorAppearance = true
+    static let name = "PuggleNight"
+}
+
+private struct NightKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+extension EnvironmentValues {
+    /// Set once at the root from `NightMode`; flows down to UIKit as `NightTrait`.
+    var puggleNight: Bool {
+        get { self[NightKey.self] }
+        set { self[NightKey.self] = newValue }
+    }
+}
+
+extension NightKey: UITraitBridgedEnvironmentKey {
+    static func read(from traitCollection: UITraitCollection) -> Bool { traitCollection[NightTrait.self] }
+    static func write(to mutableTraits: inout UIMutableTraits, value: Bool) { mutableTraits[NightTrait.self] = value }
 }

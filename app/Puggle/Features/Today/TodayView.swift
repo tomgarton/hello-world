@@ -20,6 +20,7 @@ struct TodayView: View {
     @State private var stickerFor: EditTarget?
     @State private var showingStickers = false
     @State private var staleSleep: Event?
+    @State private var staleFeed: Event?
     @State private var askedAbout: Set<NSManagedObjectID> = []
 
     @State private var wantsPastSleep: Child?
@@ -173,6 +174,18 @@ struct TodayView: View {
             let since = (sleep.startedAt ?? .now).formatted(.dateTime.weekday(.wide).hour().minute())
             Text("\(name)'s sleep timer has been running since \(since).")
         }
+        .alert("Still feeding?",
+               isPresented: Binding(get: { staleFeed != nil }, set: { if !$0 { staleFeed = nil } }),
+               presenting: staleFeed) { feed in
+            Button("Finish the feed") {
+                if let child = feed.sortedChildren.first { store.finishFeed(for: child) }
+            }
+            Button("Still feeding", role: .cancel) {}
+        } message: { feed in
+            let name = feed.sortedChildren.first?.displayName ?? "Their"
+            let since = (feed.startedAt ?? .now).formatted(date: .omitted, time: .shortened)
+            Text("\(name)'s feed timer has been running since \(since).")
+        }
         .onAppear(perform: checkForStaleSleep)
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { checkForStaleSleep() }
@@ -187,12 +200,16 @@ struct TodayView: View {
     }
 
     /// A timer left running for 14 hours gets one gentle question each time the app opens.
+    /// A feed timer left running for 90 minutes gets the same kind of question.
     private func checkForStaleSleep() {
-        guard staleSleep == nil, editing == nil,
-              let sleep = store.staleSleep(among: Array(children)),
-              !askedAbout.contains(sleep.objectID) else { return }
-        askedAbout.insert(sleep.objectID)
-        staleSleep = sleep
+        guard staleSleep == nil, staleFeed == nil, editing == nil, !feedTimer else { return }
+        if let sleep = store.staleSleep(among: Array(children)), !askedAbout.contains(sleep.objectID) {
+            askedAbout.insert(sleep.objectID)
+            staleSleep = sleep
+        } else if let feed = store.staleFeed(among: Array(children)), !askedAbout.contains(feed.objectID) {
+            askedAbout.insert(feed.objectID)
+            staleFeed = feed
+        }
     }
 
     private var header: some View {

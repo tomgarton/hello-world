@@ -410,6 +410,8 @@ struct StampFlowView: View {
         case .ready:
             if let pad = padFrames.first(where: { $0.value.insetBy(dx: -8, dy: -16).contains(point) })?.key {
                 inkUp(pad)
+                // Back to its spot on the paper, so it does not sit on the pads.
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.45, bounce: 0.2).delay(0.15)) { stamperAt = readyHome }
             } else if scrapFrame.contains(point) {
                 playPress(at: CGPoint(x: point.x - scrapFrame.minX, y: point.y - scrapFrame.minY))
             }

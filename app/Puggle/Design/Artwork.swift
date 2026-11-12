@@ -61,12 +61,15 @@ struct PuggleMark: View {
 /// where `PuggleView` is used, once the Rive file exists.
 struct PuggleStanding: View {
     var height: CGFloat = 160
+    @Environment(\.puggleNight) private var night
 
     var body: some View {
         Image("PuggleStill")
             .resizable()
             .scaledToFit()
             .frame(height: height)
+            .brightness(night ? -0.18 : 0)
+            .saturation(night ? 0.8 : 1)
             .accessibilityLabel("Puggle")
     }
 }

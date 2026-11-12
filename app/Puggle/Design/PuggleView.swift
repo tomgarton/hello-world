@@ -106,6 +106,7 @@ final class PuggleController: ObservableObject {
 struct PuggleView: View {
     @ObservedObject var controller: PuggleController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.puggleNight) private var night
 
     var body: some View {
         Group {
@@ -116,6 +117,9 @@ struct PuggleView: View {
             }
         }
         .aspectRatio(240.0 / 300.0, contentMode: .fit)
+        // Dimmed with the night look, so she is not the brightest thing on the screen.
+        .brightness(night ? -0.18 : 0)
+        .saturation(night ? 0.8 : 1)
         .accessibilityElement()
         .accessibilityLabel(controller.asleep ? "Puggle, asleep" : "Puggle")
     }

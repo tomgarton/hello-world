@@ -279,6 +279,12 @@ final class FamilyStore: ObservableObject {
             .first { ($0.startedAt ?? .now) < Date.now.addingTimeInterval(-hours * 3600) }
     }
 
+    /// A breastfeed timer left running for 90 minutes or more.
+    func staleFeed(among children: [Child], minutes: Double = 90) -> Event? {
+        children.compactMap { activeFeed(for: $0) }
+            .first { ($0.startedAt ?? .now) < Date.now.addingTimeInterval(-minutes * 60) }
+    }
+
     /// The child most recently logged for this activity.
     func lastChild(for kind: EventKind, among children: [Child]) -> Child? {
         children
