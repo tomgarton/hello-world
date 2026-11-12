@@ -360,17 +360,17 @@
    "id": "eye-left",
    "parent": "head",
    "pivot": [
-    93,
-    108
+    88,
+    117
    ],
    "spring": 0,
    "shapes": [
     {
      "kind": "ellipse",
-     "x": 93,
-     "y": 108,
-     "rx": 7.6,
-     "ry": 7.6,
+     "x": 88,
+     "y": 117,
+     "rx": 6.8,
+     "ry": 6.8,
      "fill": "#3A2A20"
     }
    ],
@@ -380,17 +380,17 @@
    "id": "eye-right",
    "parent": "head",
    "pivot": [
-    147,
-    108
+    152,
+    117
    ],
    "spring": 0,
    "shapes": [
     {
      "kind": "ellipse",
-     "x": 147,
-     "y": 108,
-     "rx": 7.6,
-     "ry": 7.6,
+     "x": 152,
+     "y": 117,
+     "rx": 6.8,
+     "ry": 6.8,
      "fill": "#3A2A20"
     }
    ],
@@ -401,20 +401,20 @@
    "parent": "head",
    "pivot": [
     120,
-    108
+    117
    ],
    "when": "eyes=happy",
    "shapes": [
     {
      "kind": "path",
-     "d": "M85 111 Q93 102 101 111",
+     "d": "M80 120 Q88 111 96 120",
      "stroke": "#3A2A20",
      "width": 4.5,
      "cap": "round"
     },
     {
      "kind": "path",
-     "d": "M139 111 Q147 102 155 111",
+     "d": "M144 120 Q152 111 160 120",
      "stroke": "#3A2A20",
      "width": 4.5,
      "cap": "round"
@@ -426,20 +426,20 @@
    "parent": "head",
    "pivot": [
     120,
-    108
+    117
    ],
    "when": "eyes=closed",
    "shapes": [
     {
      "kind": "path",
-     "d": "M85 107 Q93 114 101 107",
+     "d": "M80 116 Q88 123 96 116",
      "stroke": "#3A2A20",
      "width": 4.5,
      "cap": "round"
     },
     {
      "kind": "path",
-     "d": "M139 107 Q147 114 155 107",
+     "d": "M144 116 Q152 123 160 116",
      "stroke": "#3A2A20",
      "width": 4.5,
      "cap": "round"
@@ -450,14 +450,14 @@
    "id": "brow-left",
    "parent": "head",
    "pivot": [
-    93,
-    92
+    88,
+    101
    ],
    "when": "brows=on",
    "shapes": [
     {
      "kind": "path",
-     "d": "M85 93 Q93 88 101 93",
+     "d": "M80 102 Q88 97 96 102",
      "stroke": "#5E3A24",
      "width": 4,
      "cap": "round"
@@ -468,14 +468,14 @@
    "id": "brow-right",
    "parent": "head",
    "pivot": [
-    147,
-    92
+    152,
+    101
    ],
    "when": "brows=on",
    "shapes": [
     {
      "kind": "path",
-     "d": "M139 93 Q147 88 155 93",
+     "d": "M144 102 Q152 97 160 102",
      "stroke": "#5E3A24",
      "width": 4,
      "cap": "round"

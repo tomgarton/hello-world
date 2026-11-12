@@ -197,8 +197,7 @@ enum RigRenderer {
             .scaledBy(x: scale, y: scale)
         var world: [String: CGAffineTransform] = [:]
         for part in rig.parts {
-            var state = states[part.id] ?? .rest
-            if handDrawn { HandDrawn.adjust(&state, for: part.id) }
+            let state = states[part.id] ?? .rest
             let pivot = CGPoint(x: part.pivot[0], y: part.pivot[1])
             // About the pivot: scale, then turn, then shift.
             let local = CGAffineTransform(translationX: pivot.x + state.x, y: pivot.y + state.y)
@@ -506,22 +505,10 @@ struct RigFrame: View {
 
 // MARK: Drawn by hand
 
-/// The hand-drawn look: outlines that waver, smaller eyes set wide and low, and a paper grain.
+/// The hand-drawn look: outlines that waver and a paper grain. (Her eyes, once part of it, are now how she is always drawn.)
 enum HandDrawn {
     private static var paths: [String: Path] = [:]
     private static var specks: (light: Path, dark: Path)?
-
-    /// Her eyes sit lower and wider apart and are a touch smaller, close to the bill.
-    static func adjust(_ state: inout PartState, for part: String) {
-        let side: Double = part.hasSuffix("left") ? -1 : (part.hasSuffix("right") ? 1 : 0)
-        if part.hasPrefix("eye-") {
-            state.x += 5 * side; state.y += 9; state.sx *= 0.8; state.sy *= 0.8
-        } else if part.hasPrefix("eyes-") {
-            state.y += 9
-        } else if part.hasPrefix("brow-") {
-            state.x += 5 * side; state.y += 8
-        }
-    }
 
     /// The path with a slow waver along it, the same every time for the same key.
     static func wavering(_ path: Path, key: String, phase: Double) -> Path {
