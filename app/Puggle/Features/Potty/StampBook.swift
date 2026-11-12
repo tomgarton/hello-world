@@ -190,7 +190,7 @@ struct StampBookView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .background(Palette.sand)
-            .fullScreenCover(isPresented: $playing) { PlayPadView() }
+            .protectedCover(isPresented: $playing) { PlayPadView() }
             .navigationTitle("Stamp book")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

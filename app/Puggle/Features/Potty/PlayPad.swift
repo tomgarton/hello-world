@@ -360,7 +360,10 @@ struct HoldToClose: View {
 /// paper or pictures to colour in. Nothing here counts towards a card. Each
 /// sheet is kept on this phone until it is cleared. Works either way up.
 struct PlayPadView: View {
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    @Environment(\.closeCover) private var closeCover
+    /// Closes this screen however it was shown.
+    private func dismiss() { if let closeCover { closeCover() } else { swiftUIDismiss() } }
     @Environment(\.colorScheme) private var scheme
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var tool: PadTool = .stamp
@@ -430,9 +433,6 @@ struct PlayPadView: View {
                     .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
-        // A stray swipe up from the bottom only shows the Home bar; it takes a second to leave.
-        .defersSystemGestures(on: .all)
-        .persistentSystemOverlays(.hidden)
         .onAppear {
             Orientation.allowLandscape(true)
             guard !loaded else { return }

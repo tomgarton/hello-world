@@ -123,7 +123,7 @@ struct DeveloperView: View {
                     showingSplash = false
                 }
         }
-        .fullScreenCover(isPresented: $showingPad) { PlayPadView() }
+        .protectedCover(isPresented: $showingPad) { PlayPadView() }
         .sheet(item: $sticker) { StickerDetailView(sticker: $0) }
     }
 

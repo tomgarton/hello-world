@@ -160,7 +160,8 @@ struct TodayView: View {
         }) {
             FeedTimerView(children: relevant(.breastfeed)) { pastFeed = true }
         }
-        .fullScreenCover(item: $stickerFor) { target in
+        // Held against stray swipes home while the child has the phone.
+        .protectedCover(item: $stickerFor) { target in
             StampFlowView(event: target.event)
         }
         .sheet(isPresented: $pumping) {

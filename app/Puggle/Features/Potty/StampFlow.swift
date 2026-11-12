@@ -14,7 +14,10 @@ import SwiftUI
 /// two seconds to take the phone back.
 struct StampFlowView: View {
     @EnvironmentObject private var store: FamilyStore
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.dismiss) private var swiftUIDismiss
+    @Environment(\.closeCover) private var closeCover
+    /// Closes this screen however it was shown.
+    private func dismiss() { if let closeCover { closeCover() } else { swiftUIDismiss() } }
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     let event: Event
 
@@ -107,8 +110,6 @@ struct StampFlowView: View {
         }
         .background(Palette.sand.ignoresSafeArea())
         .foregroundStyle(Palette.ink)
-        // A stray swipe up from the bottom only shows the Home bar; it takes a second to leave.
-        .defersSystemGestures(on: .bottom)
         .onAppear(perform: setUpCard)
         .onDisappear {
             nudgeTask?.cancel()
