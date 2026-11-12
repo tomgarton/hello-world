@@ -2,7 +2,12 @@ import SwiftUI
 
 /// The steps of first run, in order. The raw value gives the direction of travel.
 enum OnboardingStep: Int, CaseIterable {
-    case welcome, logging, sharing, name, child, more, amount, done
+    case welcome, joining, found, logging, sharing, name, child, more, invite, amount, done
+
+    /// The steps a new family goes through, for the progress dots.
+    static let newFamily: [OnboardingStep] = [.logging, .sharing, .name, .child, .more, .invite, .amount, .done]
+    /// The steps for someone joining, or a family coming back from iCloud.
+    static let foundPath: [OnboardingStep] = [.found, .name, .done]
 }
 
 /// One first-run page: content that scrolls if the text is large, with the

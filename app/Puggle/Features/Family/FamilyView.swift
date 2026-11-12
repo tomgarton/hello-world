@@ -78,8 +78,14 @@ struct FamilyView: View {
                 if sample.isOn {
                     EmptyView()
                 } else if Persistence.cloudSyncEnabled {
+                    if CloudStatus.shared.problem != nil {
+                        CloudProblemCard()
+                            .listRowInsets(EdgeInsets())
+                            .listRowBackground(Color.clear)
+                    }
                     Section {
                         Button("Invite someone") { Task { await startSharing() } }
+                            .disabled(!CloudStatus.shared.isAvailable)
                             .listRowBackground(Palette.paper)
                     } header: {
                         Text("Sharing")
