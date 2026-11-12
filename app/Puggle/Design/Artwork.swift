@@ -94,6 +94,8 @@ struct SplashView: View {
     var body: some View {
         ZStack {
             Palette.sand.ignoresSafeArea()
+            // The app's shapes, drifting slowly down and across.
+            ShapePattern()
             PuggleMark()
             Wordmark()
                 .offset(y: 66 + 14 + 26)

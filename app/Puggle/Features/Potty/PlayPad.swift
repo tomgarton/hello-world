@@ -28,6 +28,51 @@ enum PadPage: Int, CaseIterable, Identifiable {
         }
     }
 
+    /// The sheet the upright outline is laid out on.
+    static let portraitSheet = CGSize(width: 240, height: 360)
+
+    /// The same picture rearranged for an upright sheet, so it fills the paper:
+    /// each part is moved and enlarged into its own place.
+    var portraitOutline: [Path] {
+        let all = outline
+        func place(_ indices: [Int], in rect: CGRect) -> [Path] {
+            let paths = indices.filter { $0 < all.count }.map { all[$0] }
+            guard let first = paths.first else { return [] }
+            let box = paths.dropFirst().reduce(first.boundingRect) { $0.union($1.boundingRect) }
+            guard box.width > 0, box.height > 0 else { return paths }
+            let scale = min(rect.width / box.width, rect.height / box.height)
+            let move = CGAffineTransform(translationX: rect.midX - box.midX * scale, y: rect.midY - box.midY * scale)
+                .scaledBy(x: scale, y: scale)
+            return paths.map { $0.applying(move) }
+        }
+        switch self {
+        case .blank:
+            return []
+        case .puggle:
+            // Puggle large in the middle, the heart and the sun above her.
+            return place(Array(0...10), in: CGRect(x: 14, y: 84, width: 212, height: 268))
+                + place([11], in: CGRect(x: 18, y: 14, width: 62, height: 62))
+                + place([12], in: CGRect(x: 150, y: 6, width: 78, height: 78))
+        case .beach:
+            return place([3, 4], in: CGRect(x: 138, y: 10, width: 92, height: 92))
+                + place([1, 2], in: CGRect(x: 26, y: 96, width: 180, height: 150))
+                + place([0], in: CGRect(x: 8, y: 244, width: 224, height: 44))
+                + place([5], in: CGRect(x: 76, y: 300, width: 88, height: 46))
+        case .backyard:
+            return place([0, 1], in: CGRect(x: 14, y: 14, width: 100, height: 100))
+                + place([7], in: CGRect(x: 134, y: 30, width: 92, height: 70))
+                + place([2, 3, 4, 5, 6], in: CGRect(x: 20, y: 124, width: 200, height: 160))
+                + place([8], in: CGRect(x: 14, y: 300, width: 92, height: 46))
+                + place([9], in: CGRect(x: 134, y: 300, width: 92, height: 46))
+        case .night:
+            return place([0], in: CGRect(x: 40, y: 80, width: 160, height: 200))
+                + place([1], in: CGRect(x: 160, y: 14, width: 60, height: 60))
+                + place([2], in: CGRect(x: 22, y: 24, width: 46, height: 46))
+                + place([3], in: CGRect(x: 172, y: 290, width: 44, height: 44))
+                + place([4], in: CGRect(x: 26, y: 300, width: 36, height: 36))
+        }
+    }
+
     /// The outline to colour in, on the card's 360 by 215 sheet.
     var outline: [Path] {
         switch self {
@@ -213,13 +258,17 @@ struct PlayPadView: View {
     }
 
     private func outline(in size: CGSize) -> some View {
-        let scale = min(size.width / StampCard.size.width, size.height / StampCard.size.height) * 0.94
+        // Upright paper gets the upright arrangement, so the picture fills it.
+        let upright = size.height > size.width
+        let sheet = upright ? PadPage.portraitSheet : StampCard.size
+        let paths = upright ? page.portraitOutline : page.outline
+        let scale = min(size.width / sheet.width, size.height / sheet.height) * 0.94
         return ZStack(alignment: .topLeading) {
-            ForEach(Array(page.outline.enumerated()), id: \.offset) { _, path in
-                path.stroke(Palette.ink.opacity(0.85), style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round))
+            ForEach(Array(paths.enumerated()), id: \.offset) { _, path in
+                path.stroke(Palette.ink.opacity(0.85), style: StrokeStyle(lineWidth: 3 / max(scale, 0.1), lineCap: .round, lineJoin: .round))
             }
         }
-        .frame(width: StampCard.size.width, height: StampCard.size.height, alignment: .topLeading)
+        .frame(width: sheet.width, height: sheet.height, alignment: .topLeading)
         .scaleEffect(scale)
         .frame(width: size.width, height: size.height)
         .allowsHitTesting(false)

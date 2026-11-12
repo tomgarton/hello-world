@@ -223,10 +223,16 @@ struct LabelReaderView: View {
                     }
                 } else if busy {
                     Section {
-                        HStack(spacing: 10) {
-                            ProgressView()
-                            Text("Reading the box…")
+                        ForEach(0..<4, id: \.self) { row in
+                            HStack {
+                                SkeletonBlock(corner: 6).frame(width: row == 0 ? 150 : 190, height: 16)
+                                Spacer()
+                                if row > 0 { SkeletonBlock(corner: 6).frame(width: 44, height: 16) }
+                            }
+                            .padding(.vertical, 4)
                         }
+                    } header: {
+                        Text("Reading the box…")
                     }
                     .listRowBackground(Palette.paper)
                 } else {

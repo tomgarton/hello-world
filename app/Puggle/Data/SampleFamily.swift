@@ -7,16 +7,24 @@ import SwiftUI
 @MainActor
 final class SampleFamily: ObservableObject {
     @Published private(set) var store: FamilyStore?
+    /// True for the moment it takes to make the sample entries.
+    @Published private(set) var loading = false
 
     var isOn: Bool { store != nil }
 
     func start() {
-        guard store == nil else { return }
-        let sample = FamilyStore(persistence: Persistence(inMemory: true))
-        sample.isSample = true
-        SampleData(store: sample).fill()
-        sample.authorOverride = nil
-        store = sample
+        guard store == nil, !loading else { return }
+        loading = true
+        Task {
+            // Let the loading screen draw before the entries are made.
+            try? await Task.sleep(for: .milliseconds(120))
+            let sample = FamilyStore(persistence: Persistence(inMemory: true))
+            sample.isSample = true
+            SampleData(store: sample).fill()
+            sample.authorOverride = nil
+            store = sample
+            loading = false
+        }
     }
 
     func leave() {

@@ -59,3 +59,45 @@ struct LockedView: View {
         }
     }
 }
+
+/// A cover over everything, sheets included, while a locked app is away from
+/// the front: nothing shows in the app switcher, and nothing flashes up before
+/// Face ID. It sits in its own window above the app.
+@MainActor
+final class PrivacyShield {
+    static let shared = PrivacyShield()
+    private var window: UIWindow?
+
+    func show(lock: AppLock) {
+        guard window == nil,
+              let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
+        let cover = UIWindow(windowScene: scene)
+        cover.windowLevel = .alert + 1
+        let host = UIHostingController(rootView: ShieldView(lock: lock))
+        host.view.backgroundColor = .clear
+        cover.rootViewController = host
+        cover.isHidden = false
+        window = cover
+    }
+
+    func hide() {
+        guard let cover = window else { return }
+        window = nil
+        UIView.animate(withDuration: 0.2, animations: { cover.alpha = 0 }, completion: { _ in cover.isHidden = true })
+    }
+}
+
+private struct ShieldView: View {
+    @ObservedObject var lock: AppLock
+
+    var body: some View {
+        if lock.isLocked {
+            LockedView { lock.unlock() }
+        } else {
+            ZStack {
+                Palette.sand.ignoresSafeArea()
+                PuggleMark(size: 96)
+            }
+        }
+    }
+}

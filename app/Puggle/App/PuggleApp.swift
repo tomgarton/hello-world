@@ -85,6 +85,7 @@ struct PuggleApp: App {
                 .onChange(of: scenePhase) { _, phase in
                     switch phase {
                     case .active:
+                        if !lock.isLocked { PrivacyShield.shared.hide() }
                         LiveTimers.shared.sync(with: store)
                         ReminderStore.shared.reschedule(with: store)
                         refreshNight(with: active)
@@ -92,9 +93,16 @@ struct PuggleApp: App {
                         PuggleShortcuts.updateAppShortcutParameters()
                     case .background:
                         lock.lockIfNeeded()
-                    default:
+                        if AppLock.isOn { PrivacyShield.shared.show(lock: lock) }
+                    case .inactive:
+                        // Covered as soon as the app leaves the front, so nothing shows in the app switcher.
+                        if AppLock.isOn { PrivacyShield.shared.show(lock: lock) }
+                    @unknown default:
                         break
                     }
+                }
+                .onChange(of: lock.isLocked) { _, locked in
+                    if !locked, scenePhase == .active { PrivacyShield.shared.hide() }
                 }
                 .tint(Palette.ink)
                 // Switches with clear contrast in day, dark and night.
@@ -118,13 +126,20 @@ struct RootView: View {
         content
             .environment(\.splashing, splashing)
             .overlay {
+                // The shape of Today while the sample family is being made.
+                if sample.loading {
+                    TodaySkeleton().transition(.opacity)
+                }
+            }
+            .animation(.easeOut(duration: 0.25), value: sample.loading)
+            .overlay {
                 if splashing {
                     SplashView().transition(.opacity)
                 }
             }
             .task {
                 guard splashing else { return }
-                try? await Task.sleep(for: .seconds(reduceMotion ? 0.6 : 1.1))
+                try? await Task.sleep(for: .seconds(reduceMotion ? 0.6 : 1.5))
                 withAnimation(.easeOut(duration: 0.35)) { splashing = false }
             }
     }
