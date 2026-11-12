@@ -57,6 +57,7 @@ final class Event: NSManagedObject, Identifiable {
     @NSManaged var detail: String?
     @NSManaged var note: String?
     /// Medicine: the dose as the parent wrote it ("5 ml", "1 tablet").
+    /// Solids: how it went. Nappy: the colour, if noted.
     @NSManaged var dose: String?
     /// Temperature in °C, or weight in grams.
     @NSManaged var value: Double
@@ -240,7 +241,8 @@ extension Event {
             return "Breastfeed\(side)\(length)"
         case .nappy, .potty, .solids:
             let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
-            return "\(kind.title)\(what)"
+            let extra = kind != .potty && !(dose ?? "").isEmpty ? " · \(dose!.lowercased())" : ""
+            return "\(kind.title)\(what)\(extra)"
         case .note:
             return note ?? "Note"
         case .weight:

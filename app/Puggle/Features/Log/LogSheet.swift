@@ -47,6 +47,10 @@ struct LogSheet: View {
     @State private var amounts: [NSManagedObjectIDWrapper: Double] = [:]
     @State private var loadedFeed: (side: String, minutes: Double)?
     @State private var tooSoon: String?
+    @State private var twice: String?
+    @State private var confirmedTwice = false
+    /// Solids: how it went. Nappy: the colour. Both optional.
+    @State private var extra = ""
     @State private var confirmedTooSoon = false
     @State private var saved = false
     @State private var confirmingDelete = false
@@ -111,6 +115,15 @@ struct LogSheet: View {
             } message: {
                 Text(tooSoon ?? "")
             }
+            .alert("Logged twice?", isPresented: Binding(get: { twice != nil }, set: { if !$0 { twice = nil } })) {
+                Button("Save anyway") {
+                    confirmedTwice = true
+                    save()
+                }
+                Button("Don't save", role: .cancel) {}
+            } message: {
+                Text(twice ?? "")
+            }
         }
         .foregroundStyle(Palette.ink)
         .presentationDetents(isEditing ? [.large] : [.medium, .large])
@@ -146,8 +159,10 @@ struct LogSheet: View {
                 loadedFeed = (side, minutes)
             case .solids:
                 food = event.detail ?? ""
+                extra = event.dose ?? ""
             case .nappy, .potty:
                 choice = event.detail
+                extra = event.dose ?? ""
             case .medicine:
                 medicine = event.detail ?? ""
                 doseText = event.dose ?? ""
@@ -293,6 +308,18 @@ struct LogSheet: View {
         return nil
     }
 
+    /// A second bottle for the same child within five minutes is probably the
+    /// same feed logged twice (two parents, or a double tap).
+    private func loggedTwiceWarning(for who: [Child]) -> String? {
+        for child in who {
+            guard let last = store.latest(.bottle, for: child), let at = last.startedAt,
+                  abs(time.timeIntervalSince(at)) < 5 * 60 else { continue }
+            let by = (last.loggedBy ?? "").isEmpty ? "" : " by \(last.loggedBy!)"
+            return "\(child.displayName) already has a bottle at \(at.formatted(date: .omitted, time: .shortened))\(by). Save another one?"
+        }
+        return nil
+    }
+
     /// Medicines this family has logged, newest first, with the last dose written.
     private var pastMedicines: [(name: String, dose: String)] {
         var all: [Event] = []
@@ -433,6 +460,12 @@ struct LogSheet: View {
                         }
                     }
                 }
+                Text("How it went (optional)").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+                HStack(spacing: 8) {
+                    ForEach(["Loved it", "Some", "Not today"], id: \.self) { option in
+                        chip(option, isOn: extra == option) { extra = (extra == option ? "" : option) }
+                    }
+                }
                 timeRow("Time", $time)
                 timeShortcuts
             }
@@ -455,7 +488,19 @@ struct LogSheet: View {
                 }
             }
         case .nappy:
-            quickChoices(["Wet", "Dirty", "Both", "Dry"])
+            VStack(alignment: .leading, spacing: 12) {
+                // Optional, and picked before the one-tap choice.
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        Text("Colour").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+                        ForEach(["Yellow", "Mustard", "Green", "Brown", "Black", "Pale"], id: \.self) { option in
+                            chip(option, isOn: extra == option) { extra = (extra == option ? "" : option) }
+                        }
+                    }
+                }
+                .accessibilityLabel("Colour, optional")
+                quickChoices(["Wet", "Dirty", "Both", "Dry"])
+            }
         case .potty:
             quickChoices(["Wee", "Poo", "Tried", "Accident"])
         case .note:
@@ -713,6 +758,12 @@ struct LogSheet: View {
         let vaccineName = vaccine.trimmingCharacters(in: .whitespacesAndNewlines)
         let milestoneName = milestone.trimmingCharacters(in: .whitespacesAndNewlines)
 
+        if kind == .bottle, !isEditing, !confirmedTwice, let warning = loggedTwiceWarning(for: who) {
+            twice = warning
+            Haptics.warning()
+            return
+        }
+
         if kind == .medicine {
             if !isEditing, !confirmedTooSoon, let warning = tooSoonWarning(for: who) {
                 tooSoon = warning
@@ -744,6 +795,7 @@ struct LogSheet: View {
             case .solids:
                 event.startedAt = time
                 event.detail = trimmedFood
+                event.dose = extra.isEmpty ? nil : extra
             case .sleep:
                 if stillAsleep {
                     event.startedAt = time
@@ -755,6 +807,7 @@ struct LogSheet: View {
             case .nappy, .potty:
                 event.startedAt = time
                 event.detail = choice
+                if kind == .nappy { event.dose = extra.isEmpty ? nil : extra }
             case .note:
                 event.startedAt = time
             case .medicine:
@@ -791,11 +844,13 @@ struct LogSheet: View {
             case .breastfeed:
                 events = store.logEach(.breastfeed, for: who, at: time, end: time.addingTimeInterval(minutes * 60), detail: side, note: noteValue)
             case .solids:
-                events = store.logEach(.solids, for: who, at: time, detail: trimmedFood, note: noteValue)
+                events = store.logEach(.solids, for: who, at: time, detail: trimmedFood, note: noteValue,
+                                       dose: extra.isEmpty ? nil : extra)
             case .sleep:
                 events = store.logEach(.sleep, for: who, at: min(time, endTime), end: max(time, endTime), note: noteValue)
             case .nappy, .potty:
-                events = store.logEach(kind, for: who, at: time, detail: detail, note: noteValue)
+                events = store.logEach(kind, for: who, at: time, detail: detail, note: noteValue,
+                                       dose: kind == .nappy && !extra.isEmpty ? extra : nil)
             case .note:
                 events = store.logEach(.note, for: who, at: time, note: noteValue)
             case .medicine:
