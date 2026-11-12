@@ -302,6 +302,12 @@ struct LogSheet: View {
         all.sort { ($0.startedAt ?? .distantPast) > ($1.startedAt ?? .distantPast) }
         var seen = Set<String>()
         var result: [(name: String, dose: String)] = []
+        // Regular medicines set up as reminders come first, so the name always matches.
+        let ids = Set(children.compactMap { $0.id?.uuidString })
+        for reminder in ReminderStore.shared.reminders where reminder.kind == .medicine && ids.contains(reminder.childID) {
+            let name = reminder.medicine.trimmingCharacters(in: .whitespaces)
+            if !name.isEmpty, seen.insert(name.lowercased()).inserted { result.append((name, reminder.dose)) }
+        }
         for event in all {
             let name = (event.detail ?? "").trimmingCharacters(in: .whitespaces)
             if !name.isEmpty, seen.insert(name.lowercased()).inserted {

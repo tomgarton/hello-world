@@ -69,6 +69,10 @@ struct PuggleApp: App {
                 }
                 .preferredColorScheme(scheme)
                 // A sleep starting or ending, or the sample family swapping in, may change the night look.
+                .onReceive(store.objectWillChange) { _ in
+                    // A feed logged here or on another phone moves the "time since a feed" reminder.
+                    Task { @MainActor in ReminderStore.shared.reschedule(with: store) }
+                }
                 .onReceive(active.objectWillChange) { _ in
                     // Only looked up when sleep is part of the setting.
                     guard night.usesSleep else { return }
@@ -82,6 +86,7 @@ struct PuggleApp: App {
                     switch phase {
                     case .active:
                         LiveTimers.shared.sync(with: store)
+                        ReminderStore.shared.reschedule(with: store)
                         refreshNight(with: active)
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()

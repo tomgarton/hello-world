@@ -309,8 +309,10 @@ struct ChildStatusRow: View {
         // The later of the last bottle and the last breastfeed.
         let feeds = [store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0 }
         let last = feeds.max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) } ?? store.latest(for: child)
-        guard let last, let at = last.startedAt else { return [] }
-        return [last.brief, Elapsed.ago(at, now: now)]
+        // A regular medicine that is due takes the second line, quietly.
+        let due = ReminderStore.shared.due(for: child, in: store, now: now).map { "Due · \($0)" }
+        guard let last, let at = last.startedAt else { return due.map { [$0] } ?? [] }
+        return [last.brief, due ?? Elapsed.ago(at, now: now)]
     }
 
     private func sleepButton(now: Date, sleep: Event?) -> some View {
