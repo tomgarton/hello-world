@@ -397,6 +397,10 @@ final class RigRuntime {
         if asleep {
             showing["eyes"] = "closed"
             showing["brows"] = "on"
+            // Zs drift up beside her, slowly.
+            showing["air"] = "zzz"
+            change("zed-a") { $0.y = -4 * sin(t * 2 * .pi / 5); $0.r = 6 * sin(t * 2 * .pi / 5) }
+            change("zed-b") { $0.y = -6 * sin(t * 2 * .pi / 5 - 0.9); $0.r = -8 * sin(t * 2 * .pi / 5 - 0.9) }
             change("brow-left") { $0.y = 1; $0.r = -14 }
             change("brow-right") { $0.y = 1; $0.r = 14 }
         }

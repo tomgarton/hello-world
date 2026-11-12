@@ -4,7 +4,7 @@
   240,
   300
  ],
- "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise. She has no mouth: her eyes, eyebrows, cheeks, the tilt of her head and her tail show the feeling.",
+ "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise. She has no mouth: her eyes, eyebrows, cheeks, the tilt of her head and her tail show the feeling. Borrowed from comics: marks on her cheeks when she is pleased, eyes squeezed shut (> <), and sparkles or Zs in the air.",
  "parts": [
   {
    "id": "body",
@@ -284,38 +284,24 @@
    "parent": "head",
    "pivot": [
     120,
-    127
+    132
    ],
    "shapes": [
     {
      "kind": "ellipse",
-     "x": 67,
-     "y": 127,
-     "rx": 10,
-     "ry": 10,
-     "fill": "#EE9C88"
-    },
-    {
-     "kind": "path",
-     "d": "M60 132 L65 123 M69 132 L74 123",
-     "stroke": "#C24A36",
-     "width": 3.5,
-     "cap": "round"
+     "x": 70,
+     "y": 132,
+     "rx": 12,
+     "ry": 7.5,
+     "fill": "#C27C66"
     },
     {
      "kind": "ellipse",
-     "x": 173,
-     "y": 127,
-     "rx": 10,
-     "ry": 10,
-     "fill": "#EE9C88"
-    },
-    {
-     "kind": "path",
-     "d": "M166 132 L171 123 M175 132 L180 123",
-     "stroke": "#C24A36",
-     "width": 3.5,
-     "cap": "round"
+     "x": 170,
+     "y": 132,
+     "rx": 12,
+     "ry": 7.5,
+     "fill": "#C27C66"
     }
    ]
   },
@@ -483,6 +469,84 @@
    ]
   },
   {
+   "id": "shy",
+   "parent": "blush",
+   "pivot": [
+    120,
+    132
+   ],
+   "when": "cheeks=shy",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M63 136 L67 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M68 136 L72 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M73 136 L77 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M163 136 L167 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M168 136 L172 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173 136 L177 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "eyes-squeeze",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "when": "eyes=squeeze",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M82 111 L93 117 L82 123",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M158 111 L147 117 L158 123",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
    "id": "clip",
    "parent": "head",
    "pivot": [
@@ -602,6 +666,95 @@
      "fill": "#F4C95D"
     }
    ]
+  },
+  {
+   "id": "sparkle-a",
+   "parent": "body",
+   "pivot": [
+    38,
+    62
+   ],
+   "when": "air=sparkle",
+   "spring": 120,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M38 51 Q40.42 59.58 49 62 Q40.42 64.42 38 73 Q35.58 64.42 27 62 Q35.58 59.58 38 51 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "sparkle-b",
+   "parent": "body",
+   "pivot": [
+    212,
+    104
+   ],
+   "when": "air=sparkle",
+   "spring": 90,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M212 96 Q213.76 102.24 220 104 Q213.76 105.76 212 112 Q210.24 105.76 204 104 Q210.24 102.24 212 96 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "sparkle-c",
+   "parent": "body",
+   "pivot": [
+    66,
+    22
+   ],
+   "when": "air=sparkle",
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M66 15.5 Q67.43 20.57 72.5 22 Q67.43 23.43 66 28.5 Q64.57 23.43 59.5 22 Q64.57 20.57 66 15.5 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "zed-a",
+   "parent": "body",
+   "pivot": [
+    196,
+    46
+   ],
+   "when": "air=zzz",
+   "spring": 40,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M190 40 L201 40 L190 51 L201 51",
+     "stroke": "#8FA3D6",
+     "width": 3.3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "zed-b",
+   "parent": "body",
+   "pivot": [
+    214,
+    24
+   ],
+   "when": "air=zzz",
+   "spring": 30,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M210 20 L218 20 L210 28 L218 28",
+     "stroke": "#8FA3D6",
+     "width": 2.4,
+     "cap": "round"
+    }
+   ]
   }
  ],
  "moves": {
@@ -639,7 +792,8 @@
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "cheeks": "shy"
      }
     },
     {
@@ -666,7 +820,8 @@
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "cheeks": "shy"
      }
     },
     {
@@ -687,7 +842,8 @@
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "cheeks": "shy"
      }
     },
     {
@@ -917,11 +1073,25 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 0.3,
+       "sy": 0.3
+      },
+      "sparkle-b": {
+       "sx": 0.3,
+       "sy": 0.3
+      },
+      "sparkle-c": {
+       "sx": 0.3,
+       "sy": 0.3
       }
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
      }
     },
     {
@@ -957,7 +1127,9 @@
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
      }
     },
     {
@@ -986,11 +1158,22 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "sparkle-a": {
+       "r": 20
+      },
+      "sparkle-b": {
+       "r": -25
+      },
+      "sparkle-c": {
+       "r": 30
       }
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
      }
     },
     {
@@ -1013,11 +1196,28 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "sparkle-a": {
+       "r": 45,
+       "sx": 0.6,
+       "sy": 0.6
+      },
+      "sparkle-b": {
+       "r": -50,
+       "sx": 0.6,
+       "sy": 0.6
+      },
+      "sparkle-c": {
+       "r": 60,
+       "sx": 0.5,
+       "sy": 0.5
       }
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
      }
     },
     {
@@ -1092,11 +1292,22 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
       }
      },
      "face": {
-      "eyes": "happy",
-      "brows": "on"
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "sparkle"
      }
     },
     {
@@ -1125,11 +1336,21 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
       }
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "air": "sparkle"
      }
     },
     {
@@ -1170,11 +1391,22 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
       }
      },
      "face": {
-      "eyes": "happy",
-      "brows": "on"
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "sparkle"
      }
     },
     {
@@ -1203,11 +1435,21 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
       }
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "air": "sparkle"
      }
     },
     {
@@ -1240,7 +1482,8 @@
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "air": "sparkle"
      }
     },
     {
@@ -1261,7 +1504,8 @@
      },
      "face": {
       "eyes": "happy",
-      "brows": "on"
+      "brows": "on",
+      "air": "sparkle"
      }
     },
     {
@@ -1340,7 +1584,7 @@
       }
      },
      "face": {
-      "eyes": "closed",
+      "eyes": "squeeze",
       "brows": "on"
      }
     },
@@ -1503,6 +1747,8 @@
  },
  "face": {
   "eyes": "open",
-  "brows": "off"
+  "brows": "off",
+  "cheeks": "plain",
+  "air": "none"
  }
 }
