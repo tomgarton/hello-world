@@ -91,11 +91,13 @@ struct Wordmark: View {
 /// Shown for a moment each time the app is opened from cold. It matches the
 /// launch screen underneath, so the mark does not jump.
 struct SplashView: View {
+    private let look = SplashLook.now
+
     var body: some View {
         ZStack {
-            Palette.sand.ignoresSafeArea()
-            // The app's shapes, drifting slowly down and across.
-            ShapePattern()
+            // The season picks the shape and the time of day the colour.
+            look.background.ignoresSafeArea()
+            ShapePattern(shape: look.shape)
             PuggleMark()
             Wordmark()
                 .offset(y: 66 + 14 + 26)

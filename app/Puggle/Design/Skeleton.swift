@@ -52,43 +52,94 @@ struct TodaySkeleton: View {
     }
 }
 
-/// The app's shapes as a quiet repeating pattern that drifts slowly down and
-/// across. Used behind the splash. Still with Reduce Motion.
+/// What the splash looks like now. The season picks the shape and the time
+/// of day picks the colour, so it changes quietly through the day and the year.
+struct SplashLook {
+    enum Season: Int, CaseIterable { case spring, summer, autumn, winter }
+    enum Time: Int, CaseIterable { case morning, day, evening }
+
+    let season: Season
+    let time: Time
+
+    /// Seasons follow the phone's region: the south of the world has summer in December.
+    static var now: SplashLook {
+        let calendar = Calendar.current
+        var month = calendar.component(.month, from: .now)
+        var hour = calendar.component(.hour, from: .now)
+        #if DEBUG
+        // For checking: launch with "-debugMonth 7" or "-debugHour 18".
+        if let forced = UserDefaults.standard.string(forKey: "debugMonth").flatMap(Int.init) { month = forced }
+        if let forced = UserDefaults.standard.string(forKey: "debugHour").flatMap(Int.init) { hour = forced }
+        #endif
+        let southern: Set<String> = ["AU", "NZ", "ZA", "AR", "CL", "UY", "PY", "BO", "PE", "BR", "FJ", "PG", "NA", "BW", "ZW", "MZ", "MG", "LS", "SZ"]
+        let south = southern.contains(Locale.current.region?.identifier ?? "")
+        // Northern seasons by month, then turned half a year for the south.
+        let northern: Season = switch month {
+        case 3...5: .spring
+        case 6...8: .summer
+        case 9...11: .autumn
+        default: .winter
+        }
+        let season = south ? Season(rawValue: (northern.rawValue + 2) % 4) ?? northern : northern
+        let time: Time = switch hour {
+        case 5..<11: .morning
+        case 17..<21: .evening
+        default: .day
+        }
+        return SplashLook(season: season, time: time)
+    }
+
+    /// One shape per season: blossom, a scalloped sun, a quatrefoil leaf, a soft snowflake.
+    var shape: String {
+        switch season {
+        case .spring: "shape-blossom"
+        case .summer: "shape-scallop"
+        case .autumn: "shape-quatrefoil"
+        case .winter: "shape-soft-hexagon"
+        }
+    }
+
+    /// A tint of the page colour by day; after dark it is the page colour itself.
+    var background: Color {
+        switch time {
+        case .morning: Color(light: 0xF6E7D8, dark: 0x16120F, night: 0x0B0908)
+        case .day: Palette.sand
+        case .evening: Color(light: 0xEEE5EC, dark: 0x16120F, night: 0x0B0908)
+        }
+    }
+}
+
+/// One shape, a shade off the background, in a wide diamond grid that drifts
+/// slowly down and across. Still with Reduce Motion.
 struct ShapePattern: View {
+    let shape: String
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    private static let names = ["shape-blossom", "shape-pebble", "shape-quatrefoil", "shape-scallop",
-                                "shape-soft-square", "shape-pill", "shape-soft-hexagon"]
-    private static let cell: CGFloat = 76
+    private static let cell: CGFloat = 92
 
     var body: some View {
         TimelineView(.animation(paused: reduceMotion)) { timeline in
             Canvas { context, size in
+                guard let image = context.resolveSymbol(id: 0) else { return }
                 let cell = Self.cell
-                // One full repeat of the pattern is seven cells; drift a little each second.
-                let period = cell * CGFloat(Self.names.count)
-                let drift = reduceMotion ? 0 : CGFloat(timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 600)) * 14
+                // The pattern repeats every two rows; drift five points a second.
+                let period = cell * 2
+                let drift = reduceMotion ? 0 : CGFloat(timeline.date.timeIntervalSinceReferenceDate.truncatingRemainder(dividingBy: 3600)) * 5
                 let shift = drift.truncatingRemainder(dividingBy: period)
-                let columns = Int(size.width / cell) + 3, rows = Int(size.height / cell) + 3
-                let extra = Int(period / cell)
-                for row in -extra..<rows {
-                    for column in -extra..<columns {
-                        let index = ((column + row * 3) % Self.names.count + Self.names.count) % Self.names.count
-                        guard let image = context.resolveSymbol(id: index) else { continue }
+                let columns = Int(size.width / cell) + 2, rows = Int(size.height / (cell / 2)) + 2
+                for row in -5..<rows {
+                    for column in -3..<columns {
                         let stagger = row.isMultiple(of: 2) ? 0 : cell / 2
-                        let side = cell * (index.isMultiple(of: 3) ? 0.5 : 0.42)
                         let x = CGFloat(column) * cell + stagger + shift
-                        let y = CGFloat(row) * cell + shift
-                        context.draw(image, in: CGRect(x: x - side / 2, y: y - side / 2, width: side, height: side))
+                        let y = CGFloat(row) * cell / 2 + shift
+                        context.draw(image, at: CGPoint(x: x, y: y))
                     }
                 }
             } symbols: {
-                // Tinted here, so the shapes follow day, dark and night.
-                ForEach(Array(Self.names.enumerated()), id: \.offset) { index, name in
-                    Image(name).resizable().scaledToFit()
-                        .foregroundStyle(Palette.ink.opacity(index.isMultiple(of: 2) ? 0.09 : 0.06))
-                        .frame(width: 40, height: 40)
-                        .tag(index)
-                }
+                // Tinted here, so the shape follows day, dark and night.
+                Image(shape).resizable().scaledToFit()
+                    .foregroundStyle(Palette.ink.opacity(0.05))
+                    .frame(width: 34, height: 34)
+                    .tag(0)
             }
         }
         .ignoresSafeArea()
