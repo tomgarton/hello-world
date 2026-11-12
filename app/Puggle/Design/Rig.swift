@@ -126,6 +126,11 @@ private struct WarmLightKey: EnvironmentKey {
     static let defaultValue: UnitPoint? = nil
 }
 
+/// Drawn as if by hand: a line that wavers a little, and a grain like paper in the colour.
+private struct HandDrawnKey: EnvironmentKey {
+    static var defaultValue: Bool { UserDefaults.standard.string(forKey: "drawingStyle") == "pencil" }
+}
+
 private struct LineStyleKey: EnvironmentKey {
     static var defaultValue: LineStyle { .chosen }
 }
@@ -139,6 +144,11 @@ extension EnvironmentValues {
     var warmLight: UnitPoint? {
         get { self[WarmLightKey.self] }
         set { self[WarmLightKey.self] = newValue }
+    }
+
+    var handDrawn: Bool {
+        get { self[HandDrawnKey.self] }
+        set { self[HandDrawnKey.self] = newValue }
     }
 
     var lineStyle: LineStyle {
@@ -180,14 +190,15 @@ extension Color {
 enum RigRenderer {
     /// Draws every part, each moved by its state and by its parents'.
     static func draw(_ rig: Rig, states: [String: PartState], face: [String: String]? = nil, style: LineStyle, moonlit: Bool = false,
-                     warmLight: UnitPoint? = nil, in context: inout GraphicsContext, size: CGSize) {
+                     warmLight: UnitPoint? = nil, handDrawn: Bool = false, in context: inout GraphicsContext, size: CGSize) {
         let face = face ?? rig.face ?? [:]
         let scale = min(size.width / rig.size[0], size.height / rig.size[1])
         let fit = CGAffineTransform(translationX: (size.width - rig.size[0] * scale) / 2, y: size.height - rig.size[1] * scale)
             .scaledBy(x: scale, y: scale)
         var world: [String: CGAffineTransform] = [:]
         for part in rig.parts {
-            let state = states[part.id] ?? .rest
+            var state = states[part.id] ?? .rest
+            if handDrawn { HandDrawn.adjust(&state, for: part.id) }
             let pivot = CGPoint(x: part.pivot[0], y: part.pivot[1])
             // About the pivot: scale, then turn, then shift.
             let local = CGAffineTransform(translationX: pivot.x + state.x, y: pivot.y + state.y)
@@ -202,7 +213,18 @@ enum RigRenderer {
             if let when = part.when?.split(separator: "="), when.count == 2, face[String(when[0])] != String(when[1]) { continue }
             var layer = context
             layer.concatenate(transform)
-            for shape in part.shapes { draw(shape, style: style, moonlit: moonlit, in: &layer) }
+            for (index, shape) in part.shapes.enumerated() {
+                draw(shape, key: handDrawn ? "\(rig.name)/\(part.id)/\(index)" : nil, style: style, moonlit: moonlit, in: &layer)
+            }
+        }
+        if handDrawn {
+            // Grain, as of crayon on paper, only over what has been drawn.
+            var grain = context
+            grain.blendMode = .sourceAtop
+            grain.concatenate(fit)
+            let specks = HandDrawn.grain(width: rig.size[0], height: rig.size[1])
+            grain.fill(specks.light, with: .color(.white.opacity(0.16)))
+            grain.fill(specks.dark, with: .color(.black.opacity(0.10)))
         }
         // Warm light from a lamp nearby, laid only over what has been drawn.
         if let warmLight {
@@ -215,18 +237,32 @@ enum RigRenderer {
         }
     }
 
-    private static func draw(_ shape: Rig.Shape, style: LineStyle, moonlit: Bool, in context: inout GraphicsContext) {
+    private static func draw(_ shape: Rig.Shape, key: String?, style: LineStyle, moonlit: Bool, in context: inout GraphicsContext) {
         var path = outline(of: shape)
         if let turn = shape.rotate, let x = shape.x, let y = shape.y {
             path = path.applying(CGAffineTransform(translationX: x, y: y).rotated(by: turn * .pi / 180).translatedBy(x: -x, y: -y))
+        }
+        // By hand: the same shape, wavering a little. Kept, so it is worked out once.
+        var sketch: Path?
+        if let key {
+            path = HandDrawn.wavering(path, key: key, phase: 0)
+            sketch = HandDrawn.wavering(path, key: key + "/2", phase: 2.4)
         }
         if let fill = shape.fill {
             context.fill(path, with: .color(Color(rigHex: fill).moonlit(moonlit, 0.6)))
         }
         if let stroke = shape.stroke {
             let colour = style == .tinted ? (shape.tint ?? stroke) : stroke
-            context.stroke(path, with: .color(Color(rigHex: colour).moonlit(moonlit, 0.6)),
-                           style: StrokeStyle(lineWidth: shape.width ?? 1, lineCap: shape.cap == "round" ? .round : .butt, lineJoin: .round))
+            let width = shape.width ?? 1
+            let cap: CGLineCap = shape.cap == "round" ? .round : .butt
+            let ink = Color(rigHex: colour).moonlit(moonlit, 0.6)
+            // An outline (it has a tint) is drawn like a pencil: a thinner line and a second, lighter pass.
+            if let sketch, shape.tint != nil, width < 12 {
+                context.stroke(path, with: .color(ink.opacity(0.92)), style: StrokeStyle(lineWidth: width * 0.74, lineCap: .round, lineJoin: .round))
+                context.stroke(sketch, with: .color(ink.opacity(0.5)), style: StrokeStyle(lineWidth: width * 0.36, lineCap: .round, lineJoin: .round))
+            } else {
+                context.stroke(path, with: .color(ink), style: StrokeStyle(lineWidth: width, lineCap: cap, lineJoin: .round))
+            }
         }
     }
 
@@ -343,6 +379,15 @@ final class RigRuntime {
                 change("eye-left") { $0.sy = 0.12 }
                 change("eye-right") { $0.sy = 0.12 }
             }
+            // Now and then she tips her head to one side, as if wondering, and holds it.
+            let pause = 9.0, turn = floor(t / pause)
+            var whim = SeededRandom(UInt64(turn) &* 40503 &+ 5)
+            let begin = turn * pause + whim.range(1, 6)
+            if t >= begin, t < begin + 1.5 {
+                let side = whim.unit() < 0.5 ? -1.0 : 1.0
+                change("head") { $0.r += 6 * side }
+                change("clip") { $0.r += 5 * side }
+            }
             // Eyes lead, and the head follows a little.
             for eye in ["eye-left", "eye-right"] {
                 change(eye) { $0.x += Double(look.x) * 4.5; $0.y += Double(look.y) * 3.5 }
@@ -425,18 +470,19 @@ struct RigView: View {
     @Environment(\.lineStyle) private var lineStyle
     @Environment(\.moonlit) private var moonlit
     @Environment(\.warmLight) private var warmLight
+    @Environment(\.handDrawn) private var handDrawn
 
     var body: some View {
         if moving {
             TimelineView(.animation) { timeline in
                 Canvas { context, size in
                     let states = runtime.advance(to: timeline.date)
-                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face, style: lineStyle, moonlit: moonlit, warmLight: warmLight, in: &context, size: size)
+                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
                 }
             }
         } else {
             Canvas { context, size in
-                RigRenderer.draw(runtime.rig, states: [:], style: lineStyle, moonlit: moonlit, warmLight: warmLight, in: &context, size: size)
+                RigRenderer.draw(runtime.rig, states: [:], style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
             }
         }
     }
@@ -448,10 +494,109 @@ struct RigFrame: View {
     let states: [String: PartState]
     var face: [String: String]?
     @Environment(\.lineStyle) private var lineStyle
+    @Environment(\.handDrawn) private var handDrawn
+    @Environment(\.moonlit) private var moonlit
 
     var body: some View {
         Canvas { context, size in
-            RigRenderer.draw(rig, states: states, face: face, style: lineStyle, in: &context, size: size)
+            RigRenderer.draw(rig, states: states, face: face, style: lineStyle, moonlit: moonlit, handDrawn: handDrawn, in: &context, size: size)
         }
+    }
+}
+
+// MARK: Drawn by hand
+
+/// The hand-drawn look: outlines that waver, smaller eyes set wide and low, and a paper grain.
+enum HandDrawn {
+    private static var paths: [String: Path] = [:]
+    private static var specks: (light: Path, dark: Path)?
+
+    /// Her eyes sit lower and wider apart and are a touch smaller, close to the bill.
+    static func adjust(_ state: inout PartState, for part: String) {
+        let side: Double = part.hasSuffix("left") ? -1 : (part.hasSuffix("right") ? 1 : 0)
+        if part.hasPrefix("eye-") {
+            state.x += 5 * side; state.y += 9; state.sx *= 0.8; state.sy *= 0.8
+        } else if part.hasPrefix("eyes-") {
+            state.y += 9
+        } else if part.hasPrefix("brow-") {
+            state.x += 5 * side; state.y += 8
+        }
+    }
+
+    /// The path with a slow waver along it, the same every time for the same key.
+    static func wavering(_ path: Path, key: String, phase: Double) -> Path {
+        if let kept = paths[key] { return kept }
+        var seed = SeededRandom(UInt64(abs(key.hashValue % 1_000_003)) &* 31 &+ 7)
+        // hashValue changes between launches; the look need only hold within one.
+        let shift = seed.range(0, 6.28) + phase
+        var result = Path()
+        var points: [CGPoint] = []
+        var closed = false
+        func finish() {
+            guard points.count > 1 else { points = []; return }
+            // Walk the line in small steps, so straight runs can waver too.
+            var fine: [CGPoint] = []
+            for i in 0..<(points.count - 1) {
+                let a = points[i], b = points[i + 1]
+                let steps = max(1, Int(hypot(b.x - a.x, b.y - a.y) / 2.5))
+                for step in 0..<steps {
+                    let f = CGFloat(step) / CGFloat(steps)
+                    fine.append(CGPoint(x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f))
+                }
+            }
+            if !closed { fine.append(points[points.count - 1]) }
+            var lengths: [CGFloat] = [0]
+            for i in 1..<fine.count { lengths.append(lengths[i - 1] + hypot(fine[i].x - fine[i - 1].x, fine[i].y - fine[i - 1].y)) }
+            let total = max(lengths.last ?? 1, 1)
+            // Whole numbers of waves, so a closed shape meets itself.
+            let slow = max(1, (total / 52).rounded()), quick = max(2, (total / 21).rounded())
+            // Short marks waver less, or they would lose their shape.
+            let reach = min(0.8, total / 90)
+            var moved: [CGPoint] = []
+            for i in 0..<fine.count {
+                let before = fine[max(i - 1, 0)], after = fine[min(i + 1, fine.count - 1)]
+                let dx = after.x - before.x, dy = after.y - before.y
+                let length = max(hypot(dx, dy), 0.001)
+                let along = Double(lengths[i] / total) * 2 * .pi
+                let push = CGFloat(sin(along * Double(slow) + shift) + 0.3 * sin(along * Double(quick) + shift * 1.7)) * reach
+                moved.append(CGPoint(x: fine[i].x - dy / length * push, y: fine[i].y + dx / length * push))
+            }
+            result.addLines(moved)
+            if closed { result.closeSubpath() }
+            points = []
+            closed = false
+        }
+        path.cgPath.flattened(threshold: 0.4).applyWithBlock { element in
+            switch element.pointee.type {
+            case .moveToPoint:
+                finish()
+                points = [element.pointee.points[0]]
+            case .addLineToPoint:
+                points.append(element.pointee.points[0])
+            case .closeSubpath:
+                if let first = points.first { points.append(first) }
+                closed = true
+                finish()
+            default:
+                break
+            }
+        }
+        finish()
+        paths[key] = result
+        return result
+    }
+
+    /// Small specks, light and dark, over the whole drawing.
+    static func grain(width: CGFloat, height: CGFloat) -> (light: Path, dark: Path) {
+        if let specks { return specks }
+        var random = SeededRandom(8191)
+        var light = Path(), dark = Path()
+        for i in 0..<2600 {
+            let size = CGFloat(random.range(0.5, 1.5))
+            let speck = CGRect(x: CGFloat(random.range(0, 1)) * width, y: CGFloat(random.range(0, 1)) * height, width: size, height: size)
+            if i.isMultiple(of: 2) { light.addEllipse(in: speck) } else { dark.addEllipse(in: speck) }
+        }
+        specks = (light, dark)
+        return (light, dark)
     }
 }

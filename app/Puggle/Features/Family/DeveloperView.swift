@@ -7,6 +7,7 @@ struct DeveloperView: View {
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage("debugScene") private var scene = ""
     @AppStorage("lineStyle") private var lineStyle = "tinted"
+    @AppStorage("drawingStyle") private var drawingStyle = "clean"
     @AppStorage("debugMonth") private var month = ""
     @AppStorage("debugHour") private var hour = ""
     @AppStorage("debugPeekOften") private var peekOften = false
@@ -40,6 +41,10 @@ struct DeveloperView: View {
                 Picker("Character outlines", selection: $lineStyle) {
                     Text("Coloured lines").tag("tinted")
                     Text("One dark line").tag("ink")
+                }
+                Picker("Puggle's drawing", selection: $drawingStyle) {
+                    Text("Clean").tag("clean")
+                    Text("Hand-drawn").tag("pencil")
                 }
                 NavigationLink("Puggle's moves") { MovesGalleryView() }
                 NavigationLink("Every scene, at each time of day") { SceneGalleryView() }

@@ -120,6 +120,49 @@ struct SceneGalleryView: View {
         save(strip, as: name)
     }
 
+    /// Puggle three ways: as she was, with the yellow pocket and clip detail, and drawn by hand.
+    @MainActor static func writeDrawingStyles(name: String) {
+        guard let rig = Rig.load("puggle") else { return }
+        // "Before": the pocket unfilled and the clip plain.
+        var before = rig
+        for index in before.parts.indices {
+            if before.parts[index].id == "dress" { before.parts[index].shapes[1].fill = nil; before.parts[index].shapes[1].tint = "#1B4387" }
+            if before.parts[index].id == "clip" { before.parts[index].shapes.removeLast(3) }
+        }
+        let happy: [String: PartState] = {
+            var up = PartState(); up.y = -4
+            var glow = PartState(); glow.sx = 1.14; glow.sy = 1.14
+            var tilt = PartState(); tilt.r = -5
+            return ["brow-left": up, "brow-right": up, "blush": glow, "head": tilt]
+        }()
+        func cell(_ rig: Rig, _ title: String, hand: Bool, dark: Bool, face: [String: String]? = nil, states: [String: PartState] = [:]) -> some View {
+            RigFrame(rig: rig, states: states, face: face)
+                .environment(\.handDrawn, hand)
+                .environment(\.moonlit, dark)
+                .frame(width: 300, height: 375)
+                .padding(12)
+                .background(dark ? Color(hex: 0x25275C) : Color(hex: 0xF2ECDD))
+                .overlay(alignment: .topLeading) {
+                    Text(title).font(.caption.weight(.semibold)).foregroundStyle(dark ? Color.white : Color.black).padding(8)
+                }
+        }
+        let sheet = VStack(spacing: 4) {
+            HStack(spacing: 4) {
+                cell(before, "As she was", hand: false, dark: false)
+                cell(rig, "Yellow pocket, clip detail", hand: false, dark: false)
+                cell(rig, "Drawn by hand", hand: true, dark: false)
+            }
+            HStack(spacing: 4) {
+                cell(rig, "Happy", hand: false, dark: false, face: ["eyes": "happy", "brows": "on"], states: happy)
+                cell(rig, "Happy, by hand", hand: true, dark: false, face: ["eyes": "happy", "brows": "on"], states: happy)
+                cell(rig, "By hand, at night", hand: true, dark: true)
+            }
+        }
+        .background(Color.gray)
+        .environment(\.lineStyle, .tinted)
+        save(sheet, as: name)
+    }
+
     @MainActor private static func save(_ view: some View, as name: String) {
         let renderer = ImageRenderer(content: view)
         renderer.scale = 2
