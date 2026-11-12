@@ -6,6 +6,7 @@ import SwiftUI
 struct SceneGalleryView: View {
     @State var kind: SceneKind = .hills
     @State private var pull: CGFloat = 0
+    @State private var weather = Weather.current
     @StateObject private var puggle = PuggleController()
 
     private static let looks: [(name: String, hour: Int, dark: Bool)] = [
@@ -212,6 +213,35 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
+    /// Every kind of weather in every scene, by day, with what she wears for it.
+    @MainActor static func writeWeather(name: String, dark: Bool) {
+        let controller = PuggleController()
+        let sheet = VStack(spacing: 4) {
+            ForEach(Weather.allCases) { weather in
+                HStack(spacing: 4) {
+                    ForEach(SceneKind.allCases, id: \.rawValue) { kind in
+                        ZStack(alignment: .bottom) {
+                            PuggleScene(kind: kind, dark: dark, hourOverride: dark ? 22 : 13, still: true, weather: weather)
+                            PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                                .environment(\.moonlit, dark)
+                                .environment(\.outfit, weather.outfit(night: dark))
+                        }
+                        .frame(width: 402, height: PuggleHeader.sceneHeight)
+                        .clipped()
+                        .overlay(alignment: .topLeading) {
+                            Text(weather.name).font(.caption2.weight(.semibold)).padding(4)
+                                .background(.black.opacity(0.35), in: Capsule()).foregroundStyle(.white).padding(6)
+                        }
+                        .environment(\.colorScheme, dark ? .dark : .light)
+                    }
+                }
+            }
+        }
+        .background(Color.gray)
+        .environment(\.lineStyle, .tinted)
+        save(sheet, as: name)
+    }
+
     @MainActor private static func save(_ view: some View, as name: String) {
         let renderer = ImageRenderer(content: view)
         renderer.scale = 2
@@ -230,12 +260,17 @@ struct SceneGalleryView: View {
                     Text("Bush").tag(SceneKind.bush)
                 }
                 .pickerStyle(.segmented)
+                Picker("Weather", selection: $weather) {
+                    ForEach(Weather.allCases) { Text($0.name).tag($0) }
+                }
+                .pickerStyle(.menu)
                 Slider(value: $pull, in: 0...460) { Text("Pulled down") }
                     .accessibilityLabel("Pulled down")
                 ForEach(Self.looks, id: \.name) { look in
                     ZStack(alignment: .bottom) {
-                        PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour)
+                        PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour, weather: weather)
                         PuggleView(controller: puggle).frame(height: 118).padding(.bottom, 26)
+                            .environment(\.outfit, weather.outfit(night: PuggleScene.isNight(dark: look.dark, hour: look.hour)))
                             .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
                             .environment(\.warmLight, PuggleScene.lamp(for: kind, night: PuggleScene.isNight(dark: look.dark, hour: look.hour)))
                     }

@@ -48,16 +48,21 @@ struct PuggleScene: View {
     var hourOverride: Int?
     /// Drawn at one moment, for pictures of it.
     var still = false
+    /// The weather to show. Nil means the one chosen in the Developer menu (later, the real one).
+    var weather: Weather?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @AppStorage("debugWeather") private var chosenWeather = ""
 
     var body: some View {
+        let weather = weather ?? Weather(rawValue: chosenWeather) ?? .clear
         if still || reduceMotion {
-            SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0)
+            // Half a second in, so rain and snow are already falling in a still picture.
+            SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather)
         } else {
             // Thirty times a second is plenty for things that drift and sway.
             TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
                 SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride,
-                           t: timeline.date.timeIntervalSince(SceneClock.start))
+                           t: timeline.date.timeIntervalSince(SceneClock.start), weather: weather)
             }
         }
     }
@@ -85,6 +90,7 @@ struct SceneFrame: View {
     /// For the scene gallery: show this hour rather than the clock's.
     var hourOverride: Int?
     var t: Double = 0
+    var weather: Weather = .clear
 
     private var hour: Int {
         if let hourOverride { return hourOverride }
@@ -125,26 +131,36 @@ struct SceneFrame: View {
             let w = geometry.size.width, h = max(geometry.size.height - pull, 1)
             ZStack(alignment: .bottom) {
                 LinearGradient(colors: [sky[0]] + sky, startPoint: .top, endPoint: .bottom)
+                // The weather turns the sky grey, pale or warm, down to the horizon.
+                if let wash = weather.skyWash(night: starry) {
+                    wash
+                }
                 // One sky from the top of the pull to the horizon, so nothing is left bare.
-                if starry {
+                if starry && !weather.overcast {
                     StarField(sceneHeight: h, moon: CGPoint(x: w * kind.lightSpot, y: pull + h * 0.36), t: t)
                         .opacity(appeared ? 1 : 0)
                 }
                 // The scene itself keeps its height and sits at the bottom.
                 ZStack {
-                    light(w, h)
+                    if !weather.overcast { light(w, h) }
                     clouds(w, h)
                     scenery(w, h)
+                    // The same light falls on the far scenery, or it would glow under a dark sky.
+                    if weather.overcast, let wash = weather.skyWash(night: starry) { wash.opacity(0.55) }
+                    WeatherBehind(weather: weather, night: starry, t: t)
                     ground
+                    WeatherGround(weather: weather, night: starry, t: t)
                     details(w, h)
                     // Puggle's shadow, so she stands on the hill.
                     Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
                         .frame(width: 72, height: 9).position(x: w / 2, y: h - 27)
                     friend(w, h)
+                    WeatherNear(weather: weather, t: t)
                 }
                 .frame(width: w, height: h)
                 surprises(w)
                     .frame(width: w, height: geometry.size.height, alignment: .top)
+                WeatherFront(weather: weather, night: starry, t: t, sceneHeight: h)
             }
         }
         .accessibilityHidden(true)
@@ -175,16 +191,17 @@ struct SceneFrame: View {
     }
 
     private func clouds(_ w: CGFloat, _ h: CGFloat) -> some View {
-        let tint: Color = switch phase {
+        let plain: Color = switch phase {
         case .night: Color(hex: 0x9A96E0).opacity(0.2)
         case .dawn: Color(hex: 0xFFF6EC).opacity(0.85)
         case .dusk: Color(hex: 0xFBE4E6).opacity(0.8)
         default: Color.white.opacity(0.8)
         }
+        let tint = weather.cloudTint(night: starry) ?? plain
         // Different each day and each time the app is opened, and drifting on the day's wind.
         var random = SeededRandom(SceneClock.seed &+ UInt64(kind.rawValue) &* 7_919)
-        let count = 2 + Int(random.unit() * 2.99)
-        let wind = (random.unit() < 0.5 ? -1.0 : 1.0) * random.range(2.5, 5.5)
+        let count = 2 + Int(random.unit() * 2.99) + weather.extraClouds
+        let wind = (random.unit() < 0.5 ? -1.0 : 1.0) * random.range(2.5, 5.5) * weather.windiness
         var drifting: [(x: CGFloat, y: CGFloat, width: CGFloat)] = []
         for _ in 0..<count {
             let width = CGFloat(random.range(46, 96))
@@ -248,7 +265,7 @@ struct SceneFrame: View {
             Sailboat(dark: starry).frame(width: 26, height: 28)
                 .rotationEffect(.degrees(3 * sin(t * 0.8)), anchor: .bottom)
                 .position(x: w * 0.8 + CGFloat(sin(t / 23)) * 20, y: h * 0.555 + CGFloat(sin(t * 1.1)) * 1.2)
-            if starry {
+            if starry && !weather.overcast {
                 // The moon on the water.
                 MoonPath().fill(Color(hex: 0xF3E0B8).opacity(0.4)).frame(width: 34, height: h * 0.1)
                     .scaleEffect(x: 1 + 0.14 * sin(t * 1.7))
@@ -267,7 +284,7 @@ struct SceneFrame: View {
             Fence().fill(tone(0xF6EDD9, 0x4B4F8A)).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
             Fence().stroke(tone(0xD8C8A8, 0x363A72), lineWidth: 1).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
             Hill(rise: 0.6, left: 0.73, right: 0.71).fill(tone(0xB9D49E, 0x232858))
-            WashingLine(dark: starry, t: t).frame(width: w * 0.38, height: h * 0.36).position(x: w * 0.23, y: h * 0.52)
+            WashingLine(dark: starry, t: t, gust: weather.sway).frame(width: w * 0.38, height: h * 0.36).position(x: w * 0.23, y: h * 0.52)
             if starry {
                 // A lantern on the post: the one warm light in the yard.
                 Lantern().frame(width: 120, height: 120).opacity(0.93 + 0.07 * sin(t * 6.3) * sin(t * 2.1)).position(x: w * 0.405, y: h * 0.4)
@@ -288,11 +305,11 @@ struct SceneFrame: View {
         switch kind {
         case .hills:
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10)
-                .rotationEffect(.degrees(6 * sin(t * 1.3 + 0.1 * 9)), anchor: .bottom).position(x: w * 0.1, y: h * 0.8)
+                .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.1 * 9)), anchor: .bottom).position(x: w * 0.1, y: h * 0.8)
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9)
-                .rotationEffect(.degrees(6 * sin(t * 1.3 + 0.72 * 9)), anchor: .bottom).position(x: w * 0.72, y: h * 0.74)
+                .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.72 * 9)), anchor: .bottom).position(x: w * 0.72, y: h * 0.74)
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10)
-                .rotationEffect(.degrees(6 * sin(t * 1.3 + 0.92 * 9)), anchor: .bottom).position(x: w * 0.92, y: h * 0.83)
+                .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.92 * 9)), anchor: .bottom).position(x: w * 0.92, y: h * 0.83)
         case .beach:
             Starfish().fill(tone(0xF2A48E, 0x8C5A86)).frame(width: 15, height: 15).rotationEffect(.degrees(12)).position(x: w * 0.8, y: h * 0.9)
         case .backyard:
@@ -303,15 +320,15 @@ struct SceneFrame: View {
                     .frame(width: 170, height: 34).position(x: w * 0.44, y: h * 0.84)
             }
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10)
-                .rotationEffect(.degrees(6 * sin(t * 1.3 + 0.09 * 9)), anchor: .bottom).position(x: w * 0.09, y: h * 0.8)
+                .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.09 * 9)), anchor: .bottom).position(x: w * 0.09, y: h * 0.8)
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9)
-                .rotationEffect(.degrees(6 * sin(t * 1.3 + 0.9 * 9)), anchor: .bottom).position(x: w * 0.9, y: h * 0.8)
+                .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.9 * 9)), anchor: .bottom).position(x: w * 0.9, y: h * 0.8)
         case .bush:
             let dry = tone(0xB0A474, 0x5A5C8C)
             GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10)
-                .rotationEffect(.degrees(6 * sin(t * 1.3 + 0.7 * 9)), anchor: .bottom).position(x: w * 0.7, y: h * 0.75)
+                .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.7 * 9)), anchor: .bottom).position(x: w * 0.7, y: h * 0.75)
             GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9)
-                .rotationEffect(.degrees(6 * sin(t * 1.3 + 0.9 * 9)), anchor: .bottom).position(x: w * 0.9, y: h * 0.81)
+                .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.9 * 9)), anchor: .bottom).position(x: w * 0.9, y: h * 0.81)
         }
     }
 
@@ -410,9 +427,10 @@ struct SceneFrame: View {
                 .position(x: w * 0.77 + CGFloat(sin(t * 0.09)) * 5, y: h * 0.85)
                 .scaleEffect(pop).opacity(appeared ? 1 : 0)
             if starry {
+                // They stay in when it is wet.
                 Fireflies(t: t).frame(width: 70, height: 50).position(x: w * 0.62, y: h * 0.47)
-                    .opacity(appeared ? 1 : 0)
-            } else {
+                    .opacity(appeared && !weather.wet ? 1 : 0)
+            } else if !weather.wet && weather != .windy {
                 // Wings beating, wandering in a loose loop.
                 Butterfly(dark: false, open: 0.38 + 0.62 * abs(sin(t * 7))).frame(width: 36, height: 30)
                     .rotationEffect(.degrees(8 * sin(t * 0.9)))
@@ -731,6 +749,8 @@ struct GumTree: View {
 struct WashingLine: View {
     let dark: Bool
     var t = 0.0
+    /// 1 on a fine day; more when the wind is up, and the washing flies out sideways.
+    var gust = 1.0
     var body: some View {
         Canvas { context, size in
             let w = size.width, h = size.height
@@ -752,7 +772,7 @@ struct WashingLine: View {
             let dim = dark ? 0.5 : 1.0
             // Each thing swings from its peg in the breeze, not quite together.
             func swing(_ peg: CGPoint, _ phase: Double) -> CGAffineTransform {
-                let angle = 0.13 * sin(t * 1.3 + phase) + 0.07 * sin(t * 0.41 + phase * 2)
+                let angle = (0.13 * sin(t * 1.3 * min(gust, 2) + phase) + 0.07 * sin(t * 0.41 + phase * 2)) * gust + 0.24 * (gust - 1)
                 return CGAffineTransform(translationX: peg.x, y: peg.y).rotated(by: angle).translatedBy(x: -peg.x, y: -peg.y)
             }
             // A little suit.

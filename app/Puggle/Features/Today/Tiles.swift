@@ -337,6 +337,9 @@ struct PuggleHeader: View {
     @State private var pull: CGFloat = 0
     @State private var furthest: CGFloat = 0
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
+    /// The weather chosen in the Developer menu (later, the real one). Read here so she changes with it.
+    @AppStorage("debugWeather") private var chosenWeather = ""
+    private var weather: Weather { Weather(rawValue: chosenWeather) ?? .clear }
     @State private var lift: CGFloat = 0
     @State private var tilt: Double = 0
 
@@ -422,6 +425,7 @@ struct PuggleHeader: View {
             Button(action: react) {
                 PuggleView(controller: controller)
                     .environment(\.moonlit, PuggleScene.isNight(dark: scheme == .dark || night))
+                    .environment(\.outfit, weather.outfit(night: PuggleScene.isNight(dark: scheme == .dark || night)))
                     .environment(\.warmLight, PuggleScene.lamp(for: .today, night: PuggleScene.isNight(dark: scheme == .dark || night)))
                     .frame(height: 118)
                     .scaleEffect(x: 1, y: 1 - nod * 0.06, anchor: .bottom)
@@ -464,6 +468,12 @@ struct PuggleHeader: View {
     }
 
     private func react() {
+        // In the rain a tap is a jump in her puddle.
+        if weather.outfit == "rain", let rig = controller.rig, !quiet, !reduceMotion {
+            rig.play("splash")
+            Haptics.tap()
+            return
+        }
         controller.greet()
         guard !controller.isAnimated, !reduceMotion else {
             if !quiet { Haptics.tap() }

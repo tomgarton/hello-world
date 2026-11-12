@@ -484,18 +484,19 @@ struct RigView: View {
     @Environment(\.moonlit) private var moonlit
     @Environment(\.warmLight) private var warmLight
     @Environment(\.handDrawn) private var handDrawn
+    @Environment(\.outfit) private var outfit
 
     var body: some View {
         if moving {
             TimelineView(.animation) { timeline in
                 Canvas { context, size in
                     let states = runtime.advance(to: timeline.date)
-                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
+                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face.merging(["outfit": outfit]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
                 }
             }
         } else {
             Canvas { context, size in
-                RigRenderer.draw(runtime.rig, states: [:], style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
+                RigRenderer.draw(runtime.rig, states: [:], face: (runtime.rig.face ?? [:]).merging(["outfit": outfit]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
             }
         }
     }
@@ -509,10 +510,11 @@ struct RigFrame: View {
     @Environment(\.lineStyle) private var lineStyle
     @Environment(\.handDrawn) private var handDrawn
     @Environment(\.moonlit) private var moonlit
+    @Environment(\.outfit) private var outfit
 
     var body: some View {
         Canvas { context, size in
-            RigRenderer.draw(rig, states: states, face: face, style: lineStyle, moonlit: moonlit, handDrawn: handDrawn, in: &context, size: size)
+            RigRenderer.draw(rig, states: states, face: (face ?? rig.face ?? [:]).merging(["outfit": outfit]) { _, new in new }, style: lineStyle, moonlit: moonlit, handDrawn: handDrawn, in: &context, size: size)
         }
     }
 }

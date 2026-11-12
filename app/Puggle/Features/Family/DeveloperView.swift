@@ -8,6 +8,7 @@ struct DeveloperView: View {
     @AppStorage("debugScene") private var scene = ""
     @AppStorage("lineStyle") private var lineStyle = "tinted"
     @AppStorage("drawingStyle") private var drawingStyle = "clean"
+    @AppStorage("debugWeather") private var weather = ""
     @AppStorage("debugMonth") private var month = ""
     @AppStorage("debugHour") private var hour = ""
     @AppStorage("debugPeekOften") private var peekOften = false
@@ -37,6 +38,9 @@ struct DeveloperView: View {
                     Text("Beach and crab").tag("1")
                     Text("Backyard and snail").tag("2")
                     Text("Bush and kookaburra").tag("3")
+                }
+                Picker("Weather", selection: $weather) {
+                    ForEach(Weather.allCases) { Text($0.name).tag($0 == .clear ? "" : $0.rawValue) }
                 }
                 Picker("Character outlines", selection: $lineStyle) {
                     Text("Coloured lines").tag("tinted")

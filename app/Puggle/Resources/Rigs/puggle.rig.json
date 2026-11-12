@@ -4,7 +4,7 @@
   240,
   300
  ],
- "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise. She has no mouth: her eyes, eyebrows, cheeks, the tilt of her head and her tail show the feeling. Borrowed from comics: marks on her cheeks when she is pleased, eyes squeezed shut (> <), and sparkles or Zs in the air. Her feet are webbed, each on its own ankle so it can lift and flap.",
+ "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise. She has no mouth: her eyes, eyebrows, cheeks, the tilt of her head and her tail show the feeling. Borrowed from comics: marks on her cheeks when she is pleased, eyes squeezed shut (> <), and sparkles or Zs in the air. Her feet are webbed, each on its own ankle so it can lift and flap. What she wears follows the weather: boots and a coat for rain, a scarf and beanie for cold, a straw hat and zinc for heat.",
  "parts": [
   {
    "id": "body",
@@ -196,6 +196,108 @@
    ]
   },
   {
+   "id": "boot-left",
+   "parent": "foot-left",
+   "pivot": [
+    100,
+    274
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 86,
+     "y": 255,
+     "w": 28,
+     "h": 26,
+     "r": 6,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 79,
+     "y": 271,
+     "w": 42,
+     "h": 23,
+     "r": 10,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 88.5,
+     "y": 258,
+     "w": 23,
+     "h": 14,
+     "r": 3,
+     "fill": "#F4C95D"
+    },
+    {
+     "kind": "path",
+     "d": "M90 261 L110 261",
+     "stroke": "#FBE7A6",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "boot-right",
+   "parent": "foot-right",
+   "pivot": [
+    140,
+    274
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 126,
+     "y": 255,
+     "w": 28,
+     "h": 26,
+     "r": 6,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 119,
+     "y": 271,
+     "w": 42,
+     "h": 23,
+     "r": 10,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 128.5,
+     "y": 258,
+     "w": 23,
+     "h": 14,
+     "r": 3,
+     "fill": "#F4C95D"
+    },
+    {
+     "kind": "path",
+     "d": "M130 261 L150 261",
+     "stroke": "#FBE7A6",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
    "id": "upper",
    "parent": "body",
    "pivot": [
@@ -231,6 +333,55 @@
    ]
   },
   {
+   "id": "coat",
+   "parent": "upper",
+   "pivot": [
+    120,
+    252
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L180 244 Q182 254 170 254 L70 254 Q58 254 60 244 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "width": 7,
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "path",
+     "d": "M100 210 L140 210 L140 219 C140 240.3 100 240.3 100 219 Z",
+     "stroke": "#3A2A20",
+     "width": 5,
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "path",
+     "d": "M120 168 L120 204",
+     "stroke": "#B8892A",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 180,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBE7A6"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 195,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBE7A6"
+    }
+   ]
+  },
+  {
    "id": "arm-left",
    "parent": "upper",
    "pivot": [
@@ -260,6 +411,51 @@
      "stroke": "#3A2A20",
      "width": 4,
      "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-left",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q71.8 198.9 56.5 209.5",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M88 178 Q71.8 198.9 50 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
      "cap": "round"
     },
     {
@@ -317,6 +513,92 @@
      "stroke": "#3A2A20",
      "tint": "#5E3A24",
      "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-right",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q168.2 198.9 183.5 209.5",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M152 178 Q168.2 198.9 190 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "scarf",
+   "parent": "upper",
+   "pivot": [
+    120,
+    170
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M148 170 L160 200 L146 204 L138 174 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M148 186 L158 184",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150 196 L159 194",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
     }
    ]
   },
@@ -401,6 +683,24 @@
      "rx": 1.8,
      "ry": 1.8,
      "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "zinc",
+   "parent": "bill",
+   "pivot": [
+    120,
+    151
+   ],
+   "when": "outfit=sun",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M107 139.5 Q120 136.5 133 139.5",
+     "stroke": "#FF9CC0",
+     "width": 5.5,
+     "cap": "round"
     }
    ]
   },
@@ -604,6 +904,80 @@
      "d": "M158 111 L147 117 L158 123",
      "stroke": "#3A2A20",
      "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "beanie",
+   "parent": "head",
+   "pivot": [
+    120,
+    60
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 36,
+     "rx": 11,
+     "ry": 11,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4.5
+    },
+    {
+     "kind": "path",
+     "d": "M56 88 Q58 40 120 40 Q182 40 184 88 Q120 74 56 88 Z",
+     "fill": "#7FB48F",
+     "stroke": "#3A2A20",
+     "tint": "#4E8060",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M60 80 Q120 64 180 80",
+     "stroke": "#4E8060",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=sun",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 74,
+     "rx": 92,
+     "ry": 17,
+     "fill": "#EBCB8B",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 74 Q74 30 120 30 Q166 30 166 74 Q120 84 74 74 Z",
+     "fill": "#F2D9A2",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M76 66 Q120 76 164 66",
+     "stroke": "#E5553B",
+     "width": 6,
      "cap": "round"
     }
    ]
@@ -815,6 +1189,86 @@
      "stroke": "#8FA3D6",
      "width": 2.4,
      "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "drop-a",
+   "parent": "body",
+   "pivot": [
+    86,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 86,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
+    }
+   ]
+  },
+  {
+   "id": "drop-b",
+   "parent": "body",
+   "pivot": [
+    106,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 106,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
+    }
+   ]
+  },
+  {
+   "id": "drop-c",
+   "parent": "body",
+   "pivot": [
+    134,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 134,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
+    }
+   ]
+  },
+  {
+   "id": "drop-d",
+   "parent": "body",
+   "pivot": [
+    154,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 154,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
     }
    ]
   }
@@ -1902,12 +2356,248 @@
     }
    ],
    "length": 0.64
+  },
+  "splash": {
+   "about": "In the rain: a jump into the puddle she is standing in.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.9
+      },
+      "head": {
+       "y": 4
+      },
+      "arm-left": {
+       "r": -12
+      },
+      "arm-right": {
+       "r": 12
+      },
+      "tail": {
+       "r": 8
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.14,
+     "pose": {
+      "body": {
+       "y": -24
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 60
+      },
+      "arm-right": {
+       "r": -60
+      },
+      "leg-left": {
+       "y": -5
+      },
+      "leg-right": {
+       "y": -5
+      },
+      "foot-left": {
+       "r": -14
+      },
+      "foot-right": {
+       "r": 14
+      },
+      "tail": {
+       "r": -34
+      },
+      "brow-left": {
+       "y": -4
+      },
+      "brow-right": {
+       "y": -4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.38,
+     "pose": {
+      "upper": {
+       "sy": 0.88
+      },
+      "head": {
+       "y": 5
+      },
+      "arm-left": {
+       "r": 30
+      },
+      "arm-right": {
+       "r": -30
+      },
+      "tail": {
+       "r": -10
+      },
+      "drop-a": {
+       "sx": 0.2,
+       "sy": 0.2
+      },
+      "drop-b": {
+       "sx": 0.2,
+       "sy": 0.2
+      },
+      "drop-c": {
+       "sx": 0.2,
+       "sy": 0.2
+      },
+      "drop-d": {
+       "sx": 0.2,
+       "sy": 0.2
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "splash"
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "upper": {
+       "sy": 1.02
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      },
+      "drop-a": {
+       "x": -40,
+       "y": -34
+      },
+      "drop-b": {
+       "x": -16,
+       "y": -58
+      },
+      "drop-c": {
+       "x": 16,
+       "y": -58
+      },
+      "drop-d": {
+       "x": 40,
+       "y": -34
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "splash",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.6,
+     "pose": {
+      "arm-left": {
+       "r": 34
+      },
+      "arm-right": {
+       "r": -34
+      },
+      "drop-a": {
+       "x": -40,
+       "y": -34
+      },
+      "drop-b": {
+       "x": -16,
+       "y": -58
+      },
+      "drop-c": {
+       "x": 16,
+       "y": -58
+      },
+      "drop-d": {
+       "x": 40,
+       "y": -34
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "splash",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.78,
+     "pose": {
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      },
+      "drop-a": {
+       "x": -54,
+       "y": 0,
+       "sx": 0.5,
+       "sy": 0.5
+      },
+      "drop-b": {
+       "x": -24,
+       "y": 2,
+       "sx": 0.5,
+       "sy": 0.5
+      },
+      "drop-c": {
+       "x": 24,
+       "y": 2,
+       "sx": 0.5,
+       "sy": 0.5
+      },
+      "drop-d": {
+       "x": 54,
+       "y": 0,
+       "sx": 0.5,
+       "sy": 0.5
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "splash",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.0,
+     "pose": {},
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.3,
+     "pose": {}
+    }
+   ],
+   "length": 1.5
   }
  },
  "face": {
   "eyes": "open",
   "brows": "off",
   "cheeks": "plain",
-  "air": "none"
+  "air": "none",
+  "outfit": "none"
  }
 }

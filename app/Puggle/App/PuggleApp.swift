@@ -149,6 +149,9 @@ struct RootView: View {
                 // For reviewing the drawings: "-debugSheet 1" saves every scene to Documents.
                 if UserDefaults.standard.string(forKey: "debugSheet") == "1" {
                     SceneGalleryView.writeOptions(name: "options.png")
+                    SceneGalleryView.writeWeather(name: "weather.png", dark: false)
+                    SceneGalleryView.writeWeather(name: "weather-night.png", dark: true)
+                    SceneGalleryView.writeStrip(move: "splash", seconds: 1.3, every: 0.1, name: "strip-splash.png")
                     SceneGalleryView.writeDrawingStyles(name: "drawing.png")
                     SceneGalleryView.writeLineStyles(name: "lines.png")
                     SceneGalleryView.writeStrip(move: "greet", seconds: 1.8, every: 0.1, name: "strip-greet.png")
