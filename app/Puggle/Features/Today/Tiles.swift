@@ -312,6 +312,7 @@ struct PuggleHeader: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.puggleNight) private var night
     @State private var nod: CGFloat = 0
+    @State private var appeared = false
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
     @State private var lift: CGFloat = 0
     @State private var tilt: Double = 0
@@ -334,7 +335,13 @@ struct PuggleHeader: View {
             }
             .accessibilityElement(children: .combine)
         }
-        .onAppear { controller.asleep = quiet }
+        .onAppear {
+            controller.asleep = quiet
+            guard !appeared else { return }
+            if reduceMotion { appeared = true } else {
+                withAnimation(.spring(duration: 0.7, bounce: 0.35).delay(0.15)) { appeared = true }
+            }
+        }
         .onChange(of: quiet) { _, now in controller.asleep = now }
         // A small nod each time something is saved. No sound or tap: the save has its own.
         .onChange(of: store.lastSaved?.id) { _, id in
@@ -355,7 +362,7 @@ struct PuggleHeader: View {
     /// Full width, running up under the status bar.
     private var scene: some View {
         ZStack(alignment: .bottom) {
-            SkyScene(dark: scheme == .dark || night)
+            PuggleScene(kind: .today, dark: scheme == .dark || night, appeared: appeared)
             Button(action: react) {
                 PuggleView(controller: controller)
                     .frame(height: 118)
@@ -364,6 +371,9 @@ struct PuggleHeader: View {
                     .rotationEffect(.degrees(tilt), anchor: .bottom)
             }
             .buttonStyle(.plain)
+            // She pops up from behind the hill when Today first opens.
+            .offset(y: appeared ? 0 : 60)
+            .opacity(appeared ? 1 : 0)
             .padding(.bottom, 26)
             .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
             .accessibilityHint("Says hello")
@@ -392,73 +402,6 @@ struct PuggleHeader: View {
             withAnimation(.spring(duration: 0.18, bounce: 0)) { lift = -12 }
             withAnimation(.spring(duration: 0.4, bounce: 0.45).delay(0.18)) { lift = 0 }
         }
-    }
-}
-
-/// A sky that follows the time of day, a few clouds (or stars after dark),
-/// and a soft hill in the page colour for Puggle to stand on.
-struct SkyScene: View {
-    let dark: Bool
-
-    private var colours: [Color] {
-        if dark { return [Color(hex: 0x101A2E), Color(hex: 0x1E2236), Palette.sand] }
-        let hour = Calendar.current.component(.hour, from: .now)
-        switch hour {
-        case 5..<9: return [Color(hex: 0xF6CDB4), Color(hex: 0xF8E3CF), Palette.sand]
-        case 17..<21: return [Color(hex: 0xC9B6D9), Color(hex: 0xF4CDB0), Palette.sand]
-        case 21..<24, 0..<5: return [Color(hex: 0x2A3556), Color(hex: 0x4A4870), Palette.sand]
-        default: return [Color(hex: 0xBFDDF0), Color(hex: 0xE3EEF1), Palette.sand]
-        }
-    }
-
-    private var starry: Bool {
-        let hour = Calendar.current.component(.hour, from: .now)
-        return dark || hour >= 21 || hour < 5
-    }
-
-    var body: some View {
-        GeometryReader { geometry in
-            let w = geometry.size.width, h = geometry.size.height
-            ZStack {
-                LinearGradient(colors: colours, startPoint: .top, endPoint: .bottom)
-                if starry {
-                    ForEach(0..<14, id: \.self) { i in
-                        var random = SeededRandom(UInt64(i) &* 977 &+ 11)
-                        let x = random.range(0.04, 0.96) * w, y = random.range(0.25, 0.62) * h
-                        Circle().fill(Color(hex: 0xF3E0B8).opacity(random.range(0.35, 0.8)))
-                            .frame(width: random.range(1.5, 3.2), height: random.range(1.5, 3.2))
-                            .position(x: x, y: y)
-                    }
-                    Circle().fill(Color(hex: 0xF3E0B8).opacity(0.85)).frame(width: 26, height: 26)
-                        .overlay(Circle().fill(colours[0]).frame(width: 22, height: 22).offset(x: 8, y: -5))
-                        .position(x: w * 0.18, y: h * 0.36)
-                } else {
-                    cloud(width: 92).position(x: w * 0.2, y: h * 0.38)
-                    cloud(width: 120).position(x: w * 0.8, y: h * 0.5)
-                    cloud(width: 60).position(x: w * 0.55, y: h * 0.3)
-                }
-                // The hill, in the page colour, so the scene runs into Today.
-                Path { path in
-                    path.move(to: CGPoint(x: 0, y: h * 0.8))
-                    path.addQuadCurve(to: CGPoint(x: w, y: h * 0.78), control: CGPoint(x: w * 0.5, y: h * 0.6))
-                    path.addLine(to: CGPoint(x: w, y: h))
-                    path.addLine(to: CGPoint(x: 0, y: h))
-                    path.closeSubpath()
-                }
-                .fill(Palette.sand)
-            }
-        }
-        .accessibilityHidden(true)
-    }
-
-    private func cloud(width: CGFloat) -> some View {
-        let fill = Color.white.opacity(0.75)
-        return ZStack(alignment: .bottom) {
-            Capsule().fill(fill).frame(width: width, height: width * 0.32)
-            Circle().fill(fill).frame(width: width * 0.45).offset(x: -width * 0.12, y: -width * 0.1)
-            Circle().fill(fill).frame(width: width * 0.36).offset(x: width * 0.16, y: -width * 0.06)
-        }
-        .frame(width: width, height: width * 0.6, alignment: .bottom)
     }
 }
 
