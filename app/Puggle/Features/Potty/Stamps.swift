@@ -490,7 +490,8 @@ struct PaperEffects: ViewModifier, Animatable {
     var rippleOrigin: CGPoint
     var rippleStart: Date?
     var size = StampCard.size
-    var back = Color(hex: 0xE6D9B8)
+    /// The back of the card, plainer than the front, and dimmed after dark like everything else.
+    var back = Color(light: 0xE6D9B8, dark: 0x6E624B, night: 0x4A4234)
 
     var animatableData: CGFloat {
         get { curl }
@@ -512,7 +513,7 @@ struct PaperEffects: ViewModifier, Animatable {
                                   maxSampleOffset: CGSize(width: 12, height: 12),
                                   isEnabled: rippleStart != nil)
                 .layerEffect(ShaderLibrary.paperCurl(.float2(size), .float2(corner), .float2(pull), .color(back)),
-                             maxSampleOffset: CGSize(width: 120, height: 120),
+                             maxSampleOffset: CGSize(width: 320, height: 320),
                              isEnabled: curl > 0.5)
         }
     }
