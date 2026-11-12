@@ -69,10 +69,9 @@ struct YourDataView: View {
     }
 }
 
-/// Where "Contact us" sends feedback. Empty until there is a support address;
-/// the email then opens with no recipient, ready for one to be typed.
+/// Where "Contact us" sends feedback: an iCloud alias for now, a domain address later.
 enum Support {
-    static let email = ""
+    static let email = "puggle.support@icloud.com"
 }
 
 /// Short answers by topic, a search, and a way to get in touch. With the

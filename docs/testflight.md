@@ -30,6 +30,5 @@ then the build shows in TestFlight on the phone.
 
 ## Before inviting people outside the family
 
-- Fill in Support.email in Puggle/Features/Family/YourDataView.swift.
 - Before external testers, Apple reviews the first build. It needs a privacy
   policy link.
