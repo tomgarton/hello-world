@@ -611,8 +611,9 @@ struct PlayPadView: View {
 
     private func maybePeek() {
         untilPeek -= 1
+        if UserDefaults.standard.bool(forKey: "debugPeekOften") { untilPeek = 0 }
         guard untilPeek <= 0, !peeking else { return }
-        untilPeek = Int.random(in: 12...20)
+        untilPeek = UserDefaults.standard.bool(forKey: "debugPeekOften") ? 1 : Int.random(in: 12...20)
         withAnimation(.spring(duration: 0.55, bounce: 0.45)) { peeking = true }
         Task {
             try? await Task.sleep(for: .seconds(2.4))

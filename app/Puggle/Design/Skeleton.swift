@@ -71,22 +71,26 @@ struct SplashLook {
         if let forced = UserDefaults.standard.string(forKey: "debugMonth").flatMap(Int.init) { month = forced }
         if let forced = UserDefaults.standard.string(forKey: "debugHour").flatMap(Int.init) { hour = forced }
         #endif
-        let southern: Set<String> = ["AU", "NZ", "ZA", "AR", "CL", "UY", "PY", "BO", "PE", "BR", "FJ", "PG", "NA", "BW", "ZW", "MZ", "MG", "LS", "SZ"]
-        let south = southern.contains(Locale.current.region?.identifier ?? "")
-        // Northern seasons by month, then turned half a year for the south.
-        let northern: Season = switch month {
-        case 3...5: .spring
-        case 6...8: .summer
-        case 9...11: .autumn
-        default: .winter
-        }
-        let season = south ? Season(rawValue: (northern.rawValue + 2) % 4) ?? northern : northern
+        let season = Self.season(forMonth: month)
         let time: Time = switch hour {
         case 5..<11: .morning
         case 17..<21: .evening
         default: .day
         }
         return SplashLook(season: season, time: time)
+    }
+
+    /// The season a month falls in here: northern by month, turned half a year for the south.
+    static func season(forMonth month: Int) -> Season {
+        let southern: Set<String> = ["AU", "NZ", "ZA", "AR", "CL", "UY", "PY", "BO", "PE", "BR", "FJ", "PG", "NA", "BW", "ZW", "MZ", "MG", "LS", "SZ"]
+        let south = southern.contains(Locale.current.region?.identifier ?? "")
+        let northern: Season = switch month {
+        case 3...5: .spring
+        case 6...8: .summer
+        case 9...11: .autumn
+        default: .winter
+        }
+        return south ? Season(rawValue: (northern.rawValue + 2) % 4) ?? northern : northern
     }
 
     /// One shape per season: blossom, a scalloped sun, a quatrefoil leaf, a soft snowflake.

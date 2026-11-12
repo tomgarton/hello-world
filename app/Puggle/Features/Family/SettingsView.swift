@@ -56,6 +56,14 @@ struct SettingsView: View {
             outsideSection
             sampleSection
             moreSection
+            #if DEBUG
+            Section {
+                NavigationLink("Developer") { DeveloperView() }
+            } footer: {
+                Text("Test builds only. Forces the scene, the splash and more, so each can be checked.")
+            }
+            .listRowBackground(Palette.paper)
+            #endif
         }
         .scrollContentBackground(.hidden)
         .background(Palette.sand)
