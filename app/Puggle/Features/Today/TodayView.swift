@@ -322,7 +322,8 @@ struct ChildStatusRow: View {
                                 .foregroundStyle(quiet)
                                 .monospacedDigit()
                                 .lineLimit(1)
-                                .minimumScaleFactor(0.8)
+                                .minimumScaleFactor(0.7)
+                                .allowsTightening(true)
                                 .contentTransition(.numericText())
                         }
                         .animation(.default, value: status)
@@ -365,6 +366,7 @@ struct ChildStatusRow: View {
         let last = feeds.max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) } ?? store.latest(for: child)
         // A regular medicine that is due takes the second line, quietly.
         let due = ReminderStore.shared.due(for: child, in: store, now: now).map { "Due · \($0)" }
+            ?? store.nextDoseLine(for: child, now: now)
         guard let last, let at = last.startedAt else { return due.map { [$0] } ?? [] }
         return [last.brief, due ?? Elapsed.ago(at, now: now)]
     }

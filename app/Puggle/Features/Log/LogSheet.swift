@@ -38,6 +38,8 @@ struct LogSheet: View {
     @State private var medicine = ""
     @State private var doseText = ""
     @State private var gapText = ""
+    @State private var limitText = ""
+    @State private var readingLabel = false
     @State private var temperature: Double?
     @State private var place = ""
     @State private var vaccine = ""
@@ -167,6 +169,7 @@ struct LogSheet: View {
                 medicine = event.detail ?? ""
                 doseText = event.dose ?? ""
                 gapText = Self.savedGap(for: medicine)
+                limitText = Self.savedLimit(for: medicine)
             case .temperature:
                 temperature = event.value > 0 ? event.value : nil
                 place = event.detail ?? ""
@@ -277,26 +280,37 @@ struct LogSheet: View {
     /// The smallest gap the parent set for each medicine, in hours, by name.
     /// The app only ever checks against this; it never suggests one.
     private static func savedGap(for name: String) -> String {
-        let gaps = UserDefaults.standard.dictionary(forKey: "medicineGaps") as? [String: Double] ?? [:]
-        guard let hours = gaps[name.trimmingCharacters(in: .whitespaces).lowercased()], hours > 0 else { return "" }
-        return hours.formatted(.number.precision(.fractionLength(0...1)))
+        MedicineRules.gap(for: name).map { $0.formatted(.number.precision(.fractionLength(0...1))) } ?? ""
     }
+
+    private static func savedLimit(for name: String) -> String {
+        MedicineRules.limit(for: name).map(String.init) ?? ""
+    }
+
+    private var limitCount: Int? { Int(limitText).flatMap { $0 > 0 ? $0 : nil } }
 
     private var gapHours: Double? {
         Double(gapText.replacingOccurrences(of: ",", with: ".")).flatMap { $0 > 0 ? $0 : nil }
     }
 
     private func rememberGap() {
-        let key = medicine.trimmingCharacters(in: .whitespaces).lowercased()
-        guard !key.isEmpty else { return }
-        var gaps = UserDefaults.standard.dictionary(forKey: "medicineGaps") as? [String: Double] ?? [:]
-        gaps[key] = gapHours
-        UserDefaults.standard.set(gaps, forKey: "medicineGaps")
+        MedicineRules.set(gap: gapHours, limit: limitCount, for: medicine)
     }
 
     private func tooSoonWarning(for who: [Child]) -> String? {
-        guard let gap = gapHours else { return nil }
         let name = medicine.trimmingCharacters(in: .whitespaces)
+        // The most doses in 24 hours, as the parent set it from the box.
+        if let limit = limitCount {
+            for child in who {
+                let recent = store.doses(of: name, for: child).compactMap(\.startedAt)
+                    .filter { $0 <= time && $0 > time.addingTimeInterval(-24 * 3600) }
+                if recent.count >= limit {
+                    let next = store.nextDose(of: name, for: child, now: time).map { " The next fits from \($0.formatted(date: .omitted, time: .shortened))." } ?? ""
+                    return "\(child.displayName) has had \(recent.count) doses of \(name) in the last 24 hours. The most you set is \(limit).\(next)"
+                }
+            }
+        }
+        guard let gap = gapHours else { return nil }
         for child in who {
             guard let last = store.lastDose(of: name, for: child), let at = last.startedAt else { continue }
             let since = time.timeIntervalSince(at)
@@ -343,6 +357,20 @@ struct LogSheet: View {
             if result.count == 6 { break }
         }
         return result
+    }
+
+    /// A labelled number, so the label stays once something is typed.
+    private func ruleField(_ label: String, text: Binding<String>, keyboard: UIKeyboardType) -> some View {
+        HStack {
+            Text(label)
+            Spacer()
+            TextField("Optional", text: text)
+                .keyboardType(keyboard)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 90)
+        }
+        .padding(14)
+        .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func field(_ prompt: String, text: Binding<String>) -> some View {
@@ -507,7 +535,32 @@ struct LogSheet: View {
             timeRow("Time", $time)
         case .medicine:
             VStack(alignment: .leading, spacing: 16) {
-                field("Which medicine?", text: $medicine)
+                HStack(spacing: 8) {
+                    field("Which medicine?", text: $medicine)
+                    Button { readingLabel = true } label: {
+                        Image(systemName: "camera.viewfinder")
+                            .font(.title3)
+                            .frame(width: 50, height: 50)
+                            .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    }
+                    .foregroundStyle(Palette.ink)
+                    .accessibilityLabel("Read the box")
+                    .sheet(isPresented: $readingLabel) {
+                        LabelReaderView { reading in
+                            if !reading.name.isEmpty { medicine = reading.name }
+                            if let gap = reading.gap { gapText = gap.formatted(.number.precision(.fractionLength(0...1))) }
+                            if let limit = reading.limit { limitText = String(limit) }
+                            MedicineRules.set(gap: reading.gap, limit: reading.limit, for: medicine)
+                        }
+                    }
+                }
+                if chosenChildren.count == 1, let child = chosenChildren.first, !isEditing,
+                   let summary = store.doseSummary(of: medicine, for: child) {
+                    Text(summary)
+                        .font(.subheadline)
+                        .foregroundStyle(Palette.muted)
+                        .monospacedDigit()
+                }
                 if !pastMedicines.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
@@ -516,17 +569,16 @@ struct LogSheet: View {
                                     medicine = item.name
                                     doseText = item.dose
                                     gapText = Self.savedGap(for: item.name)
+                                    limitText = Self.savedLimit(for: item.name)
                                 }
                             }
                         }
                     }
                 }
                 field("Dose, as on the label or as prescribed", text: $doseText)
-                TextField("Smallest gap between doses, in hours (optional)", text: $gapText)
-                    .keyboardType(.decimalPad)
-                    .padding(14)
-                    .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                Text("If you enter a gap, the app asks once before logging a dose inside it. It never suggests a dose or a gap.")
+                ruleField("Smallest gap, in hours", text: $gapText, keyboard: .decimalPad)
+                ruleField("Most doses in 24 hours", text: $limitText, keyboard: .numberPad)
+                Text("Copy these from the box or the prescription. The app asks once before a dose that goes past them, and never suggests a dose, a gap or a limit.")
                     .font(.footnote)
                     .foregroundStyle(Palette.muted)
                 timeRow("Time", $time)
