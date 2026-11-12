@@ -127,6 +127,7 @@ struct TodayView: View {
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
             }
+            .coordinateSpace(name: "todayScroll")
             .background(Palette.sand)
             // The sky runs up under the status bar.
             .ignoresSafeArea(edges: .top)

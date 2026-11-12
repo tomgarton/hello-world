@@ -313,6 +313,11 @@ struct PuggleHeader: View {
     @Environment(\.puggleNight) private var night
     @State private var nod: CGFloat = 0
     @State private var appeared = false
+    @Environment(\.splashing) private var splashing
+    @Environment(\.scenePhase) private var scenePhase
+    /// How far the sky has been pulled down past the top, and the furthest this pull.
+    @State private var pull: CGFloat = 0
+    @State private var furthest: CGFloat = 0
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
     @State private var lift: CGFloat = 0
     @State private var tilt: Double = 0
@@ -335,12 +340,17 @@ struct PuggleHeader: View {
             }
             .accessibilityElement(children: .combine)
         }
+        // The entrance plays once the splash has gone, each time Today comes
+        // back into view, and when the app is opened again.
         .onAppear {
             controller.asleep = quiet
-            guard !appeared else { return }
-            if reduceMotion { appeared = true } else {
-                withAnimation(.spring(duration: 0.7, bounce: 0.35).delay(0.15)) { appeared = true }
-            }
+            if !splashing { playEntrance() }
+        }
+        .onDisappear { appeared = false }
+        .onChange(of: splashing) { _, now in if !now { playEntrance() } }
+        .onChange(of: scenePhase) { old, now in
+            if now == .background { appeared = false }
+            if old == .background, now != .background, !splashing { playEntrance() }
         }
         .onChange(of: quiet) { _, now in controller.asleep = now }
         // A small nod each time something is saved. No sound or tap: the save has its own.
@@ -361,8 +371,21 @@ struct PuggleHeader: View {
 
     /// Full width, running up under the status bar.
     private var scene: some View {
+        GeometryReader { geometry in
+            let amount = max(0, geometry.frame(in: .named("todayScroll")).minY)
+            sceneContent
+                .frame(width: geometry.size.width, height: Self.sceneHeight + amount)
+                .offset(y: -amount)
+                .onChange(of: amount) { _, now in pulled(to: now) }
+        }
+        .frame(height: Self.sceneHeight)
+        .padding(.horizontal, -16)
+    }
+
+    /// The sky grows upwards as Today is pulled down, so Puggle stays on her hill.
+    private var sceneContent: some View {
         ZStack(alignment: .bottom) {
-            PuggleScene(kind: .today, dark: scheme == .dark || night, appeared: appeared)
+            PuggleScene(kind: .today, dark: scheme == .dark || night, appeared: appeared, pull: pull)
             Button(action: react) {
                 PuggleView(controller: controller)
                     .frame(height: 118)
@@ -378,13 +401,29 @@ struct PuggleHeader: View {
             .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
             .accessibilityHint("Says hello")
         }
-        .frame(height: Self.sceneHeight)
         .overlay(alignment: .topTrailing) {
             YouButton(action: onYou)
-                .padding(.top, 58)
+                .padding(.top, 58 + pull)
                 .padding(.trailing, 16)
         }
-        .padding(.horizontal, -16)
+    }
+
+    private func playEntrance() {
+        guard !reduceMotion else { appeared = true; return }
+        var instant = Transaction()
+        instant.disablesAnimations = true
+        withTransaction(instant) { appeared = false }
+        withAnimation(.spring(duration: 0.75, bounce: 0.35).delay(0.12)) { appeared = true }
+    }
+
+    /// Pulling the sky down and letting go past the balloon makes Puggle hop.
+    private func pulled(to amount: CGFloat) {
+        pull = amount
+        if amount > furthest { furthest = amount }
+        if amount < 4 {
+            if furthest > 120 { react() }
+            furthest = 0
+        }
     }
 
     private func react() {

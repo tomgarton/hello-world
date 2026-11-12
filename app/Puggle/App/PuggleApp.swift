@@ -116,6 +116,7 @@ struct RootView: View {
 
     var body: some View {
         content
+            .environment(\.splashing, splashing)
             .overlay {
                 if splashing {
                     SplashView().transition(.opacity)
@@ -183,4 +184,14 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
         .environment(\.managedObjectContext, persistence.viewContext)
         .environmentObject(store)
         .environmentObject(SampleFamily())
+}
+
+private struct SplashingKey: EnvironmentKey { static let defaultValue = false }
+
+extension EnvironmentValues {
+    /// True while the splash covers the app, so entrances wait until they can be seen.
+    var splashing: Bool {
+        get { self[SplashingKey.self] }
+        set { self[SplashingKey.self] = newValue }
+    }
 }

@@ -23,6 +23,9 @@ struct PuggleScene: View {
     let dark: Bool
     /// False until Today first appears; the clouds drift in and the friend pops up.
     var appeared = true
+    /// How far Today has been pulled down. The sky grows upwards by this much,
+    /// and the further it goes, the more turns up in it.
+    var pull: CGFloat = 0
 
     private var hour: Int { Calendar.current.component(.hour, from: .now) }
     private var starry: Bool { dark || hour >= 21 || hour < 5 }
@@ -42,14 +45,20 @@ struct PuggleScene: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let w = geometry.size.width, h = geometry.size.height
-            ZStack {
-                LinearGradient(colors: sky, startPoint: .top, endPoint: .bottom)
-                if starry { stars(w, h) } else { clouds(w, h) }
-                scenery(w, h)
-                // The ground in the page colour.
-                Hill(rise: 0.6, left: 0.8, right: 0.78).fill(Palette.sand)
-                friend(w, h)
+            let w = geometry.size.width, h = max(geometry.size.height - pull, 1)
+            ZStack(alignment: .bottom) {
+                LinearGradient(colors: [sky[0]] + sky, startPoint: .top, endPoint: .bottom)
+                // The scene itself keeps its height and sits at the bottom.
+                ZStack {
+                    if starry { stars(w, h) } else { clouds(w, h) }
+                    scenery(w, h)
+                    // The ground in the page colour.
+                    Hill(rise: 0.6, left: 0.8, right: 0.78).fill(Palette.sand)
+                    friend(w, h)
+                }
+                .frame(width: w, height: h)
+                surprises(w)
+                    .frame(width: w, height: geometry.size.height, alignment: .top)
             }
         }
         .accessibilityHidden(true)
@@ -103,6 +112,44 @@ struct PuggleScene: View {
         case .bush:
             GumTree(dark: starry).frame(width: 120, height: h * 0.78).position(x: w * 0.13, y: h * 0.5)
             Hill(rise: 0.52, left: 0.8, right: 0.62, peak: 0.85).fill(tone(0xD2C9A4, 0x2A2820))
+        }
+    }
+
+    // MARK: Pulling down
+
+    /// Things that turn up in the extra sky as Today is pulled down: a balloon,
+    /// then a kite (a shooting star after dark), then a flock of birds.
+    private func surprises(_ w: CGFloat) -> some View {
+        let balloon = pull > 60, kite = pull > 130, flock = pull > 200
+        let sway = Double(pull).truncatingRemainder(dividingBy: 40) / 40 * 8 - 4
+        return ZStack(alignment: .topLeading) {
+            Balloon(dark: starry)
+                .frame(width: 34, height: 52)
+                .rotationEffect(.degrees(sway))
+                .scaleEffect(balloon ? 1 : 0.3)
+                .opacity(balloon ? 1 : 0)
+                .animation(.spring(duration: 0.45, bounce: 0.5), value: balloon)
+                .position(x: w * 0.72, y: pull - 46)
+            Group {
+                if starry {
+                    ShootingStar().frame(width: 70, height: 20)
+                } else {
+                    Kite().frame(width: 40, height: 70).rotationEffect(.degrees(-sway * 2))
+                }
+            }
+            .scaleEffect(kite ? 1 : 0.3)
+            .opacity(kite ? 1 : 0)
+            .animation(.spring(duration: 0.45, bounce: 0.5), value: kite)
+            .position(x: w * 0.28, y: pull - 118)
+            HStack(spacing: 10) {
+                ForEach(0..<3, id: \.self) { i in
+                    Bird(dark: starry).frame(width: 22, height: 17).offset(y: i == 1 ? -8 : 0)
+                }
+            }
+            .offset(x: flock ? 0 : w * 0.6)
+            .opacity(flock ? 1 : 0)
+            .animation(.spring(duration: 0.7, bounce: 0.2), value: flock)
+            .position(x: w * 0.55, y: pull - 190)
         }
     }
 
@@ -303,5 +350,58 @@ struct Triangle: Shape {
         path.addLine(to: CGPoint(x: rect.minX, y: rect.maxY))
         path.closeSubpath()
         return path
+    }
+}
+
+struct Balloon: View {
+    let dark: Bool
+    var body: some View {
+        VStack(spacing: 0) {
+            ZStack {
+                Ellipse().fill(Color(hex: dark ? 0xB8584A : 0xE8735E)).frame(width: 34, height: 40)
+                Ellipse().fill(Color(hex: dark ? 0xC9A548 : 0xFFD666)).frame(width: 12, height: 40)
+            }
+            Path { p in
+                p.move(to: CGPoint(x: 10, y: 0)); p.addLine(to: CGPoint(x: 14, y: 6))
+                p.move(to: CGPoint(x: 24, y: 0)); p.addLine(to: CGPoint(x: 20, y: 6))
+            }
+            .stroke(Palette.fixedInk.opacity(0.6), lineWidth: 1)
+            .frame(width: 34, height: 6)
+            RoundedRectangle(cornerRadius: 2).fill(Color(hex: dark ? 0x6E5440 : 0x9C7451)).frame(width: 9, height: 7)
+        }
+    }
+}
+
+struct Kite: View {
+    var body: some View {
+        ZStack(alignment: .top) {
+            Path { p in
+                p.move(to: CGPoint(x: 20, y: 0)); p.addLine(to: CGPoint(x: 38, y: 20))
+                p.addLine(to: CGPoint(x: 20, y: 46)); p.addLine(to: CGPoint(x: 2, y: 20)); p.closeSubpath()
+            }
+            .fill(Color(hex: 0x6C93C4))
+            Path { p in
+                p.move(to: CGPoint(x: 20, y: 0)); p.addLine(to: CGPoint(x: 20, y: 46))
+                p.move(to: CGPoint(x: 2, y: 20)); p.addLine(to: CGPoint(x: 38, y: 20))
+            }
+            .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
+            Path { p in
+                p.move(to: CGPoint(x: 20, y: 46))
+                p.addCurve(to: CGPoint(x: 26, y: 70), control1: CGPoint(x: 10, y: 54), control2: CGPoint(x: 32, y: 60))
+            }
+            .stroke(Palette.fixedInk.opacity(0.5), lineWidth: 1.2)
+        }
+        .frame(width: 40, height: 70)
+    }
+}
+
+struct ShootingStar: View {
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            Capsule().fill(LinearGradient(colors: [Color(hex: 0xF3E0B8).opacity(0), Color(hex: 0xF3E0B8)], startPoint: .leading, endPoint: .trailing))
+                .frame(width: 60, height: 3)
+            Image(systemName: "sparkle").font(.system(size: 14, weight: .bold)).foregroundStyle(Color(hex: 0xFFE7A8))
+        }
+        .rotationEffect(.degrees(-18))
     }
 }
