@@ -46,7 +46,8 @@ struct LockedView: View {
 
     var body: some View {
         ZStack {
-            Palette.sand.ignoresSafeArea()
+            SplashLook.now.background.ignoresSafeArea()
+            ShapePattern(shape: SplashLook.now.shape)
             VStack(spacing: 18) {
                 PuggleMark(size: 96)
                 Text("Locked").font(.title3.weight(.semibold))

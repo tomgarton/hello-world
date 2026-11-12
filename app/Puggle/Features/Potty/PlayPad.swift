@@ -137,6 +137,9 @@ struct PlayPadView: View {
         }
         .background(Palette.sand.ignoresSafeArea())
         .foregroundStyle(Palette.ink)
+        // A stray swipe up from the bottom only shows the Home bar; it takes a second to leave.
+        .defersSystemGestures(on: .all)
+        .persistentSystemOverlays(.hidden)
         .onAppear { Orientation.allowLandscape(true) }
         .onDisappear { Orientation.allowLandscape(false) }
         .confirmationDialog("Start a new sheet?", isPresented: $confirmingClear, titleVisibility: .visible) {
@@ -208,22 +211,9 @@ struct PlayPadView: View {
                         .foregroundStyle(Palette.muted)
                 }
                 // Crayon and pen, in the order they were drawn.
-                Canvas { context, _ in
-                    for mark in pageMarks + (drawing.map { [$0] } ?? []) {
-                        guard case .stroke(let tool) = mark.kind else { continue }
-                        let path = Self.line(through: mark.points, centre: centre)
-                        if tool == .crayon {
-                            context.stroke(path, with: .color(mark.ink.colour.opacity(0.35)),
-                                           style: StrokeStyle(lineWidth: 15, lineCap: .round, lineJoin: .round, dash: [1.6, 2.6]))
-                            context.stroke(path, with: .color(mark.ink.colour.opacity(0.78)),
-                                           style: StrokeStyle(lineWidth: 12, lineCap: .round, lineJoin: .round))
-                        } else {
-                            context.stroke(path, with: .color(mark.ink.colour),
-                                           style: StrokeStyle(lineWidth: 5.5, lineCap: .round, lineJoin: .round))
-                        }
-                    }
-                }
-                .allowsHitTesting(false)
+                // Finished lines are only redrawn when one is added or taken away.
+                StrokeLayer(marks: pageMarks, centre: centre).equatable()
+                StrokeLayer(marks: drawing.map { [$0] } ?? [], centre: centre, live: true)
                 ForEach(pageMarks) { mark in
                     if case .stamp(let stamp, let seed, let tilt) = mark.kind, let point = mark.points.first {
                         StampMark(stamp: stamp, ink: mark.ink, size: 70, wear: StampWear(seed: seed, gentle: true))
@@ -495,5 +485,103 @@ enum Orientation {
                 scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
             }
         }
+    }
+}
+
+/// Crayon and pen lines on the paper.
+///
+/// Crayon is wax: the paper's tooth shows through as slanted flecks, the edge
+/// is ragged, and going over a patch again fills more of it in. Pen is felt
+/// tip: each pass is see-through, so going back over a spot builds it up
+/// darker, as a real marker does.
+struct StrokeLayer: View, Equatable {
+    let marks: [PadMark]
+    let centre: CGPoint
+    var live = false
+
+    static func == (a: StrokeLayer, b: StrokeLayer) -> Bool {
+        !a.live && !b.live && a.centre == b.centre && a.marks.count == b.marks.count && a.marks.last?.id == b.marks.last?.id
+    }
+
+    var body: some View {
+        Canvas { context, _ in
+            let tooth = GraphicsContext.Shading.tiledImage(Image(uiImage: Grain.crayon))
+            for mark in marks {
+                guard case .stroke(let tool) = mark.kind else { continue }
+                if tool == .crayon {
+                    let path = Self.line(mark.points, centre: centre)
+                    let box = path.boundingRect.insetBy(dx: -12, dy: -12)
+                    context.drawLayer { layer in
+                        // A soft, broken edge, then the body of the wax.
+                        layer.stroke(path, with: .color(mark.ink.colour.opacity(0.45)),
+                                     style: StrokeStyle(lineWidth: 16, lineCap: .round, lineJoin: .round, dash: [1.4, 2.8]))
+                        layer.stroke(path, with: .color(mark.ink.colour.opacity(0.9)),
+                                     style: StrokeStyle(lineWidth: 12.5, lineCap: .round, lineJoin: .round))
+                        // The paper's tooth, knocked out of this pass only. Each
+                        // line starts its flecks somewhere else, so a second pass fills gaps.
+                        var knock = layer
+                        knock.blendMode = .destinationOut
+                        let seed = mark.points.first ?? .zero
+                        knock.translateBy(x: (seed.x * 7).truncatingRemainder(dividingBy: 120), y: (seed.y * 13).truncatingRemainder(dividingBy: 120))
+                        knock.opacity = 0.75
+                        knock.fill(Path(box.insetBy(dx: -120, dy: -120)), with: tooth)
+                    }
+                } else {
+                    // Each pass of the pen is its own see-through layer.
+                    for pass in Self.passes(mark.points) {
+                        var see = context
+                        see.opacity = 0.5
+                        see.drawLayer { layer in
+                            layer.stroke(Self.line(pass, centre: centre), with: .color(mark.ink.colour),
+                                         style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                        }
+                    }
+                }
+            }
+        }
+        .allowsHitTesting(false)
+    }
+
+    /// Splits a pen line where it doubles back on itself, so scribbling to and
+    /// fro over a spot counts as going over it again.
+    static func passes(_ points: [CGPoint]) -> [[CGPoint]] {
+        guard points.count > 2 else { return [points] }
+        var result: [[CGPoint]] = []
+        var current = [points[0]]
+        // Compare the way the line is heading now with a few points back, to ignore jitter.
+        var heading: CGVector?
+        var anchor = points[0]
+        for point in points.dropFirst() {
+            let step = CGVector(dx: point.x - anchor.x, dy: point.y - anchor.y)
+            if hypot(step.dx, step.dy) >= 6 {
+                if let last = heading, last.dx * step.dx + last.dy * step.dy < 0 {
+                    current.append(anchor)
+                    result.append(current)
+                    current = [anchor]
+                }
+                heading = step
+                anchor = point
+            }
+            current.append(point)
+        }
+        result.append(current)
+        return result
+    }
+
+    static func line(_ points: [CGPoint], centre: CGPoint) -> Path {
+        var path = Path()
+        let moved = points.map { CGPoint(x: centre.x + $0.x, y: centre.y + $0.y) }
+        guard let first = moved.first else { return path }
+        path.move(to: first)
+        if moved.count == 1 {
+            path.addLine(to: CGPoint(x: first.x + 0.1, y: first.y + 0.1))
+            return path
+        }
+        for index in 1..<moved.count {
+            let previous = moved[index - 1], current = moved[index]
+            path.addQuadCurve(to: CGPoint(x: (previous.x + current.x) / 2, y: (previous.y + current.y) / 2), control: previous)
+        }
+        if let last = moved.last { path.addLine(to: last) }
+        return path
     }
 }

@@ -107,6 +107,8 @@ struct StampFlowView: View {
         }
         .background(Palette.sand.ignoresSafeArea())
         .foregroundStyle(Palette.ink)
+        // A stray swipe up from the bottom only shows the Home bar; it takes a second to leave.
+        .defersSystemGestures(on: .bottom)
         .onAppear(perform: setUpCard)
         .onDisappear {
             nudgeTask?.cancel()

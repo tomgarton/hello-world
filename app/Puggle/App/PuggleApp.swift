@@ -62,6 +62,7 @@ struct PuggleApp: App {
                 .environmentObject(active)
                 .environmentObject(sample)
                 .environmentObject(night)
+                .environment(\.appLocked, lock.isLocked)
                 .overlay {
                     if lock.isLocked {
                         LockedView { lock.unlock() }
@@ -121,6 +122,7 @@ struct RootView: View {
     @State private var inFirstRun = false
     @State private var splashing = !Palette.nightJustChanged
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.appLocked) private var appLocked
 
     var body: some View {
         content
@@ -137,8 +139,9 @@ struct RootView: View {
                     SplashView().transition(.opacity)
                 }
             }
-            .task {
-                guard splashing else { return }
+            // The splash waits behind the lock, so it is seen once Face ID is done.
+            .task(id: appLocked) {
+                guard splashing, !appLocked else { return }
                 try? await Task.sleep(for: .seconds(reduceMotion ? 0.6 : 1.5))
                 withAnimation(.easeOut(duration: 0.35)) { splashing = false }
             }
@@ -220,6 +223,15 @@ final class SceneDelegate: NSObject, UIWindowSceneDelegate {
 }
 
 private struct SplashingKey: EnvironmentKey { static let defaultValue = false }
+private struct AppLockedKey: EnvironmentKey { static let defaultValue = false }
+
+extension EnvironmentValues {
+    /// True while the app lock covers the app.
+    var appLocked: Bool {
+        get { self[AppLockedKey.self] }
+        set { self[AppLockedKey.self] = newValue }
+    }
+}
 
 extension EnvironmentValues {
     /// True while the splash covers the app, so entrances wait until they can be seen.
