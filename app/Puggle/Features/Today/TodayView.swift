@@ -485,8 +485,11 @@ struct TodaySoFar: View {
     var body: some View {
         let today = events.filter { !($0.kind == .pump && $0.detail == Pump.count) }
         let shown = showingAll ? today : Array(today.prefix(6))
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 0) {
+            // The same room above and below the label (Today's own gap is 14).
             SquiggleLabel("Today so far")
+                .padding(.top, 6)
+                .padding(.bottom, 20)
             VStack(spacing: 0) {
                 if today.isEmpty {
                     Text("Nothing logged yet today. Entries from everyone show up here.")
@@ -515,7 +518,6 @@ struct TodaySoFar: View {
             }
             .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
-        .padding(.top, 6)
     }
 }
 
@@ -648,7 +650,7 @@ struct DaySoFarView: View {
                     logGrid
                     if !justLog {
                         SquiggleLabel("So far")
-                            .padding(.top, 6)
+                            .padding(.vertical, 6)
                     }
                     if justLog {
                         // "Just logging": no counts, only the way to add a sleep after the fact.
