@@ -177,6 +177,9 @@ struct RootView: View {
         // For checking the play pad: launch with "-debugPad 1".
         if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
+        } else if UserDefaults.standard.string(forKey: "debugMoves") == "1" {
+            // For checking her moves: launch with "-debugMoves 1".
+            NavigationStack { MovesGalleryView() }
         } else if let scene = UserDefaults.standard.string(forKey: "debugGallery").flatMap(Int.init) {
             // For checking the scenes: launch with "-debugGallery 0" (to 3).
             SceneGalleryView(kind: SceneKind(rawValue: scene) ?? .hills)

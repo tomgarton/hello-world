@@ -350,7 +350,12 @@ final class RigRuntime {
             change("head") { $0.r += Double(look.x) * 2.5 }
         }
         var showing = rig.face ?? [:]
-        if asleep { showing["eyes"] = "closed" }
+        if asleep {
+            showing["eyes"] = "closed"
+            showing["brows"] = "on"
+            change("brow-left") { $0.y = 1; $0.r = -14 }
+            change("brow-right") { $0.y = 1; $0.r = 14 }
+        }
         // Each track's current pose, held until its next one.
         for (track, now) in playing.sorted(by: { $0.key < $1.key }) {
             guard let script = rig.moves?[now.name] else { continue }

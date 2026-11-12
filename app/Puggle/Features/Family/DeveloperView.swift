@@ -41,6 +41,7 @@ struct DeveloperView: View {
                     Text("Coloured lines").tag("tinted")
                     Text("One dark line").tag("ink")
                 }
+                NavigationLink("Puggle's moves") { MovesGalleryView() }
                 NavigationLink("Every scene, at each time of day") { SceneGalleryView() }
                 Button("Play Puggle's entrance again") { greetedOn = "" }
             } header: {
