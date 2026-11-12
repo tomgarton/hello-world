@@ -817,7 +817,7 @@ struct PlayPadView: View {
         }
         .padding(.top, 8)
         .padding(.horizontal, 6)
-        .background(Palette.stampSpace, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var sizes: some View {
@@ -865,7 +865,7 @@ struct PlayPadView: View {
             }
             .padding(6)
         }
-        .background(Palette.stampSpace, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     @ViewBuilder private func toolIcon(_ option: PadTool) -> some View {
@@ -910,9 +910,10 @@ struct PaintPotPiece: View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
             ZStack(alignment: .bottom) {
+                // Cream with an ink edge in every look, so it stands out on dark.
                 RoundedRectangle(cornerRadius: w * 0.16, style: .continuous)
-                    .fill(Palette.paper)
-                    .overlay(RoundedRectangle(cornerRadius: w * 0.16, style: .continuous).stroke(.black.opacity(0.18), lineWidth: 1))
+                    .fill(Palette.fixedPaper)
+                    .overlay(RoundedRectangle(cornerRadius: w * 0.16, style: .continuous).stroke(Palette.fixedInk.opacity(0.45), lineWidth: 1.2))
                     .frame(width: w * 0.8, height: h * 0.72)
                 Ellipse().fill(colour).frame(width: w * 0.8, height: h * 0.3).offset(y: -h * 0.56)
                 // A drip down the side.
@@ -970,8 +971,8 @@ struct MarkerPiece: View {
             ZStack(alignment: .top) {
                 Capsule().fill(colour).frame(width: w * 0.34, height: h * 0.16)
                 RoundedRectangle(cornerRadius: 2).fill(colour).frame(width: w * 0.7, height: h * 0.16).offset(y: h * 0.1)
-                RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Palette.paper)
-                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).stroke(.black.opacity(0.18), lineWidth: 1))
+                RoundedRectangle(cornerRadius: 4, style: .continuous).fill(Palette.fixedPaper)
+                    .overlay(RoundedRectangle(cornerRadius: 4, style: .continuous).stroke(Palette.fixedInk.opacity(0.45), lineWidth: 1.2))
                     .frame(width: w, height: h * 0.76).offset(y: h * 0.24)
                 Rectangle().fill(colour).frame(width: w, height: h * 0.2).offset(y: h * 0.62)
             }

@@ -43,18 +43,24 @@ private struct ProtectedCover<Item: Identifiable, Cover: View>: ViewModifier {
     @EnvironmentObject private var sample: SampleFamily
     @Environment(\.managedObjectContext) private var context
     @Environment(\.puggleNight) private var night
-    @State private var shown: UIViewController?
+    @State private var window: UIWindow?
 
     func body(content: Content) -> some View {
         content
             .onChange(of: item?.id) { _, id in
-                if id != nil { present() } else { close(animated: true) }
+                if id != nil { present() } else { close() }
             }
             .onAppear { if item != nil { present() } }
+            .onDisappear { close() }
     }
 
+    /// Shown in a window of its own, made the key window, so iOS asks this
+    /// screen (and not the app underneath) how to treat swipes from the edges.
     private func present() {
-        guard shown == nil, let item, let top = Self.topController() else { return }
+        guard window == nil, let item,
+              let scene = UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene })
+                .first(where: { $0.activationState == .foregroundActive })
+                ?? UIApplication.shared.connectedScenes.compactMap({ $0 as? UIWindowScene }).first else { return }
         let binding = $item
         let screen = cover(item)
             .environmentObject(store)
@@ -66,25 +72,35 @@ private struct ProtectedCover<Item: Identifiable, Cover: View>: ViewModifier {
             .toggleStyle(PuggleToggleStyle())
             .foregroundStyle(Palette.ink)
         let controller = ProtectedHostingController(rootView: AnyView(screen))
-        controller.modalPresentationStyle = .fullScreen
-        shown = controller
-        top.present(controller, animated: true)
+        controller.view.backgroundColor = UIColor(Palette.sand)
+        let cover = UIWindow(windowScene: scene)
+        cover.windowLevel = .normal + 1
+        cover.rootViewController = controller
+        cover.overrideUserInterfaceStyle = scene.windows.first?.overrideUserInterfaceStyle ?? .unspecified
+        // Slides up from the bottom, as a full-screen cover does.
+        let height = scene.coordinateSpace.bounds.height
+        cover.transform = CGAffineTransform(translationX: 0, y: height)
+        cover.makeKeyAndVisible()
+        window = cover
+        UIView.animate(withDuration: 0.42, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0) {
+            cover.transform = .identity
+        }
+        controller.setNeedsUpdateOfScreenEdgesDeferringSystemGestures()
+        controller.setNeedsUpdateOfHomeIndicatorAutoHidden()
     }
 
-    private func close(animated: Bool) {
-        guard let controller = shown else { return }
-        shown = nil
-        controller.presentingViewController?.dismiss(animated: animated)
-    }
-
-    private static func topController() -> UIViewController? {
-        let scene = UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first { $0.activationState == .foregroundActive } ?? UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }.first
-        // The app's own window, not the privacy cover above it.
-        var top = scene?.windows.first { $0.windowLevel == .normal }?.rootViewController
-        while let next = top?.presentedViewController { top = next }
-        return top
+    private func close() {
+        guard let cover = window else { return }
+        window = nil
+        let height = cover.bounds.height
+        UIView.animate(withDuration: 0.32, delay: 0, options: .curveEaseIn) {
+            cover.transform = CGAffineTransform(translationX: 0, y: height)
+        } completion: { _ in
+            cover.isHidden = true
+            cover.rootViewController = nil
+            // Hand the keyboard and touches back to the app's own window.
+            cover.windowScene?.windows.first { $0.windowLevel == .normal && !$0.isHidden }?.makeKey()
+        }
     }
 }
 

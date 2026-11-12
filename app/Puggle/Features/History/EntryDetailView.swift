@@ -183,19 +183,27 @@ extension View {
 /// A soft blur under the status bar, so content scrolling up behind it fades
 /// out instead of running into the clock.
 struct TopScrim: View {
+    /// 0 hides it (nothing under the clock yet), 1 shows it fully.
+    var strength: Double = 1
+
     var body: some View {
         GeometryReader { geometry in
-            let height = geometry.safeAreaInsets.top + 22
+            let height = geometry.safeAreaInsets.top + 64
+            // Several soft steps rather than one edge, so there is no line where it ends.
+            let fade = Gradient(stops: [.init(color: .black, location: 0),
+                                        .init(color: .black.opacity(0.92), location: 0.3),
+                                        .init(color: .black.opacity(0.6), location: 0.55),
+                                        .init(color: .black.opacity(0.25), location: 0.78),
+                                        .init(color: .clear, location: 1)])
             ZStack {
                 Rectangle().fill(.ultraThinMaterial)
-                Palette.sand.opacity(0.55)
+                LinearGradient(colors: [Palette.sand.opacity(0.85), Palette.sand.opacity(0)],
+                               startPoint: .top, endPoint: .bottom)
             }
-            .mask(LinearGradient(stops: [.init(color: .black, location: 0),
-                                         .init(color: .black, location: 0.55),
-                                         .init(color: .clear, location: 1)],
-                                 startPoint: .top, endPoint: .bottom))
+            .mask(LinearGradient(gradient: fade, startPoint: .top, endPoint: .bottom))
             .frame(height: height)
             .ignoresSafeArea(edges: .top)
+            .opacity(strength)
             .allowsHitTesting(false)
         }
         .accessibilityHidden(true)

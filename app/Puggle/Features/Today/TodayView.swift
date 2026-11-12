@@ -22,6 +22,8 @@ struct TodayView: View {
     @State private var editing: EditTarget?
     /// An entry opened to read, from Today so far.
     @State private var looking: EditTarget?
+    /// How far Today has scrolled up, for the soft edge under the clock.
+    @State private var scrolledUp: CGFloat = 0
     @State private var dayOf: Child?
     @State private var addingChild = false
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
@@ -82,6 +84,11 @@ struct TodayView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
                     header
+                        .background(GeometryReader { geometry in
+                            Color.clear.onChange(of: geometry.frame(in: .named("todayScroll")).minY) { _, y in
+                                scrolledUp = max(-y, 0)
+                            }
+                        })
                     SampleBanner()
                     if children.isEmpty {
                         emptyState
@@ -133,7 +140,10 @@ struct TodayView: View {
             .background(Palette.sand)
             // The sky runs up under the status bar; content scrolling up fades under it.
             .ignoresSafeArea(edges: .top)
-            .overlay(alignment: .top) { TopScrim() }
+            // Only once the cards reach the clock; over the sky it isn't needed.
+            .overlay(alignment: .top) {
+                TopScrim(strength: Double(min(max((scrolledUp - PuggleHeader.sceneHeight + 110) / 60, 0), 1)))
+            }
             .toolbar(.hidden, for: .navigationBar)
             // Floats above the tab bar, so saving never moves the tile under your thumb.
             .safeAreaInset(edge: .bottom) {

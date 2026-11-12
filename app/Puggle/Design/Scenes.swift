@@ -123,6 +123,38 @@ struct PuggleScene: View {
         let balloon = pull > 60, kite = pull > 130, flock = pull > 200
         let sway = Double(pull).truncatingRemainder(dividingBy: 40) / 40 * 8 - 4
         return ZStack(alignment: .topLeading) {
+            // The further it is pulled, the more of the sky there is to see.
+            if starry {
+                // Stars fill the new sky, each fading in as the pull reaches it.
+                ForEach(0..<46, id: \.self) { i in
+                    var random = SeededRandom(UInt64(i) &* 7919 &+ 3)
+                    let depth = CGFloat(random.range(0.04, 1)) * 420
+                    let size = random.range(1.4, 3.4)
+                    Circle().fill(Color(hex: 0xF3E0B8).opacity(random.range(0.45, 0.95)))
+                        .frame(width: size, height: size)
+                        .position(x: random.range(0.03, 0.97) * w, y: pull - depth)
+                        .opacity(pull > depth + 10 ? 1 : 0)
+                        .animation(.easeOut(duration: 0.4), value: pull > depth + 10)
+                }
+                // Shooting stars, one more at each stretch of the pull.
+                ForEach(Array([(150.0, 0.62, 70.0), (250.0, 0.2, 40.0), (340.0, 0.75, 150.0), (430.0, 0.35, 90.0)].enumerated()), id: \.offset) { _, star in
+                    if pull > star.0 {
+                        StreakingStar()
+                            .position(x: w * star.1, y: pull - star.0 + star.2)
+                    }
+                }
+            } else {
+                // By day, little clouds drift into the new sky.
+                ForEach(0..<6, id: \.self) { i in
+                    var random = SeededRandom(UInt64(i) &* 4243 &+ 9)
+                    let depth = CGFloat(i) * 70 + 90
+                    Cloud(width: random.range(46, 84))
+                        .position(x: random.range(0.12, 0.88) * w, y: pull - depth)
+                        .offset(x: pull > depth ? 0 : (i.isMultiple(of: 2) ? -40 : 40))
+                        .opacity(pull > depth ? 0.9 : 0)
+                        .animation(.spring(duration: 0.6), value: pull > depth)
+                }
+            }
             Balloon(dark: starry)
                 .frame(width: 34, height: 52)
                 .rotationEffect(.degrees(sway))
@@ -403,5 +435,22 @@ struct ShootingStar: View {
             Image(systemName: "sparkle").font(.system(size: 14, weight: .bold)).foregroundStyle(Color(hex: 0xFFE7A8))
         }
         .rotationEffect(.degrees(-18))
+    }
+}
+
+/// A shooting star that streaks across once when it appears, then fades.
+struct StreakingStar: View {
+    @State private var gone = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        ShootingStar()
+            .frame(width: 70, height: 20)
+            .offset(x: gone ? 90 : -40, y: gone ? -30 : 12)
+            .opacity(gone ? 0 : 1)
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(.easeOut(duration: 1.1).delay(0.05)) { gone = true }
+            }
     }
 }
