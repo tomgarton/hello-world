@@ -445,10 +445,16 @@ struct StickerView: View {
             .mask(mask)
             .scaleEffect(0.86)
             if let emblem = style.emblem {
-                Image(emblem).resizable().scaledToFit()
-                    .frame(width: size * 0.46, height: size * 0.46)
-                    // The pictures are drawn for light paper, whatever the phone is set to.
-                    .environment(\.colorScheme, .light)
+                Group {
+                    if emblem == "sun" {
+                        SunEmblem()
+                    } else {
+                        Image(emblem).resizable().scaledToFit()
+                    }
+                }
+                .frame(width: size * 0.46, height: size * 0.46)
+                // The pictures are drawn for light paper, whatever the phone is set to.
+                .environment(\.colorScheme, .light)
             }
         }
         .frame(width: size, height: size)
@@ -837,5 +843,30 @@ extension CardTheme {
         path.addLines(points.map { CGPoint(x: $0.0, y: $0.1) })
         if closed { path.closeSubpath() }
         return path
+    }
+}
+
+/// A sun in the same line style as the activity icons: an ink outline, a
+/// wattle middle and rounded rays. For dry days.
+struct SunEmblem: View {
+    var body: some View {
+        GeometryReader { g in
+            let w = g.size.width, c = CGPoint(x: w / 2, y: w / 2), line = w * 0.075
+            ZStack {
+                Circle().fill(Palette.wattle).frame(width: w * 0.42, height: w * 0.42)
+                Circle().stroke(Palette.fixedInk, lineWidth: line).frame(width: w * 0.42, height: w * 0.42)
+                Path { p in
+                    for i in 0..<8 {
+                        let a = Double(i) / 8 * 2 * .pi
+                        p.move(to: CGPoint(x: c.x + CGFloat(cos(a)) * w * 0.32, y: c.y + CGFloat(sin(a)) * w * 0.32))
+                        p.addLine(to: CGPoint(x: c.x + CGFloat(cos(a)) * w * 0.44, y: c.y + CGFloat(sin(a)) * w * 0.44))
+                    }
+                }
+                .stroke(Palette.fixedInk, style: StrokeStyle(lineWidth: line, lineCap: .round))
+            }
+            .frame(width: w, height: w)
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .accessibilityHidden(true)
     }
 }

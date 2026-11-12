@@ -53,7 +53,7 @@ extension FamilyStore {
             days[day] = entry
         }
         let dryDays = days.filter { $0.value.success && !$0.value.accident }.keys.sorted()
-        let sea = StickerStyle(shape: "shape-soft-square", foil: .sea)
+        let sea = StickerStyle(shape: "shape-soft-square", foil: .sea, emblem: "sun")
         if !dryDays.isEmpty { add("dry-1", "First dry day", sea, "A day on the potty with no accidents.", on: dryDays[0]) }
         for count in [3, 7, 14, 30] where dryDays.count >= count {
             add("dry-\(count)", "\(count) dry days", sea, "\(count) days with no accidents, in total.", on: dryDays[count - 1])

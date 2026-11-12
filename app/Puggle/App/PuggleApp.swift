@@ -152,6 +152,10 @@ struct RootView: View {
         // For checking the play pad: launch with "-debugPad 1".
         if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
+        } else if UserDefaults.standard.string(forKey: "debugSticker") == "dry" {
+            StickerDetailView(sticker: EarnedSticker(id: "dry-1", title: "First dry day",
+                                                     style: StickerStyle(shape: "shape-soft-square", foil: .sea, emblem: "sun"),
+                                                     detail: "A day on the potty with no accidents.", child: "Bea", earnedOn: .now))
         } else if UserDefaults.standard.string(forKey: "debugSticker") == "food" {
             StickerDetailView(sticker: EarnedSticker(id: "food-1", title: "First food",
                                                      style: StickerStyle(shape: "shape-soft-hexagon", foil: .gold, emblem: "icon-solids"),
