@@ -81,23 +81,36 @@ extension FamilyStore {
     }
 }
 
-/// The stickers a child has earned. Only earned ones are shown, so nothing looks missing.
+/// The stickers a child has earned, large, three to a row, each with its name
+/// and when it was earned, like a cabinet of awards. Only earned ones are
+/// shown, so nothing looks missing. Tap one to hold it and turn it over.
 struct EarnedStickersGrid: View {
     let stickers: [EarnedSticker]
     @State private var looking: EarnedSticker?
 
     var body: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8, alignment: .top), count: 4), spacing: 14) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12, alignment: .top), count: 3), spacing: 26) {
             ForEach(stickers) { sticker in
                 Button { looking = sticker } label: {
-                    VStack(spacing: 4) {
-                        StickerView(style: sticker.style, size: 58)
-                        Text(sticker.title)
-                            .font(.caption2.weight(.semibold))
-                            .multilineTextAlignment(.center)
-                            .lineLimit(3)
+                    VStack(spacing: 8) {
+                        GeometryReader { geometry in
+                            StickerView(style: sticker.style, size: geometry.size.width)
+                        }
+                        .aspectRatio(1, contentMode: .fit)
+                        VStack(spacing: 2) {
+                            Text(sticker.title)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Palette.ink)
+                                .lineLimit(2)
+                            if let date = sticker.earnedOn {
+                                Text(date.formatted(.dateTime.day().month(.abbreviated).year()))
+                                    .font(.caption)
+                                    .foregroundStyle(Palette.muted)
+                                    .monospacedDigit()
+                            }
+                        }
+                        .multilineTextAlignment(.center)
                     }
-                    .foregroundStyle(Palette.ink)
                 }
                 .buttonStyle(PressStyle())
                 .accessibilityElement(children: .combine)
@@ -105,10 +118,8 @@ struct EarnedStickersGrid: View {
                 .accessibilityHint("Opens it large")
             }
         }
+        .padding(.vertical, 4)
         .sheet(item: $looking) { StickerDetailView(sticker: $0) }
-        .padding(14)
-        .frame(maxWidth: .infinity)
-        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 }
 
