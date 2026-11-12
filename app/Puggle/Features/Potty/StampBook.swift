@@ -9,27 +9,37 @@ struct EarnedSticker: Identifiable {
     var style = StickerStyle()
     /// What it was for, on the back.
     var detail = ""
+    /// Who earned it and when, engraved on the back.
+    var child = ""
+    var earnedOn: Date?
 }
 
 extension FamilyStore {
     func earnedStickers(for child: Child) -> [EarnedSticker] {
-        let events = Array(child.events ?? [])
+        let events = Array(child.events ?? []).sorted { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
         var earned: [EarnedSticker] = []
+        func add(_ id: String, _ title: String, _ style: StickerStyle, _ detail: String, on date: Date?) {
+            earned.append(EarnedSticker(id: id, title: title, style: style, detail: detail, child: child.displayName, earnedOn: date))
+        }
 
-        // Finished stamp cards.
-        let cards = stickers(for: child).count / Stamp.perCard
-        if cards >= 1 { earned.append(EarnedSticker(id: "card-1", title: "First card", style: .card(0), detail: "Five stamps on a card, and the shiny one on the end.")) }
+        // Finished stamp cards: earned when the last stamp of that card went on.
+        let stamps = stickers(for: child)
+        let cards = stamps.count / Stamp.perCard
+        func cardDone(_ count: Int) -> Date? { stamps[count * Stamp.perCard - 1].startedAt }
+        if cards >= 1 { add("card-1", "First card", .card(0), "Five stamps on a card, and the shiny one on the end.", on: cardDone(1)) }
         for count in [5, 10, 25, 50] where cards >= count {
-            earned.append(EarnedSticker(id: "card-\(count)", title: "\(count) cards", style: .card(count), detail: "\(count) stamp cards filled."))
+            add("card-\(count)", "\(count) cards", .card(count), "\(count) stamp cards filled.", on: cardDone(count))
         }
 
         // Firsts on the potty.
         let potty = events.filter { $0.kind == .potty }
-        if potty.contains(where: { $0.detail == "Wee" }) {
-            earned.append(EarnedSticker(id: "wee", title: "First wee on the potty", style: StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xCFE5D2), emblem: "icon-potty"), detail: "The first wee on the potty."))
+        if let wee = potty.first(where: { $0.detail == "Wee" }) {
+            add("wee", "First wee on the potty", StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xCFE5D2), emblem: "icon-potty"),
+                "The first wee on the potty.", on: wee.startedAt)
         }
-        if potty.contains(where: { $0.detail == "Poo" }) {
-            earned.append(EarnedSticker(id: "poo", title: "First poo on the potty", style: StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xF3D9C9), emblem: "icon-potty"), detail: "The first poo on the potty."))
+        if let poo = potty.first(where: { $0.detail == "Poo" }) {
+            add("poo", "First poo on the potty", StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xF3D9C9), emblem: "icon-potty"),
+                "The first poo on the potty.", on: poo.startedAt)
         }
 
         // Days with a wee or a poo on the potty and no accident, in total (never in a row).
@@ -42,27 +52,30 @@ extension FamilyStore {
             if event.detail == "Wee" || event.detail == "Poo" { entry.success = true }
             days[day] = entry
         }
-        let dry = days.values.filter { $0.success && !$0.accident }.count
-        if dry >= 1 { earned.append(EarnedSticker(id: "dry-1", title: "First dry day", style: StickerStyle(shape: "shape-soft-square", foil: .sea), detail: "A day on the potty with no accidents.")) }
-        for count in [3, 7, 14, 30] where dry >= count {
-            earned.append(EarnedSticker(id: "dry-\(count)", title: "\(count) dry days", style: StickerStyle(shape: "shape-soft-square", foil: .sea), detail: "\(count) days with no accidents, in total."))
+        let dryDays = days.filter { $0.value.success && !$0.value.accident }.keys.sorted()
+        let sea = StickerStyle(shape: "shape-soft-square", foil: .sea)
+        if !dryDays.isEmpty { add("dry-1", "First dry day", sea, "A day on the potty with no accidents.", on: dryDays[0]) }
+        for count in [3, 7, 14, 30] where dryDays.count >= count {
+            add("dry-\(count)", "\(count) dry days", sea, "\(count) days with no accidents, in total.", on: dryDays[count - 1])
         }
 
-        // New foods tried.
-        let foods = Set(events.filter { $0.kind == .solids }
-            .compactMap { $0.detail?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
-            .filter { !$0.isEmpty }).count
-        if foods >= 1 { earned.append(EarnedSticker(id: "food-1", title: "First food", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids"), detail: "A first taste of something new.")) }
-        for count in [5, 10, 20, 50] where foods >= count {
-            earned.append(EarnedSticker(id: "food-\(count)", title: "\(count) new foods", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids"), detail: "\(count) different foods tried."))
+        // New foods tried, in the order they were first tried.
+        var seen = Set<String>()
+        var firstTried: [Date] = []
+        for event in events where event.kind == .solids {
+            let name = (event.detail ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+            if !name.isEmpty, seen.insert(name).inserted, let at = event.startedAt { firstTried.append(at) }
+        }
+        let gold = StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids")
+        if !firstTried.isEmpty { add("food-1", "First food", gold, "A first taste of something new.", on: firstTried[0]) }
+        for count in [5, 10, 20, 50] where firstTried.count >= count {
+            add("food-\(count)", "\(count) new foods", gold, "\(count) different foods tried.", on: firstTried[count - 1])
         }
 
         // Milestones.
         for event in milestones(for: child) {
-            earned.append(EarnedSticker(id: event.objectID.uriRepresentation().absoluteString,
-                                        title: event.detail ?? "Milestone",
-                                        style: StickerStyle(shape: "shape-blossom", foil: .sunset, emblem: "icon-milestone"),
-                                        detail: event.startedAt?.formatted(date: .long, time: .omitted) ?? ""))
+            add(event.objectID.uriRepresentation().absoluteString, event.detail ?? "Milestone",
+                StickerStyle(shape: "shape-blossom", foil: .sunset, emblem: "icon-milestone"), "", on: event.startedAt)
         }
         return earned
     }

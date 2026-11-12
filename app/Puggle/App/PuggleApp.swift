@@ -155,7 +155,8 @@ struct RootView: View {
         } else if UserDefaults.standard.string(forKey: "debugSticker") == "1" {
             // For checking the sticker viewer: launch with "-debugSticker 1".
             StickerDetailView(sticker: EarnedSticker(id: "card-1", title: "First card", style: .card(0),
-                                                     detail: "Five stamps on a card, and the shiny one on the end."))
+                                                     detail: "Five stamps on a card, and the shiny one on the end.",
+                                                     child: "Bea", earnedOn: .now))
         } else {
             mainContent
         }

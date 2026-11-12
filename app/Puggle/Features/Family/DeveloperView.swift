@@ -17,13 +17,13 @@ struct DeveloperView: View {
 
     private static let stickers: [EarnedSticker] = [
         EarnedSticker(id: "card-1", title: "First card", style: .card(0),
-                      detail: "Five stamps on a card, and the shiny one on the end."),
+                      detail: "Five stamps on a card, and the shiny one on the end.", child: "Bea", earnedOn: .now),
         EarnedSticker(id: "dry-1", title: "First dry day", style: StickerStyle(shape: "shape-soft-square", foil: .sea),
-                      detail: "A day on the potty with no accidents."),
+                      detail: "A day on the potty with no accidents.", child: "Bea", earnedOn: .now),
         EarnedSticker(id: "food-1", title: "First food", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids"),
-                      detail: "A first taste of something new."),
+                      detail: "A first taste of something new.", child: "Ollie", earnedOn: .now),
         EarnedSticker(id: "milestone", title: "First steps", style: StickerStyle(shape: "shape-blossom", foil: .sunset, emblem: "icon-milestone"),
-                      detail: Date.now.formatted(date: .long, time: .omitted)),
+                      child: "Ollie", earnedOn: .now),
     ]
 
     var body: some View {
