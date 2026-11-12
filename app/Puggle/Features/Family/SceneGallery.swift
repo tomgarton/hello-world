@@ -163,36 +163,24 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
-    /// Options to choose between: the pocket two ways, and hair three ways.
+    /// Options to choose between: the pocket, several ways.
     @MainActor static func writeOptions(name: String) {
         guard let rig = Rig.load("puggle") else { return }
         func shape(_ json: String) -> Rig.Shape { try! JSONDecoder().decode(Rig.Shape.self, from: Data(json.utf8)) }
-        func edit(_ rig: Rig, _ part: String, _ change: (inout [Rig.Shape]) -> Void) -> Rig {
+        func pocket(fill: String?, line: String, flower: Double) -> Rig {
             var copy = rig
-            for index in copy.parts.indices where copy.parts[index].id == part { change(&copy.parts[index].shapes) }
-            return copy
-        }
-        // A blue pocket with a white flower on it, its centre yellow.
-        let flowered = edit(rig, "dress") { shapes in
-            shapes[1].fill = nil
-            shapes[1].tint = "#1B4387"
-            for turn in 0..<5 {
-                let angle = Double(turn) * 2 * .pi / 5 - .pi / 2
-                shapes.append(shape("{\"kind\":\"ellipse\",\"x\":\(120 + cos(angle) * 5.6),\"y\":\(221.5 + sin(angle) * 5.6),\"rx\":4.4,\"ry\":4.4,\"fill\":\"#FFFDF6\"}"))
+            for index in copy.parts.indices where copy.parts[index].id == "dress" {
+                copy.parts[index].shapes[1].fill = fill
+                copy.parts[index].shapes[1].tint = line
+                guard flower > 0 else { continue }
+                // A small white flower, its centre yellow.
+                for turn in 0..<5 {
+                    let angle = Double(turn) * 2 * .pi / 5 - .pi / 2
+                    copy.parts[index].shapes.append(shape("{\"kind\":\"ellipse\",\"x\":\(120 + cos(angle) * 3.4 * flower),\"y\":\(222 + sin(angle) * 3.4 * flower),\"rx\":\(2.7 * flower),\"ry\":\(2.7 * flower),\"fill\":\"#FFFDF6\"}"))
+                }
+                copy.parts[index].shapes.append(shape("{\"kind\":\"ellipse\",\"x\":120,\"y\":222,\"rx\":\(2.1 * flower),\"ry\":\(2.1 * flower),\"fill\":\"#F4C95D\"}"))
             }
-            shapes.append(shape("{\"kind\":\"ellipse\",\"x\":120,\"y\":221.5,\"rx\":3.4,\"ry\":3.4,\"fill\":\"#F4C95D\"}"))
-        }
-        let fur = "\"fill\":\"#8A5A3C\",\"stroke\":\"#3A2A20\",\"tint\":\"#5E3A24\",\"width\":6"
-        // Hair goes in first, so the head covers where it joins.
-        let topTuft = edit(rig, "head") { shapes in
-            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M84 62 Q84 40 96 50 Q98 32 110 46 Q118 34 122 52 Z\",\(fur)}"), at: 0)
-        }
-        let sideTufts = edit(rig, "head") { shapes in
-            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M60 80 L40 80 L52 92 L38 98 L54 106 Z\",\(fur)}"), at: 0)
-            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M180 80 L200 80 L188 92 L202 98 L186 106 Z\",\(fur)}"), at: 0)
-        }
-        let curl = edit(rig, "head") { shapes in
-            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M104 52 Q98 34 112 36 Q122 38 116 48\",\"stroke\":\"#5E3A24\",\"width\":6,\"cap\":\"round\"}"), at: 0)
+            return copy
         }
         func cell(_ rig: Rig, _ title: String) -> some View {
             RigFrame(rig: rig, states: [:])
@@ -203,14 +191,14 @@ struct SceneGalleryView: View {
         }
         let sheet = VStack(spacing: 4) {
             HStack(spacing: 4) {
-                cell(rig, "1. Yellow pocket, no hair")
-                cell(flowered, "2. White flower on a blue pocket")
-                cell(curl, "3. One curl")
+                cell(pocket(fill: "#8FB4E3", line: "#1B4387", flower: 0), "1. Light blue pocket")
+                cell(pocket(fill: "#5E90DA", line: "#1B4387", flower: 0), "2. Mid blue pocket")
+                cell(pocket(fill: nil, line: "#1B4387", flower: 0), "3. Outline only")
             }
             HStack(spacing: 4) {
-                cell(topTuft, "4. A tuft on top")
-                cell(sideTufts, "5. Tufts at the sides")
-                cell(edit(flowered, "head") { $0.insert(shape("{\"kind\":\"path\",\"d\":\"M84 62 Q84 40 96 50 Q98 32 110 46 Q118 34 122 52 Z\",\(fur)}"), at: 0) }, "6. Flower pocket and top tuft")
+                cell(pocket(fill: "#8FB4E3", line: "#1B4387", flower: 1), "4. Light blue, tiny flower")
+                cell(pocket(fill: nil, line: "#1B4387", flower: 1), "5. Outline, tiny flower")
+                cell(pocket(fill: "#8FB4E3", line: "#5E86C8", flower: 0), "6. Light blue, softer line")
             }
         }
         .background(Color.gray)
