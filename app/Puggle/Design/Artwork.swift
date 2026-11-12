@@ -5,10 +5,13 @@ import SwiftUI
 struct ActivityIcon: View {
     let name: String
     var size: CGFloat = 36
+    /// One colour, for lists: the line in ink and the accent a faint tint of it.
+    var plain = false
 
-    init(_ kind: EventKind, size: CGFloat = 36) {
+    init(_ kind: EventKind, size: CGFloat = 36, plain: Bool = false) {
         self.name = kind.iconName
         self.size = size
+        self.plain = plain
     }
 
     init(named name: String, size: CGFloat = 36) {
@@ -17,11 +20,16 @@ struct ActivityIcon: View {
     }
 
     var body: some View {
-        Image(name)
-            .resizable()
-            .scaledToFit()
-            .frame(width: size, height: size)
-            .accessibilityHidden(true)
+        Group {
+            if plain {
+                Image(name + "-plain").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
+            } else {
+                Image(name).resizable()
+            }
+        }
+        .scaledToFit()
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
     }
 }
 

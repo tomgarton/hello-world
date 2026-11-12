@@ -20,7 +20,7 @@ struct DeveloperView: View {
                       detail: "Five stamps on a card, and the shiny one on the end.", child: "Bea", earnedOn: .now),
         EarnedSticker(id: "dry-1", title: "First dry day", style: StickerStyle(shape: "shape-soft-square", foil: .sea),
                       detail: "A day on the potty with no accidents.", child: "Bea", earnedOn: .now),
-        EarnedSticker(id: "food-1", title: "First food", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids"),
+        EarnedSticker(id: "food-1", title: "First food", style: StickerStyle(shape: "shape-soft-hexagon", foil: .gold, emblem: "icon-solids"),
                       detail: "A first taste of something new.", child: "Ollie", earnedOn: .now),
         EarnedSticker(id: "milestone", title: "First steps", style: StickerStyle(shape: "shape-blossom", foil: .sunset, emblem: "icon-milestone"),
                       child: "Ollie", earnedOn: .now),
@@ -48,7 +48,7 @@ struct DeveloperView: View {
                 Picker("Season", selection: $month) {
                     Text("By the date").tag("")
                     Text("Spring (blossom)").tag(seasonMonth(.spring))
-                    Text("Summer (scallop)").tag(seasonMonth(.summer))
+                    Text("Summer (pebble)").tag(seasonMonth(.summer))
                     Text("Autumn (quatrefoil)").tag(seasonMonth(.autumn))
                     Text("Winter (hexagon)").tag(seasonMonth(.winter))
                 }

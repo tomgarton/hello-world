@@ -97,7 +97,7 @@ struct SplashLook {
     var shape: String {
         switch season {
         case .spring: "shape-blossom"
-        case .summer: "shape-scallop"
+        case .summer: "shape-pebble"
         case .autumn: "shape-quatrefoil"
         case .winter: "shape-soft-hexagon"
         }

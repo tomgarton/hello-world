@@ -56,6 +56,8 @@ struct HistoryView: View {
                             }
                             .buttonStyle(.plain)
                             .listRowBackground(Palette.paper)
+                            .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
+                            .alignmentGuide(.listRowSeparatorLeading) { _ in EventRow.iconWell + EventRow.gap }
                             .accessibilityHint("Opens this entry to change it")
                         }
                         .onDelete { offsets in
@@ -107,29 +109,37 @@ struct HistoryView: View {
 struct EventRow: View {
     @ObservedObject var event: Event
 
+    /// The same space above and below, everywhere a row is used.
+    static let verticalPadding: CGFloat = 13
+    static let iconWell: CGFloat = 42
+    static let gap: CGFloat = 14
+
     var body: some View {
-        HStack(spacing: 12) {
-            ActivityIcon(event.kind, size: 26)
-                .frame(width: 40, height: 40)
+        HStack(alignment: .center, spacing: Self.gap) {
+            ActivityIcon(event.kind, size: 22, plain: true)
+                .frame(width: Self.iconWell, height: Self.iconWell)
                 .background(Palette.field, in: Circle())
-            VStack(alignment: .leading, spacing: 4) {
-                Text(event.summary).font(.body.weight(.medium))
-                HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text(event.summary)
+                    .font(.body.weight(.medium))
+                    .fixedSize(horizontal: false, vertical: true)
+                // Who it was for, then quietly who logged it.
+                HStack(alignment: .center, spacing: 8) {
                     ForEach(event.sortedChildren) { ChildChip(child: $0) }
-                    if let note = event.note, !note.isEmpty {
-                        Text(note).font(.footnote).foregroundStyle(Palette.muted).lineLimit(1)
-                    }
                     if let who = event.loggedBy, !who.isEmpty {
                         Text("by \(who)").font(.footnote).foregroundStyle(Palette.muted).lineLimit(1)
                     }
                 }
+                if let note = event.note, !note.isEmpty {
+                    Text(note).font(.footnote).foregroundStyle(Palette.muted).lineLimit(2)
+                }
             }
-            Spacer()
+            Spacer(minLength: 8)
             if let at = event.startedAt {
                 Text(at, style: .time).font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
             }
         }
-        .padding(.vertical, 4)
+        .padding(.vertical, Self.verticalPadding)
         .contentShape(Rectangle())
     }
 }

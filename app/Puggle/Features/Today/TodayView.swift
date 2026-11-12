@@ -496,11 +496,10 @@ struct TodaySoFar: View {
                         .padding(14)
                 } else {
                     ForEach(Array(shown.enumerated()), id: \.element.objectID) { index, event in
-                        if index > 0 { Divider().padding(.leading, 66) }
+                        if index > 0 { Divider().padding(.leading, 16 + EventRow.iconWell + EventRow.gap) }
                         Button { onOpen(event) } label: { EventRow(event: event) }
                             .buttonStyle(.plain)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 4)
+                            .padding(.horizontal, 16)
                             .accessibilityHint("Opens this entry to change it")
                     }
                     if today.count > 6 {

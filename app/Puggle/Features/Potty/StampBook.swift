@@ -66,7 +66,7 @@ extension FamilyStore {
             let name = (event.detail ?? "").trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
             if !name.isEmpty, seen.insert(name).inserted, let at = event.startedAt { firstTried.append(at) }
         }
-        let gold = StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids")
+        let gold = StickerStyle(shape: "shape-soft-hexagon", foil: .gold, emblem: "icon-solids")
         if !firstTried.isEmpty { add("food-1", "First food", gold, "A first taste of something new.", on: firstTried[0]) }
         for count in [5, 10, 20, 50] where firstTried.count >= count {
             add("food-\(count)", "\(count) new foods", gold, "\(count) different foods tried.", on: firstTried[count - 1])
