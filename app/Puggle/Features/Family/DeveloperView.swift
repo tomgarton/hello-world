@@ -6,7 +6,7 @@ import SwiftUI
 struct DeveloperView: View {
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage("debugScene") private var scene = ""
-    @AppStorage("lineStyle") private var lineStyle = "ink"
+    @AppStorage("lineStyle") private var lineStyle = "tinted"
     @AppStorage("debugMonth") private var month = ""
     @AppStorage("debugHour") private var hour = ""
     @AppStorage("debugPeekOften") private var peekOften = false
@@ -38,8 +38,8 @@ struct DeveloperView: View {
                     Text("Bush and kookaburra").tag("3")
                 }
                 Picker("Character outlines", selection: $lineStyle) {
-                    Text("One dark line").tag("ink")
                     Text("Coloured lines").tag("tinted")
+                    Text("One dark line").tag("ink")
                 }
                 NavigationLink("Every scene, at each time of day") { SceneGalleryView() }
                 Button("Play Puggle's entrance again") { greetedOn = "" }

@@ -103,8 +103,13 @@ struct PartState: Equatable {
 enum LineStyle: String {
     case ink, tinted
 
-    /// The choice in the Developer menu, until one is settled on.
-    static var chosen: LineStyle { LineStyle(rawValue: UserDefaults.standard.string(forKey: "lineStyle") ?? "") ?? .ink }
+    /// Coloured lines are the look (chosen 12 November 2026). The Developer menu can still show the dark line.
+    static var chosen: LineStyle { LineStyle(rawValue: UserDefaults.standard.string(forKey: "lineStyle") ?? "") ?? .tinted }
+}
+
+/// True where a character stands under the moon, so it takes the night's light.
+private struct MoonlitKey: EnvironmentKey {
+    static let defaultValue = false
 }
 
 private struct LineStyleKey: EnvironmentKey {
@@ -112,6 +117,11 @@ private struct LineStyleKey: EnvironmentKey {
 }
 
 extension EnvironmentValues {
+    var moonlit: Bool {
+        get { self[MoonlitKey.self] }
+        set { self[MoonlitKey.self] = newValue }
+    }
+
     var lineStyle: LineStyle {
         get { self[LineStyleKey.self] }
         set { self[LineStyleKey.self] = newValue }
@@ -128,7 +138,21 @@ extension Color {
     var outlineShade: Color {
         var h: CGFloat = 0, s: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
         guard UIColor(self).getHue(&h, saturation: &s, brightness: &b, alpha: &a) else { return self }
-        return Color(hue: Double(h), saturation: Double(min(1, s * 1.2 + 0.06)), brightness: Double(b * 0.62), opacity: Double(a))
+        // Pale colours need a deeper line, or they melt into a light sky.
+        return Color(hue: Double(h), saturation: Double(min(1, s * 1.2 + 0.1)), brightness: Double(b * (s < 0.25 ? 0.5 : 0.62)), opacity: Double(a))
+    }
+
+    /// The colour as it looks by moonlight: cooler and a little deeper, leaning
+    /// violet, but still itself. Night is a change of light, not a loss of colour.
+    func moonlit(_ on: Bool, _ amount: Double = 0.8) -> Color {
+        guard on else { return self }
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        guard UIColor(self).getRed(&r, green: &g, blue: &b, alpha: &a) else { return self }
+        let red = Double(r) * (1 - amount * 0.34)
+        let green = Double(g) * (1 - amount * 0.36)
+        var blue = Double(b) * (1 - amount * 0.06)
+        blue += amount * 0.18 * (1 - blue)
+        return Color(red: red, green: green, blue: blue, opacity: Double(a))
     }
 }
 
@@ -136,7 +160,7 @@ extension Color {
 
 enum RigRenderer {
     /// Draws every part, each moved by its state and by its parents'.
-    static func draw(_ rig: Rig, states: [String: PartState], style: LineStyle, in context: inout GraphicsContext, size: CGSize) {
+    static func draw(_ rig: Rig, states: [String: PartState], style: LineStyle, moonlit: Bool = false, in context: inout GraphicsContext, size: CGSize) {
         let scale = min(size.width / rig.size[0], size.height / rig.size[1])
         let fit = CGAffineTransform(translationX: (size.width - rig.size[0] * scale) / 2, y: size.height - rig.size[1] * scale)
             .scaledBy(x: scale, y: scale)
@@ -155,21 +179,21 @@ enum RigRenderer {
             guard !part.shapes.isEmpty else { continue }
             var layer = context
             layer.concatenate(transform)
-            for shape in part.shapes { draw(shape, style: style, in: &layer) }
+            for shape in part.shapes { draw(shape, style: style, moonlit: moonlit, in: &layer) }
         }
     }
 
-    private static func draw(_ shape: Rig.Shape, style: LineStyle, in context: inout GraphicsContext) {
+    private static func draw(_ shape: Rig.Shape, style: LineStyle, moonlit: Bool, in context: inout GraphicsContext) {
         var path = outline(of: shape)
         if let turn = shape.rotate, let x = shape.x, let y = shape.y {
             path = path.applying(CGAffineTransform(translationX: x, y: y).rotated(by: turn * .pi / 180).translatedBy(x: -x, y: -y))
         }
         if let fill = shape.fill {
-            context.fill(path, with: .color(Color(rigHex: fill)))
+            context.fill(path, with: .color(Color(rigHex: fill).moonlit(moonlit, 0.6)))
         }
         if let stroke = shape.stroke {
             let colour = style == .tinted ? (shape.tint ?? stroke) : stroke
-            context.stroke(path, with: .color(Color(rigHex: colour)),
+            context.stroke(path, with: .color(Color(rigHex: colour).moonlit(moonlit, 0.6)),
                            style: StrokeStyle(lineWidth: shape.width ?? 1, lineCap: shape.cap == "round" ? .round : .butt, lineJoin: .round))
         }
     }
@@ -356,18 +380,19 @@ struct RigView: View {
     let runtime: RigRuntime
     var moving = true
     @Environment(\.lineStyle) private var lineStyle
+    @Environment(\.moonlit) private var moonlit
 
     var body: some View {
         if moving {
             TimelineView(.animation) { timeline in
                 Canvas { context, size in
                     let states = runtime.advance(to: timeline.date)
-                    RigRenderer.draw(runtime.rig, states: states, style: lineStyle, in: &context, size: size)
+                    RigRenderer.draw(runtime.rig, states: states, style: lineStyle, moonlit: moonlit, in: &context, size: size)
                 }
             }
         } else {
             Canvas { context, size in
-                RigRenderer.draw(runtime.rig, states: [:], style: lineStyle, in: &context, size: size)
+                RigRenderer.draw(runtime.rig, states: [:], style: lineStyle, moonlit: moonlit, in: &context, size: size)
             }
         }
     }

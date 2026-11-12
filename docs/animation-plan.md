@@ -48,6 +48,24 @@ Why:
 Keep the dark line for the app icon and the small mark, where contrast matters
 more than softness. Check both at small sizes before changing them.
 
+**Decided (Tom, 12 November 2026): coloured lines.** They are less stark
+against the background. Built: the Developer menu can still show the dark line.
+
+## Night
+
+From the Bluey night references. Built into the scenes on 12 November 2026.
+
+- **Night is a change of light, not a loss of colour.** Nothing goes black,
+  brown or grey. Scenery becomes steps of indigo and violet, told apart by how
+  light or dark each is.
+- **Characters keep their own colours, seen by moonlight:** cooler, a little
+  deeper, leaning violet. Puggle changes least, because she is the one to look at.
+- **Light sources are warm and small:** a lit window, fireflies, the moon's
+  glow and its path on the sea. Warm against cool is what makes them read.
+- **Shadows are deep indigo,** never dark brown.
+- Still to try: light that falls on a character near a source (a warm rim
+  beside a lit window), and a pool of light on the ground.
+
 ## Animation: the choices
 
 | Choice | Good at | Weak at | Who makes it |
@@ -82,6 +100,16 @@ the code rig becomes the fallback.
 5. **The things that make it feel alive:** a small crouch before a jump,
    squash on landing, arms that travel in arcs, a hold at the top of a wave,
    and the tail showing the feeling.
+
+## Taken from how Duolingo animates its characters
+
+- **Tracks that run at once:** body, face and tail each have their own, so she
+  can smile while she waves, or wag through anything. (Today there is one move
+  at a time over the ambient motion.)
+- **A few face shapes** to blend between. Eyes: open, closed, happy arcs, wide.
+  Bill: closed, small smile, open.
+- **A pose to end on** after a result: proud after a potty success, a stretch
+  when a sleep ends.
 
 ## Steps
 

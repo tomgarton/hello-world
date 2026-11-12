@@ -22,6 +22,7 @@ struct SceneGalleryView: View {
                         ZStack(alignment: .bottom) {
                             PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour)
                             PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                                .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
                         }
                         .frame(width: 402, height: PuggleHeader.sceneHeight + pull)
                         .clipped()
@@ -40,7 +41,7 @@ struct SceneGalleryView: View {
         let controller = PuggleController()
         func cast(_ style: LineStyle, dark: Bool) -> some View {
             HStack(spacing: 18) {
-                PuggleView(controller: controller, frozen: true).frame(width: 150, height: 188)
+                PuggleView(controller: controller, frozen: true).frame(width: 150, height: 188).environment(\.moonlit, dark)
                 VStack(spacing: 14) {
                     HStack(spacing: 14) {
                         Bird(dark: dark).frame(width: 46, height: 38).scaleEffect(2).frame(width: 92, height: 76)
@@ -53,7 +54,7 @@ struct SceneGalleryView: View {
                 }
             }
             .frame(width: 402, height: 230)
-            .background(dark ? Color(hex: 0x1E2236) : Color(hex: 0xF2ECDD))
+            .background(dark ? Color(hex: 0x25275C) : Color(hex: 0xF2ECDD))
             .overlay(alignment: .topLeading) {
                 Text(style == .ink ? "One dark line" : "Coloured lines").font(.caption.weight(.semibold))
                     .foregroundStyle(dark ? Color.white : Color.black).padding(8)
@@ -64,6 +65,7 @@ struct SceneGalleryView: View {
             ZStack(alignment: .bottom) {
                 PuggleScene(kind: kind, dark: dark, hourOverride: dark ? 22 : 13)
                 PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                    .environment(\.moonlit, dark)
             }
             .frame(width: 402, height: PuggleHeader.sceneHeight)
             .clipped()
@@ -140,6 +142,7 @@ struct SceneGalleryView: View {
                     ZStack(alignment: .bottom) {
                         PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour)
                         PuggleView(controller: puggle).frame(height: 118).padding(.bottom, 26)
+                            .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
                     }
                     .frame(height: PuggleHeader.sceneHeight + pull)
                     .overlay(alignment: .topLeading) {

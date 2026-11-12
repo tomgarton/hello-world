@@ -406,6 +406,7 @@ struct PuggleHeader: View {
             PuggleScene(kind: .today, dark: scheme == .dark || night, appeared: appeared, pull: pull)
             Button(action: react) {
                 PuggleView(controller: controller)
+                    .environment(\.moonlit, PuggleScene.isNight(dark: scheme == .dark || night))
                     .frame(height: 118)
                     .scaleEffect(x: 1, y: 1 - nod * 0.06, anchor: .bottom)
                     .offset(y: lift + nod * 3)

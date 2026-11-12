@@ -72,12 +72,17 @@ struct PuggleScene: View {
 
     private var starry: Bool { phase == .night }
 
+    /// Whether the scene on Today is showing night just now, so Puggle can take its light.
+    static func isNight(dark: Bool, hour: Int? = nil) -> Bool {
+        PuggleScene(kind: .hills, dark: dark, hourOverride: hour).starry
+    }
+
     private var sky: [Color] {
-        if dark { return [Color(hex: 0x101A2E), Color(hex: 0x1E2236), Palette.sand] }
+        if dark { return [Color(hex: 0x14163C), Color(hex: 0x25275C), Palette.sand] }
         switch phase {
         case .dawn: return [Color(hex: 0xF6CDB4), Color(hex: 0xF8E3CF), Palette.sand]
         case .dusk: return [Color(hex: 0xC9B6D9), Color(hex: 0xF4CDB0), Palette.sand]
-        case .night: return [Color(hex: 0x2A3556), Color(hex: 0x4A4870), Palette.sand]
+        case .night: return [Color(hex: 0x2B2F6B), Color(hex: 0x4C4892), Palette.sand]
         case .day: return [Color(hex: 0xBFDDF0), Color(hex: 0xE3EEF1), Palette.sand]
         }
     }
@@ -98,12 +103,12 @@ struct PuggleScene: View {
                 // The scene itself keeps its height and sits at the bottom.
                 ZStack {
                     light(w, h)
-                    if !starry { clouds(w, h) }
+                    clouds(w, h)
                     scenery(w, h)
                     ground
                     details(w, h)
                     // Puggle's shadow, so she stands on the hill.
-                    Ellipse().fill(Palette.fixedInk.opacity(starry ? 0.22 : 0.1))
+                    Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
                         .frame(width: 72, height: 9).position(x: w / 2, y: h - 27)
                     friend(w, h)
                 }
@@ -141,6 +146,7 @@ struct PuggleScene: View {
 
     private func clouds(_ w: CGFloat, _ h: CGFloat) -> some View {
         let tint: Color = switch phase {
+        case .night: Color(hex: 0x9A96E0).opacity(0.2)
         case .dawn: Color(hex: 0xFFF6EC).opacity(0.85)
         case .dusk: Color(hex: 0xFBE4E6).opacity(0.8)
         default: Color.white.opacity(0.8)
@@ -159,11 +165,11 @@ struct PuggleScene: View {
 
     /// The ground in the page colour, with a little shade along the top so the hill has a shape.
     private var ground: some View {
-        let shade: Color = if dark { Color(hex: 0x3A3A52).opacity(0.5) } else {
+        let shade: Color = if dark { Color(hex: 0x3A3F7A).opacity(0.55) } else {
             switch phase {
             case .dawn: Color(hex: 0xEDB48E).opacity(0.3)
             case .dusk: Color(hex: 0xC9A2C2).opacity(0.34)
-            case .night: Color(hex: 0x66648F).opacity(0.5)
+            case .night: Color(hex: 0x5F5E9A).opacity(0.5)
             case .day: Color(hex: 0xCDBE98).opacity(0.3)
             }
         }
@@ -180,56 +186,62 @@ struct PuggleScene: View {
     @ViewBuilder private func scenery(_ w: CGFloat, _ h: CGFloat) -> some View {
         switch kind {
         case .hills:
-            Hill(rise: 0.34, left: 0.58, right: 0.76, peak: 0.2).fill(tone(0xD7E7C6, 0x2B3A32))
-            RoundTree(leaf: tone(0xB7D2A4, 0x24332B), trunk: tone(0xB89A78, 0x3A3028)).frame(width: 16, height: 24).position(x: w * 0.1, y: h * 0.47)
-            Hill(rise: 0.44, left: 0.82, right: 0.56, peak: 0.84).fill(tone(0xBFD8AA, 0x223028))
-            RoundTree(leaf: tone(0x9CC08C, 0x1C2A22), trunk: tone(0xA98A68, 0x332A22)).frame(width: 26, height: 38).position(x: w * 0.78, y: h * 0.47)
-            RoundTree(leaf: tone(0xA9C998, 0x1F2D25), trunk: tone(0xA98A68, 0x332A22)).frame(width: 18, height: 27).position(x: w * 0.87, y: h * 0.48)
-            Hill(rise: 0.56, left: 0.74, right: 0.72).fill(tone(0xA9CB93, 0x1B2720))
+            Hill(rise: 0.34, left: 0.58, right: 0.76, peak: 0.2).fill(tone(0xD7E7C6, 0x2E3468))
+            RoundTree(leaf: tone(0xB7D2A4, 0x263A62), trunk: tone(0xB89A78, 0x3A3560)).frame(width: 16, height: 24).position(x: w * 0.1, y: h * 0.47)
+            // Someone is home on the far hill: a warm window after dark.
+            Cottage(night: starry).frame(width: 26, height: 24).position(x: w * 0.36, y: h * 0.415)
+            Hill(rise: 0.44, left: 0.82, right: 0.56, peak: 0.84).fill(tone(0xBFD8AA, 0x272C5A))
+            RoundTree(leaf: tone(0x9CC08C, 0x1F3258), trunk: tone(0xA98A68, 0x332E58)).frame(width: 26, height: 38).position(x: w * 0.78, y: h * 0.47)
+            RoundTree(leaf: tone(0xA9C998, 0x22365C), trunk: tone(0xA98A68, 0x332E58)).frame(width: 18, height: 27).position(x: w * 0.87, y: h * 0.48)
+            Hill(rise: 0.56, left: 0.74, right: 0.72).fill(tone(0xA9CB93, 0x1F2450))
         case .beach:
             // The sea, lighter where it is shallow, with a boat out on it.
-            Rectangle().fill(tone(0x86BEE3, 0x1B2B47)).frame(height: h * 0.24).position(x: w / 2, y: h * 0.7)
-            Rectangle().fill(tone(0xA6D4EE, 0x22355A)).frame(height: h * 0.12).position(x: w / 2, y: h * 0.76)
+            Rectangle().fill(tone(0x86BEE3, 0x232E6C)).frame(height: h * 0.24).position(x: w / 2, y: h * 0.7)
+            Rectangle().fill(tone(0xA6D4EE, 0x2B3A80)).frame(height: h * 0.12).position(x: w / 2, y: h * 0.76)
             Waves().stroke(Color.white.opacity(starry ? 0.18 : 0.55), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
                 .frame(width: w * 0.36, height: 6).position(x: w * 0.36, y: h * 0.635)
             Waves().stroke(Color.white.opacity(starry ? 0.18 : 0.55), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
                 .frame(width: w * 0.22, height: 6).position(x: w * 0.74, y: h * 0.665)
             Sailboat(dark: starry).frame(width: 26, height: 28).position(x: w * 0.84, y: h * 0.555)
+            if starry {
+                // The moon on the water.
+                MoonPath().fill(Color(hex: 0xF3E0B8).opacity(0.4)).frame(width: 34, height: h * 0.1).position(x: w * kind.lightSpot, y: h * 0.635)
+            }
             // Foam where the sea meets the sand.
             HillEdge(rise: 0.6, left: 0.8, right: 0.78)
                 .stroke(Color.white.opacity(starry ? 0.3 : 0.85), style: StrokeStyle(lineWidth: 5, lineCap: .round))
                 .offset(y: -1)
         case .backyard:
-            Hedge().fill(tone(0xA9CB93, 0x1B2720)).frame(width: w, height: h * 0.22).position(x: w / 2, y: h * 0.56)
-            Fence().fill(tone(0xF6EDD9, 0x3A322B)).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
-            Fence().stroke(tone(0xD8C8A8, 0x26201B), lineWidth: 1).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
-            Hill(rise: 0.6, left: 0.73, right: 0.71).fill(tone(0xB9D49E, 0x1E2A24))
+            Hedge().fill(tone(0xA9CB93, 0x1F2450)).frame(width: w, height: h * 0.22).position(x: w / 2, y: h * 0.56)
+            Fence().fill(tone(0xF6EDD9, 0x4B4F8A)).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
+            Fence().stroke(tone(0xD8C8A8, 0x363A72), lineWidth: 1).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
+            Hill(rise: 0.6, left: 0.73, right: 0.71).fill(tone(0xB9D49E, 0x232858))
             WashingLine(dark: starry).frame(width: w * 0.38, height: h * 0.36).position(x: w * 0.23, y: h * 0.52)
         case .bush:
             // A far ridge with gums on it, then the nearer rise.
-            Hill(rise: 0.46, left: 0.66, right: 0.5, peak: 0.9).fill(tone(0xD9DDBA, 0x302E27))
-            SmallGum(leaf: tone(0xB4C7A6, 0x26342C), trunk: tone(0xD9CDB6, 0x464038)).frame(width: 26, height: 34).position(x: w * 0.6, y: h * 0.5)
-            SmallGum(leaf: tone(0xA9BF9C, 0x23302A), trunk: tone(0xD9CDB6, 0x464038)).frame(width: 34, height: 44).position(x: w * 0.9, y: h * 0.43)
-            Hill(rise: 0.54, left: 0.8, right: 0.62, peak: 0.85).fill(tone(0xCBC596, 0x2A2820))
+            Hill(rise: 0.46, left: 0.66, right: 0.5, peak: 0.9).fill(tone(0xD9DDBA, 0x2F3266))
+            SmallGum(leaf: tone(0xB4C7A6, 0x263A62), trunk: tone(0xD9CDB6, 0x5A5890)).frame(width: 26, height: 34).position(x: w * 0.6, y: h * 0.5)
+            SmallGum(leaf: tone(0xA9BF9C, 0x22365C), trunk: tone(0xD9CDB6, 0x5A5890)).frame(width: 34, height: 44).position(x: w * 0.9, y: h * 0.43)
+            Hill(rise: 0.54, left: 0.8, right: 0.62, peak: 0.85).fill(tone(0xCBC596, 0x272A56))
             GumTree(dark: starry).frame(width: 120, height: h * 0.78).position(x: w * 0.13, y: h * 0.5)
         }
     }
 
     /// Small things on the ground at the front.
     @ViewBuilder private func details(_ w: CGFloat, _ h: CGFloat) -> some View {
-        let grass = tone(0x9DBB8A, 0x4E6254)
+        let grass = tone(0x9DBB8A, 0x44608A)
         switch kind {
         case .hills:
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.1, y: h * 0.8)
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9).position(x: w * 0.72, y: h * 0.74)
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.92, y: h * 0.83)
         case .beach:
-            Starfish().fill(tone(0xF2A48E, 0x8C5348)).frame(width: 15, height: 15).rotationEffect(.degrees(12)).position(x: w * 0.8, y: h * 0.9)
+            Starfish().fill(tone(0xF2A48E, 0x8C5A86)).frame(width: 15, height: 15).rotationEffect(.degrees(12)).position(x: w * 0.8, y: h * 0.9)
         case .backyard:
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.09, y: h * 0.8)
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9).position(x: w * 0.9, y: h * 0.8)
         case .bush:
-            let dry = tone(0xB0A474, 0x5E5840)
+            let dry = tone(0xB0A474, 0x5A5C8C)
             GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.7, y: h * 0.75)
             GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9).position(x: w * 0.9, y: h * 0.81)
         }
@@ -297,7 +309,7 @@ struct PuggleScene: View {
 
     @ViewBuilder private func friend(_ w: CGFloat, _ h: CGFloat) -> some View {
         let pop = appeared ? 1.0 : 0.4
-        let shadow = Palette.fixedInk.opacity(starry ? 0.2 : 0.1)
+        let shadow = starry ? Color(hex: 0x15163A).opacity(0.3) : Palette.fixedInk.opacity(0.1)
         switch kind {
         case .hills:
             Ellipse().fill(shadow).frame(width: 30, height: 6).position(x: w * 0.26, y: h * 0.868)
@@ -487,6 +499,44 @@ struct Hedge: Shape {
     }
 }
 
+/// A little house a long way off. After dark its window is lit, and the light spills a little.
+struct Cottage: View {
+    let night: Bool
+    var body: some View {
+        Canvas { context, size in
+            let w = size.width, h = size.height
+            let wall = Color(hex: night ? 0x4D5296 : 0xFBF3E2), roof = Color(hex: night ? 0x34386E : 0xD9735E)
+            context.fill(Path(CGRect(x: w * 0.18, y: h * 0.45, width: w * 0.64, height: h * 0.55)), with: .color(wall))
+            var top = Path()
+            top.move(to: CGPoint(x: w * 0.08, y: h * 0.48)); top.addLine(to: CGPoint(x: w * 0.5, y: h * 0.08)); top.addLine(to: CGPoint(x: w * 0.92, y: h * 0.48))
+            top.closeSubpath()
+            context.fill(top, with: .color(roof))
+            let window = CGRect(x: w * 0.4, y: h * 0.58, width: w * 0.2, height: h * 0.24)
+            if night {
+                let centre = CGPoint(x: window.midX, y: window.midY)
+                context.fill(Path(ellipseIn: CGRect(x: centre.x - 13, y: centre.y - 13, width: 26, height: 26)),
+                             with: .radialGradient(Gradient(colors: [Color(hex: 0xFFD98A).opacity(0.55), Color(hex: 0xFFD98A).opacity(0)]),
+                                                   center: centre, startRadius: 1, endRadius: 13))
+            }
+            context.fill(Path(roundedRect: window, cornerRadius: 1), with: .color(Color(hex: night ? 0xFFDF9E : 0x9CC4E0)))
+        }
+    }
+}
+
+/// The moon's light lying on the sea: a few short strokes, narrowing towards the shore.
+struct MoonPath: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let rows: [(CGFloat, CGFloat)] = [(0.0, 0.9), (0.28, 0.55), (0.56, 0.7), (0.84, 0.35)]
+        for (down, wide) in rows {
+            let width = rect.width * wide
+            path.addRoundedRect(in: CGRect(x: rect.midX - width / 2, y: rect.minY + rect.height * down, width: width, height: 2.2),
+                                cornerSize: CGSize(width: 1.1, height: 1.1))
+        }
+        return path
+    }
+}
+
 /// A round tree for the far hills.
 struct RoundTree: View {
     let leaf: Color
@@ -527,10 +577,10 @@ struct GumTree: View {
     var body: some View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
-            let trunk = Color(hex: dark ? 0x4A4238 : 0xE4D7C2)
-            let bark = Color(hex: dark ? 0x3A332B : 0xC9B89C)
-            let leaves = Color(hex: dark ? 0x26352E : 0x9DBB98)
-            let lighter = Color(hex: dark ? 0x2E4037 : 0xB4CDAC)
+            let trunk = Color(hex: dark ? 0x5F5C96 : 0xE4D7C2)
+            let bark = Color(hex: dark ? 0x4A4780 : 0xC9B89C)
+            let leaves = Color(hex: dark ? 0x263A62 : 0x9DBB98)
+            let lighter = Color(hex: dark ? 0x2E4670 : 0xB4CDAC)
             ZStack {
                 // The branch the friend sits on, behind the trunk.
                 Path { p in
@@ -569,8 +619,8 @@ struct WashingLine: View {
     var body: some View {
         Canvas { context, size in
             let w = size.width, h = size.height
-            let post = Color(hex: dark ? 0x4A3D32 : 0xA98A68)
-            let rope = Color(hex: dark ? 0x6B6258 : 0x8C7B66)
+            let post = Color(hex: dark ? 0x4A4276 : 0xA98A68)
+            let rope = Color(hex: dark ? 0x7673A6 : 0x8C7B66)
             for x in [w * 0.04, w * 0.96] {
                 context.fill(Path(roundedRect: CGRect(x: x - 2, y: h * 0.08, width: 4, height: h * 0.92), cornerRadius: 2), with: .color(post))
             }
@@ -634,20 +684,20 @@ struct Sailboat: View {
             hull.addLine(to: CGPoint(x: w * 0.92, y: h * 0.74))
             hull.addQuadCurve(to: CGPoint(x: w * 0.2, y: h), control: CGPoint(x: w * 0.8, y: h))
             hull.closeSubpath()
-            context.fill(hull, with: .color(Color(hex: dark ? 0x6B4A40 : 0xD9735E)))
-            context.fill(Path(CGRect(x: w * 0.48, y: h * 0.06, width: 1.6, height: h * 0.7)), with: .color(Color(hex: dark ? 0x4A4038 : 0x8C7355)))
+            context.fill(hull, with: .color(Color(hex: dark ? 0x6A4A7A : 0xD9735E)))
+            context.fill(Path(CGRect(x: w * 0.48, y: h * 0.06, width: 1.6, height: h * 0.7)), with: .color(Color(hex: dark ? 0x4A447A : 0x8C7355)))
             var sail = Path()
             sail.move(to: CGPoint(x: w * 0.56, y: h * 0.08))
             sail.addLine(to: CGPoint(x: w * 0.95, y: h * 0.66))
             sail.addLine(to: CGPoint(x: w * 0.56, y: h * 0.66))
             sail.closeSubpath()
-            context.fill(sail, with: .color(Color(hex: dark ? 0x8E8A84 : 0xFFFDF6)))
+            context.fill(sail, with: .color(Color(hex: dark ? 0xA7A4D8 : 0xFFFDF6)))
             var jib = Path()
             jib.move(to: CGPoint(x: w * 0.44, y: h * 0.2))
             jib.addLine(to: CGPoint(x: w * 0.44, y: h * 0.66))
             jib.addLine(to: CGPoint(x: w * 0.12, y: h * 0.66))
             jib.closeSubpath()
-            context.fill(jib, with: .color(Color(hex: dark ? 0x7A7670 : 0xF6EDD9)))
+            context.fill(jib, with: .color(Color(hex: dark ? 0x908DC4 : 0xF6EDD9)))
         }
     }
 }
@@ -729,8 +779,8 @@ struct Bird: View {
         let style = lineStyle
         return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2 - (flying ? 0 : 2)
-            let body = Color(hex: dark ? 0xB57A92 : 0xE79BB8)
-            let wing = Color(hex: dark ? 0x8E5C74 : 0xC9718F)
+            let body = Color(hex: 0xE79BB8).moonlit(dark)
+            let wing = Color(hex: 0xC9718F).moonlit(dark)
             if !flying {
                 var legs = Path()
                 legs.move(to: CGPoint(x: cx - 3, y: cy + 8)); legs.addLine(to: CGPoint(x: cx - 3, y: cy + 15))
@@ -739,7 +789,7 @@ struct Bird: View {
             }
             outlined(&context, [
                 (polygon([CGPoint(x: cx - 10, y: cy - 1), CGPoint(x: cx - 21, y: cy - 7), CGPoint(x: cx - 19, y: cy + 4)]), wing),
-                (polygon([CGPoint(x: cx + 11, y: cy - 5), CGPoint(x: cx + 20, y: cy - 1.5), CGPoint(x: cx + 11, y: cy + 1.5)]), Color(hex: dark ? 0xC9933A : 0xF2B544)),
+                (polygon([CGPoint(x: cx + 11, y: cy - 5), CGPoint(x: cx + 20, y: cy - 1.5), CGPoint(x: cx + 11, y: cy + 1.5)]), Color(hex: 0xF2B544).moonlit(dark)),
                 (Path(ellipseIn: CGRect(x: cx - 14, y: cy - 11, width: 28, height: 22)), body),
             ], style: style)
             let lift: CGFloat = flying ? -7 : 0
@@ -763,7 +813,7 @@ struct Crab: View {
         let style = lineStyle
         return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2 + 4
-            let shell = Color(hex: dark ? 0xB8584A : 0xE8735E)
+            let shell = Color(hex: 0xE8735E).moonlit(dark)
             let line = style == .tinted ? shell.outlineShade : Palette.fixedInk
             // Legs first, behind everything.
             var legs = Path()
@@ -790,8 +840,8 @@ struct Crab: View {
                 (Path(roundedRect: CGRect(x: cx - 7.5, y: cy - 15, width: 3, height: 9), cornerRadius: 1.5), shell),
                 (Path(roundedRect: CGRect(x: cx + 4.5, y: cy - 15, width: 3, height: 9), cornerRadius: 1.5), shell),
                 (Path(ellipseIn: CGRect(x: cx - 17, y: cy - 8, width: 34, height: 20)), shell),
-                (Path(ellipseIn: CGRect(x: cx - 10, y: cy - 20, width: 8, height: 8)), Color(hex: dark ? 0xD9D2C4 : 0xFFFDF6)),
-                (Path(ellipseIn: CGRect(x: cx + 2, y: cy - 20, width: 8, height: 8)), Color(hex: dark ? 0xD9D2C4 : 0xFFFDF6)),
+                (Path(ellipseIn: CGRect(x: cx - 10, y: cy - 20, width: 8, height: 8)), Color(hex: 0xFFFDF6).moonlit(dark)),
+                (Path(ellipseIn: CGRect(x: cx + 2, y: cy - 20, width: 8, height: 8)), Color(hex: 0xFFFDF6).moonlit(dark)),
             ], style: style)
             // The nick in each claw.
             for side in [-1.0, 1.0] {
@@ -818,8 +868,8 @@ struct Snail: View {
         let style = lineStyle
         return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2 + 2
-            let skin = Color(hex: dark ? 0x9C8F7C : 0xE3D1B0)
-            let shell = Color(hex: dark ? 0x9C6A44 : 0xE0A062)
+            let skin = Color(hex: 0xE3D1B0).moonlit(dark)
+            let shell = Color(hex: 0xE0A062).moonlit(dark)
             let line = style == .tinted ? skin.outlineShade : Palette.fixedInk
             // Feelers, with a knob on each.
             var feelers = Path()
@@ -837,7 +887,7 @@ struct Snail: View {
             var curl = Path()
             curl.addArc(center: CGPoint(x: cx - 4.5, y: cy - 2.5), radius: 7.5, startAngle: .degrees(-30), endAngle: .degrees(250), clockwise: false)
             curl.addArc(center: CGPoint(x: cx - 4.5, y: cy - 1.5), radius: 3, startAngle: .degrees(250), endAngle: .degrees(80), clockwise: false)
-            context.stroke(curl, with: .color(Color(hex: dark ? 0x6E4A30 : 0xA86A35)), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+            context.stroke(curl, with: .color(Color(hex: 0xA86A35).moonlit(dark)), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
             dot(&context, cx + 19.5, cy + 1.5, 1.7, Palette.fixedInk)
             dot(&context, cx + 17, cy + 5.5, 2, Color(hex: 0xF2A48E).opacity(dark ? 0.35 : 0.7))
         }
@@ -851,8 +901,8 @@ struct Butterfly: View {
         let style = lineStyle
         return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2
-            let wing = Color(hex: dark ? 0x8A75B8 : 0xB9A0EA)
-            let lower = Color(hex: dark ? 0x7562A0 : 0xD3C2F4)
+            let wing = Color(hex: 0xB9A0EA).moonlit(dark)
+            let lower = Color(hex: 0xD3C2F4).moonlit(dark)
             func tilted(_ rect: CGRect, _ angle: CGFloat) -> Path {
                 Path(ellipseIn: rect).applying(CGAffineTransform(translationX: rect.midX, y: rect.midY).rotated(by: angle).translatedBy(x: -rect.midX, y: -rect.midY))
             }
@@ -897,9 +947,9 @@ struct Kookaburra: View {
         let style = lineStyle
         return Canvas { context, size in
             let cx = size.width / 2 - 2, cy = size.height / 2 + 2
-            let cream = Color(hex: dark ? 0xA89A84 : 0xF4EAD6)
-            let brown = Color(hex: dark ? 0x6E5440 : 0x9C7451)
-            let beak = Color(hex: dark ? 0x5C5A55 : 0x4A545C)
+            let cream = Color(hex: 0xF4EAD6).moonlit(dark)
+            let brown = Color(hex: 0x9C7451).moonlit(dark)
+            let beak = Color(hex: 0x4A545C).moonlit(dark)
             // Feet round the branch.
             var feet = Path()
             feet.move(to: CGPoint(x: cx - 3, y: cy + 17)); feet.addLine(to: CGPoint(x: cx - 3, y: cy + 22))
@@ -914,7 +964,7 @@ struct Kookaburra: View {
             // Wing, the stripe through the eye and the flash of blue.
             context.fill(Path(ellipseIn: CGRect(x: cx - 13, y: cy - 6, width: 14, height: 23)), with: .color(brown))
             context.fill(Path(roundedRect: CGRect(x: cx - 9, y: cy - 17.5, width: 18, height: 5), cornerRadius: 2.5), with: .color(brown))
-            context.fill(Path(roundedRect: CGRect(x: cx - 10, y: cy + 1, width: 8, height: 4), cornerRadius: 2), with: .color(Color(hex: dark ? 0x4A5E78 : 0x6C93C4)))
+            context.fill(Path(roundedRect: CGRect(x: cx - 10, y: cy + 1, width: 8, height: 4), cornerRadius: 2), with: .color(Color(hex: 0x6C93C4).moonlit(dark)))
             context.fill(Path(roundedRect: CGRect(x: cx - 6, y: cy - 27, width: 10, height: 4), cornerRadius: 2), with: .color(brown.opacity(0.7)))
             dot(&context, cx + 4.5, cy - 15, 1.9, Palette.fixedInk)
             // The line where the beak closes.
@@ -934,8 +984,8 @@ struct Balloon: View {
         let style = lineStyle
         return Canvas { context, size in
             let cx = size.width / 2
-            let red = Color(hex: dark ? 0xB8584A : 0xE8735E)
-            let yellow = Color(hex: dark ? 0xC9A548 : 0xFFD666)
+            let red = Color(hex: 0xE8735E).moonlit(dark)
+            let yellow = Color(hex: 0xFFD666).moonlit(dark)
             let envelope = CGRect(x: cx - 17, y: 3, width: 34, height: 38)
             // Ropes down to the basket.
             var ropes = Path()
@@ -944,7 +994,7 @@ struct Balloon: View {
             context.stroke(ropes, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
             outlined(&context, [
                 (Path(ellipseIn: envelope), red),
-                (Path(roundedRect: CGRect(x: cx - 5.5, y: 47, width: 11, height: 8), cornerRadius: 2), Color(hex: dark ? 0x6E5440 : 0xB08A5E)),
+                (Path(roundedRect: CGRect(x: cx - 5.5, y: 47, width: 11, height: 8), cornerRadius: 2), Color(hex: 0xB08A5E).moonlit(dark)),
             ], line: 3.6, style: style)
             // Stripes that follow the round of the balloon.
             context.fill(Path(ellipseIn: CGRect(x: cx - 6, y: 3, width: 12, height: 38)), with: .color(yellow))
