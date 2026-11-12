@@ -81,6 +81,8 @@ final class Event: NSManagedObject, Identifiable {
 enum EventKind: String, CaseIterable, Identifiable {
     case bottle, breastfeed, solids, sleep, nappy, potty, note
     case weight, medicine, temperature, vaccination, milestone
+    /// Pumping belongs to the parent, not a child: it has no children.
+    case pump
 
     /// Health entries share one tile on Today.
     static let health: [EventKind] = [.medicine, .temperature, .vaccination]
@@ -102,6 +104,7 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .temperature: "Temperature"
         case .vaccination: "Vaccination"
         case .milestone: "Milestone"
+        case .pump: "Pump"
         }
     }
 
@@ -120,6 +123,7 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .temperature: "thermometer.medium"
         case .vaccination: "syringe"
         case .milestone: "star"
+        case .pump: "drop.halffull"
         }
     }
 }
@@ -252,6 +256,12 @@ extension Event {
             return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination · \(detail!)"
         case .milestone:
             return (detail ?? "").isEmpty ? "Milestone" : detail!
+        case .pump:
+            if detail == Pump.count {
+                return "Milk on hand · fridge \(Int(value)) ml · freezer \(Int(amountML)) ml"
+            }
+            let place = (detail ?? "").isEmpty ? "" : " · \(Pump.placeText(detail!))"
+            return "Pumped · \(Int(amountML)) ml\(place)"
         }
     }
 }
@@ -277,6 +287,7 @@ extension Child {
         case .nappy: return !pottyTraining || ageMonths < 36
         case .potty: return pottyTraining || feeding == nil
         case .weight: return ageMonths < 24
+        case .pump: return feeding == .breast || feeding == .both
         case .sleep, .note, .medicine, .temperature, .vaccination, .milestone: return true
         }
     }

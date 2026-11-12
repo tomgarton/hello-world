@@ -161,7 +161,7 @@ struct LogSheet: View {
                 grams = event.value > 0 ? event.value : nil
             case .milestone:
                 milestone = event.detail ?? ""
-            case .sleep, .note:
+            case .sleep, .note, .pump:
                 break
             }
         } else {
@@ -389,6 +389,15 @@ struct LogSheet: View {
                     ForEach(["Formula", "Breast milk", "Mixed"], id: \.self) { Text($0) }
                 }
                 .pickerStyle(.segmented)
+                if milk == "Breast milk", !isEditing {
+                    let onHand = store.milkOnHand()
+                    if onHand.total > 0 {
+                        Text("On hand: \(Int(onHand.fridge)) ml in the fridge, \(Int(onHand.freezer)) ml in the freezer.")
+                            .font(.footnote)
+                            .foregroundStyle(Palette.muted)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                }
                 timeRow("Time", $time)
                 timeShortcuts
             }
@@ -516,6 +525,8 @@ struct LogSheet: View {
                 }
                 timeRow("When", $time)
             }
+        case .pump:
+            EmptyView()
         }
     }
 
@@ -763,6 +774,8 @@ struct LogSheet: View {
             case .milestone:
                 event.startedAt = time
                 event.detail = milestoneName
+            case .pump:
+                break
             }
             store.saveEdit(event)
         } else {
@@ -797,6 +810,8 @@ struct LogSheet: View {
                 events = store.logEach(.weight, for: who, at: time, note: noteValue, value: grams ?? 0)
             case .milestone:
                 events = store.logEach(.milestone, for: who, at: time, detail: milestoneName, note: noteValue)
+            case .pump:
+                events = []
             }
             onSaved(events)
         }

@@ -7,7 +7,7 @@ struct Tile: Identifiable, Hashable {
 
     static let health = Tile(id: "health")
     /// The order tiles are offered in. Sleep is not here: it starts from each child's row.
-    static let all: [Tile] = [EventKind.bottle, .breastfeed, .nappy, .potty, .solids, .weight].map { Tile(id: $0.rawValue) } + [health]
+    static let all: [Tile] = [EventKind.bottle, .breastfeed, .nappy, .potty, .solids, .weight, .pump].map { Tile(id: $0.rawValue) } + [health]
 
     var kind: EventKind? { EventKind(rawValue: id) }
     var title: String { kind?.title ?? "Health" }
@@ -25,7 +25,7 @@ struct TileLayout {
 
     /// The first three everyday things the children use are large; the rest are chips.
     static func suggested(from available: [Tile]) -> TileLayout {
-        let main = Array(available.filter { $0 != .health && $0.kind != .weight }.prefix(mainLimit))
+        let main = Array(available.filter { $0 != .health && $0.kind != .weight && $0.kind != .pump }.prefix(mainLimit))
         return TileLayout(main: main, chips: available.filter { !main.contains($0) }, hidden: [])
     }
 

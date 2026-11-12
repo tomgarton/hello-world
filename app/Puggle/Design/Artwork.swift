@@ -40,6 +40,7 @@ extension EventKind {
         case .temperature: "icon-temperature"
         case .vaccination: "icon-vaccine"
         case .milestone: "icon-milestone"
+        case .pump: "icon-pump"
         }
     }
 }

@@ -68,7 +68,11 @@ struct HistoryView: View {
             .background(Palette.sand)
             .navigationTitle("History")
             .sheet(item: $editing) { target in
-                LogSheet(kind: target.event.kind, children: Array(children), editing: target.event)
+                if target.event.kind == .pump {
+                    PumpSheet(editing: target.event)
+                } else {
+                    LogSheet(kind: target.event.kind, children: Array(children), editing: target.event)
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

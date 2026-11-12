@@ -10,6 +10,7 @@ struct TodayView: View {
                   predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
 
     @State private var logging: EventKind?
+    @State private var pumping = false
     @State private var feedTimer = false
     @State private var pastFeed = false
     @State private var editing: EditTarget?
@@ -47,7 +48,7 @@ struct TodayView: View {
     private func tileButton(_ tile: Tile, large: Bool) -> some View {
         TileButton(tile: tile, children: tile.kind.map(relevant) ?? Array(children), large: large) { kind in
             // Breastfeeds open on the timers; a past feed is one tap from there.
-            if kind == .breastfeed { feedTimer = true } else { logging = kind }
+            if kind == .breastfeed { feedTimer = true } else if kind == .pump { pumping = true } else { logging = kind }
         } onEdit: {
             if $0.isRunningFeed { feedTimer = true } else { editing = EditTarget(event: $0) }
         }
@@ -141,11 +142,18 @@ struct TodayView: View {
         .fullScreenCover(item: $stickerFor) { target in
             StampFlowView(event: target.event)
         }
+        .sheet(isPresented: $pumping) {
+            PumpSheet()
+        }
         .sheet(isPresented: $showingStickers) {
             StampBookView(children: stickerChildren)
         }
         .sheet(item: $editing) { target in
-            LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)
+            if target.event.kind == .pump {
+                PumpSheet(editing: target.event)
+            } else {
+                LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)
+            }
         }
         .sheet(item: $dayOf, onDismiss: {
             // Open the sleep sheet once the day sheet has gone, so the two never overlap.
@@ -409,7 +417,7 @@ struct LastSavedRow: View {
                             .font(.caption)
                             .foregroundStyle(Palette.muted)
                         Text(Set(events.map(\.summary)).count == 1
-                             ? "\(names): \(first.summary)"
+                             ? (names.isEmpty ? first.summary : "\(names): \(first.summary)")
                              : events.map { "\($0.sortedChildren.first?.displayName ?? ""): \($0.summary)" }.joined(separator: "\n"))
                             .font(.subheadline.weight(.medium))
                             .foregroundStyle(Palette.ink)
