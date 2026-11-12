@@ -20,6 +20,8 @@ struct TodayView: View {
     @State private var feedTimer = false
     @State private var pastFeed = false
     @State private var editing: EditTarget?
+    /// An entry opened to read, from Today so far.
+    @State private var looking: EditTarget?
     @State private var dayOf: Child?
     @State private var addingChild = false
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
@@ -121,7 +123,7 @@ struct TodayView: View {
                                 .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                             }
                         }
-                        TodaySoFar { editing = EditTarget(event: $0) }
+                        TodaySoFar { looking = EditTarget(event: $0) }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -129,8 +131,9 @@ struct TodayView: View {
             }
             .coordinateSpace(name: "todayScroll")
             .background(Palette.sand)
-            // The sky runs up under the status bar.
+            // The sky runs up under the status bar; content scrolling up fades under it.
             .ignoresSafeArea(edges: .top)
+            .overlay(alignment: .top) { TopScrim() }
             .toolbar(.hidden, for: .navigationBar)
             // Floats above the tab bar, so saving never moves the tile under your thumb.
             .safeAreaInset(edge: .bottom) {
@@ -164,6 +167,7 @@ struct TodayView: View {
         .protectedCover(item: $stickerFor) { target in
             StampFlowView(event: target.event)
         }
+        .sheet(item: $looking) { EntryDetailView(event: $0.event) }
         .sheet(isPresented: $pumping) {
             PumpSheet()
         }

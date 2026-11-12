@@ -9,7 +9,7 @@ struct HistoryView: View {
     /// Filters stay set until cleared, across launches.
     @AppStorage("historyKind") private var kindFilter = ""
     @AppStorage("historyChild") private var childFilter = ""
-    @State private var editing: EditTarget?
+    @State private var looking: EditTarget?
 
     private var isFiltered: Bool { !kindFilter.isEmpty || !childFilter.isEmpty }
 
@@ -51,31 +51,24 @@ struct HistoryView: View {
                 ForEach(days) { group in
                     Section(header: SquiggleLabel(group.day.formatted(.dateTime.weekday(.wide).day().month(.wide))).textCase(nil)) {
                         ForEach(group.events) { event in
-                            Button { editing = EditTarget(event: event) } label: {
+                            Button { looking = EditTarget(event: event) } label: {
                                 EventRow(event: event)
                             }
                             .buttonStyle(.plain)
                             .listRowBackground(Palette.paper)
                             .listRowInsets(EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16))
                             .alignmentGuide(.listRowSeparatorLeading) { _ in EventRow.iconWell + EventRow.gap }
-                            .accessibilityHint("Opens this entry to change it")
-                        }
-                        .onDelete { offsets in
-                            offsets.map { group.events[$0] }.forEach(store.delete)
+                            .entrySwipeActions(event)
+                            .accessibilityHint("Opens this entry")
                         }
                     }
                 }
             }
             .scrollContentBackground(.hidden)
+            .softTopEdge()
             .background(Palette.sand)
             .navigationTitle("History")
-            .sheet(item: $editing) { target in
-                if target.event.kind == .pump {
-                    PumpSheet(editing: target.event)
-                } else {
-                    LogSheet(kind: target.event.kind, children: Array(children), editing: target.event)
-                }
-            }
+            .sheet(item: $looking) { EntryDetailView(event: $0.event) }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
