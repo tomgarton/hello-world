@@ -243,6 +243,12 @@ Not yet: Live Activities, widgets, the custom Puggle icons (SF Symbols stand in)
 5. In the target's **Signing & Capabilities**, choose your team. Check that **iCloud → CloudKit** (with your container ticked), **Push Notifications** and **Background Modes → Remote notifications** are all present; Xcode creates the container in your developer account.
 6. Run on your iPhone (or a simulator signed in to iCloud).
 
+### Running on a phone with the paid account (from 12 November 2026)
+
+The paid Apple Developer Program membership is active on the same team (X2UM64LDU4). Build the **Puggle** scheme (Debug) for the phone: it has the iCloud and push entitlements, so entries sync to the family's own iCloud and sharing can work. Profiles last a year, not 7 days. Xcode must be signed in to the Apple Account (Settings → Accounts) for it to register capabilities.
+
+On 12 November 2026 the Puggle build was installed over the Puggle Local build on Tom's phone. The same database files picked up CloudKit: all entries were kept (checked against a backup taken first) and were exported to iCloud. The backup is in `puggle-backup-20261112-1826` beside the repository.
+
 ### Running on a phone with a free Apple ID
 
 A free Apple ID cannot sign the iCloud and push entitlements, so use the **Puggle Local** scheme. It builds the `Local` configuration: no entitlements, and `LOCAL_ONLY` set, which makes `Persistence.cloudSyncEnabled` false. Data stays on the phone, the Family tab says sharing is off, and the app needs reinstalling every 7 days.
@@ -252,7 +258,7 @@ A free Apple ID cannot sign the iCloud and push entitlements, so use the **Puggl
 3. Choose the **Puggle Local** scheme and your iPhone, pick your personal team in Signing & Capabilities, and Run.
 4. First launch: on the phone, Settings → General → VPN & Device Management, trust your developer certificate.
 
-The CloudKit code is untouched. Installing a build from the **Puggle** scheme over the top (paid account) should turn sync on for the same local data; this has not been tested.
+Installing a build from the **Puggle** scheme over the top (paid account) turns sync on for the same local data; this was done on 12 November 2026 and kept every entry.
 
 ### Testing sharing
 
