@@ -848,7 +848,7 @@ private struct StampTarget: View {
 }
 
 /// A quick side-to-side shake: the stamper with no ink, or a gentle nudge on a button.
-private struct Shake: GeometryEffect {
+struct Shake: GeometryEffect {
     var amount: CGFloat
     var animatableData: CGFloat
 

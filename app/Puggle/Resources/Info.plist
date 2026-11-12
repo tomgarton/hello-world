@@ -24,6 +24,8 @@
 	<true/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Saves a drawing from the play pad to your photos.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Reads the directions on a medicine box so you don't have to type them. The photo is not kept.</string>
 	<key>NSFaceIDUsageDescription</key>

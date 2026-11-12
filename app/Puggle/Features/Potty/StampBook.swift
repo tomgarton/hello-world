@@ -7,6 +7,8 @@ struct EarnedSticker: Identifiable {
     let id: String
     let title: String
     var style = StickerStyle()
+    /// What it was for, on the back.
+    var detail = ""
 }
 
 extension FamilyStore {
@@ -16,18 +18,18 @@ extension FamilyStore {
 
         // Finished stamp cards.
         let cards = stickers(for: child).count / Stamp.perCard
-        if cards >= 1 { earned.append(EarnedSticker(id: "card-1", title: "First card", style: .card(0))) }
+        if cards >= 1 { earned.append(EarnedSticker(id: "card-1", title: "First card", style: .card(0), detail: "Five stamps on a card, and the shiny one on the end.")) }
         for count in [5, 10, 25, 50] where cards >= count {
-            earned.append(EarnedSticker(id: "card-\(count)", title: "\(count) cards", style: .card(count)))
+            earned.append(EarnedSticker(id: "card-\(count)", title: "\(count) cards", style: .card(count), detail: "\(count) stamp cards filled."))
         }
 
         // Firsts on the potty.
         let potty = events.filter { $0.kind == .potty }
         if potty.contains(where: { $0.detail == "Wee" }) {
-            earned.append(EarnedSticker(id: "wee", title: "First wee on the potty", style: StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xCFE5D2), emblem: "icon-potty")))
+            earned.append(EarnedSticker(id: "wee", title: "First wee on the potty", style: StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xCFE5D2), emblem: "icon-potty"), detail: "The first wee on the potty."))
         }
         if potty.contains(where: { $0.detail == "Poo" }) {
-            earned.append(EarnedSticker(id: "poo", title: "First poo on the potty", style: StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xF3D9C9), emblem: "icon-potty")))
+            earned.append(EarnedSticker(id: "poo", title: "First poo on the potty", style: StickerStyle(shape: "shape-pebble", foil: nil, colour: Color(hex: 0xF3D9C9), emblem: "icon-potty"), detail: "The first poo on the potty."))
         }
 
         // Days with a wee or a poo on the potty and no accident, in total (never in a row).
@@ -41,25 +43,26 @@ extension FamilyStore {
             days[day] = entry
         }
         let dry = days.values.filter { $0.success && !$0.accident }.count
-        if dry >= 1 { earned.append(EarnedSticker(id: "dry-1", title: "First dry day", style: StickerStyle(shape: "shape-soft-square", foil: .sea))) }
+        if dry >= 1 { earned.append(EarnedSticker(id: "dry-1", title: "First dry day", style: StickerStyle(shape: "shape-soft-square", foil: .sea), detail: "A day on the potty with no accidents.")) }
         for count in [3, 7, 14, 30] where dry >= count {
-            earned.append(EarnedSticker(id: "dry-\(count)", title: "\(count) dry days", style: StickerStyle(shape: "shape-soft-square", foil: .sea)))
+            earned.append(EarnedSticker(id: "dry-\(count)", title: "\(count) dry days", style: StickerStyle(shape: "shape-soft-square", foil: .sea), detail: "\(count) days with no accidents, in total."))
         }
 
         // New foods tried.
         let foods = Set(events.filter { $0.kind == .solids }
             .compactMap { $0.detail?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
             .filter { !$0.isEmpty }).count
-        if foods >= 1 { earned.append(EarnedSticker(id: "food-1", title: "First food", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids"))) }
+        if foods >= 1 { earned.append(EarnedSticker(id: "food-1", title: "First food", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids"), detail: "A first taste of something new.")) }
         for count in [5, 10, 20, 50] where foods >= count {
-            earned.append(EarnedSticker(id: "food-\(count)", title: "\(count) new foods", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids")))
+            earned.append(EarnedSticker(id: "food-\(count)", title: "\(count) new foods", style: StickerStyle(shape: "shape-scallop", foil: .gold, emblem: "icon-solids"), detail: "\(count) different foods tried."))
         }
 
         // Milestones.
         for event in milestones(for: child) {
             earned.append(EarnedSticker(id: event.objectID.uriRepresentation().absoluteString,
                                         title: event.detail ?? "Milestone",
-                                        style: StickerStyle(shape: "shape-blossom", foil: .sunset, emblem: "icon-milestone")))
+                                        style: StickerStyle(shape: "shape-blossom", foil: .sunset, emblem: "icon-milestone"),
+                                        detail: event.startedAt?.formatted(date: .long, time: .omitted) ?? ""))
         }
         return earned
     }
@@ -68,21 +71,28 @@ extension FamilyStore {
 /// The stickers a child has earned. Only earned ones are shown, so nothing looks missing.
 struct EarnedStickersGrid: View {
     let stickers: [EarnedSticker]
+    @State private var looking: EarnedSticker?
 
     var body: some View {
         LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8, alignment: .top), count: 4), spacing: 14) {
             ForEach(stickers) { sticker in
-                VStack(spacing: 4) {
-                    StickerView(style: sticker.style, size: 58)
-                    Text(sticker.title)
-                        .font(.caption2.weight(.semibold))
-                        .multilineTextAlignment(.center)
-                        .lineLimit(3)
+                Button { looking = sticker } label: {
+                    VStack(spacing: 4) {
+                        StickerView(style: sticker.style, size: 58)
+                        Text(sticker.title)
+                            .font(.caption2.weight(.semibold))
+                            .multilineTextAlignment(.center)
+                            .lineLimit(3)
+                    }
+                    .foregroundStyle(Palette.ink)
                 }
+                .buttonStyle(PressStyle())
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel("\(sticker.title) sticker")
+                .accessibilityHint("Opens it large")
             }
         }
+        .sheet(item: $looking) { StickerDetailView(sticker: $0) }
         .padding(14)
         .frame(maxWidth: .infinity)
         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
