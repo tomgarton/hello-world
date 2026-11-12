@@ -586,6 +586,9 @@ struct DaySoFarView: View {
     var onAddSleep: () -> Void = {}
     /// Called with what to log for this child; Today opens it once the panel has gone.
     var onLog: (EventKind) -> Void = { _ in }
+    /// Half height or full: the log buttons grow when the panel is pulled up.
+    @State private var detent: PresentationDetent = .medium
+    private var big: Bool { detent == .large }
 
     /// Everything that can be logged for this child, in the usual order.
     private var kinds: [EventKind] {
@@ -595,7 +598,8 @@ struct DaySoFarView: View {
     }
 
     private var logGrid: some View {
-        LazyVGrid(columns: [GridItem(.adaptive(minimum: 104), spacing: 8)], spacing: 8) {
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: big ? 12 : 8), count: big ? 2 : 3),
+                  spacing: big ? 12 : 8) {
             ForEach(kinds) { kind in
                 Button {
                     Haptics.tap()
@@ -603,12 +607,12 @@ struct DaySoFarView: View {
                     dismiss()
                 } label: {
                     VStack(spacing: 4) {
-                        ActivityIcon(kind, size: 28)
-                        Text(kind.title).font(.footnote.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                        ActivityIcon(kind, size: big ? 44 : 28)
+                        Text(kind.title).font(big ? .headline : .footnote.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
                     }
-                    .frame(maxWidth: .infinity, minHeight: 70)
+                    .frame(maxWidth: .infinity, minHeight: big ? 104 : 70)
                     .foregroundStyle(Palette.ink)
-                    .background(Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .background(Palette.paper, in: RoundedRectangle(cornerRadius: big ? 22 : 16, style: .continuous))
                 }
                 .buttonStyle(PressStyle(scale: 0.96))
                 .accessibilityLabel("Log \(kind.title.lowercased()) for \(child.displayName)")
@@ -618,12 +622,12 @@ struct DaySoFarView: View {
                 dismiss()
             } label: {
                 VStack(spacing: 4) {
-                    ActivityIcon(.sleep, size: 28)
-                    Text("Past sleep").font(.footnote.weight(.semibold))
+                    ActivityIcon(.sleep, size: big ? 44 : 28)
+                    Text("Past sleep").font(big ? .headline : .footnote.weight(.semibold))
                 }
-                .frame(maxWidth: .infinity, minHeight: 70)
+                .frame(maxWidth: .infinity, minHeight: big ? 104 : 70)
                 .foregroundStyle(Palette.ink)
-                .background(Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                .background(Palette.paper, in: RoundedRectangle(cornerRadius: big ? 22 : 16, style: .continuous))
             }
             .buttonStyle(PressStyle(scale: 0.96))
             .accessibilityLabel("Add a past sleep for \(child.displayName)")
@@ -690,7 +694,8 @@ struct DaySoFarView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.medium, .large], selection: $detent)
+        .animation(.spring(duration: 0.35, bounce: 0.15), value: detent)
         .presentationDragIndicator(.visible)
     }
 
