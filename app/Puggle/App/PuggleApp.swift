@@ -148,6 +148,9 @@ struct RootView: View {
             .task {
                 // For reviewing the drawings: "-debugSheet 1" saves every scene to Documents.
                 if UserDefaults.standard.string(forKey: "debugSheet") == "1" {
+                    SceneGalleryView.writeLineStyles(name: "lines.png")
+                    SceneGalleryView.writeStrip(move: "greet", seconds: 1.8, every: 0.1, name: "strip-greet.png")
+                    SceneGalleryView.writeStrip(move: "nod", seconds: 0.8, every: 0.05, name: "strip-nod.png")
                     SceneGalleryView.writeSheet(pull: 0, name: "scenes.png")
                     SceneGalleryView.writeSheet(pull: 220, name: "scenes-pulled.png")
                 }

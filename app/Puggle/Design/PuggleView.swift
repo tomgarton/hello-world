@@ -31,6 +31,8 @@ enum PuggleRive {
 @MainActor
 final class PuggleController: ObservableObject {
     @Published var asleep = false { didSet { push() } }
+    /// Her rig, drawn and moved by the app itself (Design/Rig.swift). Used whenever there is no Rive file.
+    let rig: RigRuntime? = Rig.load("puggle").map(RigRuntime.init)
     @Published var walking = false { didSet { push() } }
 
     #if canImport(RiveRuntime)
@@ -75,6 +77,7 @@ final class PuggleController: ObservableObject {
 
     /// 1 by day, 0.5 at night: scales how big and fast she moves.
     func setEnergy(_ value: Double) {
+        rig?.energy = value
         #if canImport(RiveRuntime)
         rive?.setInput(PuggleRive.Input.energy, value: value)
         #endif
@@ -82,6 +85,7 @@ final class PuggleController: ObservableObject {
 
     /// Where a finger is, from -1 to 1 on each axis; (0, 0) when lifted.
     func look(x: Double, y: Double) {
+        rig?.look = CGPoint(x: x, y: y)
         #if canImport(RiveRuntime)
         rive?.setInput(PuggleRive.Input.lookX, value: x)
         rive?.setInput(PuggleRive.Input.lookY, value: y)
@@ -89,12 +93,14 @@ final class PuggleController: ObservableObject {
     }
 
     private func fire(_ name: String) {
+        rig?.play(name)
         #if canImport(RiveRuntime)
         rive?.triggerInput(name)
         #endif
     }
 
     private func push() {
+        rig?.asleep = asleep
         #if canImport(RiveRuntime)
         rive?.setInput(PuggleRive.Input.asleep, value: asleep)
         rive?.setInput(PuggleRive.Input.walking, value: walking)
@@ -107,11 +113,16 @@ struct PuggleView: View {
     @ObservedObject var controller: PuggleController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.puggleNight) private var night
+    /// Drawn at rest, for pictures of her (the scene sheets).
+    var frozen = false
 
     var body: some View {
         Group {
             if controller.isAnimated && !reduceMotion {
                 animated
+            } else if let rig = controller.rig {
+                // Her own rig: breathing and blinking, or quite still with Reduce Motion.
+                RigView(runtime: rig, moving: !reduceMotion && !frozen)
             } else {
                 still
             }

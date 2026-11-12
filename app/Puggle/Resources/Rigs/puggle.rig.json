@@ -1,0 +1,603 @@
+{
+ "name": "Puggle",
+ "size": [
+  240,
+  300
+ ],
+ "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise.",
+ "parts": [
+  {
+   "id": "body",
+   "pivot": [
+    120,
+    290
+   ],
+   "shapes": []
+  },
+  {
+   "id": "tail",
+   "parent": "body",
+   "pivot": [
+    158,
+    256
+   ],
+   "spring": 70,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 184,
+     "y": 246,
+     "rx": 34,
+     "ry": 15,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6,
+     "rotate": -28
+    }
+   ]
+  },
+  {
+   "id": "leg-left",
+   "parent": "body",
+   "pivot": [
+    100,
+    246
+   ],
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 86,
+     "y": 244,
+     "w": 28,
+     "h": 34,
+     "r": 11,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    },
+    {
+     "kind": "ellipse",
+     "x": 100,
+     "y": 282,
+     "rx": 24,
+     "ry": 10,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 6
+    }
+   ]
+  },
+  {
+   "id": "leg-right",
+   "parent": "body",
+   "pivot": [
+    140,
+    246
+   ],
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 126,
+     "y": 244,
+     "w": 28,
+     "h": 34,
+     "r": 11,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    },
+    {
+     "kind": "ellipse",
+     "x": 140,
+     "y": 282,
+     "rx": 24,
+     "ry": 10,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 6
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "parent": "body",
+   "pivot": [
+    120,
+    252
+   ],
+   "shapes": []
+  },
+  {
+   "id": "dress",
+   "parent": "upper",
+   "pivot": [
+    120,
+    252
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L180 244 Q182 254 170 254 L70 254 Q58 254 60 244 Z",
+     "fill": "#2A62B8",
+     "stroke": "#3A2A20",
+     "width": 7,
+     "tint": "#1B4387"
+    },
+    {
+     "kind": "path",
+     "d": "M100 210 L140 210 L140 219 C140 240.3 100 240.3 100 219 Z",
+     "stroke": "#3A2A20",
+     "width": 5,
+     "tint": "#1B4387"
+    }
+   ]
+  },
+  {
+   "id": "arm-left",
+   "parent": "upper",
+   "pivot": [
+    88,
+    178
+   ],
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q71.8 198.9 50 214",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M88 178 Q71.8 198.9 50 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "arm-right",
+   "parent": "upper",
+   "pivot": [
+    152,
+    178
+   ],
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q168.2 198.9 190 214",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M152 178 Q168.2 198.9 190 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "head",
+   "parent": "upper",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 108,
+     "rx": 70,
+     "ry": 60,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 7
+    }
+   ]
+  },
+  {
+   "id": "blush",
+   "parent": "head",
+   "pivot": [
+    120,
+    127
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 67,
+     "y": 127,
+     "rx": 10,
+     "ry": 10,
+     "fill": "#EE9C88"
+    },
+    {
+     "kind": "path",
+     "d": "M60 132 L65 123 M69 132 L74 123",
+     "stroke": "#C24A36",
+     "width": 3.5,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 173,
+     "y": 127,
+     "rx": 10,
+     "ry": 10,
+     "fill": "#EE9C88"
+    },
+    {
+     "kind": "path",
+     "d": "M166 132 L171 123 M175 132 L180 123",
+     "stroke": "#C24A36",
+     "width": 3.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "bill",
+   "parent": "head",
+   "pivot": [
+    120,
+    151
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 151,
+     "rx": 47,
+     "ry": 19,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 6
+    },
+    {
+     "kind": "ellipse",
+     "x": 114,
+     "y": 143,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 126,
+     "y": 143,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "eye-left",
+   "parent": "head",
+   "pivot": [
+    93,
+    108
+   ],
+   "spring": 0,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 93,
+     "y": 108,
+     "rx": 7.6,
+     "ry": 7.6,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "eye-right",
+   "parent": "head",
+   "pivot": [
+    147,
+    108
+   ],
+   "spring": 0,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 147,
+     "y": 108,
+     "rx": 7.6,
+     "ry": 7.6,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "clip",
+   "parent": "head",
+   "pivot": [
+    160,
+    60
+   ],
+   "spring": 90,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 151.2,
+     "y": 56,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 168.8,
+     "y": 56,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 47.2,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 64.8,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 151.2,
+     "y": 56,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 168.8,
+     "y": 56,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 47.2,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 64.8,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 56,
+     "rx": 9.9,
+     "ry": 9.9,
+     "fill": "#E5553B"
+    }
+   ]
+  }
+ ],
+ "moves": {
+  "nod": {
+   "about": "An everyday log was saved: one small happy bounce.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "head": {
+       "y": 5,
+       "r": 3
+      },
+      "tail": {
+       "r": -14
+      },
+      "arm-left": {
+       "r": 8
+      },
+      "arm-right": {
+       "r": -8
+      }
+     }
+    },
+    {
+     "t": 0.16,
+     "pose": {
+      "upper": {
+       "sy": 1.03
+      },
+      "head": {
+       "y": -3
+      },
+      "tail": {
+       "r": -22
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {}
+    }
+   ],
+   "length": 0.7
+  },
+  "greet": {
+   "about": "Hello: a wave, held at the top.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -4
+      },
+      "tail": {
+       "r": -18
+      },
+      "body": {
+       "y": -2
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -4
+      },
+      "tail": {
+       "r": -10
+      }
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -4
+      },
+      "tail": {
+       "r": -18
+      }
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -4
+      },
+      "tail": {
+       "r": -10
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -4
+      },
+      "tail": {
+       "r": -18
+      }
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {}
+    }
+   ],
+   "length": 1.7
+  }
+ }
+}

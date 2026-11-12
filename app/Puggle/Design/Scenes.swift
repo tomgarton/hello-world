@@ -698,9 +698,11 @@ struct Triangle: Shape {
 /// Draws a character the way Puggle is drawn: flat colours inside one dark
 /// outline. Every part is first stroked dark, then all are filled, so the
 /// outline runs round the whole shape and not between its parts.
-private func outlined(_ context: inout GraphicsContext, _ parts: [(Path, Color)], line: CGFloat = 4) {
-    for (path, _) in parts {
-        context.stroke(path, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: line, lineCap: .round, lineJoin: .round))
+private func outlined(_ context: inout GraphicsContext, _ parts: [(Path, Color)], line: CGFloat = 4, style: LineStyle = .ink) {
+    for (path, colour) in parts {
+        // One dark line, or each part's own colour, darker.
+        context.stroke(path, with: .color(style == .tinted ? colour.outlineShade : Palette.fixedInk),
+                       style: StrokeStyle(lineWidth: line, lineCap: .round, lineJoin: .round))
     }
     for (path, colour) in parts {
         context.fill(path, with: .color(colour))
@@ -722,8 +724,10 @@ struct Bird: View {
     let dark: Bool
     /// In the air: wing up and no legs.
     var flying = false
+    @Environment(\.lineStyle) private var lineStyle
     var body: some View {
-        Canvas { context, size in
+        let style = lineStyle
+        return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2 - (flying ? 0 : 2)
             let body = Color(hex: dark ? 0xB57A92 : 0xE79BB8)
             let wing = Color(hex: dark ? 0x8E5C74 : 0xC9718F)
@@ -731,18 +735,18 @@ struct Bird: View {
                 var legs = Path()
                 legs.move(to: CGPoint(x: cx - 3, y: cy + 8)); legs.addLine(to: CGPoint(x: cx - 3, y: cy + 15))
                 legs.move(to: CGPoint(x: cx + 4, y: cy + 8)); legs.addLine(to: CGPoint(x: cx + 4, y: cy + 15))
-                context.stroke(legs, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                context.stroke(legs, with: .color(style == .tinted ? wing.outlineShade : Palette.fixedInk), style: StrokeStyle(lineWidth: 2, lineCap: .round))
             }
             outlined(&context, [
                 (polygon([CGPoint(x: cx - 10, y: cy - 1), CGPoint(x: cx - 21, y: cy - 7), CGPoint(x: cx - 19, y: cy + 4)]), wing),
                 (polygon([CGPoint(x: cx + 11, y: cy - 5), CGPoint(x: cx + 20, y: cy - 1.5), CGPoint(x: cx + 11, y: cy + 1.5)]), Color(hex: dark ? 0xC9933A : 0xF2B544)),
                 (Path(ellipseIn: CGRect(x: cx - 14, y: cy - 11, width: 28, height: 22)), body),
-            ])
+            ], style: style)
             let lift: CGFloat = flying ? -7 : 0
             let wingShape = Path(ellipseIn: CGRect(x: cx - 10, y: cy - 3 + lift, width: 14, height: 9))
                 .applying(CGAffineTransform(translationX: cx - 3, y: cy + 1.5 + lift).rotated(by: flying ? -0.9 : -0.35).translatedBy(x: -(cx - 3), y: -(cy + 1.5 + lift)))
             if flying {
-                outlined(&context, [(wingShape, wing)], line: 3)
+                outlined(&context, [(wingShape, wing)], line: 3, style: style)
             } else {
                 context.fill(wingShape, with: .color(wing))
             }
@@ -754,10 +758,13 @@ struct Bird: View {
 
 struct Crab: View {
     let dark: Bool
+    @Environment(\.lineStyle) private var lineStyle
     var body: some View {
-        Canvas { context, size in
+        let style = lineStyle
+        return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2 + 4
             let shell = Color(hex: dark ? 0xB8584A : 0xE8735E)
+            let line = style == .tinted ? shell.outlineShade : Palette.fixedInk
             // Legs first, behind everything.
             var legs = Path()
             for side in [-1.0, 1.0] {
@@ -768,14 +775,14 @@ struct Crab: View {
                                       control: CGPoint(x: start.x + side * reach * 0.7, y: start.y - 2))
                 }
             }
-            context.stroke(legs, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+            context.stroke(legs, with: .color(line), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
             // Arms up to the claws.
             var arms = Path()
             for side in [-1.0, 1.0] {
                 arms.move(to: CGPoint(x: cx + side * 14, y: cy - 1))
                 arms.addLine(to: CGPoint(x: cx + side * 21, y: cy - 8))
             }
-            context.stroke(arms, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 6.5, lineCap: .round))
+            context.stroke(arms, with: .color(line), style: StrokeStyle(lineWidth: 6.5, lineCap: .round))
             context.stroke(arms, with: .color(shell), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
             outlined(&context, [
                 (Path(ellipseIn: CGRect(x: cx - 29, y: cy - 17, width: 14, height: 13)), shell),
@@ -785,13 +792,13 @@ struct Crab: View {
                 (Path(ellipseIn: CGRect(x: cx - 17, y: cy - 8, width: 34, height: 20)), shell),
                 (Path(ellipseIn: CGRect(x: cx - 10, y: cy - 20, width: 8, height: 8)), Color(hex: dark ? 0xD9D2C4 : 0xFFFDF6)),
                 (Path(ellipseIn: CGRect(x: cx + 2, y: cy - 20, width: 8, height: 8)), Color(hex: dark ? 0xD9D2C4 : 0xFFFDF6)),
-            ])
+            ], style: style)
             // The nick in each claw.
             for side in [-1.0, 1.0] {
                 var nick = Path()
                 nick.move(to: CGPoint(x: cx + side * 22, y: cy - 17))
                 nick.addLine(to: CGPoint(x: cx + side * 22, y: cy - 11.5))
-                context.stroke(nick, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+                context.stroke(nick, with: .color(line), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
             }
             dot(&context, cx - 5.6, cy - 15.6, 1.9, Palette.fixedInk)
             dot(&context, cx + 6.4, cy - 15.6, 1.9, Palette.fixedInk)
@@ -806,23 +813,26 @@ struct Crab: View {
 
 struct Snail: View {
     let dark: Bool
+    @Environment(\.lineStyle) private var lineStyle
     var body: some View {
-        Canvas { context, size in
+        let style = lineStyle
+        return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2 + 2
             let skin = Color(hex: dark ? 0x9C8F7C : 0xE3D1B0)
             let shell = Color(hex: dark ? 0x9C6A44 : 0xE0A062)
+            let line = style == .tinted ? skin.outlineShade : Palette.fixedInk
             // Feelers, with a knob on each.
             var feelers = Path()
             feelers.move(to: CGPoint(x: cx + 16, y: cy - 2)); feelers.addLine(to: CGPoint(x: cx + 14, y: cy - 12))
             feelers.move(to: CGPoint(x: cx + 20, y: cy - 2)); feelers.addLine(to: CGPoint(x: cx + 23, y: cy - 11))
-            context.stroke(feelers, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2, lineCap: .round))
-            dot(&context, cx + 14, cy - 12.5, 2.4, Palette.fixedInk)
-            dot(&context, cx + 23, cy - 11.5, 2.4, Palette.fixedInk)
+            context.stroke(feelers, with: .color(line), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            dot(&context, cx + 14, cy - 12.5, 2.4, line)
+            dot(&context, cx + 23, cy - 11.5, 2.4, line)
             outlined(&context, [
                 (Path(roundedRect: CGRect(x: cx - 23, y: cy + 5, width: 44, height: 9), cornerRadius: 4.5), skin),
                 (Path(ellipseIn: CGRect(x: cx + 10, y: cy - 5, width: 15, height: 16)), skin),
                 (Path(ellipseIn: CGRect(x: cx - 18, y: cy - 16, width: 27, height: 27)), shell),
-            ])
+            ], style: style)
             // The curl of the shell.
             var curl = Path()
             curl.addArc(center: CGPoint(x: cx - 4.5, y: cy - 2.5), radius: 7.5, startAngle: .degrees(-30), endAngle: .degrees(250), clockwise: false)
@@ -836,8 +846,10 @@ struct Snail: View {
 
 struct Butterfly: View {
     let dark: Bool
+    @Environment(\.lineStyle) private var lineStyle
     var body: some View {
-        Canvas { context, size in
+        let style = lineStyle
+        return Canvas { context, size in
             let cx = size.width / 2, cy = size.height / 2
             let wing = Color(hex: dark ? 0x8A75B8 : 0xB9A0EA)
             let lower = Color(hex: dark ? 0x7562A0 : 0xD3C2F4)
@@ -849,7 +861,7 @@ struct Butterfly: View {
                 (tilted(CGRect(x: cx + 3, y: cy + 1, width: 11, height: 11), -0.3), lower),
                 (tilted(CGRect(x: cx - 16, y: cy - 12, width: 14, height: 17), -0.4), wing),
                 (tilted(CGRect(x: cx + 2, y: cy - 12, width: 14, height: 17), 0.4), wing),
-            ], line: 3.4)
+            ], line: 3.4, style: style)
             context.fill(Path(roundedRect: CGRect(x: cx - 1.7, y: cy - 9, width: 3.4, height: 19), cornerRadius: 1.7), with: .color(Palette.fixedInk))
             var feelers = Path()
             feelers.move(to: CGPoint(x: cx - 0.5, y: cy - 8)); feelers.addQuadCurve(to: CGPoint(x: cx - 5, y: cy - 14), control: CGPoint(x: cx - 1.5, y: cy - 13))
@@ -880,8 +892,10 @@ struct Fireflies: View {
 
 struct Kookaburra: View {
     let dark: Bool
+    @Environment(\.lineStyle) private var lineStyle
     var body: some View {
-        Canvas { context, size in
+        let style = lineStyle
+        return Canvas { context, size in
             let cx = size.width / 2 - 2, cy = size.height / 2 + 2
             let cream = Color(hex: dark ? 0xA89A84 : 0xF4EAD6)
             let brown = Color(hex: dark ? 0x6E5440 : 0x9C7451)
@@ -890,13 +904,13 @@ struct Kookaburra: View {
             var feet = Path()
             feet.move(to: CGPoint(x: cx - 3, y: cy + 17)); feet.addLine(to: CGPoint(x: cx - 3, y: cy + 22))
             feet.move(to: CGPoint(x: cx + 5, y: cy + 17)); feet.addLine(to: CGPoint(x: cx + 5, y: cy + 22))
-            context.stroke(feet, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+            context.stroke(feet, with: .color(style == .tinted ? brown.outlineShade : Palette.fixedInk), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
             outlined(&context, [
                 (polygon([CGPoint(x: cx - 12, y: cy + 8), CGPoint(x: cx - 19, y: cy + 24), CGPoint(x: cx - 11, y: cy + 23), CGPoint(x: cx - 5, y: cy + 13)]), brown),
                 (polygon([CGPoint(x: cx + 8, y: cy - 19), CGPoint(x: cx + 27, y: cy - 13.5), CGPoint(x: cx + 8, y: cy - 9)]), beak),
                 (Path(ellipseIn: CGRect(x: cx - 13, y: cy - 10, width: 27, height: 29)), cream),
                 (Path(ellipseIn: CGRect(x: cx - 12, y: cy - 26, width: 24, height: 23)), cream),
-            ])
+            ], style: style)
             // Wing, the stripe through the eye and the flash of blue.
             context.fill(Path(ellipseIn: CGRect(x: cx - 13, y: cy - 6, width: 14, height: 23)), with: .color(brown))
             context.fill(Path(roundedRect: CGRect(x: cx - 9, y: cy - 17.5, width: 18, height: 5), cornerRadius: 2.5), with: .color(brown))
@@ -915,8 +929,10 @@ struct Kookaburra: View {
 
 struct Balloon: View {
     let dark: Bool
+    @Environment(\.lineStyle) private var lineStyle
     var body: some View {
-        Canvas { context, size in
+        let style = lineStyle
+        return Canvas { context, size in
             let cx = size.width / 2
             let red = Color(hex: dark ? 0xB8584A : 0xE8735E)
             let yellow = Color(hex: dark ? 0xC9A548 : 0xFFD666)
@@ -929,7 +945,7 @@ struct Balloon: View {
             outlined(&context, [
                 (Path(ellipseIn: envelope), red),
                 (Path(roundedRect: CGRect(x: cx - 5.5, y: 47, width: 11, height: 8), cornerRadius: 2), Color(hex: dark ? 0x6E5440 : 0xB08A5E)),
-            ], line: 3.6)
+            ], line: 3.6, style: style)
             // Stripes that follow the round of the balloon.
             context.fill(Path(ellipseIn: CGRect(x: cx - 6, y: 3, width: 12, height: 38)), with: .color(yellow))
             var seams = Path()
@@ -941,8 +957,10 @@ struct Balloon: View {
 }
 
 struct Kite: View {
+    @Environment(\.lineStyle) private var lineStyle
     var body: some View {
-        Canvas { context, size in
+        let style = lineStyle
+        return Canvas { context, size in
             let cx = size.width / 2
             let top = CGPoint(x: cx, y: 3), right = CGPoint(x: cx + 17, y: 21), bottom = CGPoint(x: cx, y: 46), left = CGPoint(x: cx - 17, y: 21)
             // The tail, with two bows.
@@ -953,9 +971,9 @@ struct Kite: View {
             for (point, colour) in [(CGPoint(x: cx - 2.5, y: 55), Color(hex: 0xE8735E)), (CGPoint(x: cx + 6, y: 65), Color(hex: 0xFFD666))] {
                 let bow = polygon([CGPoint(x: point.x - 5, y: point.y - 3), CGPoint(x: point.x + 5, y: point.y + 3),
                                    CGPoint(x: point.x + 5, y: point.y - 3), CGPoint(x: point.x - 5, y: point.y + 3)])
-                outlined(&context, [(bow, colour)], line: 2.4)
+                outlined(&context, [(bow, colour)], line: 2.4, style: style)
             }
-            outlined(&context, [(polygon([top, right, bottom, left]), Color(hex: 0x6C93C4))], line: 3.6)
+            outlined(&context, [(polygon([top, right, bottom, left]), Color(hex: 0x6C93C4))], line: 3.6, style: style)
             // Two lighter panels and the sticks.
             context.fill(polygon([top, right, CGPoint(x: cx, y: 21)]), with: .color(Color(hex: 0x8FB4E3)))
             context.fill(polygon([left, CGPoint(x: cx, y: 21), bottom]), with: .color(Color(hex: 0x8FB4E3)))
