@@ -23,6 +23,7 @@ struct SceneGalleryView: View {
                             PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour)
                             PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
                                 .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
+                                .environment(\.warmLight, PuggleScene.lamp(for: kind, night: PuggleScene.isNight(dark: look.dark, hour: look.hour)))
                         }
                         .frame(width: 402, height: PuggleHeader.sceneHeight + pull)
                         .clipped()
@@ -93,20 +94,21 @@ struct SceneGalleryView: View {
         let start = Date.now
         _ = runtime.advance(to: start)
         if let move { runtime.play(move, at: start) }
-        var frames: [(Double, [String: PartState])] = []
+        if move == "greet" || move == "nod" { runtime.play("wag", at: start) }
+        var frames: [(Double, [String: PartState], [String: String])] = []
         var next = 0.0
         // Step as the screen would, 60 times a second, keeping a frame now and then.
         for tick in 0...Int(seconds * 60) {
             let t = Double(tick) / 60
             let states = runtime.advance(to: start.addingTimeInterval(t))
             if t + 0.0001 >= next {
-                frames.append((t, states))
+                frames.append((t, states, runtime.face))
                 next += every
             }
         }
         let strip = HStack(spacing: 2) {
             ForEach(Array(frames.enumerated()), id: \.offset) { _, frame in
-                RigFrame(rig: rig, states: frame.1)
+                RigFrame(rig: rig, states: frame.1, face: frame.2)
                     .frame(width: 120, height: 150)
                     .background(Color(hex: 0xF2ECDD))
                     .overlay(alignment: .topLeading) {
@@ -143,6 +145,7 @@ struct SceneGalleryView: View {
                         PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour)
                         PuggleView(controller: puggle).frame(height: 118).padding(.bottom, 26)
                             .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
+                            .environment(\.warmLight, PuggleScene.lamp(for: kind, night: PuggleScene.isNight(dark: look.dark, hour: look.hour)))
                     }
                     .frame(height: PuggleHeader.sceneHeight + pull)
                     .overlay(alignment: .topLeading) {

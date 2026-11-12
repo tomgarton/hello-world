@@ -289,6 +289,36 @@
    ]
   },
   {
+   "id": "mouth",
+   "parent": "head",
+   "pivot": [
+    120,
+    158
+   ],
+   "when": "bill=open",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 166,
+     "rx": 27,
+     "ry": 17,
+     "fill": "#7A2E33",
+     "stroke": "#3A2A20",
+     "tint": "#4A1A22",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 176,
+     "rx": 14,
+     "ry": 6,
+     "fill": "#EE8F8A"
+    }
+   ]
+  },
+  {
    "id": "bill",
    "parent": "head",
    "pivot": [
@@ -326,6 +356,25 @@
    ]
   },
   {
+   "id": "smile",
+   "parent": "bill",
+   "pivot": [
+    120,
+    151
+   ],
+   "when": "bill=smile",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M96 157 Q120 169 144 157",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 3.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
    "id": "eye-left",
    "parent": "head",
    "pivot": [
@@ -342,7 +391,8 @@
      "ry": 7.6,
      "fill": "#3A2A20"
     }
-   ]
+   ],
+   "when": "eyes=open"
   },
   {
    "id": "eye-right",
@@ -360,6 +410,57 @@
      "rx": 7.6,
      "ry": 7.6,
      "fill": "#3A2A20"
+    }
+   ],
+   "when": "eyes=open"
+  },
+  {
+   "id": "eyes-happy",
+   "parent": "head",
+   "pivot": [
+    120,
+    108
+   ],
+   "when": "eyes=happy",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M85 111 Q93 102 101 111",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M139 111 Q147 102 155 111",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "eyes-closed",
+   "parent": "head",
+   "pivot": [
+    120,
+    108
+   ],
+   "when": "eyes=closed",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M85 107 Q93 114 101 107",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M139 107 Q147 114 155 107",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
     }
    ]
   },
@@ -473,15 +574,16 @@
        "y": 5,
        "r": 3
       },
-      "tail": {
-       "r": -14
-      },
       "arm-left": {
        "r": 8
       },
       "arm-right": {
        "r": -8
       }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "smile"
      }
     },
     {
@@ -492,18 +594,26 @@
       },
       "head": {
        "y": -3
-      },
-      "tail": {
-       "r": -22
       }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "smile"
      }
     },
     {
      "t": 0.34,
+     "pose": {},
+     "face": {
+      "bill": "smile"
+     }
+    },
+    {
+     "t": 0.6,
      "pose": {}
     }
    ],
-   "length": 0.7
+   "length": 0.8
   },
   "greet": {
    "about": "Hello: a wave, held at the top.",
@@ -528,12 +638,12 @@
       "head": {
        "r": -4
       },
-      "tail": {
-       "r": -18
-      },
       "body": {
        "y": -2
       }
+     },
+     "face": {
+      "bill": "open"
      }
     },
     {
@@ -544,10 +654,10 @@
       },
       "head": {
        "r": -4
-      },
-      "tail": {
-       "r": -10
       }
+     },
+     "face": {
+      "bill": "open"
      }
     },
     {
@@ -558,10 +668,11 @@
       },
       "head": {
        "r": -4
-      },
-      "tail": {
-       "r": -18
       }
+     },
+     "face": {
+      "bill": "open",
+      "eyes": "happy"
      }
     },
     {
@@ -572,10 +683,11 @@
       },
       "head": {
        "r": -4
-      },
-      "tail": {
-       "r": -10
       }
+     },
+     "face": {
+      "bill": "open",
+      "eyes": "happy"
      }
     },
     {
@@ -586,18 +698,461 @@
       },
       "head": {
        "r": -4
-      },
-      "tail": {
-       "r": -18
       }
+     },
+     "face": {
+      "bill": "smile",
+      "eyes": "happy"
      }
     },
     {
      "t": 1.25,
-     "pose": {}
+     "pose": {},
+     "face": {
+      "bill": "smile"
+     }
     }
    ],
    "length": 1.7
+  },
+  "proud": {
+   "about": "A potty success: ta-da, arms out and tail straight up, held, then a smile to end on.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      },
+      "arm-left": {
+       "r": -10
+      },
+      "arm-right": {
+       "r": 10
+      },
+      "tail": {
+       "r": 8
+      }
+     }
+    },
+    {
+     "t": 0.14,
+     "pose": {
+      "body": {
+       "y": -12
+      },
+      "upper": {
+       "sy": 1.04
+      },
+      "arm-left": {
+       "r": 72
+      },
+      "arm-right": {
+       "r": -72
+      },
+      "tail": {
+       "r": -42
+      },
+      "clip": {
+       "r": -10
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 0.32,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "tail": {
+       "r": -42
+      },
+      "clip": {
+       "r": 8
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 0.44,
+     "pose": {
+      "arm-left": {
+       "r": 70
+      },
+      "arm-right": {
+       "r": -70
+      },
+      "tail": {
+       "r": -42
+      },
+      "head": {
+       "r": -3
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {
+      "tail": {
+       "r": -20
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "smile"
+     }
+    },
+    {
+     "t": 1.7,
+     "pose": {},
+     "face": {
+      "bill": "smile"
+     }
+    }
+   ],
+   "length": 2.1
+  },
+  "celebrate": {
+   "about": "A milestone: two hops with her arms up. The only big reaction; keep it rare.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "leg-left": {
+       "r": 10
+      },
+      "leg-right": {
+       "r": -10
+      },
+      "tail": {
+       "r": -36
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "upper": {
+       "sy": 0.93
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      },
+      "tail": {
+       "r": -10
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "leg-left": {
+       "r": 10
+      },
+      "leg-right": {
+       "r": -10
+      },
+      "tail": {
+       "r": -36
+      },
+      "head": {
+       "r": 4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 0.68,
+     "pose": {
+      "upper": {
+       "sy": 0.94
+      },
+      "arm-left": {
+       "r": 62
+      },
+      "arm-right": {
+       "r": -62
+      },
+      "tail": {
+       "r": -30
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "tail": {
+       "r": -30
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 1.5,
+     "pose": {},
+     "face": {
+      "eyes": "happy",
+      "bill": "smile"
+     }
+    },
+    {
+     "t": 1.9,
+     "pose": {},
+     "face": {
+      "bill": "smile"
+     }
+    }
+   ],
+   "length": 2.3
+  },
+  "wake": {
+   "about": "A sleep ended: a stretch and a yawn, then awake.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "head": {
+       "r": 4,
+       "y": 3
+      }
+     },
+     "face": {
+      "eyes": "closed"
+     }
+    },
+    {
+     "t": 0.2,
+     "pose": {
+      "upper": {
+       "sy": 1.05
+      },
+      "head": {
+       "r": -6,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 58
+      },
+      "arm-right": {
+       "r": -58
+      },
+      "tail": {
+       "r": -12
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "bill": "open"
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "upper": {
+       "sy": 0.98
+      },
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      }
+     },
+     "face": {
+      "eyes": "closed"
+     }
+    },
+    {
+     "t": 0.95,
+     "pose": {
+      "eye-left": {
+       "sx": 1.15,
+       "sy": 1.15
+      },
+      "eye-right": {
+       "sx": 1.15,
+       "sy": 1.15
+      }
+     }
+    },
+    {
+     "t": 1.15,
+     "pose": {},
+     "face": {
+      "bill": "smile"
+     }
+    }
+   ],
+   "length": 1.6
+  },
+  "wag": {
+   "about": "A happy tail, on its own track so it can go with anything.",
+   "track": "tail",
+   "keys": [
+    {
+     "t": 0.0,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.11,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.22,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.33,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.44,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.55,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.66,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.77,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 1.0,
+     "pose": {}
+    }
+   ],
+   "length": 1.1
   }
+ },
+ "face": {
+  "eyes": "open",
+  "bill": "closed"
  }
 }

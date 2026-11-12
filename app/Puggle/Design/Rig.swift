@@ -21,6 +21,8 @@ struct Rig: Codable {
     /// Width and height the parts are drawn in.
     var size: [CGFloat]
     var parts: [Part]
+    /// The face she has when nothing says otherwise: ["eyes": "open", "bill": "closed"].
+    var face: [String: String]?
     var moves: [String: Move]?
 
     struct Part: Codable {
@@ -30,6 +32,8 @@ struct Rig: Codable {
         var pivot: [CGFloat]
         /// How tightly it follows its pose. Lower is looser; 0 follows at once.
         var spring: Double?
+        /// Drawn only while her face is set this way: "eyes=happy", "bill=open".
+        var when: String?
         var shapes: [Shape]
     }
 
@@ -51,6 +55,9 @@ struct Rig: Codable {
 
     struct Move: Codable {
         var about: String?
+        /// "body" unless said: one move plays per track, and tracks play together,
+        /// so she can wag her tail or change her face during anything.
+        var track: String?
         /// Poses in order. Each is held from its time until the next.
         var keys: [Key]
         /// Seconds until the move is over and ambient motion is all there is.
@@ -59,6 +66,8 @@ struct Rig: Codable {
         struct Key: Codable {
             var t: Double
             var pose: [String: Pose]
+            /// Which face shapes to show from here: ["eyes": "happy", "bill": "open"].
+            var face: [String: String]?
         }
     }
 
@@ -112,6 +121,11 @@ private struct MoonlitKey: EnvironmentKey {
     static let defaultValue = false
 }
 
+/// Where a warm lamp is, as a point on the character's own box (0,0 top left). Nil when there is none.
+private struct WarmLightKey: EnvironmentKey {
+    static let defaultValue: UnitPoint? = nil
+}
+
 private struct LineStyleKey: EnvironmentKey {
     static var defaultValue: LineStyle { .chosen }
 }
@@ -120,6 +134,11 @@ extension EnvironmentValues {
     var moonlit: Bool {
         get { self[MoonlitKey.self] }
         set { self[MoonlitKey.self] = newValue }
+    }
+
+    var warmLight: UnitPoint? {
+        get { self[WarmLightKey.self] }
+        set { self[WarmLightKey.self] = newValue }
     }
 
     var lineStyle: LineStyle {
@@ -160,7 +179,9 @@ extension Color {
 
 enum RigRenderer {
     /// Draws every part, each moved by its state and by its parents'.
-    static func draw(_ rig: Rig, states: [String: PartState], style: LineStyle, moonlit: Bool = false, in context: inout GraphicsContext, size: CGSize) {
+    static func draw(_ rig: Rig, states: [String: PartState], face: [String: String]? = nil, style: LineStyle, moonlit: Bool = false,
+                     warmLight: UnitPoint? = nil, in context: inout GraphicsContext, size: CGSize) {
+        let face = face ?? rig.face ?? [:]
         let scale = min(size.width / rig.size[0], size.height / rig.size[1])
         let fit = CGAffineTransform(translationX: (size.width - rig.size[0] * scale) / 2, y: size.height - rig.size[1] * scale)
             .scaledBy(x: scale, y: scale)
@@ -177,9 +198,20 @@ enum RigRenderer {
             let transform = local.concatenating(parent)
             world[part.id] = transform
             guard !part.shapes.isEmpty else { continue }
+            // A face shape shows only while the face is set to it.
+            if let when = part.when?.split(separator: "="), when.count == 2, face[String(when[0])] != String(when[1]) { continue }
             var layer = context
             layer.concatenate(transform)
             for shape in part.shapes { draw(shape, style: style, moonlit: moonlit, in: &layer) }
+        }
+        // Warm light from a lamp nearby, laid only over what has been drawn.
+        if let warmLight {
+            var lit = context
+            lit.blendMode = .sourceAtop
+            let centre = CGPoint(x: size.width * warmLight.x, y: size.height * warmLight.y)
+            lit.fill(Path(CGRect(origin: .zero, size: size)),
+                     with: .radialGradient(Gradient(colors: [Color(hex: 0xFFD98A).opacity(0.55), Color(hex: 0xFFD98A).opacity(0)]),
+                                           center: centre, startRadius: 0, endRadius: size.width * 0.75))
         }
     }
 
@@ -261,7 +293,10 @@ final class RigRuntime {
     /// 1 by day, 0.5 at night: scales how big her reactions are.
     var energy = 1.0
 
-    private var move: (name: String, start: Date)?
+    /// One move per track.
+    private var playing: [String: (name: String, start: Date)] = [:]
+    /// Her face just now, for the drawing.
+    private(set) var face: [String: String] = [:]
     private var shown: [String: [Double]] = [:]
     private var speed: [String: [Double]] = [:]
     private var last: Date?
@@ -274,8 +309,8 @@ final class RigRuntime {
 
     /// Starts a move from the file. An unknown name does nothing.
     func play(_ name: String, at date: Date = .now) {
-        guard rig.moves?[name] != nil, !asleep else { return }
-        move = (name, date)
+        guard let move = rig.moves?[name], !asleep || name == "wake" else { return }
+        playing[move.track ?? "body"] = (name, date)
     }
 
     /// The pose to head for: ambient, plus her look, plus the move's current pose.
@@ -294,8 +329,6 @@ final class RigRuntime {
         change("arm-right") { $0.r = -1.5 * breath }
         if asleep {
             change("head") { $0.r = 6; $0.y = 4 }
-            change("eye-left") { $0.sy = 0.12 }
-            change("eye-right") { $0.sy = 0.12 }
             change("tail") { $0.r = 10 }
         } else {
             change("tail") { $0.r = 5 * sin(t * 2 * .pi / 2.8) }
@@ -316,17 +349,22 @@ final class RigRuntime {
             }
             change("head") { $0.r += Double(look.x) * 2.5 }
         }
-        // The move's current pose, held until its next one.
-        if let playing = move, let script = rig.moves?[playing.name] {
-            let into = date.timeIntervalSince(playing.start)
+        var showing = rig.face ?? [:]
+        if asleep { showing["eyes"] = "closed" }
+        // Each track's current pose, held until its next one.
+        for (track, now) in playing.sorted(by: { $0.key < $1.key }) {
+            guard let script = rig.moves?[now.name] else { continue }
+            let into = date.timeIntervalSince(now.start)
             if into >= script.length {
-                move = nil
+                playing[track] = nil
             } else if let key = script.keys.last(where: { $0.t <= into }) {
                 for (id, pose) in key.pose {
                     change(id) { $0.add(pose, amount: energy) }
                 }
+                for (feature, shape) in key.face ?? [:] { showing[feature] = shape }
             }
         }
+        face = showing
         return states
     }
 
@@ -381,18 +419,19 @@ struct RigView: View {
     var moving = true
     @Environment(\.lineStyle) private var lineStyle
     @Environment(\.moonlit) private var moonlit
+    @Environment(\.warmLight) private var warmLight
 
     var body: some View {
         if moving {
             TimelineView(.animation) { timeline in
                 Canvas { context, size in
                     let states = runtime.advance(to: timeline.date)
-                    RigRenderer.draw(runtime.rig, states: states, style: lineStyle, moonlit: moonlit, in: &context, size: size)
+                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face, style: lineStyle, moonlit: moonlit, warmLight: warmLight, in: &context, size: size)
                 }
             }
         } else {
             Canvas { context, size in
-                RigRenderer.draw(runtime.rig, states: [:], style: lineStyle, moonlit: moonlit, in: &context, size: size)
+                RigRenderer.draw(runtime.rig, states: [:], style: lineStyle, moonlit: moonlit, warmLight: warmLight, in: &context, size: size)
             }
         }
     }
@@ -402,11 +441,12 @@ struct RigView: View {
 struct RigFrame: View {
     let rig: Rig
     let states: [String: PartState]
+    var face: [String: String]?
     @Environment(\.lineStyle) private var lineStyle
 
     var body: some View {
         Canvas { context, size in
-            RigRenderer.draw(rig, states: states, style: lineStyle, in: &context, size: size)
+            RigRenderer.draw(rig, states: states, face: face, style: lineStyle, in: &context, size: size)
         }
     }
 }

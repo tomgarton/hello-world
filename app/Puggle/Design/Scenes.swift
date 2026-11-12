@@ -72,6 +72,11 @@ struct PuggleScene: View {
 
     private var starry: Bool { phase == .night }
 
+    /// Where a warm lamp sits beside Puggle in this scene after dark, on her own box. Nil when there is none.
+    static func lamp(for kind: SceneKind, night: Bool) -> UnitPoint? {
+        kind == .backyard && night ? UnitPoint(x: -0.15, y: 0.3) : nil
+    }
+
     /// Whether the scene on Today is showing night just now, so Puggle can take its light.
     static func isNight(dark: Bool, hour: Int? = nil) -> Bool {
         PuggleScene(kind: .hills, dark: dark, hourOverride: hour).starry
@@ -217,6 +222,10 @@ struct PuggleScene: View {
             Fence().stroke(tone(0xD8C8A8, 0x363A72), lineWidth: 1).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
             Hill(rise: 0.6, left: 0.73, right: 0.71).fill(tone(0xB9D49E, 0x232858))
             WashingLine(dark: starry).frame(width: w * 0.38, height: h * 0.36).position(x: w * 0.23, y: h * 0.52)
+            if starry {
+                // A lantern on the post: the one warm light in the yard.
+                Lantern().frame(width: 120, height: 120).position(x: w * 0.405, y: h * 0.4)
+            }
         case .bush:
             // A far ridge with gums on it, then the nearer rise.
             Hill(rise: 0.46, left: 0.66, right: 0.5, peak: 0.9).fill(tone(0xD9DDBA, 0x2F3266))
@@ -238,6 +247,12 @@ struct PuggleScene: View {
         case .beach:
             Starfish().fill(tone(0xF2A48E, 0x8C5A86)).frame(width: 15, height: 15).rotationEffect(.degrees(12)).position(x: w * 0.8, y: h * 0.9)
         case .backyard:
+            if starry {
+                // The lantern's light lying on the ground, reaching Puggle.
+                Ellipse().fill(RadialGradient(colors: [Color(hex: 0xFFD98A).opacity(0.3), Color(hex: 0xFFD98A).opacity(0)],
+                                              center: .center, startRadius: 4, endRadius: 80))
+                    .frame(width: 170, height: 34).position(x: w * 0.44, y: h * 0.84)
+            }
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.09, y: h * 0.8)
             GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9).position(x: w * 0.9, y: h * 0.8)
         case .bush:
@@ -496,6 +511,22 @@ struct Hedge: Shape {
             x += size * 0.7
         }
         return path
+    }
+}
+
+/// A small lantern and the glow round it.
+struct Lantern: View {
+    var body: some View {
+        Canvas { context, size in
+            let centre = CGPoint(x: size.width / 2, y: size.height / 2)
+            context.fill(Path(ellipseIn: CGRect(origin: .zero, size: size)),
+                         with: .radialGradient(Gradient(colors: [Color(hex: 0xFFD98A).opacity(0.42), Color(hex: 0xFFD98A).opacity(0)]),
+                                               center: centre, startRadius: 2, endRadius: size.width / 2))
+            let frame = Color(hex: 0x4A3F66)
+            context.fill(Path(roundedRect: CGRect(x: centre.x - 5, y: centre.y - 9, width: 10, height: 3), cornerRadius: 1.5), with: .color(frame))
+            context.fill(Path(roundedRect: CGRect(x: centre.x - 4, y: centre.y - 6, width: 8, height: 11), cornerRadius: 2.5), with: .color(Color(hex: 0xFFE7A8)))
+            context.fill(Path(roundedRect: CGRect(x: centre.x - 5, y: centre.y + 5, width: 10, height: 3), cornerRadius: 1.5), with: .color(frame))
+        }
     }
 }
 

@@ -94,6 +94,8 @@ final class PuggleController: ObservableObject {
 
     private func fire(_ name: String) {
         rig?.play(name)
+        // Her tail shows the feeling: happy things come with a wag.
+        if name == PuggleRive.Input.greet || name == PuggleRive.Input.nod { rig?.play("wag") }
         #if canImport(RiveRuntime)
         rive?.triggerInput(name)
         #endif
