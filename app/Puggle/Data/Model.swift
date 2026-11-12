@@ -165,12 +165,12 @@ extension Event {
         }
     }
 
-    /// A short, human summary for timelines: "Bottle, 150 ml formula".
+    /// A short, human summary for timelines: "Bottle · 150 ml · formula".
     var summary: String {
         switch kind {
         case .bottle:
-            let ml = amountML > 0 ? ", \(Int(amountML)) ml" : ""
-            let what = (detail ?? "").isEmpty ? "" : " \(detail!.lowercased())"
+            let ml = amountML > 0 ? " · \(Int(amountML)) ml" : ""
+            let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
             return "Bottle\(ml)\(what)"
         case .sleep:
             if let start = startedAt, let end = endedAt {
@@ -183,13 +183,13 @@ extension Event {
                 var parts: [String] = []
                 if leftSeconds > 0 { parts.append("left \(Elapsed.minutes(leftSeconds))") }
                 if rightSeconds > 0 { parts.append("right \(Elapsed.minutes(rightSeconds))") }
-                return "Breastfeed, " + parts.joined(separator: ", ")
+                return "Breastfeed · " + parts.joined(separator: " · ")
             }
-            let side = (detail ?? "").isEmpty ? "" : ", \(detail!.lowercased())"
-            let length = (startedAt.flatMap { start in endedAt.map { Elapsed.short(from: start, to: $0) } }).map { ", \($0)" } ?? ""
+            let side = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
+            let length = (startedAt.flatMap { start in endedAt.map { Elapsed.short(from: start, to: $0) } }).map { " · \($0)" } ?? ""
             return "Breastfeed\(side)\(length)"
         case .nappy, .potty, .solids:
-            let what = (detail ?? "").isEmpty ? "" : ", \(detail!.lowercased())"
+            let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
             return "\(kind.title)\(what)"
         case .note:
             return note ?? "Note"
@@ -197,13 +197,13 @@ extension Event {
             return "Weight \(Int(value).formatted()) g"
         case .medicine:
             let name = (detail ?? "").isEmpty ? "Medicine" : detail!
-            let amount = (dose ?? "").isEmpty ? "" : ", \(dose!)"
+            let amount = (dose ?? "").isEmpty ? "" : " · \(dose!)"
             return "\(name)\(amount)"
         case .temperature:
-            let place = (detail ?? "").isEmpty ? "" : ", \(detail!.lowercased())"
+            let place = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
             return "Temperature \(value.formatted(.number.precision(.fractionLength(1)))) °C\(place)"
         case .vaccination:
-            return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination, \(detail!)"
+            return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination · \(detail!)"
         case .milestone:
             return (detail ?? "").isEmpty ? "Milestone" : detail!
         }
