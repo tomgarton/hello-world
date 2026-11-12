@@ -163,43 +163,46 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
-    /// Options to choose between: the pocket, several ways.
+    /// Options to choose between: her cheeks, several ways, seen close.
     @MainActor static func writeOptions(name: String) {
         guard let rig = Rig.load("puggle") else { return }
         func shape(_ json: String) -> Rig.Shape { try! JSONDecoder().decode(Rig.Shape.self, from: Data(json.utf8)) }
-        func pocket(fill: String?, line: String, flower: Double) -> Rig {
+        /// Both cheeks from one description of the left; `x` is mirrored for the right.
+        func cheeks(_ make: (_ x: Double, _ side: Double) -> [String]) -> Rig {
             var copy = rig
-            for index in copy.parts.indices where copy.parts[index].id == "dress" {
-                copy.parts[index].shapes[1].fill = fill
-                copy.parts[index].shapes[1].tint = line
-                guard flower > 0 else { continue }
-                // A small white flower, its centre yellow.
-                for turn in 0..<5 {
-                    let angle = Double(turn) * 2 * .pi / 5 - .pi / 2
-                    copy.parts[index].shapes.append(shape("{\"kind\":\"ellipse\",\"x\":\(120 + cos(angle) * 3.4 * flower),\"y\":\(222 + sin(angle) * 3.4 * flower),\"rx\":\(2.7 * flower),\"ry\":\(2.7 * flower),\"fill\":\"#FFFDF6\"}"))
-                }
-                copy.parts[index].shapes.append(shape("{\"kind\":\"ellipse\",\"x\":120,\"y\":222,\"rx\":\(2.1 * flower),\"ry\":\(2.1 * flower),\"fill\":\"#F4C95D\"}"))
+            for index in copy.parts.indices where copy.parts[index].id == "blush" {
+                copy.parts[index].shapes = (make(70, -1) + make(170, 1)).map(shape)
             }
             return copy
         }
+        func oval(_ x: Double, _ y: Double, _ rx: Double, _ ry: Double, _ fill: String) -> String {
+            "{\"kind\":\"ellipse\",\"x\":\(x),\"y\":\(y),\"rx\":\(rx),\"ry\":\(ry),\"fill\":\"\(fill)\"}"
+        }
+        func dash(_ x: Double, _ y: Double, _ colour: String, _ width: Double) -> String {
+            "{\"kind\":\"path\",\"d\":\"M\(x - 2) \(y + 4) L\(x + 2) \(y - 4)\",\"stroke\":\"\(colour)\",\"width\":\(width),\"cap\":\"round\"}"
+        }
+        let options: [(String, Rig)] = [
+            ("1. As now", rig),
+            ("2. Plain round, no marks", cheeks { x, _ in [oval(x, 131, 9.5, 9.5, "#EE9C88")] }),
+            ("3. Soft oval, quieter pink", cheeks { x, _ in [oval(x, 132, 12, 7.5, "#C27C66")] }),
+            ("4. Three small marks only", cheeks { x, _ in [dash(x - 6, 131, "#E58A76", 3), dash(x, 131, "#E58A76", 3), dash(x + 6, 131, "#E58A76", 3)] }),
+            ("5. Oval with two soft marks", cheeks { x, _ in [oval(x, 132, 11.5, 7.5, "#E8917C"), dash(x - 3, 132, "#F7B9A8", 2.6), dash(x + 3, 132, "#F7B9A8", 2.6)] }),
+            ("6. Small and round, with a glint", cheeks { x, side in [oval(x, 132, 8, 8, "#EE9C88"), oval(x - 2.5, 129, 2.2, 2.2, "#F9C4B6")] }),
+        ]
         func cell(_ rig: Rig, _ title: String) -> some View {
-            RigFrame(rig: rig, states: [:])
-                .frame(width: 300, height: 375)
-                .padding(12)
-                .background(Color(hex: 0xF2ECDD))
-                .overlay(alignment: .topLeading) { Text(title).font(.caption.weight(.semibold)).foregroundStyle(.black).padding(8) }
+            ZStack(alignment: .top) {
+                Color(hex: 0xF2ECDD)
+                RigFrame(rig: rig, states: [:])
+                    .frame(width: 560, height: 700)
+                    .offset(y: -70)
+            }
+            .frame(width: 420, height: 380)
+            .clipped()
+            .overlay(alignment: .topLeading) { Text(title).font(.caption.weight(.semibold)).foregroundStyle(.black).padding(8) }
         }
         let sheet = VStack(spacing: 4) {
-            HStack(spacing: 4) {
-                cell(pocket(fill: "#8FB4E3", line: "#1B4387", flower: 0), "1. Light blue pocket")
-                cell(pocket(fill: "#5E90DA", line: "#1B4387", flower: 0), "2. Mid blue pocket")
-                cell(pocket(fill: nil, line: "#1B4387", flower: 0), "3. Outline only")
-            }
-            HStack(spacing: 4) {
-                cell(pocket(fill: "#8FB4E3", line: "#1B4387", flower: 1), "4. Light blue, tiny flower")
-                cell(pocket(fill: nil, line: "#1B4387", flower: 1), "5. Outline, tiny flower")
-                cell(pocket(fill: "#8FB4E3", line: "#5E86C8", flower: 0), "6. Light blue, softer line")
-            }
+            HStack(spacing: 4) { ForEach(0..<3, id: \.self) { cell(options[$0].1, options[$0].0) } }
+            HStack(spacing: 4) { ForEach(3..<6, id: \.self) { cell(options[$0].1, options[$0].0) } }
         }
         .background(Color.gray)
         .environment(\.lineStyle, .tinted)
