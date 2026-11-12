@@ -76,6 +76,7 @@ struct TodayView: View {
                         ForEach(children) { child in
                             ChildStatusRow(child: child) { dayOf = child }
                         }
+                        togetherButton
                         let layout = tileLayout
                         if !layout.main.isEmpty {
                             HStack(spacing: 10) {
@@ -212,6 +213,38 @@ struct TodayView: View {
         }
     }
 
+    /// With two or more children, one tap starts or ends everyone's sleep.
+    @ViewBuilder private var togetherButton: some View {
+        if children.count >= 2 {
+            let awake = children.filter { store.activeSleep(for: $0) == nil }
+            let asleep = children.filter { store.activeSleep(for: $0).map { Date.now.timeIntervalSince($0.startedAt ?? .now) >= 60 } ?? false }
+            let everyone = children.count == 2 ? "both" : "everyone"
+            if awake.count >= 2 || asleep.count >= 2 {
+                HStack {
+                    Spacer()
+                    Button {
+                        if awake.count >= 2 {
+                            store.startSleep(for: awake)
+                        } else {
+                            asleep.forEach { store.endSleep(for: $0) }
+                        }
+                    } label: {
+                        Label(awake.count >= 2
+                              ? (awake.count == children.count ? "Start sleep for \(everyone)" : "Start sleep for \(ListFormatter.localizedString(byJoining: awake.map(\.displayName)))")
+                              : (asleep.count == children.count ? (children.count == 2 ? "Both woke up" : "Everyone woke up") : "\(ListFormatter.localizedString(byJoining: asleep.map(\.displayName))) woke up"),
+                              systemImage: awake.count >= 2 ? "moon" : "sun.max")
+                            .font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 14)
+                            .frame(minHeight: 44)
+                            .foregroundStyle(Palette.ink)
+                            .background(Palette.paper, in: Capsule())
+                    }
+                    .buttonStyle(PressStyle())
+                }
+            }
+        }
+    }
+
     private var header: some View {
         PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil })
     }
@@ -239,11 +272,22 @@ struct ChildStatusRow: View {
     @ObservedObject var child: Child
     let onOpen: () -> Void
     @AppStorage(Setting.justLog) private var justLog = false
+    @State private var backToSleep: Event?
 
     var body: some View {
         // Ticks so the elapsed time and "5 minutes ago" stay current.
         TimelineView(.periodic(from: .now, by: 15)) { context in
             row(now: context.date)
+        }
+        .confirmationDialog("Back to sleep?",
+                            isPresented: Binding(get: { backToSleep != nil }, set: { if !$0 { backToSleep = nil } }),
+                            titleVisibility: .visible, presenting: backToSleep) { sleep in
+            Button("Carry on the same sleep") { store.resumeSleep(sleep) }
+            Button("Start a new sleep") { store.startSleep(for: child) }
+            Button("Cancel", role: .cancel) {}
+        } message: { sleep in
+            let woke = (sleep.endedAt ?? .now).formatted(date: .omitted, time: .shortened)
+            Text("\(child.displayName) woke at \(woke). Carrying on keeps the night as one sleep, with the waking in it.")
         }
     }
 
@@ -297,9 +341,10 @@ struct ChildStatusRow: View {
             if sleep != nil { return ["Asleep"] }
             return store.activeFeed(for: child) != nil ? ["Feeding"] : []
         }
-        if let start = sleep?.startedAt {
-            return ["Asleep · \(Elapsed.short(from: start, to: now))",
-                    "since \(start.formatted(date: .omitted, time: .shortened))"]
+        if let sleep, let start = sleep.startedAt {
+            let woke = sleep.wokeText.map { " · \($0)" } ?? ""
+            return ["Asleep · \(Elapsed.short(seconds: sleep.asleepSeconds(from: start, to: now)))",
+                    "since \(start.formatted(date: .omitted, time: .shortened))\(woke)"]
         }
         if let feed = store.activeFeed(for: child) {
             let started = "since \((feed.startedAt ?? now).formatted(date: .omitted, time: .shortened))"
@@ -329,6 +374,8 @@ struct ChildStatusRow: View {
                 } else {
                     store.endSleep(for: child)
                 }
+            } else if let last = store.recentNightSleep(for: child) {
+                backToSleep = last
             } else {
                 store.startSleep(for: child)
             }
@@ -501,8 +548,7 @@ struct DaySoFarView: View {
             var seconds = 0.0
             for sleep in sleeps {
                 guard let start = sleep.startedAt else { continue }
-                let end = sleep.endedAt ?? .now
-                seconds += max(end.timeIntervalSince(max(start, since)), 0)
+                seconds += sleep.asleepSeconds(from: max(start, since), to: sleep.endedAt ?? .now)
             }
             return seconds >= 60 ? Elapsed.short(from: Date.now.addingTimeInterval(-seconds), to: .now) : nil
         }

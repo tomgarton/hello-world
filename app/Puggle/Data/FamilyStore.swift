@@ -3,7 +3,7 @@ import SwiftUI
 
 /// What the "Last saved" row on Today points at. It stays until the next save.
 struct LastSaved: Identifiable {
-    enum Undo { case delete, resumeSleep, none }
+    enum Undo { case delete, resumeSleep, backToSleep, none }
     let id = UUID()
     let events: [Event]
     let undo: Undo
@@ -238,6 +238,14 @@ final class FamilyStore: ObservableObject {
         switch saved.undo {
         case .delete: live.forEach(context.delete)
         case .resumeSleep: live.forEach { $0.endedAt = nil }
+        case .backToSleep:
+            // Take the last waking out again and end the sleep where it was.
+            for sleep in live {
+                var wakings = sleep.wakingIntervals
+                guard let last = wakings.popLast() else { continue }
+                sleep.endedAt = last.start
+                sleep.wakings = wakings.map { "\(Int($0.start.timeIntervalSince1970))-\(Int($0.end.timeIntervalSince1970))" }.joined(separator: ",")
+            }
         case .none: break
         }
         persistence.save()
@@ -248,6 +256,34 @@ final class FamilyStore: ObservableObject {
         guard activeSleep(for: child) == nil else { return }
         if lastSaved?.undo == .resumeSleep { lastSaved = nil }
         log(.sleep, for: [child], at: .now)
+    }
+
+    /// Starts several children's sleep at once (twins going down together).
+    func startSleep(for children: [Child]) {
+        let awake = children.filter { activeSleep(for: $0) == nil }
+        guard !awake.isEmpty else { return }
+        if lastSaved?.undo == .resumeSleep { lastSaved = nil }
+        awake.forEach { log(.sleep, for: [$0], at: .now) }
+        let started = awake.compactMap(activeSleep(for:))
+        if started.count > 1 { lastSaved = LastSaved(events: started, undo: .delete) }
+    }
+
+    /// A sleep that ended at night in the last 90 minutes: the child probably
+    /// woke and is going back down, so it can carry on as one sleep.
+    func recentNightSleep(for child: Child, now: Date = .now) -> Event? {
+        guard let last = latest(.sleep, for: child), let end = last.endedAt,
+              now.timeIntervalSince(end) < 90 * 60 else { return nil }
+        let hour = Calendar.current.component(.hour, from: end)
+        return hour >= 19 || hour < 7 ? last : nil
+    }
+
+    /// Back to sleep after a night waking: the same sleep carries on, with the waking in it.
+    func resumeSleep(_ sleep: Event) {
+        guard let end = sleep.endedAt, sleep.isLive else { return }
+        sleep.addWaking(from: end, to: .now)
+        sleep.endedAt = nil
+        persistence.save()
+        lastSaved = LastSaved(events: [sleep], undo: .backToSleep)
     }
 
     func endSleep(for child: Child) {

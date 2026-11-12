@@ -70,6 +70,9 @@ final class Event: NSManagedObject, Identifiable {
     @NSManaged var sideStartedAt: Date?
     /// The name of whoever added the entry, from their Settings. Optional.
     @NSManaged var loggedBy: String?
+    /// Sleep: times the child woke and went back to sleep inside this sleep,
+    /// as "start-end" seconds since 1970, separated by commas. Optional.
+    @NSManaged var wakings: String?
     @NSManaged var createdAt: Date?
     @NSManaged var family: Family?
     @NSManaged var children: Set<Child>?
@@ -144,6 +147,49 @@ extension Event {
         return banked + max(now.timeIntervalSince(since), 0)
     }
 
+    /// Night wakings inside this sleep, oldest first.
+    var wakingIntervals: [DateInterval] {
+        (wakings ?? "").split(separator: ",").compactMap { pair in
+            let parts = pair.split(separator: "-").compactMap { Double($0) }
+            guard parts.count == 2, parts[1] >= parts[0] else { return nil }
+            return DateInterval(start: Date(timeIntervalSince1970: parts[0]), end: Date(timeIntervalSince1970: parts[1]))
+        }
+    }
+
+    func addWaking(from start: Date, to end: Date) {
+        let pair = "\(Int(start.timeIntervalSince1970))-\(Int(max(end, start).timeIntervalSince1970))"
+        wakings = (wakings ?? "").isEmpty ? pair : "\(wakings!),\(pair)"
+    }
+
+    /// "woke once", "woke 3 times", or nil.
+    var wokeText: String? {
+        switch wakingIntervals.count {
+        case 0: nil
+        case 1: "woke once"
+        case 2: "woke twice"
+        case let n: "woke \(n) times"
+        }
+    }
+
+    /// The stretches of this sleep inside a window, split around any wakings.
+    func asleepPieces(from: Date = .distantPast, to: Date = .distantFuture, now: Date = .now) -> [DateInterval] {
+        guard let start = startedAt else { return [] }
+        let end = min(endedAt ?? now, to)
+        var cursor = max(start, from)
+        var pieces: [DateInterval] = []
+        for waking in wakingIntervals.sorted(by: { $0.start < $1.start }) {
+            if waking.start > cursor { pieces.append(DateInterval(start: cursor, end: min(waking.start, end))) }
+            cursor = max(cursor, waking.end)
+        }
+        if end > cursor { pieces.append(DateInterval(start: cursor, end: end)) }
+        return pieces.filter { $0.duration > 0 }
+    }
+
+    /// Time asleep between two moments, leaving out any wakings.
+    func asleepSeconds(from: Date, to: Date) -> Double {
+        asleepPieces(from: from, to: to, now: to).reduce(0) { $0 + $1.duration }
+    }
+
     /// The shortest useful form, for a child's row on Today: "Bottle · 150 ml".
     /// The rest (which milk, which side) is one tap away in the entry.
     var brief: String {
@@ -156,7 +202,7 @@ extension Event {
             if let start = startedAt, let end = endedAt { return "Breastfeed · \(Elapsed.short(from: start, to: end))" }
             return "Breastfeed"
         case .sleep:
-            if let start = startedAt, let end = endedAt { return "Slept · \(Elapsed.short(from: start, to: end))" }
+            if let start = startedAt, let end = endedAt { return "Slept · \(Elapsed.short(seconds: asleepSeconds(from: start, to: end)))" }
             return "Asleep"
         case .nappy, .potty, .solids:
             return (detail ?? "").isEmpty ? kind.title : "\(kind.title) · \(detail!.lowercased())"
@@ -174,7 +220,7 @@ extension Event {
             return "Bottle\(ml)\(what)"
         case .sleep:
             if let start = startedAt, let end = endedAt {
-                return "Slept \(Elapsed.short(from: start, to: end))"
+                return "Slept \(Elapsed.short(seconds: asleepSeconds(from: start, to: end)))\(wokeText.map { " · \($0)" } ?? "")"
             }
             return "Asleep"
         case .breastfeed:
@@ -283,7 +329,11 @@ extension Child {
 
 enum Elapsed {
     static func short(from start: Date, to end: Date) -> String {
-        let minutes = max(Int(end.timeIntervalSince(start) / 60), 0)
+        short(seconds: end.timeIntervalSince(start))
+    }
+
+    static func short(seconds: Double) -> String {
+        let minutes = max(Int(seconds / 60), 0)
         let h = minutes / 60, m = minutes % 60
         return h > 0 ? "\(h)h \(String(format: "%02d", m))m" : "\(m) min"
     }
@@ -398,6 +448,7 @@ enum PuggleModel {
             attribute("runningSide", .stringAttributeType),
             attribute("sideStartedAt", .dateAttributeType),
             attribute("loggedBy", .stringAttributeType),
+            attribute("wakings", .stringAttributeType),
             attribute("createdAt", .dateAttributeType),
             eventFamily, eventChildren,
         ]

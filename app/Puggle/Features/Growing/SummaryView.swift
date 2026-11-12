@@ -90,8 +90,7 @@ struct SummaryPDF {
             for event in events {
                 guard let at = event.startedAt else { continue }
                 if event.kind == .sleep {
-                    let a = max(at, start), b = min(event.endedAt ?? .now, end)
-                    row.sleep += max(b.timeIntervalSince(a), 0)
+                    row.sleep += event.asleepSeconds(from: max(at, start), to: min(event.endedAt ?? .now, end))
                     continue
                 }
                 guard at >= start, at < end else { continue }

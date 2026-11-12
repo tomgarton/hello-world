@@ -71,11 +71,10 @@ struct ChildInsights: View {
         let to = min(noon, .now)
         var pieces: [(start: Date, end: Date, open: Bool)] = []
         for sleep in events where sleep.kind == .sleep {
-            guard let start = sleep.startedAt else { continue }
-            let end = sleep.endedAt ?? .now
-            let a = max(start, from), b = min(end, to)
-            if b.timeIntervalSince(a) >= 60 {
-                pieces.append((a, b, sleep.endedAt == nil))
+            // Night wakings show as gaps.
+            let parts = sleep.asleepPieces(from: from, to: to)
+            for (index, piece) in parts.enumerated() where piece.duration >= 60 {
+                pieces.append((piece.start, piece.end, sleep.endedAt == nil && index == parts.count - 1))
             }
         }
         return pieces.sorted { $0.start < $1.start }
@@ -131,8 +130,7 @@ struct ChildInsights: View {
             for event in events {
                 guard let at = event.startedAt else { continue }
                 if event.kind == .sleep {
-                    let a = max(at, start), b = min(event.endedAt ?? .now, end)
-                    day.sleep += max(b.timeIntervalSince(a), 0)
+                    day.sleep += event.asleepSeconds(from: max(at, start), to: min(event.endedAt ?? .now, end))
                 } else if at >= start && at < end {
                     switch event.kind {
                     case .bottle: day.bottleML += event.amountML; day.feeds += 1
