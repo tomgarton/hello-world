@@ -36,6 +36,12 @@ struct YourDataView: View {
 
             if !store.isSample {
             Section {
+                NavigationLink("Recently deleted") { RecentlyDeletedView() }
+            } footer: {
+                Text("Deleted entries can be brought back for \(RecentlyDeleted.keepDays) days.")
+            }
+            .listRowBackground(Palette.paper)
+            Section {
                 Button("Delete everything", role: .destructive) { confirmingDelete = true }
                     .foregroundStyle(Palette.waratah)
                     .confirmationDialog("Delete everything?", isPresented: $confirmingDelete, titleVisibility: .visible) {

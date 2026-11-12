@@ -16,7 +16,11 @@ final class FamilyStore: ObservableObject {
     let persistence: Persistence
     var context: NSManagedObjectContext { persistence.viewContext }
 
-    @Published var lastSaved: LastSaved?
+    @Published var lastSaved: LastSaved? {
+        didSet { if lastSaved != nil { justDeleted = nil } }
+    }
+    /// The entry just deleted, so Today can offer to bring it back.
+    @Published var justDeleted: DeletedEntry?
     /// True for the made-up sample family, which lives in memory only.
     var isSample = false
     /// Who new entries are marked as added by. Nil uses the name in Settings.
@@ -379,8 +383,12 @@ final class FamilyStore: ObservableObject {
 
     func delete(_ event: Event) {
         if lastSaved?.events.contains(event) == true { lastSaved = nil }
+        // A copy is kept on this phone for 30 days, so it can be brought back.
+        let copy = DeletedEntry(event)
+        if !isSample { RecentlyDeleted.shared.add(copy) }
         context.delete(event)
         persistence.save()
+        justDeleted = copy
     }
 
     /// Call after changing a child's details.

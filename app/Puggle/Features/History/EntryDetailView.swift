@@ -220,3 +220,100 @@ extension View {
         }
     }
 }
+
+/// History's swipes, for rows outside a system list (Today so far): drag left
+/// for Delete, which asks first; drag right for Again. Vertical scrolling is
+/// left alone, and a swipe only opens once it is clearly sideways.
+struct SwipeableEntryRow<Content: View>: View {
+    @EnvironmentObject private var store: FamilyStore
+    let event: Event
+    @ViewBuilder var content: Content
+
+    @State private var offset: CGFloat = 0
+    @State private var start: CGFloat = 0
+    @State private var sideways: Bool?
+    @State private var confirmingDelete = false
+
+    private let reveal: CGFloat = 84
+
+    var body: some View {
+        let canAgain = store.canLogAgain(event)
+        ZStack {
+            HStack(spacing: 0) {
+                if canAgain {
+                    action("Again", symbol: "arrow.clockwise", tint: Palette.moonDeep) {
+                        Haptics.success()
+                        close()
+                        store.logAgain(event)
+                    }
+                    .opacity(offset > 12 ? 1 : 0)
+                }
+                Spacer(minLength: 0)
+                action("Delete", symbol: "trash", tint: Palette.waratah) {
+                    confirmingDelete = true
+                }
+                .opacity(offset < -12 ? 1 : 0)
+            }
+            content
+                .background(Palette.paper)
+                .offset(x: offset)
+        }
+        .clipped()
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 14)
+                .onChanged { value in
+                    if sideways == nil {
+                        sideways = abs(value.translation.width) > abs(value.translation.height) * 1.4
+                        start = offset
+                    }
+                    guard sideways == true else { return }
+                    let wanted = start + value.translation.width
+                    offset = min(canAgain ? reveal * 1.2 : 0, max(-reveal * 1.2, wanted))
+                }
+                .onEnded { _ in
+                    defer { sideways = nil }
+                    guard sideways == true else { return }
+                    withAnimation(.spring(duration: 0.3, bounce: 0.15)) {
+                        if offset < -reveal / 2 { offset = -reveal }
+                        else if offset > reveal / 2, canAgain { offset = reveal }
+                        else { offset = 0 }
+                    }
+                }
+        )
+        .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+            Button("Delete", role: .destructive) {
+                Haptics.tap()
+                close()
+                store.delete(event)
+            }
+            Button("Keep it", role: .cancel) { close() }
+        } message: {
+            Text(event.summary)
+        }
+        .accessibilityAction(named: "Delete") { confirmingDelete = true }
+        .accessibilityAction(named: "Log again") {
+            guard canAgain else { return }
+            store.logAgain(event)
+        }
+    }
+
+    private func close() {
+        withAnimation(.spring(duration: 0.3, bounce: 0.1)) { offset = 0 }
+    }
+
+    private func action(_ title: String, symbol: String, tint: Color, perform: @escaping () -> Void) -> some View {
+        Button(action: perform) {
+            VStack(spacing: 4) {
+                Image(systemName: symbol)
+                    .font(.body.weight(.semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 46, height: 46)
+                    .background(tint, in: Circle())
+                Text(title).font(.caption).foregroundStyle(Palette.muted)
+            }
+            .frame(width: reveal)
+        }
+        .buttonStyle(PressStyle())
+        .accessibilityHidden(true)
+    }
+}

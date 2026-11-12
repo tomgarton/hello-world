@@ -52,6 +52,19 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_FILE: PuggleWidgets/Info.plist
         GENERATE_INFOPLIST_FILE: NO
+  # The store's logic, tested against an in-memory database.
+  PuggleTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: PuggleTests
+    dependencies:
+      - target: Puggle
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1"
 schemes:
   Puggle:
     build:
@@ -67,3 +80,7 @@ schemes:
         Puggle: all
     run:
       config: Local
+    test:
+      config: Local
+      targets:
+        - PuggleTests

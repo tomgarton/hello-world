@@ -151,6 +151,7 @@ struct TodayView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
                     .animation(.spring(duration: 0.4, bounce: 0), value: store.lastSaved?.id)
+                    .animation(.spring(duration: 0.4, bounce: 0), value: store.justDeleted?.deletedAt)
             }
         }
         .sheet(item: $logging, onDismiss: {
@@ -515,10 +516,12 @@ struct TodaySoFar: View {
                 } else {
                     ForEach(Array(shown.enumerated()), id: \.element.objectID) { index, event in
                         if index > 0 { Divider().padding(.leading, 16 + EventRow.iconWell + EventRow.gap) }
-                        Button { onOpen(event) } label: { EventRow(event: event) }
-                            .buttonStyle(.plain)
-                            .padding(.horizontal, 16)
-                            .accessibilityHint("Opens this entry to change it")
+                        SwipeableEntryRow(event: event) {
+                            Button { onOpen(event) } label: { EventRow(event: event) }
+                                .buttonStyle(.plain)
+                                .padding(.horizontal, 16)
+                                .accessibilityHint("Opens this entry")
+                        }
                     }
                     if today.count > 6 {
                         Divider()
@@ -532,6 +535,7 @@ struct TodaySoFar: View {
                 }
             }
             .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
         }
     }
 }
@@ -542,7 +546,37 @@ struct LastSavedRow: View {
     let onChange: (Event) -> Void
 
     var body: some View {
-        if let saved = store.lastSaved {
+        if let gone = store.justDeleted {
+            // Straight after deleting: a way back, until the next save.
+            HStack(spacing: 8) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Deleted").font(.caption).foregroundStyle(Palette.muted)
+                    Text(gone.childNames.isEmpty ? gone.summary : "\(gone.childNames.joined(separator: ", ")): \(gone.summary)")
+                        .font(.subheadline.weight(.medium))
+                        .foregroundStyle(Palette.ink)
+                        .lineLimit(1)
+                }
+                .accessibilityElement(children: .combine)
+                Spacer(minLength: 0)
+                action("Undo") {
+                    Haptics.tap()
+                    store.restore(gone)
+                }
+                Button {
+                    withAnimation { store.justDeleted = nil }
+                } label: {
+                    Image(systemName: "xmark").font(.footnote.weight(.bold)).frame(width: 36, height: 44)
+                }
+                .foregroundStyle(Palette.muted)
+                .accessibilityLabel("Dismiss")
+            }
+            .padding(.leading, 14)
+            .padding(.trailing, 4)
+            .padding(.vertical, 6)
+            .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
+        } else if let saved = store.lastSaved {
             let events = saved.events.filter(\.isLive)
             if let first = events.first {
                 let names = ListFormatter.localizedString(byJoining: events.flatMap(\.sortedChildren).map(\.displayName))
