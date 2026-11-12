@@ -195,7 +195,7 @@ struct OnboardingView: View {
                 .focused($nameFocused)
                 .onSubmit { saveName() }
                 .font(.title3)
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 16)
                 .frame(minHeight: 56)
                 .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .padding(.top, 8)
@@ -333,7 +333,7 @@ struct OnboardingView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
             Text("You're set").displayFont(34)
-            Text("Tap a tile on Today to log something. Anything you chose here can be changed later.")
+            Text("Tap a tile on Today to log something. You can change any of this later.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
         } actions: {

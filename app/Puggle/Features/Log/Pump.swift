@@ -134,7 +134,7 @@ struct PumpSheet: View {
                             }
                     }
                 }
-                .padding(18)
+                .padding(16)
             }
             .background(Palette.sand)
             .navigationTitle(editing == nil ? "Pump" : "Edit pump")
@@ -148,7 +148,7 @@ struct PumpSheet: View {
                         .buttonStyle(PillButtonStyle())
                         .disabled(left + right <= 0)
                         .opacity(left + right > 0 ? 1 : 0.5)
-                        .padding(.horizontal, 18)
+                        .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(Palette.sand)
                 }
@@ -179,7 +179,7 @@ struct PumpSheet: View {
                     .background(Palette.field, in: Capsule())
                     .buttonStyle(PressStyle())
             }
-            Text("Pumps add to it; breast-milk bottles take from the fridge first. Update it after using or throwing some away.")
+            Text("Pumps add to it and breast-milk bottles take from it. Update it after throwing some away.")
                 .font(.footnote)
                 .foregroundStyle(Palette.muted)
         }

@@ -132,7 +132,7 @@ struct YouView: View {
                     EmptyView()
                 } footer: {
                     VStack(spacing: 6) {
-                        Text("Everything you log is kept on this phone, and in your own iCloud once sharing is on. There is no account with us.")
+                        Text("Everything stays on this phone, and in your own iCloud once sharing is on. There's no account with us.")
                         Text(version).monospacedDigit()
                         Text("This app is not a substitute for medical advice.")
                     }

@@ -215,7 +215,7 @@ struct LabelReaderView: View {
                         confirm(reading)
                     } else {
                         Section {
-                            Text("Nothing could be read. Try again with the box flat, in good light, and the text filling the photo.")
+                            Text("Nothing could be read. Try again with the box flat, in good light, close up.")
                                 .foregroundStyle(Palette.muted)
                         }
                         .listRowBackground(Palette.paper)
@@ -237,7 +237,7 @@ struct LabelReaderView: View {
                     .listRowBackground(Palette.paper)
                 } else {
                     Section {
-                        Text("Take a photo of the side of the box with the directions. The text is read on this phone and the photo is not kept.")
+                        Text("Photograph the side of the box with the directions. It's read on this phone and the photo isn't kept.")
                             .foregroundStyle(Palette.muted)
                     }
                     .listRowBackground(Palette.paper)
@@ -304,7 +304,7 @@ struct LabelReaderView: View {
         } header: {
             Text("Check each one against the box")
         } footer: {
-            Text("Only what you confirm is kept. The app checks doses against these; it never chooses a dose.")
+            Text("Only what you confirm is kept. The app checks doses against these, and never chooses one.")
         }
         .listRowBackground(Palette.paper)
         if !reading.dosingLines.isEmpty {

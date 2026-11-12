@@ -16,7 +16,7 @@ struct SummaryView: View {
                     Label("Share or print", systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(PillButtonStyle())
-                .padding(.horizontal, 18)
+                .padding(.horizontal, 16)
                 .padding(.vertical, 10)
             } else {
                 Spacer()

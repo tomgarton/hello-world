@@ -16,7 +16,7 @@ struct YourDataView: View {
                      : "Everything you log is kept on this iPhone only. This build does not use iCloud, so nothing leaves the phone and nothing is shared.")
                 Text("No ads, no tracking, no analytics.")
                 if store.isSample {
-                    Text("You are looking at the sample family. An export from here holds the made-up entries, not yours.")
+                    Text("This is the sample family, so an export holds the made-up entries.")
                 }
             }
             .listRowBackground(Palette.paper)
@@ -30,7 +30,7 @@ struct YourDataView: View {
                     Text("Preparing the export…").foregroundStyle(Palette.muted)
                 }
             } footer: {
-                Text("A plain CSV file of every entry, which opens in Numbers, Excel or any text editor.")
+                Text("Every entry as a spreadsheet file (CSV), for Numbers or Excel.")
             }
             .listRowBackground(Palette.paper)
 

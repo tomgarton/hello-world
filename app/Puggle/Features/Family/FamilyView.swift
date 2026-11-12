@@ -84,11 +84,11 @@ struct FamilyView: View {
                     } header: {
                         Text("Sharing")
                     } footer: {
-                        Text("Anyone you invite sees and logs the same day, on their own iPhone, with their own Apple Account.")
+                        Text("Anyone you invite sees and logs the same day on their own iPhone.")
                     }
                 } else {
                     Section {
-                        Text("This is a local build. Everything stays on this iPhone, and sharing is switched off.")
+                        Text("Test build: sharing is off, and everything stays on this iPhone.")
                             .foregroundStyle(Palette.muted)
                             .listRowBackground(Palette.paper)
                     } header: {

@@ -267,7 +267,7 @@ struct TileChooserView: View {
                         .listRowBackground(Palette.paper)
                     }
                 } footer: {
-                    Text("Up to three tiles on Today. The rest are in each child's panel, which opens when you tap their row. Sleep starts from each child's row. Hiding one keeps everything already logged.")
+                    Text("Up to three on Today. The rest are in each child's panel: tap their row. Hiding one keeps what's already logged.")
                 }
                 if custom {
                     Section {

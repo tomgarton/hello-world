@@ -122,16 +122,16 @@ struct EarnedStickersView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 if stickers.isEmpty {
-                    Text("Stickers appear here as \(child.displayName) earns them: a first food, a milestone, a finished stamp card.")
+                    Text("Stickers appear as \(child.displayName) earns them: a first food, a milestone, a full card.")
                         .foregroundStyle(Palette.muted)
                 } else {
                     EarnedStickersGrid(stickers: stickers)
                 }
-                Text("Stickers are for things that happened. There are no streaks, and nothing is ever taken away.")
+                Text("No streaks, and nothing is ever taken away.")
                     .font(.footnote)
                     .foregroundStyle(Palette.muted)
             }
-            .padding(18)
+            .padding(16)
             .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(Palette.sand)
@@ -175,7 +175,7 @@ struct StampBookView: View {
                         book(for: child)
                     }
                 }
-                .padding(18)
+                .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .background(Palette.sand)

@@ -111,12 +111,12 @@ struct EventRow: View {
 
     /// The same space above and below, everywhere a row is used.
     static let verticalPadding: CGFloat = 13
-    static let iconWell: CGFloat = 42
+    static let iconWell: CGFloat = 44
     static let gap: CGFloat = 14
 
     var body: some View {
         HStack(alignment: .center, spacing: Self.gap) {
-            ActivityIcon(event.kind, size: 22, plain: true)
+            ActivityIcon(event.kind, size: 24, plain: true)
                 .frame(width: Self.iconWell, height: Self.iconWell)
                 .background(Palette.field, in: Circle())
             VStack(alignment: .leading, spacing: 6) {

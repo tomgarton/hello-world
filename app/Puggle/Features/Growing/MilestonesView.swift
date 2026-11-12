@@ -14,7 +14,7 @@ struct MilestonesView: View {
         let milestones = store.milestones(for: child)
         List {
             if milestones.isEmpty {
-                Text("The moments worth keeping go here: a first smile, first steps, or anything you want to remember.")
+                Text("First smiles, first steps, and anything else worth remembering.")
                     .foregroundStyle(Palette.muted)
                     .listRowBackground(Palette.paper)
             }

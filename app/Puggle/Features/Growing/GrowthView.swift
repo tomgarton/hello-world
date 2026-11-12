@@ -52,7 +52,7 @@ struct GrowthView: View {
                 Button("Add a weight") { adding = true }
                     .listRowBackground(Palette.paper)
             } footer: {
-                Text("These are the numbers you entered. For what they mean for \(child.displayName), your child health nurse or GP is the one to ask.")
+                Text("The numbers you entered. For what they mean, ask your child health nurse or GP.")
             }
         }
         .scrollContentBackground(.hidden)

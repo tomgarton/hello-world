@@ -82,7 +82,7 @@ struct SettingsView: View {
         } header: {
             Text("You")
         } footer: {
-            Text("Shown beside what you log from now on, so the family can see who added it. Leave it empty to add entries without a name.")
+            Text("Shown beside what you log, so the family can see who added it. Optional.")
         }
         .listRowBackground(Palette.paper)
     }
@@ -96,7 +96,7 @@ struct SettingsView: View {
         } header: {
             Text("Look and feel")
         } footer: {
-            Text("Touch feedback is a small tap you can feel when something is saved or a choice changes.")
+            Text("A small tap you feel when something is saved.")
         }
         .listRowBackground(Palette.paper)
     }
@@ -113,8 +113,8 @@ struct SettingsView: View {
             Text("Today")
         } footer: {
             Text(justLog
-                 ? "Today shows names and tiles only. Nothing counts up and nothing is totalled, and Insights is hidden. Everything is still saved."
-                 : "Today shows how long since the last feed and each child's day so far, and Insights shows the week.")
+                 ? "Just the buttons for logging. No timers, totals or Insights. Everything is still saved."
+                 : "Timers, totals for the day, and Insights for the week.")
         }
         .listRowBackground(Palette.paper)
     }
@@ -125,7 +125,7 @@ struct SettingsView: View {
                 Toggle("Last feed on the Lock Screen", isOn: $glanceOn)
                     .onChange(of: glanceOn) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
             } footer: {
-                Text("For babies: how long since the last feed and since they woke, on the Lock Screen and in the Dynamic Island, for up to eight hours. Running sleeps and feeds always show there.")
+                Text("Time since the last feed, on the Lock Screen and in the Dynamic Island. Sleep and feed timers always show there.")
             }
             .listRowBackground(Palette.paper)
         }
@@ -135,7 +135,7 @@ struct SettingsView: View {
         Section {
             Toggle("Stamps after the potty", isOn: $stickersOn)
         } footer: {
-            Text("After a wee, a poo or a try, the phone offers a stamp for their card. Five stamps earn a shiny sticker.")
+            Text("After the potty, your child stamps a card. Five stamps earn a shiny sticker.")
         }
         .listRowBackground(Palette.paper)
     }
@@ -153,16 +153,19 @@ struct SettingsView: View {
         } header: {
             Text("Privacy")
         } footer: {
-            Text("Asks for Face ID or your passcode each time the app is opened. The Lock Screen timer and Siri keep working.")
+            Text("Face ID each time the app opens. Siri and the Lock Screen timer still work.")
         }
         .listRowBackground(Palette.paper)
     }
 
     private var outsideSection: some View {
         Section {
-            Text("Siri, the Action button and Shortcuts can start a sleep, log a nappy or a bottle, and tell you the last feed. For a dark look at night, add the Night look filter to your Sleep Focus in the Settings app. Help has the words to say.")
-                .font(.subheadline)
-                .foregroundStyle(Palette.muted)
+            NavigationLink { SiriView() } label: {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Siri and shortcuts")
+                    Text("Ready to use. See what to say.").font(.footnote).foregroundStyle(Palette.muted)
+                }
+            }
         } header: {
             Text("Without opening the app")
         }
@@ -178,8 +181,8 @@ struct SettingsView: View {
             }
         } footer: {
             Text(sample.isOn
-                 ? "You are looking at made-up entries. Your own family is untouched and comes back when you leave."
-                 : "Two made-up children with two weeks of entries, so you can see every screen with something in it. Your own family is untouched, and nothing you do there is kept.")
+                 ? "These entries are made up. Your own family comes back when you leave."
+                 : "Two made-up children and two weeks of entries, to see every screen filled in. Your family is untouched.")
         }
         .listRowBackground(Palette.paper)
     }

@@ -38,7 +38,7 @@ struct FeedTimerView: View {
                     }
                     .buttonStyle(PillButtonStyle(primary: false))
                 }
-                .padding(18)
+                .padding(16)
             }
             .background(Palette.sand)
             .navigationTitle("Breastfeed")

@@ -334,8 +334,8 @@ struct TodayView: View {
             Button("Add a child") { addingChild = true }
                 .buttonStyle(PillButtonStyle())
         }
-        .padding(18)
-        .background(Palette.card, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
+        .padding(16)
+        .background(Palette.card, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 }
 
@@ -361,7 +361,7 @@ struct ChildStatusRow: View {
             Button("Cancel", role: .cancel) {}
         } message: { sleep in
             let woke = (sleep.endedAt ?? .now).formatted(date: .omitted, time: .shortened)
-            Text("\(child.displayName) woke at \(woke). Carrying on keeps the night as one sleep, with the waking in it.")
+            Text("\(child.displayName) woke at \(woke). Carry on to keep the night as one sleep.")
         }
     }
 
@@ -679,7 +679,7 @@ struct DaySoFarView: View {
                         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                     }
                 }
-                .padding(18)
+                .padding(16)
                 .foregroundStyle(Palette.ink)
             }
             .background(Palette.sand)

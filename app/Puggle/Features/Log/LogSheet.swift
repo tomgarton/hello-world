@@ -80,7 +80,7 @@ struct LogSheet: View {
                             }
                     }
                 }
-                .padding(18)
+                .padding(16)
             }
             .background(Palette.sand)
             .navigationTitle(isEditing ? "Edit \(kind.title.lowercased())" : kind.title)
@@ -103,7 +103,7 @@ struct LogSheet: View {
                         .buttonStyle(PillButtonStyle())
                         .disabled(!canSave)
                         .opacity(canSave ? 1 : 0.5)
-                        .padding(.horizontal, 18)
+                        .padding(.horizontal, 16)
                         .padding(.vertical, 8)
                         .background(Palette.sand)
                 }
@@ -578,7 +578,7 @@ struct LogSheet: View {
                 field("Dose, as on the label or as prescribed", text: $doseText)
                 ruleField("Smallest gap, in hours", text: $gapText, keyboard: .decimalPad)
                 ruleField("Most doses in 24 hours", text: $limitText, keyboard: .numberPad)
-                Text("Copy these from the box or the prescription. The app asks once before a dose that goes past them, and never suggests a dose, a gap or a limit.")
+                Text("From the box or prescription. The app asks before a dose that goes past them, and never suggests one.")
                     .font(.footnote)
                     .foregroundStyle(Palette.muted)
                 timeRow("Time", $time)

@@ -207,7 +207,7 @@ struct RemindersView: View {
         List {
             if !reminders.allowed {
                 Section {
-                    Text("Notifications are off for this app, so reminders cannot show. You can switch them on in the Settings app.")
+                    Text("Notifications are off for this app, so reminders can't show.")
                     Button("Open Settings") {
                         if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
                             UIApplication.shared.open(url)
@@ -229,7 +229,7 @@ struct RemindersView: View {
                     offsets.map { reminders.reminders[$0] }.forEach(reminders.delete)
                 }
             } footer: {
-                Text("Reminders are kept on this iPhone and are only for you. Nobody else in the family gets them, and nobody can switch one on for you.")
+                Text("Reminders are just for you, on this iPhone. Nobody else in the family gets them.")
             }
             .listRowBackground(Palette.paper)
 
@@ -352,7 +352,7 @@ private struct ReminderEditor: View {
         .listRowBackground(Palette.paper)
         Section {
         } footer: {
-            Text("One notification, counted from the last bottle or breastfeed logged by anyone. The time is yours to choose; the app does not suggest one.")
+            Text("Counted from the last feed anyone logged. You choose the time; the app doesn't suggest one.")
         }
     }
 
@@ -368,7 +368,7 @@ private struct ReminderEditor: View {
             .onDelete { reminder.times.remove(atOffsets: $0) }
             Button("Add a time") { reminder.times.append(min((reminder.times.last ?? 480) + 240, 23 * 60)) }
         } footer: {
-            Text("Shows on Today as due from an hour before each time, and goes once a dose is logged. Nothing turns red if it is later.")
+            Text("Shows as due on Today from an hour before, and goes once a dose is logged.")
         }
     }
 
