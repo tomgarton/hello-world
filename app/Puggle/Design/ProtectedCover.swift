@@ -77,13 +77,18 @@ private struct ProtectedCover<Item: Identifiable, Cover: View>: ViewModifier {
         cover.windowLevel = .normal + 1
         cover.rootViewController = controller
         cover.overrideUserInterfaceStyle = scene.windows.first?.overrideUserInterfaceStyle ?? .unspecified
-        // Slides up from the bottom, as a full-screen cover does.
-        let height = scene.coordinateSpace.bounds.height
-        cover.transform = CGAffineTransform(translationX: 0, y: height)
+        cover.backgroundColor = .clear
+        cover.frame = scene.coordinateSpace.bounds
         cover.makeKeyAndVisible()
         window = cover
+        // Slides up from the bottom, as a full-screen cover does. The screen
+        // moves inside its window: moving the window itself sends it astray.
+        let view = controller.view!
+        view.frame = cover.bounds
+        view.layoutIfNeeded()
+        view.transform = CGAffineTransform(translationX: 0, y: cover.bounds.height)
         UIView.animate(withDuration: 0.42, delay: 0, usingSpringWithDamping: 1, initialSpringVelocity: 0) {
-            cover.transform = .identity
+            view.transform = .identity
         }
         controller.setNeedsUpdateOfScreenEdgesDeferringSystemGestures()
         controller.setNeedsUpdateOfHomeIndicatorAutoHidden()
@@ -93,8 +98,9 @@ private struct ProtectedCover<Item: Identifiable, Cover: View>: ViewModifier {
         guard let cover = window else { return }
         window = nil
         let height = cover.bounds.height
+        let view = cover.rootViewController?.view
         UIView.animate(withDuration: 0.32, delay: 0, options: .curveEaseIn) {
-            cover.transform = CGAffineTransform(translationX: 0, y: height)
+            view?.transform = CGAffineTransform(translationX: 0, y: height)
         } completion: { _ in
             cover.isHidden = true
             cover.rootViewController = nil
