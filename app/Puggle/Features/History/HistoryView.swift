@@ -101,6 +101,7 @@ struct HistoryView: View {
 
 struct EventRow: View {
     @ObservedObject var event: Event
+    @Environment(\.dynamicTypeSize) private var textSize
 
     /// The same space above and below, everywhere a row is used.
     static let verticalPadding: CGFloat = 13
@@ -126,9 +127,13 @@ struct EventRow: View {
                 if let note = event.note, !note.isEmpty {
                     Text(note).font(.footnote).foregroundStyle(Palette.muted).lineLimit(2)
                 }
+                // At the largest text sizes the time sits under the rest, not beside it.
+                if textSize.isAccessibilitySize, let at = event.startedAt {
+                    Text(at, style: .time).font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
+                }
             }
             Spacer(minLength: 8)
-            if let at = event.startedAt {
+            if !textSize.isAccessibilitySize, let at = event.startedAt {
                 Text(at, style: .time).font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
             }
         }

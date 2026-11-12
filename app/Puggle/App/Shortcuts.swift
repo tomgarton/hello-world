@@ -123,7 +123,7 @@ struct LogNappyIntent: AppIntent {
         let store = FamilyStore.live
         let who = try store.child(for: child)
         store.logEach(.nappy, for: [who], detail: nappy.detail)
-        return .result(dialog: "Saved a \(nappy.rawValue) nappy for \(child.name).")
+        return .result(dialog: "Saved a \(nappy.rawValue) \(Terms.nappyLower) for \(child.name).")
     }
 }
 
@@ -185,8 +185,11 @@ struct PuggleShortcuts: AppShortcutsProvider {
                               "\(\.$child) woke up in \(.applicationName)"],
                     shortTitle: "Woke up", systemImageName: "sun.max")
         AppShortcut(intent: LogNappyIntent(),
+                    // Both words work, wherever the phone is set.
                     phrases: ["Log a nappy in \(.applicationName)",
-                              "Log a nappy for \(\.$child) in \(.applicationName)"],
+                              "Log a nappy for \(\.$child) in \(.applicationName)",
+                              "Log a diaper in \(.applicationName)",
+                              "Log a diaper for \(\.$child) in \(.applicationName)"],
                     shortTitle: "Log a nappy", systemImageName: "drop")
         AppShortcut(intent: LogBottleIntent(),
                     phrases: ["Log a bottle in \(.applicationName)",

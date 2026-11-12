@@ -97,7 +97,7 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .breastfeed: "Breastfeed"
         case .solids: "Solids"
         case .sleep: "Sleep"
-        case .nappy: "Nappy"
+        case .nappy: Terms.nappy
         case .potty: "Potty"
         case .note: "Note"
         case .weight: "Weight"
@@ -200,7 +200,7 @@ extension Event {
     var brief: String {
         switch kind {
         case .bottle:
-            return amountML > 0 ? "Bottle · \(Int(amountML)) ml" : "Bottle"
+            return amountML > 0 ? "Bottle · \(Units.volume(amountML))" : "Bottle"
         case .breastfeed:
             let timed = leftSeconds + rightSeconds
             if timed > 0 { return "Breastfeed · \(Elapsed.minutes(timed))" }
@@ -220,7 +220,7 @@ extension Event {
     var summary: String {
         switch kind {
         case .bottle:
-            let ml = amountML > 0 ? " · \(Int(amountML)) ml" : ""
+            let ml = amountML > 0 ? " · \(Units.volume(amountML))" : ""
             let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
             return "Bottle\(ml)\(what)"
         case .sleep:
@@ -246,24 +246,24 @@ extension Event {
         case .note:
             return note ?? "Note"
         case .weight:
-            return "Weight \(Int(value).formatted()) g"
+            return "Weight \(Units.weight(value))"
         case .medicine:
             let name = (detail ?? "").isEmpty ? "Medicine" : detail!
             let amount = (dose ?? "").isEmpty ? "" : " · \(dose!)"
             return "\(name)\(amount)"
         case .temperature:
             let place = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
-            return "Temperature \(value.formatted(.number.precision(.fractionLength(1)))) °C\(place)"
+            return "Temperature \(Units.temperature(value))\(place)"
         case .vaccination:
             return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination · \(detail!)"
         case .milestone:
             return (detail ?? "").isEmpty ? "Milestone" : detail!
         case .pump:
             if detail == Pump.count {
-                return "Milk on hand · fridge \(Int(value)) ml · freezer \(Int(amountML)) ml"
+                return "Milk on hand · fridge \(Units.volume(value)) · freezer \(Units.volume(amountML))"
             }
             let place = (detail ?? "").isEmpty ? "" : " · \(Pump.placeText(detail!))"
-            return "Pumped · \(Int(amountML)) ml\(place)"
+            return "Pumped · \(Units.volume(amountML))\(place)"
         }
     }
 }

@@ -143,6 +143,14 @@ struct RootView: View {
                     SplashView().transition(.opacity)
                 }
             }
+            #if DEBUG
+            // For the automated audit: "-uitest 1" opens the sample family with no splash.
+            .task {
+                guard UserDefaults.standard.string(forKey: "uitest") == "1" else { return }
+                splashing = false
+                sample.start()
+            }
+            #endif
             // The splash waits behind the lock, so it is seen once Face ID is done.
             .task(id: appLocked) {
                 guard splashing, !appLocked else { return }

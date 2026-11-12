@@ -141,7 +141,7 @@ struct FamilyWidget: Widget {
             FamilyWidgetView(entry: entry)
         }
         .configurationDisplayName("The family")
-        .description("Every child, with buttons for a sleep and a nappy.")
+        .description("Every child, with buttons for a sleep and \(Terms.aNappy).")
         .supportedFamilies([.systemMedium])
     }
 }
@@ -189,7 +189,7 @@ private struct FamilyWidgetView: View {
             }
             Spacer(minLength: 4)
             if child.usesNappies && !compact {
-                button("Nappy", symbol: "drop", action: TimerActions.nappyWet, child: child, filled: false)
+                button(Terms.nappy, symbol: "drop", action: TimerActions.nappyWet, child: child, filled: false)
             }
             if child.asleepSince != nil {
                 button("Woke", symbol: "sun.max", action: TimerActions.wokeUp, child: child, filled: true)
@@ -211,7 +211,7 @@ private struct FamilyWidgetView: View {
                 .background(filled ? WTone.ink : WTone.field, in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(action == TimerActions.nappyWet ? "Log a wet nappy for \(child.name)"
+        .accessibilityLabel(action == TimerActions.nappyWet ? "Log a wet \(Terms.nappyLower) for \(child.name)"
                             : action == TimerActions.wokeUp ? "\(child.name) woke up" : "Start \(child.name)'s sleep")
     }
 }

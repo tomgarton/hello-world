@@ -201,7 +201,7 @@ struct OnboardingView: View {
             OnboardingTiles()
                 .padding(.vertical, 20)
             Text("Log the day in a tap or two").displayFont(34)
-            Text("Feeds, sleeps, nappies and the potty, for every child you have.")
+            Text("Feeds, sleeps, \(Terms.nappiesLower) and the potty, for every child you have.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
         } actions: {

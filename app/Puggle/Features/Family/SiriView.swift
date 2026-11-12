@@ -14,7 +14,7 @@ struct SiriView: View {
     private var phrases: [(symbol: String, words: String, does: String)] {
         [("moon", "Start sleep for \(name) in Puggle", "Starts the sleep timer"),
          ("sun.max", "\(name) woke up in Puggle", "Ends it"),
-         ("drop", "Log a nappy for \(name) in Puggle", "Saves a wet nappy. Change it in the app if not"),
+         ("drop", "Log \(Terms.aNappy) for \(name) in Puggle", "Saves a wet \(Terms.nappyLower). Change it in the app if not"),
          ("waterbottle", "Log a bottle for \(name) in Puggle", "Asks how much"),
          ("clock", "When was \(name) last fed in Puggle", "Tells you, out loud")]
     }

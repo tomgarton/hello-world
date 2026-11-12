@@ -165,7 +165,7 @@ struct ChildInsights: View {
                                                 text: $0.bottleML > 0 ? "\(Int($0.bottleML))" : "–") })
             }
             if days.contains(where: { $0.nappies > 0 }) {
-                WeekBars(title: "Nappies", unit: "nappies",
+                WeekBars(title: Terms.nappies, unit: Terms.nappiesLower,
                          bars: days.map { .init(label: $0.label, spoken: $0.spoken, value: Double($0.nappies),
                                                 text: $0.nappies > 0 ? "\($0.nappies)" : "–") })
             }

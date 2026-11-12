@@ -70,6 +70,21 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle.tests
         GENERATE_INFOPLIST_FILE: YES
         TARGETED_DEVICE_FAMILY: "1"
+  # Apple's accessibility audit on the main screens. Not in the test scheme:
+  # the app's animations mean it never goes idle, so the audit waits. Run it by hand.
+  PuggleUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: PuggleUITests
+    dependencies:
+      - target: Puggle
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TARGETED_DEVICE_FAMILY: "1"
+        TEST_TARGET_NAME: Puggle
 schemes:
   Puggle:
     build:

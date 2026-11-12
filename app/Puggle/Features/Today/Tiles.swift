@@ -78,6 +78,7 @@ struct TileButton: View {
     let children: [Child]
     var large = true
     let onAdd: (EventKind) -> Void
+    @Environment(\.dynamicTypeSize) private var textSize
     let onEdit: (Event) -> Void
 
     private var entries: [(child: Child, event: Event)] {
@@ -134,7 +135,24 @@ struct TileButton: View {
     }
 
     @ViewBuilder private func face(_ latest: String) -> some View {
-        if large {
+        if large && textSize.isAccessibilitySize {
+            // Largest text: icon beside the words, full width, so nothing is cut off.
+            HStack(spacing: 14) {
+                ActivityIcon(named: tile.iconName, size: 40)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(tile.title).font(.headline)
+                    if !latest.isEmpty {
+                        Text(latest).font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity)
+            .foregroundStyle(Palette.ink)
+            .background(Palette.card, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        } else if large {
             VStack(spacing: 4) {
                 ActivityIcon(named: tile.iconName, size: 40)
                 Text(tile.title)

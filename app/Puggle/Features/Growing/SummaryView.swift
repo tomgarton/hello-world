@@ -155,7 +155,7 @@ struct SummaryPDF {
 
         // The week, one row a day.
         y += text("The last \(days) days", at: CGPoint(x: margin, y: y), font: heading) + 8
-        let columns: [(String, CGFloat)] = [("Day", 0), ("Bottles", 95), ("Breastfeeds", 205), ("Sleep", 285), ("Nappies", 345), ("Potty", 425), ("Solids", 465)]
+        let columns: [(String, CGFloat)] = [("Day", 0), ("Bottles", 95), ("Breastfeeds", 205), ("Sleep", 285), (Terms.nappies, 345), ("Potty", 425), ("Solids", 465)]
         for (label, x) in columns {
             _ = text(label, at: CGPoint(x: margin + x, y: y), font: small, colour: grey)
         }
@@ -164,7 +164,7 @@ struct SummaryPDF {
         for row in table {
             let cells: [String] = [
                 row.day.formatted(.dateTime.weekday(.abbreviated).day().month(.abbreviated)),
-                row.bottles == 0 ? "–" : (row.bottleML > 0 ? "\(row.bottles), \(Int(row.bottleML)) ml" : "\(row.bottles)"),
+                row.bottles == 0 ? "–" : (row.bottleML > 0 ? "\(row.bottles), \(Units.volume(row.bottleML))" : "\(row.bottles)"),
                 row.breastfeeds == 0 ? "–" : "\(row.breastfeeds)",
                 row.sleep < 60 ? "–" : Elapsed.short(from: Date.now.addingTimeInterval(-row.sleep), to: .now),
                 row.nappies == 0 ? "–" : (row.dirty > 0 ? "\(row.nappies) (\(row.dirty) dirty)" : "\(row.nappies)"),

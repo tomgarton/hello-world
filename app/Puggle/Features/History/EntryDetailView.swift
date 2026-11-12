@@ -146,7 +146,7 @@ struct EntrySwipeActions: ViewModifier {
                 } label: {
                     Label("Delete", systemImage: "trash")
                 }
-                .tint(Palette.waratah)
+                .tint(Palette.waratahFill)
             }
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
                 if store.canLogAgain(event) {
@@ -173,7 +173,7 @@ struct EntrySwipeActions: ViewModifier {
 
 extension Palette {
     /// A calm blue for a positive swipe action.
-    static let moonDeep = Color(light: 0x4A6FA5, dark: 0x6E93C9, night: 0x56739C)
+    static let moonDeep = Color(light: 0x4A6FA5, dark: 0x5A7FB8, night: 0x56739C)
 }
 
 extension View {
@@ -249,7 +249,7 @@ struct SwipeableEntryRow<Content: View>: View {
                     .opacity(offset > 12 ? 1 : 0)
                 }
                 Spacer(minLength: 0)
-                action("Delete", symbol: "trash", tint: Palette.waratah) {
+                action("Delete", symbol: "trash", tint: Palette.waratahFill) {
                     confirmingDelete = true
                 }
                 .opacity(offset < -12 ? 1 : 0)

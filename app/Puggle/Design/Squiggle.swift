@@ -36,7 +36,28 @@ struct SquiggleLabel: View {
             .frame(maxWidth: .infinity)
     }
 
+    @Environment(\.dynamicTypeSize) private var textSize
+
     var body: some View {
+        if textSize.isAccessibilitySize, let text {
+            // At the largest sizes the words wrap, with the line underneath.
+            VStack(spacing: 6) {
+                Text(text)
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Palette.muted)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                line
+            }
+            .accessibilityElement()
+            .accessibilityLabel(text)
+            .accessibilityAddTraits(.isHeader)
+        } else {
+            row
+        }
+    }
+
+    private var row: some View {
         HStack(spacing: 12) {
             line
             if let text {

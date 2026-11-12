@@ -39,7 +39,7 @@ struct GrowthView: View {
                                     .foregroundStyle(Palette.muted)
                             }
                             Spacer()
-                            Text("\(Int(event.value).formatted()) g")
+                            Text(Units.weight(event.value))
                                 .font(.body.weight(.semibold))
                                 .monospacedDigit()
                         }

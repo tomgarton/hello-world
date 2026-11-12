@@ -38,7 +38,7 @@ private struct SampleData {
     let store: FamilyStore
     private let calendar = Calendar.current
     private let now = Date.now
-    private let people = ["Mum", "Dad", "Nan"]
+    private let people = [Terms.mum, "Dad", "Nan"]
 
     /// A steady pseudo-random number in 0..<range for a day and a slot.
     private func wobble(_ day: Int, _ slot: Int, _ range: Int) -> Int {

@@ -90,6 +90,8 @@ struct UnitsSettingsView: View {
     @AppStorage(Setting.volumeUnit) private var volumeUnit = "ml"
     @AppStorage(Setting.weightUnit) private var weightUnit = "g"
     @AppStorage(Setting.temperatureUnit) private var temperatureUnit = "c"
+    /// Only to redraw when the words change; the choice itself lives in Terms.
+    @State private var words = Terms.style.rawValue
 
     var body: some View {
         List {
@@ -98,13 +100,24 @@ struct UnitsSettingsView: View {
                 weightPicker
                 temperaturePicker
             } footer: {
-                Text("Coming soon: entries are still shown in millilitres, grams and Celsius.")
+                Text("Changes how amounts are shown and typed. Entries already saved don't change.")
+            }
+            .listRowBackground(Palette.paper)
+            Section {
+                Picker("Words", selection: Binding(get: { Terms.style }, set: { Terms.style = $0; words = $0.rawValue })) {
+                    Text("As this iPhone's region").tag(Terms.Style.auto)
+                    Text("Nappy, Mum").tag(Terms.Style.nappy)
+                    Text("Diaper, Mom").tag(Terms.Style.diaper)
+                }
+                .id(words)
+            } footer: {
+                Text("Now: \(Terms.nappy), \(Terms.mum).")
             }
             .listRowBackground(Palette.paper)
         }
         .scrollContentBackground(.hidden)
         .background(Palette.sand)
-        .navigationTitle("Units")
+        .navigationTitle("Units and words")
         .navigationBarTitleDisplayMode(.inline)
     }
 

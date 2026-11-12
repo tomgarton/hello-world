@@ -112,7 +112,7 @@ struct YouView: View {
                 Section("Make it yours") {
                     NavigationLink("Appearance and night") { AppearanceSettingsView() }
                     NavigationLink("Reminders") { RemindersView() }
-                    NavigationLink("Units") { UnitsSettingsView() }
+                    NavigationLink("Units and words") { UnitsSettingsView() }
                     Button("Tiles on Today") { choosingTiles = true }
                 }
                 .listRowBackground(Palette.paper)

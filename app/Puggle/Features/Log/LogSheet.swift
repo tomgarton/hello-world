@@ -423,21 +423,24 @@ struct LogSheet: View {
                     ForEach(chosenChildren) { child in ownAmountRow(child) }
                 } else {
                     HStack {
-                        stepButton("minus", label: "Less") { amount = max(10, amount - 10) }
+                        stepButton("minus", label: "Less") { amount = max(10, amount - Units.volumeStep) }
                         Spacer()
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            TextField("0", value: $amount, format: .number.precision(.fractionLength(0)))
-                                .keyboardType(.numberPad)
+                            // Shown and typed in the parent's units; stored in millilitres.
+                            TextField("0", value: Binding(get: { Units.volumeValue(amount) },
+                                                          set: { amount = Units.volumeFromValue($0) }),
+                                      format: .number.precision(.fractionLength(0...2)))
+                                .keyboardType(Units.ounces ? .decimalPad : .numberPad)
                                 .focused($amountFocused)
                                 .displayFont(64)
                                 .monospacedDigit()
                                 .multilineTextAlignment(.trailing)
                                 .fixedSize()
-                                .accessibilityLabel("Amount in millilitres")
-                            Text("ml").foregroundStyle(Palette.muted)
+                                .accessibilityLabel(Units.ounces ? "Amount in ounces" : "Amount in millilitres")
+                            Text(Units.volumeUnit).foregroundStyle(Palette.muted)
                         }
                         Spacer()
-                        stepButton("plus", label: "More") { amount = min(400, amount + 10) }
+                        stepButton("plus", label: "More") { amount = min(400, amount + Units.volumeStep) }
                     }
                 }
                 Picker("Milk", selection: $milk) {
@@ -447,7 +450,7 @@ struct LogSheet: View {
                 if milk == "Breast milk", !isEditing {
                     let onHand = store.milkOnHand()
                     if onHand.total > 0 {
-                        Text("On hand: \(Int(onHand.fridge)) ml in the fridge, \(Int(onHand.freezer)) ml in the freezer.")
+                        Text("On hand: \(Units.volume(onHand.fridge)) in the fridge, \(Units.volume(onHand.freezer)) in the freezer.")
                             .font(.footnote)
                             .foregroundStyle(Palette.muted)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -586,7 +589,8 @@ struct LogSheet: View {
             }
         case .temperature:
             VStack(alignment: .leading, spacing: 16) {
-                bigNumber("0.0", value: $temperature, digits: 1, unit: "°C", label: "Temperature in degrees Celsius")
+                bigNumber("0.0", value: Binding(get: { temperature.map(Units.temperatureValue) }, set: { temperature = $0.map(Units.temperatureFromValue) }),
+                          digits: 1, unit: Units.temperatureUnit, label: Units.fahrenheit ? "Temperature in degrees Fahrenheit" : "Temperature in degrees Celsius")
                 HStack(spacing: 8) {
                     ForEach(["Ear", "Forehead", "Underarm", "Mouth"], id: \.self) { option in
                         chip(option, isOn: place == option) { place = (place == option ? "" : option) }
@@ -603,7 +607,7 @@ struct LogSheet: View {
             }
         case .weight:
             VStack(alignment: .leading, spacing: 16) {
-                bigNumber("0", value: $grams, digits: 0, unit: "g", label: "Weight in grams")
+                weightInput
                 if let change = weightChange {
                     Text(change).foregroundStyle(Palette.muted)
                 }
@@ -649,19 +653,21 @@ struct LogSheet: View {
         return HStack(spacing: 10) {
             ChildChip(child: child)
             Spacer(minLength: 0)
-            smallStep("minus", label: "Less for \(child.displayName)") { amounts[key] = max(10, ownAmount(child) - 10) }
+            smallStep("minus", label: "Less for \(child.displayName)") { amounts[key] = max(10, ownAmount(child) - Units.volumeStep) }
             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                TextField("0", value: value, format: .number.precision(.fractionLength(0)))
-                    .keyboardType(.numberPad)
+                TextField("0", value: Binding(get: { Units.volumeValue(value.wrappedValue) },
+                                              set: { value.wrappedValue = Units.volumeFromValue($0) }),
+                          format: .number.precision(.fractionLength(0...2)))
+                    .keyboardType(Units.ounces ? .decimalPad : .numberPad)
                     .displayFont(34)
                     .monospacedDigit()
                     .multilineTextAlignment(.trailing)
                     .fixedSize()
-                    .accessibilityLabel("\(child.displayName)'s amount in millilitres")
-                Text("ml").foregroundStyle(Palette.muted)
+                    .accessibilityLabel("\(child.displayName)'s amount in \(Units.ounces ? "ounces" : "millilitres")")
+                Text(Units.volumeUnit).foregroundStyle(Palette.muted)
             }
             .frame(minWidth: 96, alignment: .trailing)
-            smallStep("plus", label: "More for \(child.displayName)") { amounts[key] = min(400, ownAmount(child) + 10) }
+            smallStep("plus", label: "More for \(child.displayName)") { amounts[key] = min(400, ownAmount(child) + Units.volumeStep) }
         }
         .padding(.horizontal, 14)
         .frame(minHeight: 64)
@@ -683,15 +689,46 @@ struct LogSheet: View {
         .accessibilityLabel(label)
     }
 
+    /// Grams, or pounds and ounces side by side; stored in grams either way.
+    @ViewBuilder private var weightInput: some View {
+        if Units.pounds {
+            let totalOunces = (grams ?? 0) / Units.gramsPerOunce
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Spacer()
+                TextField("0", value: Binding(get: { grams == nil ? nil : Double(Int(totalOunces.rounded()) / 16) },
+                                              set: { lb in
+                                                  let oz = Double(Int(totalOunces.rounded()) % 16)
+                                                  grams = ((lb ?? 0) * 16 + oz) * Units.gramsPerOunce
+                                              }),
+                          format: .number.precision(.fractionLength(0)))
+                    .keyboardType(.numberPad).displayFont(56).monospacedDigit()
+                    .multilineTextAlignment(.trailing).fixedSize()
+                    .accessibilityLabel("Weight, pounds")
+                Text("lb").foregroundStyle(Palette.muted)
+                TextField("0", value: Binding(get: { grams == nil ? nil : Double(Int(totalOunces.rounded()) % 16) },
+                                              set: { oz in
+                                                  let lb = Double(Int(totalOunces.rounded()) / 16)
+                                                  grams = (lb * 16 + min(max(oz ?? 0, 0), 15)) * Units.gramsPerOunce
+                                              }),
+                          format: .number.precision(.fractionLength(0)))
+                    .keyboardType(.numberPad).displayFont(56).monospacedDigit()
+                    .multilineTextAlignment(.trailing).fixedSize()
+                    .accessibilityLabel("and ounces")
+                Text("oz").foregroundStyle(Palette.muted)
+                Spacer()
+            }
+        } else {
+            bigNumber("0", value: $grams, digits: 0, unit: "g", label: "Weight in grams")
+        }
+    }
+
     /// The change from the first weight logged, as a plain number. The app
     /// does not say whether it is fine.
     private var weightChange: String? {
         guard chosenChildren.count == 1, let child = chosenChildren.first,
               let first = store.firstWeight(for: child), first != editing,
               let now = grams, now > 0 else { return nil }
-        let diff = Int(now - first.value)
-        let sign = diff > 0 ? "+" : ""
-        return "Change since the first weight logged: \(sign)\(diff.formatted()) g"
+        return "Change since the first weight logged: \(Units.weightChange(now - first.value))"
     }
 
     /// Foods this family has logged before, newest first.

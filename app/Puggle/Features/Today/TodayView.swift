@@ -17,6 +17,7 @@ struct TodayView: View {
     @AppStorage(Setting.yourName) private var yourName = ""
     @AppStorage(Setting.justLog) private var justLog = false
     @State private var pumping = false
+    @Environment(\.dynamicTypeSize) private var textSize
     @State private var feedTimer = false
     @State private var pastFeed = false
     @State private var editing: EditTarget?
@@ -99,12 +100,16 @@ struct TodayView: View {
                         togetherButton
                         let layout = tileLayout
                         if !layout.main.isEmpty {
-                            HStack(spacing: 10) {
+                            // One tile per row at the largest text sizes, so the names fit.
+                            let tiles = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))
+                            tiles {
                                 ForEach(layout.main) { tileButton($0, large: true) }
                             }
                         }
                         // Everything else is in each child's panel.
-                        HStack(spacing: 6) {
+                        let hintRow = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+                                                                   : AnyLayout(HStackLayout(spacing: 6))
+                        hintRow {
                             Text(layout.chips.isEmpty ? "" : "More in each child's panel: tap their name.")
                                 .font(.footnote)
                                 .foregroundStyle(Palette.muted)
@@ -363,6 +368,7 @@ struct ChildStatusRow: View {
     let onOpen: () -> Void
     @AppStorage(Setting.justLog) private var justLog = false
     @State private var backToSleep: Event?
+    @Environment(\.dynamicTypeSize) private var textSize
 
     var body: some View {
         // Ticks so the elapsed time and "5 minutes ago" stay current.
@@ -385,15 +391,24 @@ struct ChildStatusRow: View {
         let sleep = store.activeSleep(for: child)
         let asleep = sleep != nil
         let quiet = asleep ? Palette.moon.opacity(0.85) : Palette.muted
-        return HStack(spacing: 14) {
+        // At the largest text sizes everything stacks: avatar, details, then the button.
+        let big = textSize.isAccessibilitySize
+        let outer = big ? AnyLayout(VStackLayout(alignment: .leading, spacing: 12)) : AnyLayout(HStackLayout(spacing: 14))
+        let inner = big ? AnyLayout(VStackLayout(alignment: .leading, spacing: 8)) : AnyLayout(HStackLayout(spacing: 14))
+        return outer {
             Button(action: onOpen) {
-                HStack(spacing: 14) {
+                inner {
                     ChildAvatar(child: child, size: 52)
                     VStack(alignment: .leading, spacing: 2) {
-                        HStack(spacing: 6) {
+                        if big {
                             Text(child.displayName).font(.headline)
-                            Text("·").foregroundStyle(quiet)
                             Text(child.ageText).foregroundStyle(quiet)
+                        } else {
+                            HStack(spacing: 6) {
+                                Text(child.displayName).font(.headline)
+                                Text("·").foregroundStyle(quiet)
+                                Text(child.ageText).foregroundStyle(quiet)
+                            }
                         }
                         // Two fixed lines, what then when, so the row is the same height whatever was logged.
                         let status = statusLines(now: now, sleep: sleep)
@@ -402,8 +417,8 @@ struct ChildStatusRow: View {
                                 .font(.subheadline)
                                 .foregroundStyle(quiet)
                                 .monospacedDigit()
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.7)
+                                .lineLimit(big ? 3 : 1)
+                                .minimumScaleFactor(big ? 1 : 0.7)
                                 .allowsTightening(true)
                                 .contentTransition(.numericText())
                         }
@@ -418,6 +433,7 @@ struct ChildStatusRow: View {
             .accessibilityHint(justLog ? "Add a past sleep for \(child.displayName)" : "Shows \(child.displayName)'s day so far")
             sleepButton(now: now, sleep: sleep)
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
         .foregroundStyle(asleep ? Palette.fixedPaper : Palette.ink)
         .background(asleep ? Palette.night : Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
@@ -767,7 +783,7 @@ struct DaySoFarView: View {
             let bottles = events.filter { $0.kind == .bottle }
             guard !bottles.isEmpty else { return nil }
             let ml = Int(bottles.reduce(0) { $0 + $1.amountML })
-            return ml > 0 ? "\(bottles.count), \(ml) ml" : "\(bottles.count)"
+            return ml > 0 ? "\(bottles.count), \(Units.volume(Double(ml)))" : "\(bottles.count)"
         }
         add("Breastfeeds", count(.breastfeed))
         add("Solids", count(.solids))
@@ -787,7 +803,7 @@ struct DaySoFarView: View {
         if sleptToday != nil || sleptDay != nil {
             result.append(Line(id: "Sleep", today: sleptToday ?? "–", day: sleptDay ?? "–"))
         }
-        add("Nappies", count(.nappy))
+        add(Terms.nappies, count(.nappy))
         add("Potty", count(.potty))
         add("Medicine", count(.medicine))
         return result

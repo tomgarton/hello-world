@@ -82,7 +82,7 @@ struct OnboardingTiles: View {
             }
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Tiles for bottle, sleep, nappy and potty")
+        .accessibilityLabel("Tiles for bottle, sleep, \(Terms.nappyLower) and potty")
     }
 }
 

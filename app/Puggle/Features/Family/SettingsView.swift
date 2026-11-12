@@ -90,7 +90,7 @@ struct SettingsView: View {
     private var lookSection: some View {
         Section {
             NavigationLink("Appearance and night") { AppearanceSettingsView() }
-            NavigationLink("Units") { UnitsSettingsView() }
+            NavigationLink("Units and words") { UnitsSettingsView() }
             NavigationLink("Reminders") { RemindersView() }
             Toggle("Touch feedback", isOn: $hapticsOn)
         } header: {
@@ -199,22 +199,33 @@ struct SettingsView: View {
 /// Shown wherever the sample family is on screen, so it is never mistaken for real entries.
 struct SampleBanner: View {
     @EnvironmentObject private var sample: SampleFamily
+    @Environment(\.dynamicTypeSize) private var textSize
 
     var body: some View {
         if sample.isOn {
-            HStack(spacing: 10) {
+            // At the largest text sizes the button goes underneath, so words don't break.
+            let layout = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 10))
+                                                      : AnyLayout(HStackLayout(spacing: 10))
+            layout {
                 Image(systemName: "eye")
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Sample family").font(.subheadline.weight(.semibold))
                     Text("Made-up entries. Yours are safe.").font(.footnote)
                 }
                 Spacer(minLength: 0)
-                Button("Leave") { sample.leave() }
-                    .font(.subheadline.weight(.semibold))
-                    .padding(.horizontal, 14)
-                    .frame(minHeight: 44)
-                    .background(Palette.bannerButton, in: Capsule())
+                // The size goes inside the label, so the whole capsule can be tapped.
+                Button { sample.leave() } label: {
+                    Text("Leave")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 14)
+                        .frame(minWidth: 44, minHeight: 44)
+                        .background(Palette.bannerButton, in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Leave the sample family")
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.leading, 14)
             .padding(.trailing, 8)
             .padding(.vertical, 6)

@@ -44,7 +44,10 @@ enum Palette {
 
     static let wattle = Color(hex: 0xF4BE2C)
     static let harbour = Color(hex: 0x2A62B8)
-    static let waratah = Color(hex: 0xE5553B)
+    /// Red for deleting: deep enough to read on paper by day, brighter after dark (4.5:1 or more).
+    static let waratah = Color(light: 0xC2412A, dark: 0xFF7A61, night: 0xF07560)
+    /// The filled red circle behind a white icon: the same in every look (5:1 with white).
+    static let waratahFill = Color(hex: 0xC2412A)
     static let gum = Color(hex: 0x3C9A5F)
 
     /// Soft fields: one per child.

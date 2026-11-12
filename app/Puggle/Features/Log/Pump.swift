@@ -102,7 +102,7 @@ struct PumpSheet: View {
                     } else {
                         side("Left", value: $left)
                         side("Right", value: $right)
-                        Text("Total \(Int(left + right)) ml")
+                        Text("Total \(Units.volume(left + right))")
                             .font(.headline)
                             .frame(maxWidth: .infinity, alignment: .trailing)
                         Picker("Where it went", selection: $place) {
@@ -167,8 +167,8 @@ struct PumpSheet: View {
             Text("Milk on hand").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Fridge \(Int(milk.fridge)) ml")
-                    Text("Freezer \(Int(milk.freezer)) ml")
+                    Text("Fridge \(Units.volume(milk.fridge))")
+                    Text("Freezer \(Units.volume(milk.freezer))")
                 }
                 .monospacedDigit()
                 Spacer()
