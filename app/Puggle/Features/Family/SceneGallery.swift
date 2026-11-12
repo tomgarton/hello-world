@@ -163,6 +163,62 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
+    /// Options to choose between: the pocket two ways, and hair three ways.
+    @MainActor static func writeOptions(name: String) {
+        guard let rig = Rig.load("puggle") else { return }
+        func shape(_ json: String) -> Rig.Shape { try! JSONDecoder().decode(Rig.Shape.self, from: Data(json.utf8)) }
+        func edit(_ rig: Rig, _ part: String, _ change: (inout [Rig.Shape]) -> Void) -> Rig {
+            var copy = rig
+            for index in copy.parts.indices where copy.parts[index].id == part { change(&copy.parts[index].shapes) }
+            return copy
+        }
+        // A blue pocket with a white flower on it, its centre yellow.
+        let flowered = edit(rig, "dress") { shapes in
+            shapes[1].fill = nil
+            shapes[1].tint = "#1B4387"
+            for turn in 0..<5 {
+                let angle = Double(turn) * 2 * .pi / 5 - .pi / 2
+                shapes.append(shape("{\"kind\":\"ellipse\",\"x\":\(120 + cos(angle) * 5.6),\"y\":\(221.5 + sin(angle) * 5.6),\"rx\":4.4,\"ry\":4.4,\"fill\":\"#FFFDF6\"}"))
+            }
+            shapes.append(shape("{\"kind\":\"ellipse\",\"x\":120,\"y\":221.5,\"rx\":3.4,\"ry\":3.4,\"fill\":\"#F4C95D\"}"))
+        }
+        let fur = "\"fill\":\"#8A5A3C\",\"stroke\":\"#3A2A20\",\"tint\":\"#5E3A24\",\"width\":6"
+        // Hair goes in first, so the head covers where it joins.
+        let topTuft = edit(rig, "head") { shapes in
+            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M84 62 Q84 40 96 50 Q98 32 110 46 Q118 34 122 52 Z\",\(fur)}"), at: 0)
+        }
+        let sideTufts = edit(rig, "head") { shapes in
+            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M60 80 L40 80 L52 92 L38 98 L54 106 Z\",\(fur)}"), at: 0)
+            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M180 80 L200 80 L188 92 L202 98 L186 106 Z\",\(fur)}"), at: 0)
+        }
+        let curl = edit(rig, "head") { shapes in
+            shapes.insert(shape("{\"kind\":\"path\",\"d\":\"M104 52 Q98 34 112 36 Q122 38 116 48\",\"stroke\":\"#5E3A24\",\"width\":6,\"cap\":\"round\"}"), at: 0)
+        }
+        func cell(_ rig: Rig, _ title: String) -> some View {
+            RigFrame(rig: rig, states: [:])
+                .frame(width: 300, height: 375)
+                .padding(12)
+                .background(Color(hex: 0xF2ECDD))
+                .overlay(alignment: .topLeading) { Text(title).font(.caption.weight(.semibold)).foregroundStyle(.black).padding(8) }
+        }
+        let sheet = VStack(spacing: 4) {
+            HStack(spacing: 4) {
+                cell(rig, "1. Yellow pocket, no hair")
+                cell(flowered, "2. White flower on a blue pocket")
+                cell(curl, "3. One curl")
+            }
+            HStack(spacing: 4) {
+                cell(topTuft, "4. A tuft on top")
+                cell(sideTufts, "5. Tufts at the sides")
+                cell(edit(flowered, "head") { $0.insert(shape("{\"kind\":\"path\",\"d\":\"M84 62 Q84 40 96 50 Q98 32 110 46 Q118 34 122 52 Z\",\(fur)}"), at: 0) }, "6. Flower pocket and top tuft")
+            }
+        }
+        .background(Color.gray)
+        .environment(\.lineStyle, .tinted)
+        .environment(\.handDrawn, false)
+        save(sheet, as: name)
+    }
+
     @MainActor private static func save(_ view: some View, as name: String) {
         let renderer = ImageRenderer(content: view)
         renderer.scale = 2
