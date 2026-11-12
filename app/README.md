@@ -200,6 +200,27 @@ Eighteenth round, 11 November 2026 (the stamper; prototype in `docs/mockups/stam
 | Skip | For grown-ups: a ring fills over two seconds while held, and drains if let go |
 | Tap or drag | Everything that can be dragged can also be tapped |
 
+Nineteenth round, 12 November 2026 (`docs/next-steps.md`, then phase A of `docs/end-to-end-plan.md`):
+
+| Change | In the app |
+|---|---|
+| Dark mode on the stamp screens | Scrap paper, picture tray, card, sticker backing and inks all follow dark mode and night |
+| Night look in place | Night is a trait the colours read, so switching at 21:00, 06:00 or when a sleep starts no longer closes open sheets. Puggle dims at night |
+| Still feeding? | A breastfeed timer running 90 minutes asks once: finish the feed, or keep going |
+| Paper curl | The stamp card corner wraps round a roll, with a highlight, a crease shadow and the plainer back of the paper |
+| Interpuncts | "Bottle · 150 ml · formula" everywhere, as on the child rows |
+| Reminders | Settings → Reminders. Each person's own, kept on their phone: hours since a feed, regular medicines at set times, potty "Time to try?". Permission is asked when the first one is switched on |
+| Due on Today | A regular medicine shows quietly as "Due · Iron drops · 8:00" on the child's row, and goes once a dose is logged. Its name is a one-tap chip on the medicine sheet |
+| Night wakings | Start sleep within 90 minutes of a sleep that ended at night asks "Back to sleep?". Carrying on keeps one sleep with the waking inside it ("woke once"), left out of totals and shown as a gap in Insights |
+| Sleep together | With two or more children, one button starts sleep for everyone awake, or ends it for everyone asleep |
+| Pump | A chip for breastfed children. Left and right amounts, and fridge, freezer or fed. The pump belongs to the parent, not a child |
+| Milk on hand | Worked out from the last count: pumps add, breast-milk bottles take from the fridge first. "Update" sets a fresh count. Shown on the pump and bottle sheets |
+| Solids and nappies | Solids can note how it went; a nappy can note its colour before the one-tap save |
+| Logged twice? | A second bottle for the same child within five minutes asks first, and says who logged the first |
+| Puggle's nod | A small nod each time something is saved |
+
+Not done in this round: Home Screen widgets and a Control Centre "Start sleep" control. Both need the app's data shared with an extension through an App Group, and the free Apple ID's profile does not include one (checking whether it can needs Tom signed in to Xcode). Siri, the Action button and Shortcuts still start a sleep. Units stay "coming soon".
+
 Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
 
 The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.

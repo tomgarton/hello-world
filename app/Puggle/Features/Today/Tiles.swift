@@ -288,7 +288,9 @@ struct PuggleHeader: View {
     let quiet: Bool
 
     @StateObject private var controller = PuggleController()
+    @EnvironmentObject private var store: FamilyStore
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var nod: CGFloat = 0
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
     @State private var lift: CGFloat = 0
     @State private var tilt: Double = 0
@@ -308,7 +310,8 @@ struct PuggleHeader: View {
             Button(action: react) {
                 PuggleView(controller: controller)
                     .frame(height: 78)
-                    .offset(y: lift)
+                    .scaleEffect(x: 1, y: 1 - nod * 0.06, anchor: .bottom)
+                    .offset(y: lift + nod * 3)
                     .rotationEffect(.degrees(tilt), anchor: .bottom)
             }
             .buttonStyle(.plain)
@@ -318,6 +321,12 @@ struct PuggleHeader: View {
         .padding(.top, 8)
         .onAppear { controller.asleep = quiet }
         .onChange(of: quiet) { _, now in controller.asleep = now }
+        // A small nod each time something is saved. No sound or tap: the save has its own.
+        .onChange(of: store.lastSaved?.id) { _, id in
+            guard id != nil, !reduceMotion else { return }
+            withAnimation(.easeOut(duration: 0.14)) { nod = quiet ? 0.5 : 1 }
+            withAnimation(.spring(duration: 0.35, bounce: 0.3).delay(0.14)) { nod = 0 }
+        }
         .task {
             // Once a day, after the splash has gone.
             let today = Date.now.formatted(.iso8601.year().month().day())
