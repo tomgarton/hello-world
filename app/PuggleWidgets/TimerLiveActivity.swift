@@ -13,50 +13,76 @@ struct TimerLiveActivity: Widget {
                 .activitySystemActionForegroundColor(Tone.cream)
         } dynamicIsland: { context in
             DynamicIsland {
+                // Just the icon up here: the top corners curve in round the camera,
+                // so words in them get clipped. The name goes in the row below.
                 DynamicIslandExpandedRegion(.leading) {
-                    Label(context.attributes.childName, systemImage: symbol(context.state))
-                        .font(.headline)
-                        .foregroundStyle(Tone.cream)
-                        .lineLimit(1)
+                    Image(systemName: symbol(context.state))
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(Tone.moon)
+                        .frame(width: 44, height: 44)
+                        .background(Tone.moon.opacity(0.16), in: Circle())
+                        .padding(.leading, 4)
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     // The number that matters, large, as on the system timer.
-                    VStack(alignment: .trailing, spacing: 0) {
+                    Group {
                         if context.state.mode == "glance" {
-                            if let fed = context.state.fedSince {
-                                Since(date: fed).font(.title2.weight(.semibold))
-                                Text("since a feed").font(.caption2).foregroundStyle(Tone.cream.opacity(0.7))
-                            }
+                            if let fed = context.state.fedSince { Since(date: fed) }
                         } else {
-                            Clock(state: context.state).font(.title.weight(.semibold))
-                            Text(context.state.label).font(.caption2).foregroundStyle(Tone.cream.opacity(0.7))
+                            Clock(state: context.state)
                         }
                     }
+                    .font(.title.weight(.semibold))
                     .foregroundStyle(Tone.moon)
-                    .frame(maxWidth: 150, alignment: .trailing)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+                    .frame(maxWidth: 160, alignment: .trailing)
+                    .padding(.trailing, 4)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    switch context.state.mode {
-                    case "glance":
-                        HStack {
-                            if let awake = context.state.awakeSince {
-                                (Text("Awake ") + Since.text(awake))
-                                    .font(.subheadline)
-                                    .foregroundStyle(Tone.cream.opacity(0.8))
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack(alignment: .center, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(context.attributes.childName)
+                                    .font(.headline)
+                                    .foregroundStyle(Tone.cream)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.7)
+                                Group {
+                                    if context.state.mode == "glance" {
+                                        if let awake = context.state.awakeSince {
+                                            Text("since a feed · awake ") + Since.text(awake)
+                                        } else {
+                                            Text("since a feed")
+                                        }
+                                    } else {
+                                        Text(context.state.label)
+                                    }
+                                }
+                                .font(.subheadline)
+                                .foregroundStyle(Tone.cream.opacity(0.7))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                                .monospacedDigit()
                             }
-                            Spacer()
-                            ActionButton("Start sleep", action: TimerActions.startSleep, attributes: context.attributes,
-                                         spoken: "Start \(context.attributes.childName)'s sleep")
+                            Spacer(minLength: 8)
+                            switch context.state.mode {
+                            case "glance":
+                                ActionButton("Start sleep", action: TimerActions.startSleep, attributes: context.attributes,
+                                             spoken: "Start \(context.attributes.childName)'s sleep")
+                            case "sleep":
+                                ActionButton("Woke up", action: TimerActions.wokeUp, attributes: context.attributes,
+                                             spoken: "\(context.attributes.childName) woke up")
+                            default:
+                                EmptyView()
+                            }
                         }
-                    case "feed":
-                        FeedButtons(attributes: context.attributes, state: context.state)
-                    default:
-                        HStack {
-                            Spacer()
-                            ActionButton("Woke up", action: TimerActions.wokeUp, attributes: context.attributes,
-                                         spoken: "\(context.attributes.childName) woke up")
+                        if context.state.mode == "feed" {
+                            FeedButtons(attributes: context.attributes, state: context.state)
                         }
                     }
+                    .padding(.horizontal, 4)
+                    .padding(.top, 4)
                 }
             } compactLeading: {
                 Image(systemName: symbol(context.state)).foregroundStyle(Tone.moon)
