@@ -3,7 +3,8 @@ import SwiftUI
 /// The scenes Puggle stands in at the top of Today, one a day in turn, each
 /// with a friend. The sky follows the time of day; after dark it is navy with
 /// stars. The ground at the front is always the page colour, so the scene
-/// runs into Today. Friends are drawn in code until the real drawings arrive.
+/// runs into Today. Friends are drawn in code until the real drawings arrive:
+/// they have Puggle's dark outline, and the scenery behind has none.
 enum SceneKind: Int, CaseIterable {
     case hills, beach, backyard, bush
 
@@ -16,7 +17,28 @@ enum SceneKind: Int, CaseIterable {
         let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
         return allCases[day % allCases.count]
     }
+
+    /// Where the sun or moon sits, clear of the tree, the washing and the You button.
+    var lightSpot: CGFloat {
+        switch self {
+        case .hills, .beach: 0.16
+        case .backyard: 0.72
+        case .bush: 0.66
+        }
+    }
+
+    /// Clouds: across, down (as fractions) and width.
+    var clouds: [(x: CGFloat, y: CGFloat, width: CGFloat)] {
+        switch self {
+        case .hills, .beach: [(0.25, 0.45, 72), (0.47, 0.27, 54), (0.80, 0.42, 88)]
+        case .backyard: [(0.27, 0.28, 66), (0.52, 0.42, 50), (0.84, 0.47, 80)]
+        case .bush: [(0.45, 0.28, 56), (0.80, 0.44, 84)]
+        }
+    }
 }
+
+/// The part of the day the sky is showing.
+enum SkyPhase { case dawn, day, dusk, night }
 
 struct PuggleScene: View {
     let kind: SceneKind
@@ -26,17 +48,37 @@ struct PuggleScene: View {
     /// How far Today has been pulled down. The sky grows upwards by this much,
     /// and the further it goes, the more turns up in it.
     var pull: CGFloat = 0
+    /// For the scene gallery: show this hour rather than the clock's.
+    var hourOverride: Int?
 
-    private var hour: Int { Calendar.current.component(.hour, from: .now) }
-    private var starry: Bool { dark || hour >= 21 || hour < 5 }
+    private var hour: Int {
+        if let hourOverride { return hourOverride }
+        #if DEBUG
+        // For checking: Developer menu, or launch with "-debugHour 22".
+        if let forced = UserDefaults.standard.string(forKey: "debugHour").flatMap(Int.init) { return forced }
+        #endif
+        return Calendar.current.component(.hour, from: .now)
+    }
+
+    private var phase: SkyPhase {
+        if dark { return .night }
+        switch hour {
+        case 5..<9: return .dawn
+        case 9..<17: return .day
+        case 17..<21: return .dusk
+        default: return .night
+        }
+    }
+
+    private var starry: Bool { phase == .night }
 
     private var sky: [Color] {
         if dark { return [Color(hex: 0x101A2E), Color(hex: 0x1E2236), Palette.sand] }
-        switch hour {
-        case 5..<9: return [Color(hex: 0xF6CDB4), Color(hex: 0xF8E3CF), Palette.sand]
-        case 17..<21: return [Color(hex: 0xC9B6D9), Color(hex: 0xF4CDB0), Palette.sand]
-        case 21..<24, 0..<5: return [Color(hex: 0x2A3556), Color(hex: 0x4A4870), Palette.sand]
-        default: return [Color(hex: 0xBFDDF0), Color(hex: 0xE3EEF1), Palette.sand]
+        switch phase {
+        case .dawn: return [Color(hex: 0xF6CDB4), Color(hex: 0xF8E3CF), Palette.sand]
+        case .dusk: return [Color(hex: 0xC9B6D9), Color(hex: 0xF4CDB0), Palette.sand]
+        case .night: return [Color(hex: 0x2A3556), Color(hex: 0x4A4870), Palette.sand]
+        case .day: return [Color(hex: 0xBFDDF0), Color(hex: 0xE3EEF1), Palette.sand]
         }
     }
 
@@ -48,12 +90,21 @@ struct PuggleScene: View {
             let w = geometry.size.width, h = max(geometry.size.height - pull, 1)
             ZStack(alignment: .bottom) {
                 LinearGradient(colors: [sky[0]] + sky, startPoint: .top, endPoint: .bottom)
+                // One sky from the top of the pull to the horizon, so nothing is left bare.
+                if starry {
+                    StarField(sceneHeight: h, moon: CGPoint(x: w * kind.lightSpot, y: pull + h * 0.36))
+                        .opacity(appeared ? 1 : 0)
+                }
                 // The scene itself keeps its height and sits at the bottom.
                 ZStack {
-                    if starry { stars(w, h) } else { clouds(w, h) }
+                    light(w, h)
+                    if !starry { clouds(w, h) }
                     scenery(w, h)
-                    // The ground in the page colour.
-                    Hill(rise: 0.6, left: 0.8, right: 0.78).fill(Palette.sand)
+                    ground
+                    details(w, h)
+                    // Puggle's shadow, so she stands on the hill.
+                    Ellipse().fill(Palette.fixedInk.opacity(starry ? 0.22 : 0.1))
+                        .frame(width: 72, height: 9).position(x: w / 2, y: h - 27)
                     friend(w, h)
                 }
                 .frame(width: w, height: h)
@@ -66,29 +117,62 @@ struct PuggleScene: View {
 
     // MARK: Sky
 
-    private func stars(_ w: CGFloat, _ h: CGFloat) -> some View {
-        ZStack {
-            ForEach(0..<14, id: \.self) { i in
-                var random = SeededRandom(UInt64(i) &* 977 &+ 11)
-                let size = random.range(1.5, 3.2)
-                Circle().fill(Color(hex: 0xF3E0B8).opacity(random.range(0.35, 0.8)))
-                    .frame(width: size, height: size)
-                    .position(x: random.range(0.04, 0.96) * w, y: random.range(0.25, 0.6) * h)
+    /// The sun by day, low and warm at each end of it; the moon after dark.
+    @ViewBuilder private func light(_ w: CGFloat, _ h: CGFloat) -> some View {
+        let x = w * kind.lightSpot
+        switch phase {
+        case .night:
+            ZStack {
+                Circle().fill(RadialGradient(colors: [Color(hex: 0xF3E0B8).opacity(0.22), Color(hex: 0xF3E0B8).opacity(0)],
+                                             center: .center, startRadius: 8, endRadius: 46))
+                    .frame(width: 92, height: 92)
+                Crescent().fill(Color(hex: 0xF3E0B8)).frame(width: 28, height: 28)
             }
-            Circle().fill(Color(hex: 0xF3E0B8).opacity(0.85)).frame(width: 26, height: 26)
-                .overlay(Circle().fill(sky[0]).frame(width: 22, height: 22).offset(x: 8, y: -5))
-                .position(x: w * 0.18, y: h * 0.36)
+            .position(x: x, y: h * 0.36)
+            .opacity(appeared ? 1 : 0)
+        case .day:
+            Sun(colour: Color(hex: 0xFFD666), size: 42).position(x: x, y: h * 0.36)
+        case .dawn:
+            Sun(colour: Color(hex: 0xFFC36B), size: 46).position(x: x, y: h * 0.5)
+        case .dusk:
+            Sun(colour: Color(hex: 0xF79A72), size: 46).position(x: x, y: h * 0.52)
+        }
+    }
+
+    private func clouds(_ w: CGFloat, _ h: CGFloat) -> some View {
+        let tint: Color = switch phase {
+        case .dawn: Color(hex: 0xFFF6EC).opacity(0.85)
+        case .dusk: Color(hex: 0xFBE4E6).opacity(0.8)
+        default: Color.white.opacity(0.8)
+        }
+        return ZStack {
+            ForEach(Array(kind.clouds.enumerated()), id: \.offset) { index, cloud in
+                Cloud(width: cloud.width, tint: tint)
+                    .position(x: w * cloud.x, y: h * cloud.y)
+                    .offset(x: appeared ? 0 : (index.isMultiple(of: 2) ? -30 : 34))
+            }
         }
         .opacity(appeared ? 1 : 0)
     }
 
-    private func clouds(_ w: CGFloat, _ h: CGFloat) -> some View {
-        ZStack {
-            Cloud(width: 92).position(x: w * 0.2, y: h * 0.38).offset(x: appeared ? 0 : -30)
-            Cloud(width: 120).position(x: w * 0.8, y: h * 0.5).offset(x: appeared ? 0 : 36)
-            Cloud(width: 60).position(x: w * 0.55, y: h * 0.3).offset(x: appeared ? 0 : -18)
+    // MARK: Ground
+
+    /// The ground in the page colour, with a little shade along the top so the hill has a shape.
+    private var ground: some View {
+        let shade: Color = if dark { Color(hex: 0x3A3A52).opacity(0.5) } else {
+            switch phase {
+            case .dawn: Color(hex: 0xEDB48E).opacity(0.3)
+            case .dusk: Color(hex: 0xC9A2C2).opacity(0.34)
+            case .night: Color(hex: 0x66648F).opacity(0.5)
+            case .day: Color(hex: 0xCDBE98).opacity(0.3)
+            }
         }
-        .opacity(appeared ? 1 : 0)
+        let hill = Hill(rise: 0.6, left: 0.8, right: 0.78)
+        return ZStack {
+            hill.fill(Palette.sand)
+            hill.fill(LinearGradient(colors: [shade, shade.opacity(0)],
+                                     startPoint: UnitPoint(x: 0.5, y: 0.66), endPoint: UnitPoint(x: 0.5, y: 0.97)))
+        }
     }
 
     // MARK: Scenery behind the ground
@@ -96,22 +180,58 @@ struct PuggleScene: View {
     @ViewBuilder private func scenery(_ w: CGFloat, _ h: CGFloat) -> some View {
         switch kind {
         case .hills:
-            Hill(rise: 0.42, left: 0.62, right: 0.8, peak: 0.25).fill(tone(0xC9DDB4, 0x24302A))
-            Hill(rise: 0.48, left: 0.8, right: 0.6, peak: 0.8).fill(tone(0xB5D0A0, 0x1E2A24))
+            Hill(rise: 0.34, left: 0.58, right: 0.76, peak: 0.2).fill(tone(0xD7E7C6, 0x2B3A32))
+            RoundTree(leaf: tone(0xB7D2A4, 0x24332B), trunk: tone(0xB89A78, 0x3A3028)).frame(width: 16, height: 24).position(x: w * 0.1, y: h * 0.47)
+            Hill(rise: 0.44, left: 0.82, right: 0.56, peak: 0.84).fill(tone(0xBFD8AA, 0x223028))
+            RoundTree(leaf: tone(0x9CC08C, 0x1C2A22), trunk: tone(0xA98A68, 0x332A22)).frame(width: 26, height: 38).position(x: w * 0.78, y: h * 0.47)
+            RoundTree(leaf: tone(0xA9C998, 0x1F2D25), trunk: tone(0xA98A68, 0x332A22)).frame(width: 18, height: 27).position(x: w * 0.87, y: h * 0.48)
+            Hill(rise: 0.56, left: 0.74, right: 0.72).fill(tone(0xA9CB93, 0x1B2720))
         case .beach:
-            if !starry {
-                Circle().fill(Color(hex: 0xFFD666)).frame(width: 44, height: 44).position(x: w * 0.14, y: h * 0.34)
-            }
-            // The sea, with a line of foam.
-            Rectangle().fill(tone(0x8DC3E6, 0x1C2C48)).frame(height: h * 0.2).position(x: w / 2, y: h * 0.7)
-            Waves().stroke(Color.white.opacity(starry ? 0.25 : 0.7), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
-                .frame(width: w, height: 10).position(x: w / 2, y: h * 0.64)
+            // The sea, lighter where it is shallow, with a boat out on it.
+            Rectangle().fill(tone(0x86BEE3, 0x1B2B47)).frame(height: h * 0.24).position(x: w / 2, y: h * 0.7)
+            Rectangle().fill(tone(0xA6D4EE, 0x22355A)).frame(height: h * 0.12).position(x: w / 2, y: h * 0.76)
+            Waves().stroke(Color.white.opacity(starry ? 0.18 : 0.55), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+                .frame(width: w * 0.36, height: 6).position(x: w * 0.36, y: h * 0.635)
+            Waves().stroke(Color.white.opacity(starry ? 0.18 : 0.55), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+                .frame(width: w * 0.22, height: 6).position(x: w * 0.74, y: h * 0.665)
+            Sailboat(dark: starry).frame(width: 26, height: 28).position(x: w * 0.84, y: h * 0.555)
+            // Foam where the sea meets the sand.
+            HillEdge(rise: 0.6, left: 0.8, right: 0.78)
+                .stroke(Color.white.opacity(starry ? 0.3 : 0.85), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                .offset(y: -1)
         case .backyard:
-            Fence().fill(tone(0xEFE3CC, 0x2E2822)).frame(width: w, height: h * 0.18).position(x: w / 2, y: h * 0.66)
-            Hill(rise: 0.68, left: 0.76, right: 0.74).fill(tone(0xBFD6A5, 0x1E2A24))
+            Hedge().fill(tone(0xA9CB93, 0x1B2720)).frame(width: w, height: h * 0.22).position(x: w / 2, y: h * 0.56)
+            Fence().fill(tone(0xF6EDD9, 0x3A322B)).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
+            Fence().stroke(tone(0xD8C8A8, 0x26201B), lineWidth: 1).frame(width: w, height: h * 0.2).position(x: w / 2, y: h * 0.62)
+            Hill(rise: 0.6, left: 0.73, right: 0.71).fill(tone(0xB9D49E, 0x1E2A24))
+            WashingLine(dark: starry).frame(width: w * 0.38, height: h * 0.36).position(x: w * 0.23, y: h * 0.52)
         case .bush:
+            // A far ridge with gums on it, then the nearer rise.
+            Hill(rise: 0.46, left: 0.66, right: 0.5, peak: 0.9).fill(tone(0xD9DDBA, 0x302E27))
+            SmallGum(leaf: tone(0xB4C7A6, 0x26342C), trunk: tone(0xD9CDB6, 0x464038)).frame(width: 26, height: 34).position(x: w * 0.6, y: h * 0.5)
+            SmallGum(leaf: tone(0xA9BF9C, 0x23302A), trunk: tone(0xD9CDB6, 0x464038)).frame(width: 34, height: 44).position(x: w * 0.9, y: h * 0.43)
+            Hill(rise: 0.54, left: 0.8, right: 0.62, peak: 0.85).fill(tone(0xCBC596, 0x2A2820))
             GumTree(dark: starry).frame(width: 120, height: h * 0.78).position(x: w * 0.13, y: h * 0.5)
-            Hill(rise: 0.52, left: 0.8, right: 0.62, peak: 0.85).fill(tone(0xD2C9A4, 0x2A2820))
+        }
+    }
+
+    /// Small things on the ground at the front.
+    @ViewBuilder private func details(_ w: CGFloat, _ h: CGFloat) -> some View {
+        let grass = tone(0x9DBB8A, 0x4E6254)
+        switch kind {
+        case .hills:
+            GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.1, y: h * 0.8)
+            GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9).position(x: w * 0.72, y: h * 0.74)
+            GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.92, y: h * 0.83)
+        case .beach:
+            Starfish().fill(tone(0xF2A48E, 0x8C5348)).frame(width: 15, height: 15).rotationEffect(.degrees(12)).position(x: w * 0.8, y: h * 0.9)
+        case .backyard:
+            GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.09, y: h * 0.8)
+            GrassTuft().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9).position(x: w * 0.9, y: h * 0.8)
+        case .bush:
+            let dry = tone(0xB0A474, 0x5E5840)
+            GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 14, height: 10).position(x: w * 0.7, y: h * 0.75)
+            GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9).position(x: w * 0.9, y: h * 0.81)
         }
     }
 
@@ -123,19 +243,7 @@ struct PuggleScene: View {
         let balloon = pull > 60, kite = pull > 130, flock = pull > 200
         let sway = Double(pull).truncatingRemainder(dividingBy: 40) / 40 * 8 - 4
         return ZStack(alignment: .topLeading) {
-            // The further it is pulled, the more of the sky there is to see.
             if starry {
-                // Stars fill the new sky, each fading in as the pull reaches it.
-                ForEach(0..<46, id: \.self) { i in
-                    var random = SeededRandom(UInt64(i) &* 7919 &+ 3)
-                    let depth = CGFloat(random.range(0.04, 1)) * 420
-                    let size = random.range(1.4, 3.4)
-                    Circle().fill(Color(hex: 0xF3E0B8).opacity(random.range(0.45, 0.95)))
-                        .frame(width: size, height: size)
-                        .position(x: random.range(0.03, 0.97) * w, y: pull - depth)
-                        .opacity(pull > depth + 10 ? 1 : 0)
-                        .animation(.easeOut(duration: 0.4), value: pull > depth + 10)
-                }
                 // Shooting stars, one more at each stretch of the pull.
                 ForEach(Array([(150.0, 0.62, 70.0), (250.0, 0.2, 40.0), (340.0, 0.75, 150.0), (430.0, 0.35, 90.0)].enumerated()), id: \.offset) { _, star in
                     if pull > star.0 {
@@ -156,7 +264,7 @@ struct PuggleScene: View {
                 }
             }
             Balloon(dark: starry)
-                .frame(width: 34, height: 52)
+                .frame(width: 40, height: 60)
                 .rotationEffect(.degrees(sway))
                 .scaleEffect(balloon ? 1 : 0.3)
                 .opacity(balloon ? 1 : 0)
@@ -166,16 +274,16 @@ struct PuggleScene: View {
                 if starry {
                     ShootingStar().frame(width: 70, height: 20)
                 } else {
-                    Kite().frame(width: 40, height: 70).rotationEffect(.degrees(-sway * 2))
+                    Kite().frame(width: 44, height: 76).rotationEffect(.degrees(-sway * 2))
                 }
             }
             .scaleEffect(kite ? 1 : 0.3)
             .opacity(kite ? 1 : 0)
             .animation(.spring(duration: 0.45, bounce: 0.5), value: kite)
             .position(x: w * 0.28, y: pull - 118)
-            HStack(spacing: 10) {
+            HStack(spacing: 6) {
                 ForEach(0..<3, id: \.self) { i in
-                    Bird(dark: starry).frame(width: 22, height: 17).offset(y: i == 1 ? -8 : 0)
+                    Bird(dark: starry, flying: true).frame(width: 34, height: 26).scaleEffect(0.72).offset(y: i == 1 ? -9 : 0)
                 }
             }
             .offset(x: flock ? 0 : w * 0.6)
@@ -189,26 +297,117 @@ struct PuggleScene: View {
 
     @ViewBuilder private func friend(_ w: CGFloat, _ h: CGFloat) -> some View {
         let pop = appeared ? 1.0 : 0.4
+        let shadow = Palette.fixedInk.opacity(starry ? 0.2 : 0.1)
         switch kind {
         case .hills:
-            Bird(dark: starry).frame(width: 34, height: 26).position(x: w * 0.3, y: h * 0.56)
+            Ellipse().fill(shadow).frame(width: 30, height: 6).position(x: w * 0.26, y: h * 0.868)
+            Bird(dark: starry).frame(width: 46, height: 38).position(x: w * 0.26, y: h * 0.8)
                 .scaleEffect(pop).offset(y: appeared ? 0 : -20).opacity(appeared ? 1 : 0)
         case .beach:
-            Crab(dark: starry).frame(width: 48, height: 30).position(x: w * 0.27, y: h * 0.86)
+            Ellipse().fill(shadow).frame(width: 46, height: 7).position(x: w * 0.25, y: h * 0.905)
+            Crab(dark: starry).frame(width: 60, height: 40).position(x: w * 0.25, y: h * 0.85)
                 .scaleEffect(pop).opacity(appeared ? 1 : 0)
         case .backyard:
-            Snail(dark: starry).frame(width: 42, height: 28).position(x: w * 0.76, y: h * 0.86)
+            Ellipse().fill(shadow).frame(width: 44, height: 6).position(x: w * 0.77, y: h * 0.902)
+            Snail(dark: starry).frame(width: 54, height: 38).position(x: w * 0.77, y: h * 0.85)
                 .scaleEffect(pop).opacity(appeared ? 1 : 0)
-            Butterfly(dark: starry).frame(width: 30, height: 24).position(x: w * 0.66, y: h * 0.48)
-                .offset(x: appeared ? 0 : 40, y: appeared ? 0 : -24).opacity(appeared ? 1 : 0)
+            if starry {
+                Fireflies().frame(width: 70, height: 50).position(x: w * 0.62, y: h * 0.47)
+                    .opacity(appeared ? 1 : 0)
+            } else {
+                Butterfly(dark: false).frame(width: 36, height: 30).position(x: w * 0.66, y: h * 0.43)
+                    .offset(x: appeared ? 0 : 40, y: appeared ? 0 : -24).opacity(appeared ? 1 : 0)
+            }
         case .bush:
-            Kookaburra(dark: starry).frame(width: 40, height: 44).position(x: w * 0.25, y: h * 0.42)
+            Kookaburra(dark: starry).frame(width: 52, height: 54).position(x: w * 0.25, y: h * 0.415)
                 .scaleEffect(pop).opacity(appeared ? 1 : 0)
         }
     }
 }
 
-// MARK: Shapes
+// MARK: Sky pieces
+
+/// Stars from the top of the sky down to the horizon, in one field: the same
+/// stars whether or not Today is pulled down, so pulling only shows more.
+struct StarField: View {
+    /// The height of the scene at the bottom; stars stop above its ground.
+    let sceneHeight: CGFloat
+    /// Where the moon is, so no star shows through it.
+    let moon: CGPoint
+
+    var body: some View {
+        Canvas { context, size in
+            let horizon = size.height - sceneHeight * 0.4
+            let glow = Color(hex: 0xF3E0B8)
+            for i in 0..<150 {
+                var random = SeededRandom(UInt64(i) &* 7919 &+ 3)
+                let x = random.range(0.02, 0.98) * size.width
+                let y = horizon - random.range(0, 1) * 700
+                let dot = random.range(1.3, 3)
+                let strength = random.range(0.4, 0.95)
+                guard y > -8, hypot(x - moon.x, y - moon.y) > 24 else { continue }
+                // Fainter close to the horizon, where the sky is paler.
+                let fade = min(1, 0.35 + (horizon - y) / 90)
+                if i % 11 == 0 {
+                    // A few are four-pointed and a little bigger.
+                    let r = dot * 2.1
+                    var star = Path()
+                    star.move(to: CGPoint(x: x, y: y - r))
+                    star.addQuadCurve(to: CGPoint(x: x + r, y: y), control: CGPoint(x: x + r * 0.18, y: y - r * 0.18))
+                    star.addQuadCurve(to: CGPoint(x: x, y: y + r), control: CGPoint(x: x + r * 0.18, y: y + r * 0.18))
+                    star.addQuadCurve(to: CGPoint(x: x - r, y: y), control: CGPoint(x: x - r * 0.18, y: y + r * 0.18))
+                    star.addQuadCurve(to: CGPoint(x: x, y: y - r), control: CGPoint(x: x - r * 0.18, y: y - r * 0.18))
+                    context.fill(star, with: .color(Color(hex: 0xFFE7A8).opacity(min(1, strength + 0.2) * fade)))
+                } else {
+                    context.fill(Path(ellipseIn: CGRect(x: x - dot / 2, y: y - dot / 2, width: dot, height: dot)),
+                                 with: .color(glow.opacity(strength * fade)))
+                }
+            }
+        }
+    }
+}
+
+/// A crescent moon: a real cut-out, so the sky shows through whatever its colour.
+struct Crescent: Shape {
+    func path(in rect: CGRect) -> Path {
+        let bite = rect.offsetBy(dx: rect.width * 0.3, dy: -rect.height * 0.16)
+        return Path(ellipseIn: rect).subtracting(Path(ellipseIn: bite))
+    }
+}
+
+struct Sun: View {
+    let colour: Color
+    let size: CGFloat
+    var body: some View {
+        ZStack {
+            Circle().fill(colour.opacity(0.14)).frame(width: size * 1.9, height: size * 1.9)
+            Circle().fill(colour.opacity(0.24)).frame(width: size * 1.4, height: size * 1.4)
+            Circle().fill(colour).frame(width: size, height: size)
+        }
+    }
+}
+
+struct Cloud: View {
+    let width: CGFloat
+    var tint = Color.white.opacity(0.8)
+    var body: some View {
+        // One shape, so the bumps don't show where they overlap.
+        CloudShape().fill(tint).frame(width: width, height: width * 0.5)
+    }
+}
+
+struct CloudShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let w = rect.width, h = rect.height
+        var path = Path(roundedRect: CGRect(x: rect.minX, y: rect.minY + h * 0.52, width: w, height: h * 0.48), cornerRadius: h * 0.24)
+        path = path.union(Path(ellipseIn: CGRect(x: rect.minX + w * 0.14, y: rect.minY + h * 0.2, width: w * 0.36, height: w * 0.36)))
+        path = path.union(Path(ellipseIn: CGRect(x: rect.minX + w * 0.36, y: rect.minY, width: w * 0.42, height: w * 0.42)))
+        path = path.union(Path(ellipseIn: CGRect(x: rect.minX + w * 0.64, y: rect.minY + h * 0.3, width: w * 0.26, height: w * 0.26)))
+        return path
+    }
+}
+
+// MARK: Scenery shapes
 
 /// A soft hill across the bottom: `rise` is the height of its top, `left` and
 /// `right` where it meets the edges, all as fractions of the height.
@@ -227,10 +426,22 @@ struct Hill: Shape {
     }
 }
 
+/// Only the top line of a `Hill`, for foam along the shore.
+struct HillEdge: Shape {
+    var rise: CGFloat, left: CGFloat, right: CGFloat
+    var peak: CGFloat = 0.5
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX - 4, y: rect.height * left))
+        path.addQuadCurve(to: CGPoint(x: rect.maxX + 4, y: rect.height * right), control: CGPoint(x: rect.width * peak, y: rect.height * rise))
+        return path
+    }
+}
+
 struct Waves: Shape {
     func path(in rect: CGRect) -> Path {
         var path = Path()
-        let step: CGFloat = 26
+        let step: CGFloat = 22
         var x = rect.minX
         path.move(to: CGPoint(x: x, y: rect.midY))
         while x < rect.maxX {
@@ -247,27 +458,67 @@ struct Fence: Shape {
         let gap: CGFloat = 22, board: CGFloat = 16
         var x = rect.minX - 4
         while x < rect.maxX {
-            path.addRoundedRect(in: CGRect(x: x, y: rect.minY + 6, width: board, height: rect.height - 6), cornerSize: CGSize(width: 3, height: 3))
-            path.move(to: CGPoint(x: x, y: rect.minY + 6))
+            // Each board with a pointed top.
+            path.move(to: CGPoint(x: x, y: rect.maxY))
+            path.addLine(to: CGPoint(x: x, y: rect.minY + 7))
             path.addLine(to: CGPoint(x: x + board / 2, y: rect.minY))
-            path.addLine(to: CGPoint(x: x + board, y: rect.minY + 6))
+            path.addLine(to: CGPoint(x: x + board, y: rect.minY + 7))
+            path.addLine(to: CGPoint(x: x + board, y: rect.maxY))
+            path.closeSubpath()
             x += gap
         }
-        path.addRect(CGRect(x: rect.minX, y: rect.minY + rect.height * 0.35, width: rect.width, height: 5))
+        path.addRect(CGRect(x: rect.minX, y: rect.minY + rect.height * 0.36, width: rect.width, height: 5))
         return path
     }
 }
 
-struct Cloud: View {
-    let width: CGFloat
-    var body: some View {
-        let fill = Color.white.opacity(0.75)
-        ZStack(alignment: .bottom) {
-            Capsule().fill(fill).frame(width: width, height: width * 0.32)
-            Circle().fill(fill).frame(width: width * 0.45).offset(x: -width * 0.12, y: -width * 0.1)
-            Circle().fill(fill).frame(width: width * 0.36).offset(x: width * 0.16, y: -width * 0.06)
+/// A row of rounded bushes along the back of the yard.
+struct Hedge: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path(CGRect(x: rect.minX, y: rect.minY + rect.height * 0.45, width: rect.width, height: rect.height * 0.55))
+        var random = SeededRandom(41)
+        var x = rect.minX - 10
+        while x < rect.maxX {
+            let size = CGFloat(random.range(40, 62))
+            path = path.union(Path(ellipseIn: CGRect(x: x, y: rect.minY + CGFloat(random.range(0, 10)), width: size, height: size * 0.8)))
+            x += size * 0.7
         }
-        .frame(width: width, height: width * 0.6, alignment: .bottom)
+        return path
+    }
+}
+
+/// A round tree for the far hills.
+struct RoundTree: View {
+    let leaf: Color
+    let trunk: Color
+    var body: some View {
+        GeometryReader { g in
+            let w = g.size.width, h = g.size.height
+            ZStack {
+                RoundedRectangle(cornerRadius: 1.5).fill(trunk).frame(width: max(w * 0.16, 3), height: h * 0.45).position(x: w / 2, y: h * 0.78)
+                Ellipse().fill(leaf).frame(width: w, height: h * 0.72).position(x: w / 2, y: h * 0.36)
+            }
+        }
+    }
+}
+
+/// A gum tree a long way off: a thin trunk and two clumps of leaves.
+struct SmallGum: View {
+    let leaf: Color
+    let trunk: Color
+    var body: some View {
+        GeometryReader { g in
+            let w = g.size.width, h = g.size.height
+            ZStack {
+                Path { p in
+                    p.move(to: CGPoint(x: w * 0.5, y: h))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.56, y: h * 0.3), control: CGPoint(x: w * 0.42, y: h * 0.6))
+                }
+                .stroke(trunk, style: StrokeStyle(lineWidth: max(w * 0.09, 2), lineCap: .round))
+                Ellipse().fill(leaf).frame(width: w * 0.7, height: h * 0.34).position(x: w * 0.4, y: h * 0.26)
+                Ellipse().fill(leaf).frame(width: w * 0.62, height: h * 0.3).position(x: w * 0.68, y: h * 0.16)
+            }
+        }
     }
 }
 
@@ -276,101 +527,158 @@ struct GumTree: View {
     var body: some View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
-            let trunk = Color(hex: dark ? 0x4A4238 : 0xE8DDCB)
+            let trunk = Color(hex: dark ? 0x4A4238 : 0xE4D7C2)
+            let bark = Color(hex: dark ? 0x3A332B : 0xC9B89C)
             let leaves = Color(hex: dark ? 0x26352E : 0x9DBB98)
+            let lighter = Color(hex: dark ? 0x2E4037 : 0xB4CDAC)
             ZStack {
-                Path { p in
-                    p.move(to: CGPoint(x: w * 0.38, y: h))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.45, y: h * 0.25), control: CGPoint(x: w * 0.3, y: h * 0.6))
-                    p.addLine(to: CGPoint(x: w * 0.55, y: h * 0.25))
-                    p.addQuadCurve(to: CGPoint(x: w * 0.56, y: h), control: CGPoint(x: w * 0.48, y: h * 0.6))
-                }
-                .fill(trunk)
-                // The branch the friend sits on.
+                // The branch the friend sits on, behind the trunk.
                 Path { p in
                     p.move(to: CGPoint(x: w * 0.5, y: h * 0.52))
                     p.addQuadCurve(to: CGPoint(x: w * 1.05, y: h * 0.5), control: CGPoint(x: w * 0.8, y: h * 0.42))
                 }
-                .stroke(trunk, style: StrokeStyle(lineWidth: 6, lineCap: .round))
-                ForEach(0..<5, id: \.self) { i in
-                    let spots: [(CGFloat, CGFloat, CGFloat)] = [(0.3, 0.2, 0.42), (0.62, 0.14, 0.46), (0.48, 0.05, 0.36), (0.15, 0.32, 0.3), (0.8, 0.3, 0.3)]
+                .stroke(trunk, style: StrokeStyle(lineWidth: 7, lineCap: .round))
+                Path { p in
+                    p.move(to: CGPoint(x: w * 0.36, y: h))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.44, y: h * 0.22), control: CGPoint(x: w * 0.3, y: h * 0.6))
+                    p.addLine(to: CGPoint(x: w * 0.56, y: h * 0.22))
+                    p.addQuadCurve(to: CGPoint(x: w * 0.58, y: h), control: CGPoint(x: w * 0.49, y: h * 0.6))
+                }
+                .fill(trunk)
+                // Bark, the way a gum sheds it.
+                Path { p in
+                    p.move(to: CGPoint(x: w * 0.4, y: h * 0.7)); p.addLine(to: CGPoint(x: w * 0.43, y: h * 0.62))
+                    p.move(to: CGPoint(x: w * 0.5, y: h * 0.84)); p.addLine(to: CGPoint(x: w * 0.49, y: h * 0.76))
+                    p.move(to: CGPoint(x: w * 0.47, y: h * 0.44)); p.addLine(to: CGPoint(x: w * 0.49, y: h * 0.36))
+                }
+                .stroke(bark, style: StrokeStyle(lineWidth: 2, lineCap: .round))
+                ForEach(0..<6, id: \.self) { i in
+                    let spots: [(CGFloat, CGFloat, CGFloat)] = [(0.28, 0.2, 0.46), (0.64, 0.15, 0.5), (0.46, 0.06, 0.4), (0.12, 0.31, 0.32), (0.84, 0.29, 0.32), (0.5, 0.2, 0.34)]
                     let s = spots[i]
-                    Ellipse().fill(leaves).frame(width: w * s.2, height: w * s.2 * 0.62).position(x: w * s.0, y: h * s.1 + 10)
+                    Ellipse().fill(i == 2 || i == 5 ? lighter : leaves)
+                        .frame(width: w * s.2, height: w * s.2 * 0.62).position(x: w * s.0, y: h * s.1 + 10)
                 }
             }
         }
     }
 }
 
-// MARK: Friends (placeholders until the drawings)
-
-struct Bird: View {
+/// Washing on a line: a little suit, a pair of socks and a bib.
+struct WashingLine: View {
     let dark: Bool
     var body: some View {
-        ZStack {
-            Ellipse().fill(Color(hex: dark ? 0xB57A92 : 0xE79BB8)).frame(width: 26, height: 20)
-            Ellipse().fill(Color(hex: dark ? 0x8E5C74 : 0xC9718F)).frame(width: 14, height: 9).rotationEffect(.degrees(-25)).offset(x: -3, y: -3)
-            Circle().fill(Palette.fixedInk).frame(width: 3, height: 3).offset(x: 6, y: -3)
-            Triangle().fill(Color(hex: 0xF2B544)).frame(width: 7, height: 5).rotationEffect(.degrees(90)).offset(x: 15, y: -1)
-        }
-    }
-}
-
-struct Crab: View {
-    let dark: Bool
-    var body: some View {
-        let shell = Color(hex: dark ? 0xB8584A : 0xE8735E)
-        ZStack {
-            Capsule().fill(shell).frame(width: 34, height: 18).offset(y: 4)
-            Circle().fill(shell).frame(width: 12).offset(x: -20, y: -2)
-            Circle().fill(shell).frame(width: 12).offset(x: 20, y: -2)
-            ForEach([-6.0, 6.0], id: \.self) { x in
-                Capsule().fill(shell).frame(width: 2.5, height: 9).offset(x: x, y: -7)
-                Circle().fill(Palette.fixedInk).frame(width: 5).offset(x: x, y: -12)
+        Canvas { context, size in
+            let w = size.width, h = size.height
+            let post = Color(hex: dark ? 0x4A3D32 : 0xA98A68)
+            let rope = Color(hex: dark ? 0x6B6258 : 0x8C7B66)
+            for x in [w * 0.04, w * 0.96] {
+                context.fill(Path(roundedRect: CGRect(x: x - 2, y: h * 0.08, width: 4, height: h * 0.92), cornerRadius: 2), with: .color(post))
             }
+            // The line sags a little in the middle.
+            let from = CGPoint(x: w * 0.04, y: h * 0.12), to = CGPoint(x: w * 0.96, y: h * 0.12), dip = CGPoint(x: w * 0.5, y: h * 0.26)
+            var line = Path()
+            line.move(to: from)
+            line.addQuadCurve(to: to, control: dip)
+            context.stroke(line, with: .color(rope), lineWidth: 1.2)
+            func hang(_ t: CGFloat) -> CGPoint {
+                let u = 1 - t
+                return CGPoint(x: u * u * from.x + 2 * u * t * dip.x + t * t * to.x, y: u * u * from.y + 2 * u * t * dip.y + t * t * to.y)
+            }
+            let dim = dark ? 0.5 : 1.0
+            // A little suit.
+            var p = hang(0.24)
+            var suit = Path()
+            suit.move(to: CGPoint(x: p.x - 5, y: p.y))
+            suit.addLine(to: CGPoint(x: p.x + 5, y: p.y))
+            suit.addLine(to: CGPoint(x: p.x + 11, y: p.y + 5))
+            suit.addLine(to: CGPoint(x: p.x + 8, y: p.y + 9))
+            suit.addLine(to: CGPoint(x: p.x + 6, y: p.y + 7))
+            suit.addLine(to: CGPoint(x: p.x + 6, y: p.y + 20))
+            suit.addLine(to: CGPoint(x: p.x + 1, y: p.y + 20))
+            suit.addLine(to: CGPoint(x: p.x, y: p.y + 16))
+            suit.addLine(to: CGPoint(x: p.x - 1, y: p.y + 20))
+            suit.addLine(to: CGPoint(x: p.x - 6, y: p.y + 20))
+            suit.addLine(to: CGPoint(x: p.x - 6, y: p.y + 7))
+            suit.addLine(to: CGPoint(x: p.x - 8, y: p.y + 9))
+            suit.addLine(to: CGPoint(x: p.x - 11, y: p.y + 5))
+            suit.closeSubpath()
+            context.fill(suit, with: .color(Color(hex: 0x8FB4E3).opacity(dim)))
+            // Two socks.
+            p = hang(0.52)
+            for dx in [-5.0, 5.0] {
+                var sock = Path(roundedRect: CGRect(x: p.x + dx - 2.5, y: p.y, width: 5, height: 11), cornerRadius: 2)
+                sock.addRoundedRect(in: CGRect(x: p.x + dx - 2.5, y: p.y + 7, width: 9, height: 5), cornerSize: CGSize(width: 2.5, height: 2.5))
+                context.fill(sock, with: .color(Color(hex: 0xF4C95D).opacity(dim)))
+            }
+            // A bib.
+            p = hang(0.78)
+            var bib = Path()
+            bib.addArc(center: CGPoint(x: p.x, y: p.y + 9), radius: 8.5, startAngle: .degrees(0), endAngle: .degrees(180), clockwise: false)
+            bib.addLine(to: CGPoint(x: p.x - 8.5, y: p.y))
+            bib.addLine(to: CGPoint(x: p.x - 4, y: p.y))
+            bib.addArc(center: CGPoint(x: p.x, y: p.y), radius: 4, startAngle: .degrees(180), endAngle: .degrees(0), clockwise: true)
+            bib.addLine(to: CGPoint(x: p.x + 8.5, y: p.y))
+            bib.closeSubpath()
+            context.fill(bib, with: .color(Color(hex: 0xEFA3BC).opacity(dim)))
         }
     }
 }
 
-struct Snail: View {
+struct Sailboat: View {
     let dark: Bool
     var body: some View {
-        ZStack {
-            Capsule().fill(Color(hex: dark ? 0x8C8070 : 0xD9C7A8)).frame(width: 40, height: 10).offset(y: 9)
-            Circle().fill(Color(hex: dark ? 0x9C6A44 : 0xD99A5B)).frame(width: 24).offset(x: -3)
-            Circle().stroke(Color(hex: dark ? 0x6E4A30 : 0xA86A35), lineWidth: 2.5).frame(width: 12).offset(x: -3)
-            Capsule().fill(Color(hex: dark ? 0x8C8070 : 0xD9C7A8)).frame(width: 2.5, height: 10).rotationEffect(.degrees(20)).offset(x: 17, y: -1)
-            Circle().fill(Palette.fixedInk).frame(width: 4).offset(x: 19, y: -6)
+        Canvas { context, size in
+            let w = size.width, h = size.height
+            var hull = Path()
+            hull.move(to: CGPoint(x: w * 0.08, y: h * 0.74))
+            hull.addLine(to: CGPoint(x: w * 0.92, y: h * 0.74))
+            hull.addQuadCurve(to: CGPoint(x: w * 0.2, y: h), control: CGPoint(x: w * 0.8, y: h))
+            hull.closeSubpath()
+            context.fill(hull, with: .color(Color(hex: dark ? 0x6B4A40 : 0xD9735E)))
+            context.fill(Path(CGRect(x: w * 0.48, y: h * 0.06, width: 1.6, height: h * 0.7)), with: .color(Color(hex: dark ? 0x4A4038 : 0x8C7355)))
+            var sail = Path()
+            sail.move(to: CGPoint(x: w * 0.56, y: h * 0.08))
+            sail.addLine(to: CGPoint(x: w * 0.95, y: h * 0.66))
+            sail.addLine(to: CGPoint(x: w * 0.56, y: h * 0.66))
+            sail.closeSubpath()
+            context.fill(sail, with: .color(Color(hex: dark ? 0x8E8A84 : 0xFFFDF6)))
+            var jib = Path()
+            jib.move(to: CGPoint(x: w * 0.44, y: h * 0.2))
+            jib.addLine(to: CGPoint(x: w * 0.44, y: h * 0.66))
+            jib.addLine(to: CGPoint(x: w * 0.12, y: h * 0.66))
+            jib.closeSubpath()
+            context.fill(jib, with: .color(Color(hex: dark ? 0x7A7670 : 0xF6EDD9)))
         }
     }
 }
 
-struct Butterfly: View {
-    let dark: Bool
-    var body: some View {
-        let wing = Color(hex: dark ? 0x8A75B8 : 0xB9A0EA)
-        ZStack {
-            Ellipse().fill(wing).frame(width: 13, height: 16).rotationEffect(.degrees(-20)).offset(x: -7, y: -3)
-            Ellipse().fill(wing).frame(width: 13, height: 16).rotationEffect(.degrees(20)).offset(x: 7, y: -3)
-            Ellipse().fill(wing.opacity(0.8)).frame(width: 9, height: 10).offset(x: -6, y: 7)
-            Ellipse().fill(wing.opacity(0.8)).frame(width: 9, height: 10).offset(x: 6, y: 7)
-            Capsule().fill(Palette.fixedInk).frame(width: 3, height: 18)
-        }
+struct GrassTuft: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let base = CGPoint(x: rect.midX, y: rect.maxY)
+        path.move(to: base)
+        path.addQuadCurve(to: CGPoint(x: rect.minX, y: rect.minY + rect.height * 0.3), control: CGPoint(x: rect.midX - rect.width * 0.1, y: rect.midY))
+        path.move(to: base)
+        path.addLine(to: CGPoint(x: rect.midX + rect.width * 0.04, y: rect.minY))
+        path.move(to: base)
+        path.addQuadCurve(to: CGPoint(x: rect.maxX, y: rect.minY + rect.height * 0.35), control: CGPoint(x: rect.midX + rect.width * 0.12, y: rect.midY))
+        return path
     }
 }
 
-struct Kookaburra: View {
-    let dark: Bool
-    var body: some View {
-        ZStack {
-            Ellipse().fill(Color(hex: dark ? 0xA89A84 : 0xF1E6D0)).frame(width: 30, height: 34).offset(y: 5)
-            Ellipse().fill(Color(hex: dark ? 0x6E5440 : 0x9C7451)).frame(width: 16, height: 26).offset(x: -10, y: 6)
-            Circle().fill(Color(hex: dark ? 0xA89A84 : 0xF1E6D0)).frame(width: 22).offset(y: -12)
-            Capsule().fill(Color(hex: dark ? 0x6E5440 : 0x9C7451)).frame(width: 18, height: 4).offset(y: -14)
-            Circle().fill(Palette.fixedInk).frame(width: 3.5).offset(x: 4, y: -12)
-            Triangle().fill(Color(hex: dark ? 0x5C5A55 : 0x3F4A52)).frame(width: 9, height: 16).rotationEffect(.degrees(90)).offset(x: 16, y: -9)
-            Capsule().fill(Color(hex: dark ? 0x4A5E78 : 0x6C93C4)).frame(width: 7, height: 4).offset(x: -6, y: 4)
+struct Starfish: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        let centre = CGPoint(x: rect.midX, y: rect.midY)
+        let outer = min(rect.width, rect.height) / 2, inner = outer * 0.45
+        for i in 0..<10 {
+            let angle = Double(i) * .pi / 5 - .pi / 2
+            let radius = i.isMultiple(of: 2) ? outer : inner
+            let point = CGPoint(x: centre.x + CGFloat(cos(angle)) * radius, y: centre.y + CGFloat(sin(angle)) * radius)
+            if i == 0 { path.move(to: point) } else { path.addLine(to: point) }
         }
+        path.closeSubpath()
+        return path.strokedPath(StrokeStyle(lineWidth: 2.5, lineJoin: .round)).union(path)
     }
 }
 
@@ -385,45 +693,277 @@ struct Triangle: Shape {
     }
 }
 
+// MARK: Friends (placeholders until the drawings)
+
+/// Draws a character the way Puggle is drawn: flat colours inside one dark
+/// outline. Every part is first stroked dark, then all are filled, so the
+/// outline runs round the whole shape and not between its parts.
+private func outlined(_ context: inout GraphicsContext, _ parts: [(Path, Color)], line: CGFloat = 4) {
+    for (path, _) in parts {
+        context.stroke(path, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: line, lineCap: .round, lineJoin: .round))
+    }
+    for (path, colour) in parts {
+        context.fill(path, with: .color(colour))
+    }
+}
+
+private func dot(_ context: inout GraphicsContext, _ x: CGFloat, _ y: CGFloat, _ radius: CGFloat, _ colour: Color) {
+    context.fill(Path(ellipseIn: CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)), with: .color(colour))
+}
+
+private func polygon(_ points: [CGPoint]) -> Path {
+    var path = Path()
+    path.addLines(points)
+    path.closeSubpath()
+    return path
+}
+
+struct Bird: View {
+    let dark: Bool
+    /// In the air: wing up and no legs.
+    var flying = false
+    var body: some View {
+        Canvas { context, size in
+            let cx = size.width / 2, cy = size.height / 2 - (flying ? 0 : 2)
+            let body = Color(hex: dark ? 0xB57A92 : 0xE79BB8)
+            let wing = Color(hex: dark ? 0x8E5C74 : 0xC9718F)
+            if !flying {
+                var legs = Path()
+                legs.move(to: CGPoint(x: cx - 3, y: cy + 8)); legs.addLine(to: CGPoint(x: cx - 3, y: cy + 15))
+                legs.move(to: CGPoint(x: cx + 4, y: cy + 8)); legs.addLine(to: CGPoint(x: cx + 4, y: cy + 15))
+                context.stroke(legs, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            }
+            outlined(&context, [
+                (polygon([CGPoint(x: cx - 10, y: cy - 1), CGPoint(x: cx - 21, y: cy - 7), CGPoint(x: cx - 19, y: cy + 4)]), wing),
+                (polygon([CGPoint(x: cx + 11, y: cy - 5), CGPoint(x: cx + 20, y: cy - 1.5), CGPoint(x: cx + 11, y: cy + 1.5)]), Color(hex: dark ? 0xC9933A : 0xF2B544)),
+                (Path(ellipseIn: CGRect(x: cx - 14, y: cy - 11, width: 28, height: 22)), body),
+            ])
+            let lift: CGFloat = flying ? -7 : 0
+            let wingShape = Path(ellipseIn: CGRect(x: cx - 10, y: cy - 3 + lift, width: 14, height: 9))
+                .applying(CGAffineTransform(translationX: cx - 3, y: cy + 1.5 + lift).rotated(by: flying ? -0.9 : -0.35).translatedBy(x: -(cx - 3), y: -(cy + 1.5 + lift)))
+            if flying {
+                outlined(&context, [(wingShape, wing)], line: 3)
+            } else {
+                context.fill(wingShape, with: .color(wing))
+            }
+            dot(&context, cx + 6, cy - 4, 1.9, Palette.fixedInk)
+            dot(&context, cx + 8.5, cy + 1.5, 2.4, Color(hex: 0xF27A8A).opacity(dark ? 0.35 : 0.6))
+        }
+    }
+}
+
+struct Crab: View {
+    let dark: Bool
+    var body: some View {
+        Canvas { context, size in
+            let cx = size.width / 2, cy = size.height / 2 + 4
+            let shell = Color(hex: dark ? 0xB8584A : 0xE8735E)
+            // Legs first, behind everything.
+            var legs = Path()
+            for side in [-1.0, 1.0] {
+                for (i, reach) in [(0, 9.0), (1, 12.0), (2, 9.0)] {
+                    let start = CGPoint(x: cx + side * 13, y: cy + 3 + CGFloat(i) * 2.5)
+                    legs.move(to: start)
+                    legs.addQuadCurve(to: CGPoint(x: start.x + side * reach, y: cy + 9 + CGFloat(i) * 1.5),
+                                      control: CGPoint(x: start.x + side * reach * 0.7, y: start.y - 2))
+                }
+            }
+            context.stroke(legs, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+            // Arms up to the claws.
+            var arms = Path()
+            for side in [-1.0, 1.0] {
+                arms.move(to: CGPoint(x: cx + side * 14, y: cy - 1))
+                arms.addLine(to: CGPoint(x: cx + side * 21, y: cy - 8))
+            }
+            context.stroke(arms, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 6.5, lineCap: .round))
+            context.stroke(arms, with: .color(shell), style: StrokeStyle(lineWidth: 2.5, lineCap: .round))
+            outlined(&context, [
+                (Path(ellipseIn: CGRect(x: cx - 29, y: cy - 17, width: 14, height: 13)), shell),
+                (Path(ellipseIn: CGRect(x: cx + 15, y: cy - 17, width: 14, height: 13)), shell),
+                (Path(roundedRect: CGRect(x: cx - 7.5, y: cy - 15, width: 3, height: 9), cornerRadius: 1.5), shell),
+                (Path(roundedRect: CGRect(x: cx + 4.5, y: cy - 15, width: 3, height: 9), cornerRadius: 1.5), shell),
+                (Path(ellipseIn: CGRect(x: cx - 17, y: cy - 8, width: 34, height: 20)), shell),
+                (Path(ellipseIn: CGRect(x: cx - 10, y: cy - 20, width: 8, height: 8)), Color(hex: dark ? 0xD9D2C4 : 0xFFFDF6)),
+                (Path(ellipseIn: CGRect(x: cx + 2, y: cy - 20, width: 8, height: 8)), Color(hex: dark ? 0xD9D2C4 : 0xFFFDF6)),
+            ])
+            // The nick in each claw.
+            for side in [-1.0, 1.0] {
+                var nick = Path()
+                nick.move(to: CGPoint(x: cx + side * 22, y: cy - 17))
+                nick.addLine(to: CGPoint(x: cx + side * 22, y: cy - 11.5))
+                context.stroke(nick, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+            }
+            dot(&context, cx - 5.6, cy - 15.6, 1.9, Palette.fixedInk)
+            dot(&context, cx + 6.4, cy - 15.6, 1.9, Palette.fixedInk)
+            var smile = Path()
+            smile.addArc(center: CGPoint(x: cx, y: cy + 1), radius: 4, startAngle: .degrees(25), endAngle: .degrees(155), clockwise: false)
+            context.stroke(smile, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.6, lineCap: .round))
+            dot(&context, cx - 10, cy + 2.5, 2.4, Color(hex: 0xF9B7A6).opacity(dark ? 0.4 : 0.8))
+            dot(&context, cx + 10, cy + 2.5, 2.4, Color(hex: 0xF9B7A6).opacity(dark ? 0.4 : 0.8))
+        }
+    }
+}
+
+struct Snail: View {
+    let dark: Bool
+    var body: some View {
+        Canvas { context, size in
+            let cx = size.width / 2, cy = size.height / 2 + 2
+            let skin = Color(hex: dark ? 0x9C8F7C : 0xE3D1B0)
+            let shell = Color(hex: dark ? 0x9C6A44 : 0xE0A062)
+            // Feelers, with a knob on each.
+            var feelers = Path()
+            feelers.move(to: CGPoint(x: cx + 16, y: cy - 2)); feelers.addLine(to: CGPoint(x: cx + 14, y: cy - 12))
+            feelers.move(to: CGPoint(x: cx + 20, y: cy - 2)); feelers.addLine(to: CGPoint(x: cx + 23, y: cy - 11))
+            context.stroke(feelers, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            dot(&context, cx + 14, cy - 12.5, 2.4, Palette.fixedInk)
+            dot(&context, cx + 23, cy - 11.5, 2.4, Palette.fixedInk)
+            outlined(&context, [
+                (Path(roundedRect: CGRect(x: cx - 23, y: cy + 5, width: 44, height: 9), cornerRadius: 4.5), skin),
+                (Path(ellipseIn: CGRect(x: cx + 10, y: cy - 5, width: 15, height: 16)), skin),
+                (Path(ellipseIn: CGRect(x: cx - 18, y: cy - 16, width: 27, height: 27)), shell),
+            ])
+            // The curl of the shell.
+            var curl = Path()
+            curl.addArc(center: CGPoint(x: cx - 4.5, y: cy - 2.5), radius: 7.5, startAngle: .degrees(-30), endAngle: .degrees(250), clockwise: false)
+            curl.addArc(center: CGPoint(x: cx - 4.5, y: cy - 1.5), radius: 3, startAngle: .degrees(250), endAngle: .degrees(80), clockwise: false)
+            context.stroke(curl, with: .color(Color(hex: dark ? 0x6E4A30 : 0xA86A35)), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+            dot(&context, cx + 19.5, cy + 1.5, 1.7, Palette.fixedInk)
+            dot(&context, cx + 17, cy + 5.5, 2, Color(hex: 0xF2A48E).opacity(dark ? 0.35 : 0.7))
+        }
+    }
+}
+
+struct Butterfly: View {
+    let dark: Bool
+    var body: some View {
+        Canvas { context, size in
+            let cx = size.width / 2, cy = size.height / 2
+            let wing = Color(hex: dark ? 0x8A75B8 : 0xB9A0EA)
+            let lower = Color(hex: dark ? 0x7562A0 : 0xD3C2F4)
+            func tilted(_ rect: CGRect, _ angle: CGFloat) -> Path {
+                Path(ellipseIn: rect).applying(CGAffineTransform(translationX: rect.midX, y: rect.midY).rotated(by: angle).translatedBy(x: -rect.midX, y: -rect.midY))
+            }
+            outlined(&context, [
+                (tilted(CGRect(x: cx - 14, y: cy + 1, width: 11, height: 11), 0.3), lower),
+                (tilted(CGRect(x: cx + 3, y: cy + 1, width: 11, height: 11), -0.3), lower),
+                (tilted(CGRect(x: cx - 16, y: cy - 12, width: 14, height: 17), -0.4), wing),
+                (tilted(CGRect(x: cx + 2, y: cy - 12, width: 14, height: 17), 0.4), wing),
+            ], line: 3.4)
+            context.fill(Path(roundedRect: CGRect(x: cx - 1.7, y: cy - 9, width: 3.4, height: 19), cornerRadius: 1.7), with: .color(Palette.fixedInk))
+            var feelers = Path()
+            feelers.move(to: CGPoint(x: cx - 0.5, y: cy - 8)); feelers.addQuadCurve(to: CGPoint(x: cx - 5, y: cy - 14), control: CGPoint(x: cx - 1.5, y: cy - 13))
+            feelers.move(to: CGPoint(x: cx + 0.5, y: cy - 8)); feelers.addQuadCurve(to: CGPoint(x: cx + 5, y: cy - 14), control: CGPoint(x: cx + 1.5, y: cy - 13))
+            context.stroke(feelers, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
+            dot(&context, cx - 9, cy - 4, 2, Color.white.opacity(0.6))
+            dot(&context, cx + 9, cy - 4, 2, Color.white.opacity(0.6))
+        }
+    }
+}
+
+/// After dark the butterfly has gone to bed; fireflies come out instead.
+struct Fireflies: View {
+    var body: some View {
+        Canvas { context, size in
+            let spots: [(CGFloat, CGFloat, CGFloat)] = [(0.2, 0.6, 1), (0.52, 0.22, 0.8), (0.82, 0.7, 0.9), (0.66, 0.5, 0.6)]
+            for spot in spots {
+                let centre = CGPoint(x: size.width * spot.0, y: size.height * spot.1)
+                let glow = 9 * spot.2
+                context.fill(Path(ellipseIn: CGRect(x: centre.x - glow, y: centre.y - glow, width: glow * 2, height: glow * 2)),
+                             with: .radialGradient(Gradient(colors: [Color(hex: 0xFFE98A).opacity(0.5), Color(hex: 0xFFE98A).opacity(0)]),
+                                                   center: centre, startRadius: 0, endRadius: glow))
+                dot(&context, centre.x, centre.y, 1.8 * spot.2, Color(hex: 0xFFF3B8))
+            }
+        }
+    }
+}
+
+struct Kookaburra: View {
+    let dark: Bool
+    var body: some View {
+        Canvas { context, size in
+            let cx = size.width / 2 - 2, cy = size.height / 2 + 2
+            let cream = Color(hex: dark ? 0xA89A84 : 0xF4EAD6)
+            let brown = Color(hex: dark ? 0x6E5440 : 0x9C7451)
+            let beak = Color(hex: dark ? 0x5C5A55 : 0x4A545C)
+            // Feet round the branch.
+            var feet = Path()
+            feet.move(to: CGPoint(x: cx - 3, y: cy + 17)); feet.addLine(to: CGPoint(x: cx - 3, y: cy + 22))
+            feet.move(to: CGPoint(x: cx + 5, y: cy + 17)); feet.addLine(to: CGPoint(x: cx + 5, y: cy + 22))
+            context.stroke(feet, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+            outlined(&context, [
+                (polygon([CGPoint(x: cx - 12, y: cy + 8), CGPoint(x: cx - 19, y: cy + 24), CGPoint(x: cx - 11, y: cy + 23), CGPoint(x: cx - 5, y: cy + 13)]), brown),
+                (polygon([CGPoint(x: cx + 8, y: cy - 19), CGPoint(x: cx + 27, y: cy - 13.5), CGPoint(x: cx + 8, y: cy - 9)]), beak),
+                (Path(ellipseIn: CGRect(x: cx - 13, y: cy - 10, width: 27, height: 29)), cream),
+                (Path(ellipseIn: CGRect(x: cx - 12, y: cy - 26, width: 24, height: 23)), cream),
+            ])
+            // Wing, the stripe through the eye and the flash of blue.
+            context.fill(Path(ellipseIn: CGRect(x: cx - 13, y: cy - 6, width: 14, height: 23)), with: .color(brown))
+            context.fill(Path(roundedRect: CGRect(x: cx - 9, y: cy - 17.5, width: 18, height: 5), cornerRadius: 2.5), with: .color(brown))
+            context.fill(Path(roundedRect: CGRect(x: cx - 10, y: cy + 1, width: 8, height: 4), cornerRadius: 2), with: .color(Color(hex: dark ? 0x4A5E78 : 0x6C93C4)))
+            context.fill(Path(roundedRect: CGRect(x: cx - 6, y: cy - 27, width: 10, height: 4), cornerRadius: 2), with: .color(brown.opacity(0.7)))
+            dot(&context, cx + 4.5, cy - 15, 1.9, Palette.fixedInk)
+            // The line where the beak closes.
+            var mouth = Path()
+            mouth.move(to: CGPoint(x: cx + 10, y: cy - 13.5)); mouth.addLine(to: CGPoint(x: cx + 22, y: cy - 13.5))
+            context.stroke(mouth, with: .color(Palette.fixedInk.opacity(0.7)), style: StrokeStyle(lineWidth: 1.2, lineCap: .round))
+        }
+    }
+}
+
+// MARK: Things in the pulled-down sky
+
 struct Balloon: View {
     let dark: Bool
     var body: some View {
-        VStack(spacing: 0) {
-            ZStack {
-                Ellipse().fill(Color(hex: dark ? 0xB8584A : 0xE8735E)).frame(width: 34, height: 40)
-                Ellipse().fill(Color(hex: dark ? 0xC9A548 : 0xFFD666)).frame(width: 12, height: 40)
-            }
-            Path { p in
-                p.move(to: CGPoint(x: 10, y: 0)); p.addLine(to: CGPoint(x: 14, y: 6))
-                p.move(to: CGPoint(x: 24, y: 0)); p.addLine(to: CGPoint(x: 20, y: 6))
-            }
-            .stroke(Palette.fixedInk.opacity(0.6), lineWidth: 1)
-            .frame(width: 34, height: 6)
-            RoundedRectangle(cornerRadius: 2).fill(Color(hex: dark ? 0x6E5440 : 0x9C7451)).frame(width: 9, height: 7)
+        Canvas { context, size in
+            let cx = size.width / 2
+            let red = Color(hex: dark ? 0xB8584A : 0xE8735E)
+            let yellow = Color(hex: dark ? 0xC9A548 : 0xFFD666)
+            let envelope = CGRect(x: cx - 17, y: 3, width: 34, height: 38)
+            // Ropes down to the basket.
+            var ropes = Path()
+            ropes.move(to: CGPoint(x: cx - 9, y: 38)); ropes.addLine(to: CGPoint(x: cx - 4.5, y: 48))
+            ropes.move(to: CGPoint(x: cx + 9, y: 38)); ropes.addLine(to: CGPoint(x: cx + 4.5, y: 48))
+            context.stroke(ropes, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
+            outlined(&context, [
+                (Path(ellipseIn: envelope), red),
+                (Path(roundedRect: CGRect(x: cx - 5.5, y: 47, width: 11, height: 8), cornerRadius: 2), Color(hex: dark ? 0x6E5440 : 0xB08A5E)),
+            ], line: 3.6)
+            // Stripes that follow the round of the balloon.
+            context.fill(Path(ellipseIn: CGRect(x: cx - 6, y: 3, width: 12, height: 38)), with: .color(yellow))
+            var seams = Path()
+            seams.addEllipse(in: CGRect(x: cx - 12, y: 3, width: 24, height: 38))
+            context.stroke(seams, with: .color(Palette.fixedInk.opacity(0.18)), lineWidth: 1)
+            dot(&context, cx - 8, 13, 2.6, Color.white.opacity(dark ? 0.15 : 0.45))
         }
     }
 }
 
 struct Kite: View {
     var body: some View {
-        ZStack(alignment: .top) {
-            Path { p in
-                p.move(to: CGPoint(x: 20, y: 0)); p.addLine(to: CGPoint(x: 38, y: 20))
-                p.addLine(to: CGPoint(x: 20, y: 46)); p.addLine(to: CGPoint(x: 2, y: 20)); p.closeSubpath()
+        Canvas { context, size in
+            let cx = size.width / 2
+            let top = CGPoint(x: cx, y: 3), right = CGPoint(x: cx + 17, y: 21), bottom = CGPoint(x: cx, y: 46), left = CGPoint(x: cx - 17, y: 21)
+            // The tail, with two bows.
+            var tail = Path()
+            tail.move(to: bottom)
+            tail.addCurve(to: CGPoint(x: cx + 6, y: 72), control1: CGPoint(x: cx - 10, y: 54), control2: CGPoint(x: cx + 12, y: 62))
+            context.stroke(tail, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
+            for (point, colour) in [(CGPoint(x: cx - 2.5, y: 55), Color(hex: 0xE8735E)), (CGPoint(x: cx + 6, y: 65), Color(hex: 0xFFD666))] {
+                let bow = polygon([CGPoint(x: point.x - 5, y: point.y - 3), CGPoint(x: point.x + 5, y: point.y + 3),
+                                   CGPoint(x: point.x + 5, y: point.y - 3), CGPoint(x: point.x - 5, y: point.y + 3)])
+                outlined(&context, [(bow, colour)], line: 2.4)
             }
-            .fill(Color(hex: 0x6C93C4))
-            Path { p in
-                p.move(to: CGPoint(x: 20, y: 0)); p.addLine(to: CGPoint(x: 20, y: 46))
-                p.move(to: CGPoint(x: 2, y: 20)); p.addLine(to: CGPoint(x: 38, y: 20))
-            }
-            .stroke(Color.white.opacity(0.7), lineWidth: 1.5)
-            Path { p in
-                p.move(to: CGPoint(x: 20, y: 46))
-                p.addCurve(to: CGPoint(x: 26, y: 70), control1: CGPoint(x: 10, y: 54), control2: CGPoint(x: 32, y: 60))
-            }
-            .stroke(Palette.fixedInk.opacity(0.5), lineWidth: 1.2)
+            outlined(&context, [(polygon([top, right, bottom, left]), Color(hex: 0x6C93C4))], line: 3.6)
+            // Two lighter panels and the sticks.
+            context.fill(polygon([top, right, CGPoint(x: cx, y: 21)]), with: .color(Color(hex: 0x8FB4E3)))
+            context.fill(polygon([left, CGPoint(x: cx, y: 21), bottom]), with: .color(Color(hex: 0x8FB4E3)))
+            var sticks = Path()
+            sticks.move(to: top); sticks.addLine(to: bottom)
+            sticks.move(to: left); sticks.addLine(to: right)
+            context.stroke(sticks, with: .color(Palette.fixedInk.opacity(0.55)), lineWidth: 1.2)
         }
-        .frame(width: 40, height: 70)
     }
 }
 

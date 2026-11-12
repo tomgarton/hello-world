@@ -36,6 +36,7 @@ struct DeveloperView: View {
                     Text("Backyard and snail").tag("2")
                     Text("Bush and kookaburra").tag("3")
                 }
+                NavigationLink("Every scene, at each time of day") { SceneGalleryView() }
                 Button("Play Puggle's entrance again") { greetedOn = "" }
             } header: {
                 Text("Today")
@@ -57,6 +58,7 @@ struct DeveloperView: View {
                     Text("Morning (peach)").tag("8")
                     Text("Day (cream)").tag("13")
                     Text("Evening (lilac)").tag("18")
+                    Text("Late (stars)").tag("22")
                 }
                 Button("Show the splash") { showingSplash = true }
             } header: {

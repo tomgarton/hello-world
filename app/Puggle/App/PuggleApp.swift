@@ -146,6 +146,13 @@ struct RootView: View {
             #if DEBUG
             // For the automated audit: "-uitest 1" opens the sample family with no splash.
             .task {
+                // For reviewing the drawings: "-debugSheet 1" saves every scene to Documents.
+                if UserDefaults.standard.string(forKey: "debugSheet") == "1" {
+                    SceneGalleryView.writeSheet(pull: 0, name: "scenes.png")
+                    SceneGalleryView.writeSheet(pull: 220, name: "scenes-pulled.png")
+                }
+            }
+            .task {
                 guard UserDefaults.standard.string(forKey: "uitest") == "1" else { return }
                 splashing = false
                 sample.start()
@@ -164,6 +171,9 @@ struct RootView: View {
         // For checking the play pad: launch with "-debugPad 1".
         if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
+        } else if let scene = UserDefaults.standard.string(forKey: "debugGallery").flatMap(Int.init) {
+            // For checking the scenes: launch with "-debugGallery 0" (to 3).
+            SceneGalleryView(kind: SceneKind(rawValue: scene) ?? .hills)
         } else if UserDefaults.standard.string(forKey: "debugSticker") == "dry" {
             StickerDetailView(sticker: EarnedSticker(id: "dry-1", title: "First dry day",
                                                      style: StickerStyle(shape: "shape-soft-square", foil: .sea, emblem: "sun"),

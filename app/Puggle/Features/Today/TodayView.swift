@@ -566,10 +566,10 @@ struct LastSavedRow: View {
             // Straight after deleting: a way back, until the next save.
             HStack(spacing: 8) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Deleted").font(.caption).foregroundStyle(Palette.muted)
+                    Text("Deleted").font(.caption).foregroundStyle(Palette.paper.opacity(0.75))
                     Text(gone.childNames.isEmpty ? gone.summary : "\(gone.childNames.joined(separator: ", ")): \(gone.summary)")
-                        .font(.subheadline.weight(.medium))
-                        .foregroundStyle(Palette.ink)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Palette.paper)
                         .lineLimit(1)
                 }
                 .accessibilityElement(children: .combine)
@@ -583,14 +583,14 @@ struct LastSavedRow: View {
                 } label: {
                     Image(systemName: "xmark").font(.footnote.weight(.bold)).frame(width: 36, height: 44)
                 }
-                .foregroundStyle(Palette.muted)
+                .foregroundStyle(Palette.paper.opacity(0.75))
                 .accessibilityLabel("Dismiss")
             }
             .padding(.leading, 14)
             .padding(.trailing, 4)
             .padding(.vertical, 6)
-            .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
+            .background(Palette.ink, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .shadow(color: .black.opacity(0.25), radius: 14, y: 5)
             .transition(.move(edge: .bottom).combined(with: .opacity))
         } else if let saved = store.lastSaved {
             let events = saved.events.filter(\.isLive)
@@ -600,12 +600,12 @@ struct LastSavedRow: View {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Last saved")
                             .font(.caption)
-                            .foregroundStyle(Palette.muted)
+                            .foregroundStyle(Palette.paper.opacity(0.75))
                         Text(Set(events.map(\.summary)).count == 1
                              ? (names.isEmpty ? first.summary : "\(names): \(first.summary)")
                              : events.map { "\($0.sortedChildren.first?.displayName ?? ""): \($0.summary)" }.joined(separator: "\n"))
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(Palette.ink)
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Palette.paper)
                     }
                     .accessibilityElement(children: .combine)
                     Spacer(minLength: 0)
@@ -622,8 +622,8 @@ struct LastSavedRow: View {
                 .padding(.leading, 14)
                 .padding(.trailing, 8)
                 .padding(.vertical, 6)
-                .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .shadow(color: .black.opacity(0.12), radius: 12, y: 4)
+                .background(Palette.ink, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .shadow(color: .black.opacity(0.25), radius: 14, y: 5)
                 .id(saved.id)
                 .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
             }
@@ -633,10 +633,10 @@ struct LastSavedRow: View {
     private func action(_ title: String, perform: @escaping () -> Void) -> some View {
         Button(title, action: perform)
             .font(.subheadline.weight(.semibold))
-            .foregroundStyle(Palette.ink)
+            .foregroundStyle(Palette.paper)
             .padding(.horizontal, 12)
             .frame(minHeight: 44)
-            .background(Palette.field, in: Capsule())
+            .background(Palette.paper.opacity(0.18), in: Capsule())
             .buttonStyle(PressStyle())
     }
 }
