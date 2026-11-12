@@ -65,6 +65,9 @@ struct StampFlowView: View {
     @State private var dip = false
     @State private var tilt: CGSize = .zero
     @State private var held = false
+    /// The Easter egg: corners folded over so far, and whether the card is turned over.
+    @State private var cornerPulls: [String: Int] = [:]
+    @State private var flipped = false
 
     // The shiny sticker
     @State private var offering = false
@@ -477,10 +480,21 @@ struct StampFlowView: View {
 
     private var cardView: some View {
         CardCanvas {
-            StampCardFace(theme: theme, impressions: impressions, sticker: sticker)
-                .modifier(PaperEffects(curl: reduceMotion ? 0 : curl, corner: corner, rippleOrigin: space,
-                                       rippleStart: reduceMotion ? nil : rippleStart))
-                .gesture(paperGesture, including: zoomed ? .none : .all)
+            ZStack(alignment: .topLeading) {
+                StampCardFace(theme: theme, impressions: impressions, sticker: sticker)
+                    .modifier(PaperEffects(curl: reduceMotion ? 0 : curl, corner: corner, rippleOrigin: space,
+                                           rippleStart: reduceMotion ? nil : rippleStart))
+                    .gesture(paperGesture, including: zoomed || flipped ? .none : .all)
+                    .opacity(flipped ? 0 : 1)
+                    .animation(.linear(duration: 0.01).delay(0.25), value: flipped)
+                // The back: only seen when the card is turned over.
+                CardBack(theme: theme)
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    .opacity(flipped ? 1 : 0)
+                    .animation(.linear(duration: 0.01).delay(0.25), value: flipped)
+                    .allowsHitTesting(false)
+            }
+            .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
             if stuck {
                 // The sticker folds down onto its space, hinged at its lower edge.
                 StickerView(style: sticker, size: 68)
@@ -539,10 +553,19 @@ struct StampFlowView: View {
                 curl = max(0, min(90, inward))
             }
             .onEnded { _ in
+                let folded = curl > 30
                 withAnimation(.spring(duration: 0.55, bounce: 0.4)) {
                     tilt = .zero
                     curl = 0
                     held = false
+                }
+                // Fold every corner, or one corner three times, and the card turns over.
+                guard folded else { return }
+                let key = "\(Int(corner.x))-\(Int(corner.y))"
+                cornerPulls[key, default: 0] += 1
+                if cornerPulls.count == 4 || cornerPulls[key, default: 0] >= 3 {
+                    cornerPulls = [:]
+                    turnOver()
                 }
             }
     }
@@ -577,7 +600,21 @@ struct StampFlowView: View {
         scheduleNudge()
     }
 
+    /// Turns the card over to show Puggle on the back, then back again.
+    private func turnOver() {
+        Haptics.success()
+        withAnimation(.easeInOut(duration: 0.5)) { flipped = true }
+        Task {
+            try? await Task.sleep(for: .seconds(4))
+            withAnimation(.easeInOut(duration: 0.5)) { flipped = false }
+        }
+    }
+
     private func tapCard(_ location: CGPoint) {
+        if flipped {
+            withAnimation(.easeInOut(duration: 0.5)) { flipped = false }
+            return
+        }
         guard page == .card, zoomed, stamped == nil, !pressing else { return }
         withAnimation(reduceMotion ? nil : .spring(duration: 0.25, bounce: 0)) { stamperAt = location }
         Task {

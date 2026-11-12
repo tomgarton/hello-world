@@ -14,14 +14,15 @@ enum Ink: String, CaseIterable, Identifiable {
     /// Brighter after dark, so the ink still reads on dimmed paper.
     var colour: Color {
         switch self {
-        case .red: Color(light: 0xD9482F, dark: 0xEC6A50)
-        case .blue: Color(light: 0x2A62B8, dark: 0x6A9AE6)
-        case .green: Color(light: 0x3C8A55, dark: 0x5DB676)
-        case .gold: Color(light: 0xC98A0B, dark: 0xE2AE3E)
-        case .purple: Color(light: 0x7B4FA8, dark: 0xA783D6)
-        case .teal: Color(light: 0x1E8C8C, dark: 0x3DB6B3)
-        case .pink: Color(light: 0xD2527F, dark: 0xE87FA4)
-        case .orange: Color(light: 0xE0701F, dark: 0xF28F47)
+        // After dark, bright pastels, so they read on the darker card.
+        case .red: Color(light: 0xD9482F, dark: 0xFF8D76, night: 0xE07E6A)
+        case .blue: Color(light: 0x2A62B8, dark: 0x8DBBFF, night: 0x7DA6E3)
+        case .green: Color(light: 0x3C8A55, dark: 0x7FE39C, night: 0x70C98A)
+        case .gold: Color(light: 0xC98A0B, dark: 0xFFD666, night: 0xE3BE5B)
+        case .purple: Color(light: 0x7B4FA8, dark: 0xCBA8FF, night: 0xB495E3)
+        case .teal: Color(light: 0x1E8C8C, dark: 0x5FE6DC, night: 0x55CCC3)
+        case .pink: Color(light: 0xD2527F, dark: 0xFFA3C2, night: 0xE391AD)
+        case .orange: Color(light: 0xE0701F, dark: 0xFFB070, night: 0xE39D64)
         }
     }
 }
@@ -360,7 +361,7 @@ struct StampMark: View {
                 Text(String(letter))
                     .font(.system(size: 5.4 * k, weight: heavy ? .heavy : .bold))
                     .rotationEffect(.degrees(-angle))
-                    .offset(x: CGFloat(sin(radians)) * 20.5 * k, y: CGFloat(cos(radians)) * 20.5 * k)
+                    .offset(x: CGFloat(sin(radians)) * 19.4 * k, y: CGFloat(cos(radians)) * 19.4 * k)
             }
         }
         .foregroundStyle(colour)
@@ -491,7 +492,8 @@ struct PaperEffects: ViewModifier, Animatable {
     var rippleStart: Date?
     var size = StampCard.size
     /// The back of the card, plainer than the front, and dimmed after dark like everything else.
-    var back = Color(light: 0xE6D9B8, dark: 0x6E624B, night: 0x4A4234)
+    var back = PaperEffects.cardBack
+    static let cardBack = Color(light: 0xE6D9B8, dark: 0x4C4232, night: 0x342D22)
 
     var animatableData: CGFloat {
         get { curl }
@@ -536,26 +538,27 @@ enum CardTheme: CaseIterable {
     var paper: Color {
         switch self {
         // Kraft card, dimmed in dark mode and dimmer again at night.
-        case .beach: Color(light: 0xD2BF92, dark: 0x6A5C40, night: 0x463D2B)
-        case .backyard: Color(light: 0xCDBB8E, dark: 0x655A3E, night: 0x433B29)
+        case .beach: Color(light: 0xD2BF92, dark: 0x3F3526, night: 0x2C251B)
+        case .backyard: Color(light: 0xCDBB8E, dark: 0x3B3324, night: 0x29231A)
         case .night: Color(light: 0x1F2A4D, dark: 0x1B2442, night: 0x141B33)
         }
     }
 
     var trail: Color {
         switch self {
-        case .beach: Color(light: 0x2A62B8, dark: 0x6A9AE6, night: 0x5584C8)
-        case .backyard: Color(light: 0x3D7A45, dark: 0x6FBF7C, night: 0x5A9E66)
+        case .beach: Color(light: 0x2A62B8, dark: 0x8DBBFF, night: 0x7DA6E3)
+        case .backyard: Color(light: 0x3D7A45, dark: 0x7FE39C, night: 0x70C98A)
         case .night: Color(light: 0xF3E0B8, dark: 0xF3E0B8, night: 0xD8C59E)
         }
     }
 
     // Lighter after dark, so the drawings stay bright on the darker card.
-    private static let red = Color(light: 0xD9482F, dark: 0xEC6A50, night: 0xC9573F)
-    private static let blue = Color(light: 0x2A62B8, dark: 0x6A9AE6, night: 0x5584C8)
-    private static let green = Color(light: 0x3C8A55, dark: 0x5DB676, night: 0x4B9A61)
-    private static let yellow = Color(light: 0xE9AE1C, dark: 0xF2C14A, night: 0xD4A63A)
-    private static let pink = Color(light: 0xD9727C, dark: 0xEB939B, night: 0xC97D85)
+    static let red = Color(light: 0xD9482F, dark: 0xFF8D76, night: 0xE07E6A)
+    static let blue = Color(light: 0x2A62B8, dark: 0x8DBBFF, night: 0x7DA6E3)
+    static let green = Color(light: 0x3C8A55, dark: 0x7FE39C, night: 0x70C98A)
+    static let yellow = Color(light: 0xE9AE1C, dark: 0xFFD666, night: 0xE3BE5B)
+    static let pink = Color(light: 0xD9727C, dark: 0xFFA3C2, night: 0xE391AD)
+    static let brown = Color(light: 0x7A4E33, dark: 0xD9A27A, night: 0xBF8E6B)
     private static let cream = Color(light: 0xF3E0B8, dark: 0xF3E0B8, night: 0xD8C59E)
 
     private static func lines(_ points: [(CGFloat, CGFloat)], closed: Bool = false) -> Path {
@@ -583,11 +586,12 @@ enum CardTheme: CaseIterable {
                 let x = 18 + CGFloat(i) * 26
                 waves.addQuadCurve(to: CGPoint(x: x + 26, y: 62), control: CGPoint(x: x + 13, y: i.isMultiple(of: 2) ? 49 : 75))
             }
+            // Eight rays all the way round, each a short crayon dash.
             var rays = Path()
-            let ends: [(CGFloat, CGFloat, CGFloat, CGFloat)] = [(236, 12, 236, 6), (258, 36, 265, 36), (252, 20, 257, 15), (220, 20, 215, 15), (214, 36, 207, 36)]
-            for end in ends {
-                rays.move(to: CGPoint(x: end.0, y: end.1))
-                rays.addLine(to: CGPoint(x: end.2, y: end.3))
+            for i in 0..<8 {
+                let a = Double(i) / 8 * 2 * .pi
+                rays.move(to: CGPoint(x: 236 + CGFloat(cos(a)) * 20, y: 36 + CGFloat(sin(a)) * 20))
+                rays.addLine(to: CGPoint(x: 236 + CGFloat(cos(a)) * 28, y: 36 + CGFloat(sin(a)) * 28))
             }
             return [(waves, Self.blue, 6),
                     (Self.lines([(58, 48), (102, 48), (93, 60), (67, 60)], closed: true), Self.red, 5),
@@ -729,7 +733,7 @@ struct StampCardFace: View {
 
 extension Palette {
     /// The blank spaces on a card, and the sheet the stamps sit on. Paper, dimmed after dark.
-    static let stampSpace = Color(light: 0xF4ECDA, dark: 0x3E352D, night: 0x2A231E)
+    static let stampSpace = Color(light: 0xF4ECDA, dark: 0x5A4E3E, night: 0x3E362B)
     /// Scrap paper for trying a stamp.
     static let scrap = Color(light: 0xFBF6E9, dark: 0x302923, night: 0x1E1916)
 }
@@ -740,5 +744,98 @@ extension FamilyStore {
         let all = stickers(for: child).map(Impression.init)
         guard !all.isEmpty else { return [] }
         return stride(from: 0, to: all.count, by: Stamp.perCard).map { Array(all[$0..<min($0 + Stamp.perCard, all.count)]) }
+    }
+}
+
+/// The back of a stamp card: Puggle, drawn in crayon by a child. Found by
+/// folding over every corner, or the same corner three times.
+struct CardBack: View {
+    let theme: CardTheme
+
+    private static func oval(_ x: CGFloat, _ y: CGFloat, _ rx: CGFloat, _ ry: CGFloat) -> Path {
+        Path(ellipseIn: CGRect(x: x - rx, y: y - ry, width: rx * 2, height: ry * 2))
+    }
+
+    private var strokes: [(Path, Color, CGFloat)] {
+        // Head and a round body, a little wonky, as a child draws them.
+        var head = Path()
+        head.move(to: CGPoint(x: 180, y: 34))
+        head.addCurve(to: CGPoint(x: 232, y: 92), control1: CGPoint(x: 214, y: 32), control2: CGPoint(x: 234, y: 60))
+        head.addCurve(to: CGPoint(x: 178, y: 140), control1: CGPoint(x: 230, y: 124), control2: CGPoint(x: 206, y: 141))
+        head.addCurve(to: CGPoint(x: 128, y: 90), control1: CGPoint(x: 148, y: 139), control2: CGPoint(x: 126, y: 120))
+        head.addCurve(to: CGPoint(x: 182, y: 36), control1: CGPoint(x: 130, y: 58), control2: CGPoint(x: 150, y: 35))
+        // The bill: a wide, flat oval across the bottom of the face.
+        let bill = Self.oval(180, 122, 40, 16)
+        var nostrils = Self.oval(172, 117, 1.5, 1.5)
+        nostrils.addPath(Self.oval(188, 117, 1.5, 1.5))
+        var eyes = Self.oval(162, 86, 3, 3.5)
+        eyes.addPath(Self.oval(198, 86, 3, 3.5))
+        // Cheeks: a quick scribble each.
+        var cheeks = Path()
+        for x in [146.0, 214.0] {
+            cheeks.move(to: CGPoint(x: x - 6, y: 104))
+            cheeks.addLine(to: CGPoint(x: x + 2, y: 98))
+            cheeks.addLine(to: CGPoint(x: x - 2, y: 108))
+            cheeks.addLine(to: CGPoint(x: x + 6, y: 102))
+        }
+        // Her flower, on the top of her head.
+        var flower = Path()
+        for i in 0..<4 {
+            let a = Double(i) / 4 * 2 * .pi + .pi / 4
+            flower.addPath(Self.oval(216 + CGFloat(cos(a)) * 7, 42 + CGFloat(sin(a)) * 7, 6, 6))
+        }
+        // Dress: a triangle with a scribbled hem, then two stick legs.
+        let dress = CardTheme.linesPath([(166, 142), (194, 142), (214, 196), (146, 196)], closed: true)
+        var hem = Path()
+        hem.move(to: CGPoint(x: 152, y: 186))
+        for i in 0..<6 { hem.addLine(to: CGPoint(x: 158 + CGFloat(i) * 9, y: i.isMultiple(of: 2) ? 180 : 190)) }
+        var legs = CardTheme.linesPath([(166, 198), (166, 210)])
+        legs.addPath(CardTheme.linesPath([(194, 198), (194, 210)]))
+        // A tail poking out behind, and a heart and a sun in the corners.
+        var tail = Path()
+        tail.move(to: CGPoint(x: 212, y: 186))
+        tail.addQuadCurve(to: CGPoint(x: 246, y: 196), control: CGPoint(x: 236, y: 178))
+        var heart = Path()
+        heart.move(to: CGPoint(x: 52, y: 70))
+        heart.addCurve(to: CGPoint(x: 52, y: 46), control1: CGPoint(x: 28, y: 56), control2: CGPoint(x: 38, y: 34))
+        heart.addCurve(to: CGPoint(x: 52, y: 70), control1: CGPoint(x: 66, y: 34), control2: CGPoint(x: 76, y: 56))
+        var sun = Self.oval(306, 52, 13, 13)
+        for i in 0..<8 {
+            let a = Double(i) / 8 * 2 * .pi
+            sun.move(to: CGPoint(x: 306 + CGFloat(cos(a)) * 20, y: 52 + CGFloat(sin(a)) * 20))
+            sun.addLine(to: CGPoint(x: 306 + CGFloat(cos(a)) * 27, y: 52 + CGFloat(sin(a)) * 27))
+        }
+        return [(head, CardTheme.brown, 6), (bill, CardTheme.blue, 6), (nostrils, CardTheme.blue, 3),
+                (eyes, Palette.ink, 5), (cheeks, CardTheme.pink, 3), (flower, CardTheme.red, 5),
+                (Self.oval(216, 42, 2, 2), CardTheme.yellow, 4), (dress, CardTheme.blue, 5), (hem, CardTheme.blue, 3),
+                (legs, CardTheme.brown, 5), (tail, CardTheme.brown, 6), (heart, CardTheme.pink, 5),
+                (sun, CardTheme.yellow, 5)]
+    }
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            PaperEdge().fill(PaperEffects.cardBack)
+            Image(uiImage: Grain.image).resizable(resizingMode: .tile)
+                .foregroundStyle(Color(light: 0x5A4320, dark: 0x1A140D))
+                .opacity(0.13)
+                .clipShape(PaperEdge())
+            PaperEdge().stroke(.black.opacity(0.14), lineWidth: 1.2)
+            ForEach(Array(strokes.enumerated()), id: \.offset) { _, stroke in
+                CrayonStroke(path: stroke.0, colour: stroke.1, width: stroke.2, paper: PaperEffects.cardBack)
+            }
+        }
+        .frame(width: StampCard.size.width, height: StampCard.size.height)
+        .clipShape(PaperEdge())
+        .accessibilityElement()
+        .accessibilityLabel("The back of the card: a crayon drawing of Puggle")
+    }
+}
+
+extension CardTheme {
+    static func linesPath(_ points: [(CGFloat, CGFloat)], closed: Bool = false) -> Path {
+        var path = Path()
+        path.addLines(points.map { CGPoint(x: $0.0, y: $0.1) })
+        if closed { path.closeSubpath() }
+        return path
     }
 }

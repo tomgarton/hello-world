@@ -97,6 +97,8 @@ struct PuggleApp: App {
                     }
                 }
                 .tint(Palette.ink)
+                // Switches with clear contrast in day, dark and night.
+                .toggleStyle(PuggleToggleStyle())
                 // Warm ink everywhere by default, so nothing falls back to white in dark.
                 .foregroundStyle(Palette.ink)
         }

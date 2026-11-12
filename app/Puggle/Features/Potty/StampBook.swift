@@ -157,11 +157,8 @@ struct StampBookView: View {
                 Text(child.displayName).font(.title3.weight(.semibold))
             }
             // The card being filled, or a fresh one ready to start.
-            CardCanvas {
-                StampCardFace(theme: .forCard(current == nil ? cards.count : cards.count - 1), impressions: current ?? [],
-                              sticker: .card(current == nil ? cards.count : cards.count - 1))
-            }
-            .shadow(color: .black.opacity(0.2), radius: 8, y: 5)
+            PlayfulCard(theme: .forCard(current == nil ? cards.count : cards.count - 1), impressions: current ?? [],
+                        sticker: .card(current == nil ? cards.count : cards.count - 1))
             Text(current.map { "\(Stamp.perCard - $0.count) to go before the shiny one." } ?? "A new card, ready for its first stamp.")
                 .font(.subheadline)
                 .foregroundStyle(Palette.muted)
@@ -182,5 +179,77 @@ struct StampBookView: View {
                 EarnedStickersGrid(stickers: stickers)
             }
         }
+    }
+}
+
+/// A card that can be played with: drag a corner to fold it over. Fold every
+/// corner, or the same corner three times, and it turns over to show Puggle
+/// drawn in crayon on the back. Tap to turn it back.
+struct PlayfulCard: View {
+    let theme: CardTheme
+    let impressions: [Impression]
+    var sticker = StickerStyle()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var curl: CGFloat = 0
+    @State private var corner = CGPoint(x: StampCard.size.width, y: 0)
+    @State private var held = false
+    @State private var pulls: [String: Int] = [:]
+    @State private var flipped = false
+
+    var body: some View {
+        CardCanvas {
+            ZStack(alignment: .topLeading) {
+                StampCardFace(theme: theme, impressions: impressions, sticker: sticker)
+                    .modifier(PaperEffects(curl: reduceMotion ? 0 : curl, corner: corner, rippleOrigin: .zero, rippleStart: nil))
+                    .opacity(flipped ? 0 : 1)
+                    .animation(.linear(duration: 0.01).delay(0.25), value: flipped)
+                CardBack(theme: theme)
+                    .rotation3DEffect(.degrees(180), axis: (x: 0, y: 1, z: 0))
+                    .opacity(flipped ? 1 : 0)
+                    .animation(.linear(duration: 0.01).delay(0.25), value: flipped)
+            }
+            .rotation3DEffect(.degrees(flipped ? 180 : 0), axis: (x: 0, y: 1, z: 0), perspective: 0.4)
+            .contentShape(Rectangle())
+            .gesture(fold, including: flipped || reduceMotion ? .none : .all)
+            .onTapGesture {
+                if flipped { withAnimation(.easeInOut(duration: 0.5)) { flipped = false } }
+            }
+        }
+        .scaleEffect(held ? 1.02 : 1)
+        .shadow(color: .black.opacity(held ? 0.28 : 0.2), radius: held ? 14 : 8, y: held ? 10 : 5)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(flipped ? "The back of the card: a crayon drawing of Puggle"
+                                    : "\(theme.name) card, \(impressions.count) of \(Stamp.perCard) stamps")
+    }
+
+    private var fold: some Gesture {
+        DragGesture(minimumDistance: 6)
+            .onChanged { value in
+                if !held {
+                    held = true
+                    let size = StampCard.size
+                    corner = CGPoint(x: value.startLocation.x < size.width / 2 ? 0 : size.width,
+                                     y: value.startLocation.y < size.height / 2 ? 0 : size.height)
+                }
+                let centre = CGPoint(x: StampCard.size.width / 2, y: StampCard.size.height / 2)
+                let length = hypot(centre.x - corner.x, centre.y - corner.y)
+                let inward = (value.translation.width * (centre.x - corner.x) + value.translation.height * (centre.y - corner.y)) / length
+                curl = max(0, min(90, inward))
+            }
+            .onEnded { _ in
+                let folded = curl > 30
+                withAnimation(.spring(duration: 0.55, bounce: 0.4)) {
+                    curl = 0
+                    held = false
+                }
+                guard folded else { return }
+                let key = "\(Int(corner.x))-\(Int(corner.y))"
+                pulls[key, default: 0] += 1
+                if pulls.count == 4 || pulls[key, default: 0] >= 3 {
+                    pulls = [:]
+                    Haptics.success()
+                    withAnimation(.easeInOut(duration: 0.5)) { flipped = true }
+                }
+            }
     }
 }

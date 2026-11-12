@@ -202,14 +202,22 @@ struct SampleBanner: View {
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 14)
                     .frame(minHeight: 44)
-                    .background(Palette.fixedPaper, in: Capsule())
+                    .background(Palette.bannerButton, in: Capsule())
             }
             .padding(.leading, 14)
             .padding(.trailing, 8)
             .padding(.vertical, 6)
-            .foregroundStyle(Palette.fixedInk)
-            .background(Palette.wattle, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .foregroundStyle(Palette.bannerText)
+            .background(Palette.banner, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay(RoundedRectangle(cornerRadius: 18, style: .continuous).strokeBorder(Palette.wattle.opacity(0.6), lineWidth: 1))
             .accessibilityElement(children: .contain)
         }
     }
+}
+
+extension Palette {
+    /// The sample family banner: wattle by day, a deep mustard with wattle text after dark.
+    static let banner = Color(light: 0xF4BE2C, dark: 0x3A2E0E, night: 0x241D09)
+    static let bannerText = Color(light: 0x3A2A20, dark: 0xF6D57A, night: 0xD2B466)
+    static let bannerButton = Color(light: 0xFBF6E9, dark: 0x564417, night: 0x3A2E10)
 }
