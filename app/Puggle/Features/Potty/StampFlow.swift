@@ -657,7 +657,7 @@ struct StampFlowView: View {
                 StickerView(style: sticker, size: 84)
                     .modifier(PaperEffects(curl: reduceMotion ? 0 : (peeled ? 26 : 0), corner: CGPoint(x: 84, y: 0),
                                            rippleOrigin: .zero, rippleStart: nil,
-                                           size: CGSize(width: 84, height: 84), back: .white))
+                                           size: CGSize(width: 84, height: 84), back: Palette.paper))
                     .scaleEffect(peeled ? 1.12 : 1)
                     .rotationEffect(.degrees(Double(drag.width) / 12))
                     .offset(drag)

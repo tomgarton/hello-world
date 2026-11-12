@@ -544,14 +544,19 @@ enum CardTheme: CaseIterable {
 
     var trail: Color {
         switch self {
-        case .beach: Color(hex: 0x2A62B8)
-        case .backyard: Color(hex: 0x3D7A45)
-        case .night: Color(hex: 0xF3E0B8)
+        case .beach: Color(light: 0x2A62B8, dark: 0x6A9AE6, night: 0x5584C8)
+        case .backyard: Color(light: 0x3D7A45, dark: 0x6FBF7C, night: 0x5A9E66)
+        case .night: Color(light: 0xF3E0B8, dark: 0xF3E0B8, night: 0xD8C59E)
         }
     }
 
-    private static let red = Color(hex: 0xD9482F), blue = Color(hex: 0x2A62B8), green = Color(hex: 0x3C8A55)
-    private static let yellow = Color(hex: 0xE9AE1C), pink = Color(hex: 0xD9727C), cream = Color(hex: 0xF3E0B8)
+    // Lighter after dark, so the drawings stay bright on the darker card.
+    private static let red = Color(light: 0xD9482F, dark: 0xEC6A50, night: 0xC9573F)
+    private static let blue = Color(light: 0x2A62B8, dark: 0x6A9AE6, night: 0x5584C8)
+    private static let green = Color(light: 0x3C8A55, dark: 0x5DB676, night: 0x4B9A61)
+    private static let yellow = Color(light: 0xE9AE1C, dark: 0xF2C14A, night: 0xD4A63A)
+    private static let pink = Color(light: 0xD9727C, dark: 0xEB939B, night: 0xC97D85)
+    private static let cream = Color(light: 0xF3E0B8, dark: 0xF3E0B8, night: 0xD8C59E)
 
     private static func lines(_ points: [(CGFloat, CGFloat)], closed: Bool = false) -> Path {
         var path = Path()
@@ -685,7 +690,7 @@ struct StampCardFace: View {
             PaperEdge().fill(theme.paper)
             // Matte paper: fibres, no sheen.
             Image(uiImage: Grain.image).resizable(resizingMode: .tile)
-                .foregroundStyle(theme == .night ? Color.white : Color(hex: 0x5A4320))
+                .foregroundStyle(theme == .night ? Color.white : Color(light: 0x5A4320, dark: 0x1A140D))
                 .opacity(theme == .night ? 0.05 : 0.13)
                 .clipShape(PaperEdge())
             // The cut edge is a touch darker, as card is.

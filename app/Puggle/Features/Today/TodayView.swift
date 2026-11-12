@@ -107,6 +107,7 @@ struct TodayView: View {
                                 .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                             }
                         }
+                        TodaySoFar { editing = EditTarget(event: $0) }
                     }
                 }
                 .padding(.horizontal, 16)
@@ -398,6 +399,60 @@ struct ChildStatusRow: View {
         .buttonStyle(.plain)
         .accessibilityLabel(spoken)
         .sensoryFeedback(trigger: asleep) { _, _ in Haptics.isOn ? .success : nil }
+    }
+}
+
+/// Everything logged today, newest first, so Today shows the day as it goes.
+/// Tapping an entry opens it to change.
+struct TodaySoFar: View {
+    @FetchRequest private var events: FetchedResults<Event>
+    let onOpen: (Event) -> Void
+    @State private var showingAll = false
+
+    init(onOpen: @escaping (Event) -> Void) {
+        self.onOpen = onOpen
+        _events = FetchRequest(sortDescriptors: [SortDescriptor(\Event.startedAt, order: .reverse)],
+                               predicate: NSPredicate(format: "startedAt >= %@", Calendar.current.startOfDay(for: .now) as NSDate))
+    }
+
+    var body: some View {
+        let today = events.filter { !($0.kind == .pump && $0.detail == Pump.count) }
+        let shown = showingAll ? today : Array(today.prefix(6))
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Today so far")
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Palette.muted)
+                .padding(.leading, 4)
+            VStack(spacing: 0) {
+                if today.isEmpty {
+                    Text("Nothing logged yet today. Entries from everyone show up here.")
+                        .font(.subheadline)
+                        .foregroundStyle(Palette.muted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(14)
+                } else {
+                    ForEach(Array(shown.enumerated()), id: \.element.objectID) { index, event in
+                        if index > 0 { Divider().padding(.leading, 66) }
+                        Button { onOpen(event) } label: { EventRow(event: event) }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 4)
+                            .accessibilityHint("Opens this entry to change it")
+                    }
+                    if today.count > 6 {
+                        Divider()
+                        Button(showingAll ? "Show fewer" : "Show all \(today.count)") {
+                            withAnimation(.easeInOut(duration: 0.25)) { showingAll.toggle() }
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Palette.ink)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                    }
+                }
+            }
+            .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        }
+        .padding(.top, 6)
     }
 }
 
