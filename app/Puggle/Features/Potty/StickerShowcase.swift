@@ -76,7 +76,26 @@ private struct StickerBack: View {
 @MainActor
 private enum StickerModel {
     static let textureSize: CGFloat = 768
-    static let thickness: Float = 0.045
+    /// Card, not a coin.
+    static let thickness: Float = 0.016
+
+    /// Bends the flat sticker into a gentle curve: each point moves back by
+    /// how far it is from the middle, squared, so it flexes like card.
+    static let flex = """
+    uniform float bend;
+    uniform float bendSign;
+    #pragma body
+    float x = _geometry.position.x;
+    _geometry.position.z += bend * bendSign * x * x * 1.6;
+    float3 n = _geometry.normal;
+    n.x -= bend * bendSign * x * 3.2 * n.z;
+    _geometry.normal = normalize(n);
+    """
+
+    /// Every material on the sticker, so the bend can be set on all of them at once.
+    static func materials(in node: SCNNode) -> [SCNMaterial] {
+        (node.geometry?.materials ?? []) + node.childNodes.flatMap { materials(in: $0) }
+    }
 
     /// Shimmer and glitter, worked out per pixel from the angle it is seen at.
     static let foil = """
@@ -133,12 +152,14 @@ private enum StickerModel {
 
         // The face, with its foil.
         let frontPlane = SCNPlane(width: 1, height: 1)
+        frontPlane.widthSegmentCount = 32
         let frontMaterial = SCNMaterial()
         frontMaterial.diffuse.contents = front
         frontMaterial.lightingModel = .blinn
         frontMaterial.specular.contents = UIColor(white: sticker.style.foil == nil ? 0.25 : 0.7, alpha: 1)
         frontMaterial.shininess = 60
-        frontMaterial.shaderModifiers = [.surface: foil, .fragment: cutOut]
+        frontMaterial.shaderModifiers = [.geometry: flex, .surface: foil, .fragment: cutOut]
+        frontMaterial.setValue(NSNumber(value: 1), forKey: "bendSign")
         frontMaterial.setValue(NSNumber(value: sticker.style.holo), forKey: "holo")
         frontMaterial.setValue(NSNumber(value: sticker.style.glitter), forKey: "glitter")
         frontPlane.materials = [frontMaterial]
@@ -148,11 +169,14 @@ private enum StickerModel {
 
         // The back, facing the other way so it reads the right way round.
         let backPlane = SCNPlane(width: 1, height: 1)
+        backPlane.widthSegmentCount = 32
         let backMaterial = SCNMaterial()
         backMaterial.diffuse.contents = back
         backMaterial.lightingModel = .blinn
         backMaterial.specular.contents = UIColor(white: 0.12, alpha: 1)
-        backMaterial.shaderModifiers = [.fragment: cutOut]
+        backMaterial.shaderModifiers = [.geometry: flex, .fragment: cutOut]
+        // Turned round, so its own "back" is the other way.
+        backMaterial.setValue(NSNumber(value: -1), forKey: "bendSign")
         backPlane.materials = [backMaterial]
         let backNode = SCNNode(geometry: backPlane)
         backNode.position.z = -half
@@ -160,15 +184,17 @@ private enum StickerModel {
         root.addChildNode(backNode)
 
         // The edge: thin slices of the outline between the two faces.
-        let slices = 14
+        let slices = 6
         for index in 1..<slices {
             let slice = SCNPlane(width: 1, height: 1)
+            slice.widthSegmentCount = 32
             let material = SCNMaterial()
             material.diffuse.contents = silhouette
             material.multiply.contents = UIColor(red: 0.93, green: 0.91, blue: 0.87, alpha: 1)
             material.lightingModel = .lambert
             material.isDoubleSided = true
-            material.shaderModifiers = [.fragment: cutOut]
+            material.shaderModifiers = [.geometry: flex, .fragment: cutOut]
+            material.setValue(NSNumber(value: 1), forKey: "bendSign")
             slice.materials = [material]
             let node = SCNNode(geometry: slice)
             node.position.z = -half + thickness * Float(index) / Float(slices)
@@ -211,6 +237,8 @@ private struct StickerScene: UIViewRepresentable {
         scene.rootNode.addChildNode(key)
 
         let sticker = StickerModel.make(self.sticker)
+        model.materials = StickerModel.materials(in: sticker)
+        model.setBend(0)
         model.tilt.addChildNode(sticker)
         model.spin.addChildNode(model.tilt)
         scene.rootNode.addChildNode(model.spin)
@@ -236,6 +264,33 @@ final class StickerSpin: ObservableObject {
     private var startYaw: Float = 0
     private var startPitch: Float = 0
     var reduceMotion = false
+    var materials: [SCNMaterial] = []
+    // The flex: how bent it is now, and the last finger position and time, for speed.
+    private var bend: Float = 0
+    private var lastX: CGFloat = 0
+    private var lastTime: TimeInterval = 0
+    private var wobble: Timer?
+
+    func setBend(_ value: Float) {
+        bend = value
+        for material in materials { material.setValue(NSNumber(value: value), forKey: "bend") }
+    }
+
+    /// Lets go of the bend: it springs back past flat and settles, like card.
+    private func release(from start: Float) {
+        wobble?.invalidate()
+        guard !reduceMotion, abs(start) > 0.005 else { setBend(0); return }
+        let began = CACurrentMediaTime()
+        wobble = Timer.scheduledTimer(withTimeInterval: 1 / 60, repeats: true) { [weak self] timer in
+            MainActor.assumeIsolated {
+                guard let self else { timer.invalidate(); return }
+                let t = Float(CACurrentMediaTime() - began)
+                let value = start * exp(-5.5 * t) * cos(15 * t)
+                self.setBend(value)
+                if t > 1.2 { self.setBend(0); timer.invalidate() }
+            }
+        }
+    }
 
     func start() {
         guard !reduceMotion else { return }
@@ -258,9 +313,15 @@ final class StickerSpin: ObservableObject {
         }
     }
 
-    func stop() { motion.stopDeviceMotionUpdates() }
+    func stop() {
+        motion.stopDeviceMotionUpdates()
+        wobble?.invalidate()
+    }
 
     func began() {
+        wobble?.invalidate()
+        lastX = 0
+        lastTime = CACurrentMediaTime()
         spin.removeAllActions()
         startYaw = spin.presentation.eulerAngles.y
         startPitch = spin.presentation.eulerAngles.x
@@ -273,10 +334,21 @@ final class StickerSpin: ObservableObject {
         spin.eulerAngles.y = startYaw + Float(translation.width) * 0.011
         spin.eulerAngles.x = max(-0.9, min(0.9, startPitch + Float(translation.height) * 0.008))
         SCNTransaction.commit()
+        // Bends with the speed of the finger, a little behind it.
+        let now = CACurrentMediaTime()
+        let elapsed = max(now - lastTime, 1 / 120)
+        let speed = Float((translation.width - lastX) / elapsed)
+        lastX = translation.width
+        lastTime = now
+        guard !reduceMotion else { return }
+        let target = max(-0.22, min(0.22, -speed * 0.00012))
+        setBend(bend * 0.75 + target * 0.25)
     }
 
     /// Let go: it carries on with the flick, slows, and comes to rest face up or face down.
     func ended(velocity: CGSize) {
+        // A flick gives the bend one more push before it springs back.
+        release(from: max(-0.22, min(0.22, bend - Float(velocity.width) * 0.00004)))
         let current = spin.eulerAngles.y
         let coast = current + Float(velocity.width) * 0.011 * 0.28
         let rest = (coast / .pi).rounded() * .pi
