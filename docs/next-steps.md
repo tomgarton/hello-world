@@ -45,6 +45,13 @@ Done: dragging a corner in the simulator shows a curved roll, not a crease. Send
 - Use interpuncts in the "Last saved" row and History, as on the child rows ("Ollie: Nappy · wet").
 - Settings → Units: either apply the chosen units on display (volume, weight, temperature) or keep the "coming soon" note. Applying them is preferred if it can be done in one place.
 
+## 5. Then carry on into phase A of `docs/end-to-end-plan.md`
+
+Once steps 1 to 4 are done, work through phase A in order (A1 to A6), one item at a time: build it, check it in the simulator, commit, then the next. Stop when time or usage runs out; a half-finished item should be left compiling, or not committed.
+
+- A7: build Puggle's nod on save only. Her three sleep states wait for Tom.
+- A6 (widgets): first check whether a free Apple ID can sign an App Group (add the capability in `project.yml` for the "Local" configuration and build for a real device destination with `-allowProvisioningUpdates` but do not install). If it cannot, skip widgets, note why, and build the Control Centre "Start sleep" control only if it works without one.
+
 ## Needs Tom (do not start)
 
 - Pushing the commits to GitHub.
