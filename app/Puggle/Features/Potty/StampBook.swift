@@ -184,7 +184,7 @@ struct StampBookView: View {
                 .foregroundStyle(Palette.muted)
 
             if !finished.isEmpty {
-                Text("Finished cards").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted).padding(.top, 6)
+                SquiggleLabel("Finished cards").padding(.top, 6)
                 LazyVGrid(columns: [GridItem(.flexible(), spacing: 10), GridItem(.flexible(), spacing: 10)], spacing: 10) {
                     ForEach(finished.reversed(), id: \.offset) { index, card in
                         CardCanvas {
@@ -195,7 +195,7 @@ struct StampBookView: View {
                 }
             }
             if !stickers.isEmpty {
-                Text("Stickers earned").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted).padding(.top, 6)
+                SquiggleLabel("Stickers earned").padding(.top, 6)
                 EarnedStickersGrid(stickers: stickers)
             }
         }

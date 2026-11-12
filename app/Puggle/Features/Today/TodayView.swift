@@ -486,10 +486,7 @@ struct TodaySoFar: View {
         let today = events.filter { !($0.kind == .pump && $0.detail == Pump.count) }
         let shown = showingAll ? today : Array(today.prefix(6))
         VStack(alignment: .leading, spacing: 8) {
-            Text("Today so far")
-                .font(.footnote.weight(.semibold))
-                .foregroundStyle(Palette.muted)
-                .padding(.leading, 4)
+            SquiggleLabel("Today so far")
             VStack(spacing: 0) {
                 if today.isEmpty {
                     Text("Nothing logged yet today. Entries from everyone show up here.")
@@ -651,9 +648,7 @@ struct DaySoFarView: View {
                         .foregroundStyle(Palette.muted)
                     logGrid
                     if !justLog {
-                        Text("So far")
-                            .font(.footnote.weight(.semibold))
-                            .foregroundStyle(Palette.muted)
+                        SquiggleLabel("So far")
                             .padding(.top, 6)
                     }
                     if justLog {

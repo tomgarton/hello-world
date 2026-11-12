@@ -49,7 +49,7 @@ struct HistoryView: View {
                     }
                 }
                 ForEach(days) { group in
-                    Section(group.day.formatted(.dateTime.weekday(.wide).day().month(.wide))) {
+                    Section(header: SquiggleLabel(group.day.formatted(.dateTime.weekday(.wide).day().month(.wide))).textCase(nil)) {
                         ForEach(group.events) { event in
                             Button { editing = EditTarget(event: event) } label: {
                                 EventRow(event: event)
