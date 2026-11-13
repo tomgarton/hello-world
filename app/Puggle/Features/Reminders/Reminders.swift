@@ -113,7 +113,8 @@ final class ReminderStore: ObservableObject {
         let center = UNUserNotificationCenter.current()
         let ours = await center.pendingNotificationRequests().map(\.identifier).filter { $0.hasPrefix(Self.prefix) }
         center.removePendingNotificationRequests(withIdentifiers: ours)
-        guard reminders.contains(where: \.isOn) else { return }
+        let tins = Self.rowNoticesOn ? store.guides(.formula).filter { $0.table != nil } : []
+        guard reminders.contains(where: \.isOn) || !tins.isEmpty else { return }
         let status = await center.notificationSettings().authorizationStatus
         guard status == .authorized || status == .provisional else { return }
 
@@ -121,6 +122,7 @@ final class ReminderStore: ObservableObject {
         request.predicate = NSPredicate(format: "archived != YES")
         request.predicate = store.scoped(request.predicate)
         let children = (try? store.context.fetch(request)) ?? []
+        scheduleRowNotices(tins, children: children, store: store)
 
         for reminder in reminders where reminder.isOn {
             guard let child = children.first(where: { $0.id?.uuidString == reminder.childID }) else { continue }
@@ -151,6 +153,41 @@ final class ReminderStore: ObservableObject {
                         trigger: Self.daily(at: minutes))
                     minutes += step
                     index += 1
+                }
+            }
+        }
+    }
+
+    /// On unless switched off, and never in Just logging.
+    static var rowNoticesOn: Bool {
+        let defaults = UserDefaults.standard
+        return (defaults.object(forKey: Setting.rowNotices) as? Bool ?? true) && !defaults.bool(forKey: Setting.justLog)
+    }
+
+    /// Once, at 09:00 two days before a child reaches a new row on a saved tin, for a child given
+    /// formula in the last two weeks. It names the row, never the amount.
+    private func scheduleRowNotices(_ tins: [Guide], children: [Child], store: FamilyStore, now: Date = .now) {
+        let calendar = Calendar.current
+        for child in children {
+            guard let birth = child.birthDate else { continue }
+            let recent = (child.events ?? []).contains { event in
+                event.kind == .bottle && event.detail != "Breast milk" && (event.startedAt ?? .distantPast) > now.addingTimeInterval(-14 * 86_400)
+            }
+            guard recent else { continue }
+            for tin in tins {
+                guard let table = tin.table else { continue }
+                for change in table.upcoming(birth: birth) {
+                    let day = calendar.startOfDay(for: change.on)
+                    guard let before = calendar.date(byAdding: .day, value: -2, to: day),
+                          let at = calendar.date(bySettingHour: 9, minute: 0, second: 0, of: before),
+                          at > now, at < now.addingTimeInterval(120 * 86_400),
+                          !RowNotices.seen(RowNotices.key(guide: tin, child: child, from: change.from)) else { continue }
+                    let weekday = change.on.formatted(.dateTime.weekday(.wide))
+                    add("row.\(RowNotices.key(guide: tin, child: child, from: change.from))",
+                        title: "\(child.displayName) is \(change.from.words) on \(weekday)",
+                        body: "The table on the \(tin.name ?? "formula") tin has a different row from \(change.from.words). Tap to see it.",
+                        trigger: UNCalendarNotificationTrigger(
+                            dateMatching: calendar.dateComponents([.year, .month, .day, .hour, .minute], from: at), repeats: false))
                 }
             }
         }
@@ -205,6 +242,8 @@ struct RemindersView: View {
                   predicate: NSPredicate(format: "archived != YES")) private var allChildren: FetchedResults<Child>
     private var children: [Child] { store.onScreen(allChildren) }
     @State private var editing: Reminder?
+    @AppStorage(Setting.rowNotices) private var rowNotices = true
+    @AppStorage(Setting.justLog) private var justLog = false
 
     var body: some View {
         List {
@@ -235,6 +274,19 @@ struct RemindersView: View {
                 Text("Reminders are just for you, on this iPhone. Nobody else in the family gets them.")
             }
             .listRowBackground(Palette.paper)
+
+            Section {
+                Toggle("A new row on the tin", isOn: $rowNotices)
+                    .onChange(of: rowNotices) { _, on in
+                        if on { Task { _ = await reminders.askPermission() } }
+                        reminders.reschedule(with: store)
+                    }
+            } footer: {
+                Text(justLog ? "Off while Just logging is on." :
+                     "Two days before a child reaches a new row on a tin you've read, once. It says the row changes, not how much to give.")
+            }
+            .listRowBackground(Palette.paper)
+            .disabled(justLog)
 
             if let first = children.first {
                 Section {

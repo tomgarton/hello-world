@@ -40,6 +40,8 @@ struct LogSheet: View {
     @State private var gapText = ""
     @State private var limitText = ""
     @State private var readingLabel = false
+    @State private var readingTin = false
+    @State private var openGuide: Guide?
     @State private var temperature: Double?
     @State private var place = ""
     @State private var vaccine = ""
@@ -419,6 +421,38 @@ struct LogSheet: View {
         }
     }
 
+    /// Under the milk: the family's saved tin, with any row change coming up, or a way to read one.
+    @ViewBuilder private var tinRow: some View {
+        if let tin = store.formulaGuide() {
+            VStack(spacing: 10) {
+                ForEach(chosenChildren) { child in RowNoticeCard(guide: tin, child: child) }
+                Button { openGuide = tin } label: {
+                    HStack {
+                        Label(tin.name ?? "Formula", systemImage: "tablecells")
+                        Spacer()
+                        Text("See the table").foregroundStyle(Palette.muted)
+                        Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Palette.muted)
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14).frame(minHeight: 48)
+                    .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .sheet(item: $openGuide) { GuideView(guide: $0, children: chosenChildren) }
+            }
+        } else if store.isParent {
+            Button { readingTin = true } label: {
+                Label("Read the tin", systemImage: "camera.viewfinder")
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .frame(minHeight: 44)
+            }
+            .foregroundStyle(Palette.ink)
+            .accessibilityHint("Types up the table of ages, water and scoops from a photo, for the family.")
+            .sheet(isPresented: $readingTin) { BoxReaderView(kind: .formula) }
+        }
+    }
+
     @ViewBuilder private var details: some View {
         switch kind {
         case .bottle:
@@ -451,6 +485,7 @@ struct LogSheet: View {
                     ForEach(["Formula", "Breast milk", "Mixed"], id: \.self) { Text($0) }
                 }
                 .pickerStyle(.segmented)
+                if milk != "Breast milk", !isEditing { tinRow }
                 if milk == "Breast milk", !isEditing {
                     let onHand = store.milkOnHand()
                     if onHand.total > 0 {
@@ -544,22 +579,32 @@ struct LogSheet: View {
             VStack(alignment: .leading, spacing: 16) {
                 HStack(spacing: 8) {
                     field("Which medicine?", text: $medicine)
-                    Button { readingLabel = true } label: {
-                        Image(systemName: "camera.viewfinder")
-                            .font(.title3)
-                            .frame(width: 50, height: 50)
-                            .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    }
-                    .foregroundStyle(Palette.ink)
-                    .accessibilityLabel("Read the box")
-                    .sheet(isPresented: $readingLabel) {
-                        LabelReaderView { reading in
-                            if !reading.name.isEmpty { medicine = reading.name }
-                            if let gap = reading.gap { gapText = gap.formatted(.number.precision(.fractionLength(0...1))) }
-                            if let limit = reading.limit { limitText = String(limit) }
-                            MedicineRules.set(gap: reading.gap, limit: reading.limit, for: medicine)
+                    if store.isParent {
+                        Button { readingLabel = true } label: {
+                            Image(systemName: "camera.viewfinder")
+                                .font(.title3)
+                                .frame(width: 50, height: 50)
+                                .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        }
+                        .foregroundStyle(Palette.ink)
+                        .accessibilityLabel("Read the box")
+                        .sheet(isPresented: $readingLabel) {
+                            BoxReaderView(kind: .medicine, existing: store.medicineBox(named: medicine), startName: medicine) { guide in
+                                medicine = guide.name ?? medicine
+                                gapText = guide.gapHours > 0 ? guide.gapHours.formatted(.number.precision(.fractionLength(0...1))) : ""
+                                limitText = guide.doseLimit > 0 ? String(guide.doseLimit) : ""
+                            }
                         }
                     }
+                }
+                if let box = store.medicineBox(named: medicine) {
+                    Button { openGuide = box } label: {
+                        Label("See the \(box.name ?? "medicine") box", systemImage: "tablecells")
+                            .font(.subheadline.weight(.semibold))
+                    }
+                    .foregroundStyle(Palette.ink)
+                    .frame(minHeight: 44)
+                    .sheet(item: $openGuide) { GuideView(guide: $0, children: chosenChildren) }
                 }
                 if chosenChildren.count == 1, let child = chosenChildren.first, !isEditing,
                    let summary = store.doseSummary(of: medicine, for: child) {

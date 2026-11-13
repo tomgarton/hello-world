@@ -5,6 +5,8 @@ enum Setting {
     static let yourName = "yourName"
     static let appearance = "appearance"
     static let justLog = "justLog"
+    /// A notice two days before a child reaches a new row on a saved tin.
+    static let rowNotices = "rowNotices"
     static let pottyStickers = "pottyStickers"
     static let lockScreenGlance = "lockScreenGlance"
     static let haptics = "haptics"
