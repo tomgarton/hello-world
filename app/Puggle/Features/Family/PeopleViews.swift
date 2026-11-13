@@ -219,10 +219,8 @@ struct PersonSheet: View {
                     Section {
                         Button("Remove \(first) from the family", role: .destructive) { confirmingRemove = true }
                             .foregroundStyle(Palette.waratah)
-                            .frame(maxWidth: .infinity)
                     } footer: {
-                        Text("Everything \(first) added stays.")
-                            .frame(maxWidth: .infinity)
+                        Text("Ends \(first)'s access. What \(first) logged is kept.")
                     }
                     .listRowBackground(Palette.paper)
                     .disabled(busy)
@@ -262,7 +260,7 @@ struct PersonSheet: View {
                 Button("Remove \(first)", role: .destructive) { remove() }
                 Button("Keep", role: .cancel) {}
             } message: {
-                Text("\(first) won't see the family on their iPhone any more. Everything they added stays. You can invite them again.")
+                Text("\(first) won't see the family on their iPhone any more. What \(first) logged is kept. This can't be undone, but you can invite \(first) again.")
             }
             .confirmationDialog("Leave this family?", isPresented: $confirmingLeave, titleVisibility: .visible) {
                 Button("Leave", role: .destructive) { leave() }
