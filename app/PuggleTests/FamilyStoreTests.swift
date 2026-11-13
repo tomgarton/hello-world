@@ -557,4 +557,46 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertTrue(p.months.isEmpty)
         XCTAssertEqual(p.bestMonthDays, 1, "One day with entries counts towards the five")
     }
+
+    // MARK: Joining with children of your own
+
+    /// A family as if it had arrived from someone else's iCloud, in the shared store.
+    private func joinedFamily() -> (Family, Child) {
+        let shared = store.persistence.sharedStore!
+        let family = Family(context: store.context)
+        store.context.assign(family, to: shared)
+        family.id = UUID()
+        family.name = "Their family"
+        family.createdAt = .now
+        let child = Child(context: store.context)
+        store.context.assign(child, to: shared)
+        child.id = UUID()
+        child.name = "Bea"
+        child.birthDate = Date.now.addingTimeInterval(-400 * 86_400)
+        child.createdAt = .now
+        child.family = family
+        store.persistence.save()
+        return (family, child)
+    }
+
+    func testAJoinedFamilyIsShownAloneAndOwnChildrenCanBeBroughtIn() throws {
+        store.isSample = false
+        store.backups = shelf()
+        defer { store.isSample = true }
+        store.logEach(.bottle, for: [ollie], amountML: 120)
+        let (family, bea) = joinedFamily()
+        XCTAssertEqual(store.existingFamily(), family)
+        XCTAssertEqual(store.onScreen([ollie, bea]), [bea], "Only the family on screen")
+        XCTAssertEqual(store.ownChildrenBesideJoined.map(\.displayName), ["Ollie"])
+        let moved = store.bringOwnChildrenIn()
+        XCTAssertEqual(moved.children, 1)
+        XCTAssertEqual(moved.entries, 1)
+        XCTAssertTrue(store.ownChildrenBesideJoined.isEmpty)
+        let names = (family.children ?? []).map(\.displayName).sorted()
+        XCTAssertEqual(names, ["Bea", "Ollie"])
+        let ollieNow = try XCTUnwrap(family.children?.first { $0.displayName == "Ollie" })
+        XCTAssertEqual(ollieNow.objectID.persistentStore, store.persistence.sharedStore, "Saved where the family lives")
+        XCTAssertEqual(ollieNow.events?.count, 1)
+        XCTAssertTrue(store.backups.entries.contains { $0.reason == BackupReason.beforeBringingIn.rawValue })
+    }
 }

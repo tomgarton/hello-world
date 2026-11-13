@@ -119,6 +119,7 @@ final class ReminderStore: ObservableObject {
 
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
+        request.predicate = store.scoped(request.predicate)
         let children = (try? store.context.fetch(request)) ?? []
 
         for reminder in reminders where reminder.isOn {
@@ -201,7 +202,8 @@ struct RemindersView: View {
     @EnvironmentObject private var store: FamilyStore
     @ObservedObject private var reminders = ReminderStore.shared
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
-                  predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
+                  predicate: NSPredicate(format: "archived != YES")) private var allChildren: FetchedResults<Child>
+    private var children: [Child] { store.onScreen(allChildren) }
     @State private var editing: Reminder?
 
     var body: some View {

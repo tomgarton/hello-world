@@ -40,6 +40,7 @@ extension FamilyStore {
     func shortcutChildren() -> [ChildEntity] {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
+        request.predicate = self.scoped(request.predicate)
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         return ((try? context.fetch(request)) ?? []).compactMap { child in
             child.id.map { ChildEntity(id: $0.uuidString, name: child.displayName) }

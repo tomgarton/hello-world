@@ -42,6 +42,7 @@ final class LiveTimers {
     private func wanted(from store: FamilyStore) -> [String: Wanted] {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
+        request.predicate = store.scoped(request.predicate)
         let children = (try? store.context.fetch(request)) ?? []
         let defaults = UserDefaults.standard
         // The glance is on unless switched off, and never in "Just logging".

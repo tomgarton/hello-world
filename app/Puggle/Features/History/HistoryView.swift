@@ -4,8 +4,10 @@ import SwiftUI
 /// Everything logged, newest first, grouped by day, with a filter by activity.
 struct HistoryView: View {
     @EnvironmentObject private var store: FamilyStore
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Event.startedAt, order: .reverse)]) private var events: FetchedResults<Event>
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Event.startedAt, order: .reverse)]) private var allEvents: FetchedResults<Event>
+    private var events: [Event] { store.onScreen(allEvents) }
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var allChildren: FetchedResults<Child>
+    private var children: [Child] { store.onScreen(allChildren) }
     /// Filters stay set until cleared, across launches.
     @AppStorage("historyKind") private var kindFilter = ""
     @AppStorage("historyChild") private var childFilter = ""

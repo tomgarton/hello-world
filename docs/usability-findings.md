@@ -110,4 +110,6 @@ Fixed on 13 November, in the commit after this report. 34 tests pass. Only the F
 
 Also: two children's real names were in the test file and one was in a Help answer. Both are replaced with made-up names.
 
-Still open from the tables above: sharing medicine rules, a joiner who already has children, transferring a family, a recoverable copy when a child is deleted, limiting export by level, writing the share back before the list of people is rebuilt, and the smaller simulator findings (Undo on every tab, clipped sheet rows, the delete confirmation, first-run dots, the Time row, last night's figures).
+Later: **a joiner who already has children (3)** now sees only the family they joined. Their own children are kept on the phone out of sight, and they are offered once to bring them in, with a backup taken first. A Family tab section, "Only on this iPhone", offers the same later. Tested in code only; not yet run on two phones.
+
+Still open from the tables above: transferring a family, a recoverable copy when a child is deleted, limiting export by level, writing the share back before the list of people is rebuilt, and the smaller simulator findings (Undo on every tab, clipped sheet rows, the delete confirmation, first-run dots, the Time row, last night's figures).

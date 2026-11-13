@@ -6,7 +6,8 @@ import UIKit
 /// Children, and sharing the family with a partner, Nan or the nanny.
 struct FamilyView: View {
     @EnvironmentObject private var store: FamilyStore
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var allChildren: FetchedResults<Child>
+    private var children: [Child] { store.onScreen(allChildren) }
 
     @State private var addingChild = false
     @FetchRequest(sortDescriptors: [SortDescriptor(\Person.createdAt)]) private var allPeople: FetchedResults<Person>
@@ -17,6 +18,7 @@ struct FamilyView: View {
     @State private var opened: Person?
     @ObservedObject private var cloud = CloudStatus.shared
     @State private var familyName = ""
+    @State private var bringingIn = false
     @FocusState private var namingFamily: Bool
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage(Setting.yourName) private var yourName = ""
@@ -106,6 +108,26 @@ struct FamilyView: View {
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                 }
+                let kept = store.ownChildrenBesideJoined
+                if !kept.isEmpty {
+                    Section {
+                        ForEach(kept) { child in
+                            HStack(spacing: 12) {
+                                ChildAvatar(child: child, size: 40)
+                                Text(child.displayName).font(.headline)
+                            }
+                            .listRowBackground(Palette.paper)
+                        }
+                        if store.canLog {
+                            Button("Bring into this family") { bringingIn = true }
+                                .listRowBackground(Palette.paper)
+                        }
+                    } header: {
+                        Text("Only on this iPhone")
+                    } footer: {
+                        Text("Saved here from before you joined, and not shown with the family's children.")
+                    }
+                }
                 Section {
                     ForEach(people) { person in
                         let opens = store.isParent || store.isMe(person)
@@ -150,6 +172,7 @@ struct FamilyView: View {
                 }
             }
             .sheet(item: $opened) { PersonSheet(person: $0) }
+            .sheet(isPresented: $bringingIn) { BringInView() }
             .sheet(item: $sharing, onDismiss: {
                 // Whoever was added in the share sheet gets the name and level just chosen.
                 store.reconcilePeople(pending: pending)

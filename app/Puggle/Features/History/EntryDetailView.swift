@@ -30,7 +30,8 @@ extension FamilyStore {
 struct EntryDetailView: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.dismiss) private var dismiss
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var allChildren: FetchedResults<Child>
+    private var children: [Child] { store.onScreen(allChildren) }
     @ObservedObject var event: Event
     @State private var editing = false
     @State private var confirmingDelete = false

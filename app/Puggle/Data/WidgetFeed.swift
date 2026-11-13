@@ -20,6 +20,7 @@ enum WidgetFeed {
     static func write(from store: FamilyStore) {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
+        request.predicate = store.scoped(request.predicate)
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         let children = (try? store.context.fetch(request)) ?? []
         let rows = children.map { child -> WidgetSnapshot.Child in

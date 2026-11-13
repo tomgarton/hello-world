@@ -7,7 +7,8 @@ struct TodayView: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.scenePhase) private var scenePhase
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
-                  predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
+                  predicate: NSPredicate(format: "archived != YES")) private var allChildren: FetchedResults<Child>
+    private var children: [Child] { store.onScreen(allChildren) }
 
     @State private var logging: EventKind?
     /// Set when logging from a child's panel, so the sheet is for that child only.
@@ -551,6 +552,7 @@ struct ChildStatusRow: View {
 /// Everything logged today, newest first, so Today shows the day as it goes.
 /// Tapping an entry opens it to change.
 struct TodaySoFar: View {
+    @EnvironmentObject private var store: FamilyStore
     @FetchRequest private var events: FetchedResults<Event>
     let onOpen: (Event) -> Void
     @State private var showingAll = false
@@ -565,7 +567,7 @@ struct TodaySoFar: View {
 
     var body: some View {
         let midnight = Calendar.current.startOfDay(for: .now)
-        let today = events
+        let today = store.onScreen(events)
             .filter { !($0.kind == .pump && $0.detail == Pump.count) && ($0.listedAt ?? .distantPast) >= midnight }
             .sorted { ($0.listedAt ?? .distantPast) > ($1.listedAt ?? .distantPast) }
         let shown = showingAll ? today : Array(today.prefix(6))

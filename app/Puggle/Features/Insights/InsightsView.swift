@@ -8,7 +8,10 @@ import SwiftUI
 /// (Decided 13 November 2026: averages are allowed for a child's own history.)
 struct InsightsView: View {
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
-                  predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
+                  predicate: NSPredicate(format: "archived != YES")) private var allChildren: FetchedResults<Child>
+    @EnvironmentObject private var store: FamilyStore
+    private var children: [Child] { store.onScreen(allChildren) }
+
     @State private var chosen: Child?
     @State private var period = InsightPeriod.week
 

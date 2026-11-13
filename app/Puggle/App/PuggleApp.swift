@@ -45,6 +45,7 @@ struct PuggleApp: App {
     @MainActor private static func anyChildAsleep(in store: FamilyStore) -> Bool {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
+        request.predicate = store.scoped(request.predicate)
         let children = (try? store.context.fetch(request)) ?? []
         return children.contains { store.activeSleep(for: $0) != nil }
     }
@@ -139,6 +140,9 @@ struct RootView: View {
     @State private var inFirstRun = false
     @State private var splashing = !Palette.nightJustChanged
     @ObservedObject private var invites = InviteCenter.shared
+    /// Asked once per family joined: whether to bring this phone's own children in.
+    @AppStorage("bringInAskedFor") private var bringInAskedFor = ""
+    @State private var askingBringIn = false
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.appLocked) private var appLocked
 
@@ -153,6 +157,9 @@ struct RootView: View {
             }
             .animation(.easeOut(duration: 0.25), value: sample.loading)
             .fullScreenCover(item: $invites.invite) { JoinView(invite: $0) }
+            .sheet(isPresented: $askingBringIn) { BringInView() }
+            .onChange(of: children.count) { _, _ in checkBringIn() }
+            .onAppear { checkBringIn() }
             // The family arrived after an invite: no first run to go through.
             .onChange(of: children.count) { _, count in
                 guard count > 0, invites.joinedAt != nil else { return }
@@ -210,6 +217,16 @@ struct RootView: View {
                 try? await Task.sleep(for: .seconds(reduceMotion ? 0.6 : 1.5))
                 withAnimation(.easeOut(duration: 0.35)) { splashing = false }
             }
+    }
+
+    /// A phone that joined a family while holding children of its own is asked, once, what to do with them.
+    private func checkBringIn() {
+        guard !sample.isOn, let joined = store.existingFamily(), store.hasJoinedFamily,
+              !store.ownChildrenBesideJoined.isEmpty else { return }
+        let key = joined.id?.uuidString ?? "joined"
+        guard bringInAskedFor != key, !(joined.children ?? []).isEmpty else { return }
+        bringInAskedFor = key
+        askingBringIn = true
     }
 
     @ViewBuilder private var content: some View {

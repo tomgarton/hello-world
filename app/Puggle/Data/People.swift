@@ -339,6 +339,7 @@ extension FamilyStore {
     var childrenTitle: String {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
+        request.predicate = self.scoped(request.predicate)
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         let names = ((try? context.fetch(request)) ?? []).map(\.displayName)
         return names.isEmpty ? "Our family" : "\(ListFormatter.localizedString(byJoining: names))'s family"
@@ -470,5 +471,42 @@ extension ListFormatter {
         case 1: items[0]
         default: items.dropLast().joined(separator: ", ") + " or " + items[items.count - 1]
         }
+    }
+}
+
+// MARK: Joining with children of your own
+
+extension FamilyStore {
+    /// This phone's own family, when it has also joined someone else's and still has children of its own.
+    func ownFamilyBesideJoined() -> Family? {
+        guard !isSample, hasJoinedFamily, let shared = persistence.sharedStore else { return nil }
+        let request = NSFetchRequest<Family>(entityName: "Family")
+        return ((try? context.fetch(request)) ?? []).first { family in
+            family.objectID.persistentStore != shared && (family.children ?? []).contains { !$0.isDeleted }
+        }
+    }
+
+    /// The children kept on this phone from before it joined, oldest first.
+    var ownChildrenBesideJoined: [Child] {
+        (ownFamilyBesideJoined()?.children ?? []).filter { !$0.isDeleted }
+            .sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
+    }
+
+    /// Moves this phone's own children and everything logged for them into the family it joined.
+    /// A backup of them is made first. Medicine rules come too when this person is a parent.
+    @discardableResult
+    func bringOwnChildrenIn() -> Restored {
+        guard canLog, let own = ownFamilyBesideJoined(), let joined = existingFamily(), joined != own,
+              let copy = snapshot(reason: .beforeBringingIn, of: own) else { return Restored() }
+        backups.save(copy)
+        let result = restore(copy, into: joined, rules: isParent)
+        lastSaved = nil
+        for event in own.events ?? [] { context.delete(event) }
+        for child in own.children ?? [] { context.delete(child) }
+        for guide in own.guides ?? [] { context.delete(guide) }
+        for person in own.people ?? [] { context.delete(person) }
+        context.delete(own)
+        persistence.save()
+        return result
     }
 }

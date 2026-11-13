@@ -7,7 +7,9 @@ import SwiftUI
 /// where to put a shortcut on the Action button.
 struct SiriView: View {
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
-                  predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
+                  predicate: NSPredicate(format: "archived != YES")) private var allChildren: FetchedResults<Child>
+    @EnvironmentObject private var store: FamilyStore
+    private var children: [Child] { store.onScreen(allChildren) }
 
     private var name: String { children.first?.displayName ?? "Ollie" }
 

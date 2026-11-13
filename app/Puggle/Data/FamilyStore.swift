@@ -54,12 +54,20 @@ final class FamilyStore: ObservableObject {
         return name.isEmpty ? nil : name
     }
     private var changeObserver: NSObjectProtocol?
+    private var cacheObserver: NSObjectProtocol?
+    private var familyCache: Family?
 
     init(persistence: Persistence = .shared) {
         self.persistence = persistence
         // Views that read through the store (status lines, cards) must refresh on any
         // change, including ones Core Data does not report on the child itself, such as
         // a sleep ending, or an edit merged in from another phone.
+        // Straight away, on the same thread, so nothing reads a family that has just changed.
+        cacheObserver = NotificationCenter.default.addObserver(
+            forName: .NSManagedObjectContextObjectsDidChange, object: persistence.viewContext, queue: nil
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.familyCache = nil }
+        }
         changeObserver = NotificationCenter.default.addObserver(
             forName: .NSManagedObjectContextObjectsDidChange,
             object: persistence.viewContext,
@@ -67,6 +75,7 @@ final class FamilyStore: ObservableObject {
         ) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self else { return }
+                self.familyCache = nil
                 self.objectWillChange.send()
                 self.refreshRole()
                 // A rule saved on another phone has just arrived, or one saved here needs none of this.
@@ -78,6 +87,7 @@ final class FamilyStore: ObservableObject {
 
     deinit {
         if let changeObserver { NotificationCenter.default.removeObserver(changeObserver) }
+        if let cacheObserver { NotificationCenter.default.removeObserver(cacheObserver) }
     }
 
     /// The family on screen: a shared family if this person joined one, otherwise their own.
@@ -94,7 +104,14 @@ final class FamilyStore: ObservableObject {
     }
 
     /// The family on screen, if there is one yet. Never makes one.
+    /// Kept between calls, and forgotten whenever anything in the database changes.
     func existingFamily() -> Family? {
+        if let cached = familyCache, cached.managedObjectContext != nil, !cached.isDeleted { return cached }
+        familyCache = findFamily()
+        return familyCache
+    }
+
+    private func findFamily() -> Family? {
         let request = NSFetchRequest<Family>(entityName: "Family")
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         let families = (try? context.fetch(request)) ?? []
@@ -542,5 +559,28 @@ final class FamilyStore: ObservableObject {
         } catch {
             return nil
         }
+    }
+}
+
+// MARK: One family on screen
+
+extension FamilyStore {
+    /// Only the children of the family on screen. A phone that has joined someone's
+    /// family can still hold its own; those are kept, but not shown alongside.
+    func onScreen(_ children: some Sequence<Child>) -> [Child] {
+        guard let family = existingFamily() else { return Array(children) }
+        return children.filter { $0.family == family }
+    }
+
+    func onScreen(_ events: some Sequence<Event>) -> [Event] {
+        guard let family = existingFamily() else { return Array(events) }
+        return events.filter { $0.family == family }
+    }
+
+    /// Adds "in the family on screen" to a fetch.
+    func scoped(_ predicate: NSPredicate?) -> NSPredicate? {
+        guard let family = existingFamily() else { return predicate }
+        let mine = NSPredicate(format: "family == %@", family)
+        return predicate.map { NSCompoundPredicate(andPredicateWithSubpredicates: [$0, mine]) } ?? mine
     }
 }

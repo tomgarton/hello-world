@@ -80,6 +80,7 @@ enum BackupReason: String {
     case beforeInvite = "Before the first invite"
     case beforeRestore = "Before going back"
     case beforeImport = "Before an import"
+    case beforeBringingIn = "Before bringing children into a family"
 }
 
 /// Where the copies are kept: a folder on this iPhone, which the phone's own iCloud backup includes.
@@ -161,8 +162,8 @@ extension FamilyStore {
     // MARK: Taking a copy
 
     /// The family on screen, as it is now. Nil if there is nothing worth keeping.
-    func snapshot(reason: BackupReason, at date: Date = .now) -> FamilySnapshot? {
-        guard let family = existingFamily() else { return nil }
+    func snapshot(reason: BackupReason, at date: Date = .now, of chosen: Family? = nil) -> FamilySnapshot? {
+        guard let family = chosen ?? existingFamily() else { return nil }
         let children = (family.children ?? []).filter { !$0.isDeleted }
         let events = (family.events ?? []).filter { !$0.isDeleted }
         guard !children.isEmpty || !events.isEmpty else { return nil }
@@ -223,7 +224,11 @@ extension FamilyStore {
     @discardableResult
     func restoreMissing(from copy: FamilySnapshot) -> Restored {
         guard isParent else { return Restored() }
-        let family = currentFamily()
+        return restore(copy, into: currentFamily(), rules: true)
+    }
+
+    /// Adds what is in the copy and missing from the family. Medicine rules only when `rules`.
+    func restore(_ copy: FamilySnapshot, into family: Family, rules: Bool) -> Restored {
         var result = Restored()
         var childByID: [UUID: Child] = [:]
         for child in family.children ?? [] where !child.isDeleted { if let id = child.id { childByID[id] = child } }
@@ -269,7 +274,7 @@ extension FamilyStore {
             result.entries += 1
         }
         let keys = Set((family.guides ?? []).filter { !$0.isDeleted }.compactMap(\.key))
-        for saved in copy.guides where !(saved.key.map(keys.contains) ?? true) {
+        for saved in copy.guides where rules && !(saved.key.map(keys.contains) ?? true) {
             let guide = Guide(context: context)
             place(guide, with: family)
             guide.id = saved.id
