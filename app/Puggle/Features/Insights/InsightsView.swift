@@ -1,22 +1,27 @@
 import SwiftUI
 
-/// Look back without scores: last night per child, and the week as plain
-/// bars with a value on each. No averages, no comparisons between children.
+/// Look back without scores. One child and one stretch of time at a once:
+/// a chart of one thing by day, last night, and a ring of what was logged.
+/// Totals and counts only: no averages, no targets, no comparing children.
 struct InsightsView: View {
-    @EnvironmentObject private var store: FamilyStore
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
                   predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
+    @State private var chosen: Child?
+    @State private var period = InsightPeriod.week
+
+    private var child: Child? { chosen.flatMap { picked in children.first { $0 == picked } } ?? children.first }
 
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    if children.isEmpty {
+                VStack(alignment: .leading, spacing: 16) {
+                    if children.count > 1 { childPicker }
+                    if let child {
+                        ChildInsights(child: child, period: $period)
+                            .id(child.objectID)
+                    } else {
                         Text("Insights appear once a child has been added.")
                             .foregroundStyle(Palette.muted)
-                    }
-                    ForEach(children) { child in
-                        ChildInsights(child: child)
                     }
                 }
                 .padding(16)
@@ -24,40 +29,325 @@ struct InsightsView: View {
             }
             .background(Palette.sand)
             .navigationTitle("Insights")
+            .navigationBarTitleDisplayMode(.inline)
+        }
+    }
+
+    private var childPicker: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(children) { one in
+                    let on = one == child
+                    Button {
+                        withAnimation(.easeInOut(duration: 0.2)) { chosen = one }
+                    } label: {
+                        HStack(spacing: 8) {
+                            ChildAvatar(child: one, size: 28)
+                            Text(one.displayName).font(.subheadline.weight(.semibold))
+                        }
+                        .padding(.leading, 6)
+                        .padding(.trailing, 14)
+                        .frame(minHeight: 44)
+                        .foregroundStyle(on ? Palette.paper : Palette.ink)
+                        .background(on ? Palette.ink : Palette.paper, in: Capsule())
+                    }
+                    .buttonStyle(PressStyle())
+                    .accessibilityAddTraits(on ? .isSelected : [])
+                }
+            }
         }
     }
 }
 
-struct ChildInsights: View {
-    @EnvironmentObject private var store: FamilyStore
-    @ObservedObject var child: Child
+enum InsightPeriod: String, CaseIterable, Identifiable {
+    case week, month
+    var id: String { rawValue }
+    var title: String { self == .week ? "Week" : "Month" }
+    var days: Int { self == .week ? 7 : 30 }
+    var words: String { self == .week ? "the last seven days" : "the last thirty days" }
+}
 
-    private var events: [Event] { Array(child.events ?? []) }
+/// What the chart can show.
+enum InsightMetric: String, CaseIterable, Identifiable {
+    case sleep, feeds, bottles, nappies, potty
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .sleep: "Sleep"
+        case .feeds: "Feeds"
+        case .bottles: "Bottles"
+        case .nappies: Terms.nappies
+        case .potty: "Potty"
+        }
+    }
+
+    var colour: Color {
+        switch self {
+        case .sleep: InsightColour.sleep
+        case .feeds, .bottles: InsightColour.feeds
+        case .nappies: InsightColour.nappies
+        case .potty: InsightColour.potty
+        }
+    }
+}
+
+/// One colour for each kind of thing, the same in the chart, the ring and the list.
+/// Mid-tones, so they sit on the paper by day and after dark.
+enum InsightColour {
+    static let sleep = Color(light: 0x5A7FB8, dark: 0x7C9FD6, night: 0x6D86B0)
+    static let feeds = Color(light: 0xD9A441, dark: 0xE5B556, night: 0xB8924A)
+    static let solids = Color(light: 0xE5855F, dark: 0xEE9674, night: 0xBD7A60)
+    static let nappies = Color(light: 0x4E9A8C, dark: 0x69B3A5, night: 0x5C9488)
+    static let potty = Color(light: 0x9483D4, dark: 0xA999E4, night: 0x8C80BA)
+    static let other = Color(light: 0x8E9A5B, dark: 0xA5B170, night: 0x8A9363)
+}
+
+struct ChildInsights: View {
+    @ObservedObject var child: Child
+    @Binding var period: InsightPeriod
+    @State private var metric = InsightMetric.sleep
+    /// A bar that has been tapped, to read its day.
+    @State private var picked: Date?
+
+    private var events: [Event] { Array(child.events ?? []).filter(\.isLive) }
+
+    struct Day: Identifiable {
+        let id: Date
+        var sleep = 0.0
+        var sleeps = 0
+        var bottleML = 0.0
+        var feeds = 0
+        var solids = 0
+        var nappies = 0
+        var potty = 0
+        var other = 0
+
+        func value(_ metric: InsightMetric) -> Double {
+            switch metric {
+            case .sleep: sleep / 3600
+            case .feeds: Double(feeds)
+            case .bottles: Units.volumeValue(bottleML)
+            case .nappies: Double(nappies)
+            case .potty: Double(potty)
+            }
+        }
+    }
+
+    private var days: [Day] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: .now)
+        var result: [Day] = []
+        for offset in (0..<period.days).reversed() {
+            guard let start = calendar.date(byAdding: .day, value: -offset, to: today),
+                  let end = calendar.date(byAdding: .day, value: 1, to: start) else { continue }
+            var day = Day(id: start)
+            for event in events {
+                guard let at = event.startedAt else { continue }
+                if event.kind == .sleep {
+                    day.sleep += event.asleepSeconds(from: max(at, start), to: min(event.endedAt ?? .now, end))
+                    if at >= start && at < end { day.sleeps += 1 }
+                } else if at >= start && at < end {
+                    switch event.kind {
+                    case .bottle: day.bottleML += event.amountML; day.feeds += 1
+                    case .breastfeed: day.feeds += 1
+                    case .solids: day.solids += 1
+                    case .nappy: day.nappies += 1
+                    case .potty: day.potty += 1
+                    default: day.other += 1
+                    }
+                }
+            }
+            result.append(day)
+        }
+        return result
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 10) {
-                ChildAvatar(child: child, size: 36)
-                Text(child.displayName).font(.title3.weight(.semibold))
+        let days = days
+        let metrics = InsightMetric.allCases.filter { metric in days.contains { $0.value(metric) > 0 } }
+        let showing = metrics.contains(metric) ? metric : (metrics.first ?? .sleep)
+        VStack(alignment: .leading, spacing: 16) {
+            // Week or month: a pill in the app's own colours.
+            HStack(spacing: 4) {
+                ForEach(InsightPeriod.allCases) { one in
+                    let on = one == period
+                    Button(one.title) {
+                        withAnimation(.easeInOut(duration: 0.2)) { period = one; picked = nil }
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .foregroundStyle(on ? Palette.ink : Palette.muted)
+                    .background(on ? Palette.field : Color.clear, in: Capsule())
+                    .contentShape(Capsule())
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(on ? .isSelected : [])
+                }
             }
-            let logged = daysLogged
-            if logged < 3 {
-                Text(logged == 0
-                     ? "Nothing logged for \(child.displayName) yet."
-                     : "\(logged) day\(logged == 1 ? "" : "s") logged so far. Here is what there is.")
-                    .font(.subheadline)
+            .padding(4)
+            .background(Palette.paper, in: Capsule())
+
+            if let first = days.first?.id, let last = days.last?.id {
+                Text(rangeTitle(first, last))
+                    .displayFont(30)
+                    .accessibilityAddTraits(.isHeader)
+            }
+
+            if metrics.isEmpty {
+                Text("Nothing logged for \(child.displayName) in \(period.words).")
                     .foregroundStyle(Palette.muted)
-            }
-            if logged > 0 {
+                    .padding(16)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+            } else {
+                chart(days, metrics: metrics, showing: showing)
                 lastNight
-                week
+                logged(days)
             }
         }
         .foregroundStyle(Palette.ink)
     }
 
-    private var daysLogged: Int {
-        Set(events.compactMap { $0.startedAt.map { Calendar.current.startOfDay(for: $0) } }).count
+    /// "7 to 13 Nov", or "28 Oct to 3 Nov" across a month's end.
+    private func rangeTitle(_ first: Date, _ last: Date) -> String {
+        let sameMonth = Calendar.current.isDate(first, equalTo: last, toGranularity: .month)
+        let start = first.formatted(sameMonth ? .dateTime.day() : .dateTime.day().month(.abbreviated))
+        return "\(start) to \(last.formatted(.dateTime.day().month(.abbreviated)))"
+    }
+
+    // MARK: The chart
+
+    private func chart(_ days: [Day], metrics: [InsightMetric], showing: InsightMetric) -> some View {
+        let values = days.map { $0.value(showing) }
+        let top = niceTop(values.max() ?? 0)
+        let chosen = days.first { $0.id == picked }
+        return VStack(alignment: .leading, spacing: 14) {
+            // The thing being shown, then its total, or one day's when a bar is tapped.
+            VStack(alignment: .leading, spacing: 2) {
+                Text(chosen.map { $0.id.formatted(.dateTime.weekday(.wide).day().month(.wide)) } ?? "\(showing.title), \(period.words)")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Palette.muted)
+                Text(amount(chosen.map { $0.value(showing) } ?? values.reduce(0, +), showing))
+                    .displayFont(34)
+                    .contentTransition(.numericText())
+            }
+            .accessibilityElement(children: .combine)
+
+            HStack(alignment: .top, spacing: 8) {
+                GeometryReader { geometry in
+                    let height = geometry.size.height
+                    ZStack(alignment: .bottom) {
+                        // Three faint lines to read the bars against.
+                        VStack(spacing: 0) {
+                            ForEach(0..<3, id: \.self) { line in
+                                Rectangle().fill(Palette.ink.opacity(0.1)).frame(height: 1)
+                                if line < 2 { Spacer(minLength: 0) }
+                            }
+                        }
+                        HStack(alignment: .bottom, spacing: period == .week ? 10 : 3) {
+                            ForEach(days) { day in
+                                let value = day.value(showing)
+                                let dimmed = picked != nil && picked != day.id
+                                RoundedRectangle(cornerRadius: period == .week ? 8 : 3, style: .continuous)
+                                    .fill(showing.colour.opacity(dimmed ? 0.35 : 1))
+                                    .frame(height: value > 0 ? max(4, height * value / top) : 0)
+                                    .frame(maxWidth: period == .week ? 34 : .infinity, maxHeight: .infinity, alignment: .bottom)
+                                    .frame(maxWidth: .infinity)
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        withAnimation(.easeOut(duration: 0.15)) { picked = picked == day.id ? nil : day.id }
+                                    }
+                            }
+                        }
+                    }
+                }
+                .frame(height: 150)
+                // What the lines stand for, down the right-hand side.
+                VStack(alignment: .leading) {
+                    Text(axis(top, showing))
+                    Spacer(minLength: 0)
+                    Text(axis(top / 2, showing))
+                    Spacer(minLength: 0)
+                    Text(axis(0, showing))
+                }
+                .font(.caption2)
+                .monospacedDigit()
+                .foregroundStyle(Palette.muted)
+                .frame(height: 150)
+                .offset(y: -6)
+                .accessibilityHidden(true)
+            }
+            // Days along the bottom: each one in a week, one in seven across a month.
+            HStack(spacing: period == .week ? 10 : 3) {
+                ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
+                    let shown = period == .week || (days.count - 1 - index).isMultiple(of: 7)
+                    Text(shown ? (period == .week ? day.id.formatted(.dateTime.weekday(.abbreviated)) : day.id.formatted(.dateTime.day())) : "")
+                        .font(.caption2)
+                        .foregroundStyle(picked == day.id ? Palette.ink : Palette.muted)
+                        .fixedSize()
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.trailing, 36)
+            .accessibilityHidden(true)
+
+            if metrics.count > 1 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(metrics) { one in
+                            let on = one == showing
+                            Button(one.title) {
+                                withAnimation(.easeInOut(duration: 0.2)) { metric = one; picked = nil }
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .padding(.horizontal, 14)
+                            .frame(minHeight: 44)
+                            .foregroundStyle(on ? Palette.paper : Palette.ink)
+                            .background(on ? Palette.ink : Palette.field, in: Capsule())
+                            .buttonStyle(PressStyle())
+                            .accessibilityAddTraits(on ? .isSelected : [])
+                        }
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("\(showing.title), \(period.words)")
+        .accessibilityValue(days.map { "\($0.id.formatted(.dateTime.weekday(.wide).day())) \(amount($0.value(showing), showing))" }.joined(separator: ", "))
+    }
+
+    /// A round number a little above the tallest bar.
+    private func niceTop(_ value: Double) -> Double {
+        guard value > 0 else { return 1 }
+        for step in [2.0, 4, 6, 8, 10, 12, 16, 20, 24, 30, 40, 50, 60, 80, 100, 150, 200, 300, 400, 500, 600, 800, 1000, 1500, 2000, 3000] where value <= step {
+            return step
+        }
+        return (value / 1000).rounded(.up) * 1000
+    }
+
+    private func amount(_ value: Double, _ metric: InsightMetric) -> String {
+        switch metric {
+        case .sleep: hours(value * 3600)
+        case .bottles: "\(trim(value)) \(Units.volumeUnit)"
+        default: "\(Int(value))"
+        }
+    }
+
+    private func axis(_ value: Double, _ metric: InsightMetric) -> String {
+        metric == .sleep ? "\(trim(value)) h" : trim(value)
+    }
+
+    private func trim(_ value: Double) -> String { value.formatted(.number.precision(.fractionLength(0...1))) }
+
+    /// "9h 20m", "45m", "71h".
+    private func hours(_ seconds: Double) -> String {
+        let minutes = Int((seconds / 60).rounded())
+        let h = minutes / 60, m = minutes % 60
+        if h == 0 { return "\(m)m" }
+        return m == 0 || h >= 24 ? "\(h)h" : "\(h)h \(m)m"
     }
 
     // MARK: Last night
@@ -80,141 +370,141 @@ struct ChildInsights: View {
         return pieces.sorted { $0.start < $1.start }
     }
 
-    private var lastNight: some View {
+    @ViewBuilder private var lastNight: some View {
         let pieces = nightPieces
-        return VStack(alignment: .leading, spacing: 4) {
-            Text("Last night").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
-            if let first = pieces.first, let last = pieces.last {
-                let total = pieces.reduce(0.0) { $0 + $1.end.timeIntervalSince($1.start) }
-                let longest = pieces.map { $0.end.timeIntervalSince($0.start) }.max() ?? 0
-                Text("Slept \(duration(total))").font(.title2.weight(.semibold))
-                Text(last.open
-                     ? "From \(first.start.formatted(date: .omitted, time: .shortened)), still asleep"
-                     : "Between \(first.start.formatted(date: .omitted, time: .shortened)) and \(last.end.formatted(date: .omitted, time: .shortened))")
-                    .foregroundStyle(Palette.muted)
-                if pieces.count > 1 {
-                    Text("Longest stretch \(duration(longest))").foregroundStyle(Palette.muted)
-                }
-            } else {
-                Text("No sleep logged for last night.").foregroundStyle(Palette.muted)
+        if let first = pieces.first, let last = pieces.last {
+            let total = pieces.reduce(0.0) { $0 + $1.end.timeIntervalSince($1.start) }
+            let longest = pieces.map { $0.end.timeIntervalSince($0.start) }.max() ?? 0
+            HStack(alignment: .top, spacing: 12) {
+                tile("Last night", hours(total),
+                     last.open ? "From \(first.start.formatted(date: .omitted, time: .shortened)), still asleep"
+                               : "\(first.start.formatted(date: .omitted, time: .shortened)) to \(last.end.formatted(date: .omitted, time: .shortened))")
+                tile("Longest stretch", hours(longest),
+                     pieces.count > 1 ? "\(pieces.count - 1) waking\(pieces.count == 2 ? "" : "s")" : "Slept through")
             }
         }
+    }
+
+    private func tile(_ title: String, _ value: String, _ note: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+            Text(value).displayFont(26)
+            Text(note).font(.footnote).foregroundStyle(Palette.muted).fixedSize(horizontal: false, vertical: true)
+        }
         .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .frame(maxWidth: .infinity, minHeight: 104, alignment: .topLeading)
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
         .accessibilityElement(children: .combine)
     }
 
-    // MARK: This week
+    // MARK: What was logged
 
-    private struct Day: Identifiable {
-        let id: Date
-        let label: String
-        let spoken: String
-        var sleep = 0.0
-        var bottleML = 0.0
-        var feeds = 0
-        var nappies = 0
+    private struct Slice: Identifiable {
+        let id: String
+        let title: String
+        let kind: EventKind
+        let colour: Color
+        let count: Int
+        let note: String
     }
 
-    private var days: [Day] {
-        let calendar = Calendar.current
-        let today = calendar.startOfDay(for: .now)
-        var result: [Day] = []
-        for offset in (0..<7).reversed() {
-            guard let start = calendar.date(byAdding: .day, value: -offset, to: today),
-                  let end = calendar.date(byAdding: .day, value: 1, to: start) else { continue }
-            var day = Day(id: start,
-                          label: start.formatted(.dateTime.weekday(.narrow)),
-                          spoken: start.formatted(.dateTime.weekday(.wide)))
-            for event in events {
-                guard let at = event.startedAt else { continue }
-                if event.kind == .sleep {
-                    day.sleep += event.asleepSeconds(from: max(at, start), to: min(event.endedAt ?? .now, end))
-                } else if at >= start && at < end {
-                    switch event.kind {
-                    case .bottle: day.bottleML += event.amountML; day.feeds += 1
-                    case .breastfeed: day.feeds += 1
-                    case .nappy: day.nappies += 1
-                    default: break
-                    }
+    private func logged(_ days: [Day]) -> some View {
+        let bottle = days.reduce(0.0) { $0 + $1.bottleML }
+        let all: [Slice] = [
+            Slice(id: "sleep", title: "Sleep", kind: .sleep, colour: InsightColour.sleep,
+                  count: days.reduce(0) { $0 + $1.sleeps }, note: hours(days.reduce(0.0) { $0 + $1.sleep })),
+            Slice(id: "feeds", title: "Feeds", kind: .bottle, colour: InsightColour.feeds,
+                  count: days.reduce(0) { $0 + $1.feeds }, note: bottle > 0 ? "\(Units.volume(bottle)) by bottle" : ""),
+            Slice(id: "solids", title: "Solids", kind: .solids, colour: InsightColour.solids,
+                  count: days.reduce(0) { $0 + $1.solids }, note: ""),
+            Slice(id: "nappies", title: Terms.nappies, kind: .nappy, colour: InsightColour.nappies,
+                  count: days.reduce(0) { $0 + $1.nappies }, note: ""),
+            Slice(id: "potty", title: "Potty", kind: .potty, colour: InsightColour.potty,
+                  count: days.reduce(0) { $0 + $1.potty }, note: ""),
+            Slice(id: "other", title: "Everything else", kind: .note, colour: InsightColour.other,
+                  count: days.reduce(0) { $0 + $1.other }, note: ""),
+        ]
+        let slices = all.filter { $0.count > 0 }
+        let total = slices.reduce(0) { $0 + $1.count }
+        return VStack(alignment: .leading, spacing: 18) {
+            Text("What was logged").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+            ZStack {
+                InsightRing(parts: slices.map { (Double($0.count), $0.colour) })
+                VStack(spacing: 0) {
+                    Text("\(total)").displayFont(34)
+                    Text(total == 1 ? "entry" : "entries").font(.footnote).foregroundStyle(Palette.muted)
                 }
             }
-            result.append(day)
-        }
-        return result
-    }
+            .frame(width: 190, height: 190)
+            .frame(maxWidth: .infinity)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(total) entries in \(period.words)")
 
-    @ViewBuilder private var week: some View {
-        let days = days
-        VStack(alignment: .leading, spacing: 16) {
-            Text("The last seven days").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
-            if days.contains(where: { $0.sleep >= 60 }) {
-                WeekBars(title: "Sleep", unit: "hours",
-                         bars: days.map { .init(label: $0.label, spoken: $0.spoken, value: $0.sleep / 3600,
-                                                text: $0.sleep >= 60 ? String(format: "%.1f", $0.sleep / 3600) : "–") })
-            }
-            if days.contains(where: { $0.feeds > 0 }) {
-                WeekBars(title: "Feeds", unit: "feeds",
-                         bars: days.map { .init(label: $0.label, spoken: $0.spoken, value: Double($0.feeds),
-                                                text: $0.feeds > 0 ? "\($0.feeds)" : "–") })
-            }
-            if days.contains(where: { $0.bottleML > 0 }) {
-                WeekBars(title: "Bottles", unit: "millilitres",
-                         bars: days.map { .init(label: $0.label, spoken: $0.spoken, value: $0.bottleML,
-                                                text: $0.bottleML > 0 ? "\(Int($0.bottleML))" : "–") })
-            }
-            if days.contains(where: { $0.nappies > 0 }) {
-                WeekBars(title: Terms.nappies, unit: Terms.nappiesLower,
-                         bars: days.map { .init(label: $0.label, spoken: $0.spoken, value: Double($0.nappies),
-                                                text: $0.nappies > 0 ? "\($0.nappies)" : "–") })
+            VStack(spacing: 0) {
+                ForEach(Array(slices.enumerated()), id: \.element.id) { index, slice in
+                    if index > 0 { Divider().padding(.leading, 56) }
+                    HStack(spacing: 12) {
+                        ActivityIcon(slice.kind, size: 24, plain: true)
+                            .frame(width: 44, height: 44)
+                            .background(slice.colour.opacity(0.32), in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(slice.title).font(.body.weight(.semibold))
+                            if !slice.note.isEmpty {
+                                Text(slice.note).font(.footnote).foregroundStyle(Palette.muted)
+                            }
+                        }
+                        Spacer(minLength: 8)
+                        Text("\(slice.count)").font(.body.weight(.semibold)).monospacedDigit()
+                    }
+                    .padding(.vertical, 8)
+                    .accessibilityElement(children: .combine)
+                }
             }
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-    }
-
-    private func duration(_ seconds: Double) -> String {
-        Elapsed.short(from: Date.now.addingTimeInterval(-seconds), to: .now)
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
     }
 }
 
-/// Seven outlined bars with a value on each, and a spoken description.
-struct WeekBars: View {
-    struct Bar {
-        let label: String
-        let spoken: String
-        let value: Double
-        let text: String
-    }
-
-    let title: String
-    let unit: String
-    let bars: [Bar]
+/// A ring in separate rounded pieces, one for each kind of thing.
+struct InsightRing: View {
+    let parts: [(value: Double, colour: Color)]
+    var thickness: CGFloat = 26
 
     var body: some View {
-        let top = max(bars.map(\.value).max() ?? 0, 0.0001)
-        VStack(alignment: .leading, spacing: 8) {
-            Text(unit == title.lowercased() ? title : "\(title), \(unit)").font(.subheadline.weight(.semibold))
-            HStack(alignment: .bottom, spacing: 6) {
-                ForEach(bars.indices, id: \.self) { index in
-                    let bar = bars[index]
-                    VStack(spacing: 4) {
-                        Text(bar.text).font(.caption2).monospacedDigit().lineLimit(1).minimumScaleFactor(0.7)
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(Palette.field)
-                            .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).stroke(Palette.ink, lineWidth: 1.5))
-                            .frame(height: max(3, 72 * bar.value / top))
-                        Text(bar.label).font(.caption2).foregroundStyle(Palette.muted)
-                    }
-                    .frame(maxWidth: .infinity)
+        GeometryReader { geometry in
+            let radius = min(geometry.size.width, geometry.size.height) / 2 - thickness / 2
+            // A round end reaches half the thickness past the line's end; leave that, and a gap.
+            let cap = Double(thickness / 2 / (2 * .pi * max(radius, 1)))
+            let gap = parts.count > 1 ? 0.012 : 0
+            let pieces = shares
+            ZStack {
+                ForEach(pieces.indices, id: \.self) { index in
+                    let piece = pieces[index]
+                    let from = piece.start + cap + gap / 2
+                    let to = max(from + 0.0005, piece.start + piece.share - cap - gap / 2)
+                    Circle()
+                        .trim(from: from, to: parts.count > 1 ? to : 1)
+                        .stroke(parts[index].colour, style: StrokeStyle(lineWidth: thickness, lineCap: parts.count > 1 ? .round : .butt))
+                        .rotationEffect(.degrees(-90))
+                        .padding(thickness / 2)
                 }
             }
-            .frame(height: 110, alignment: .bottom)
         }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(title) in \(unit), last seven days")
-        .accessibilityValue(bars.map { "\($0.spoken) \($0.text == "–" ? "none" : $0.text)" }.joined(separator: ", "))
+    }
+
+    /// Each part's share of the ring. Small ones are given enough to be seen.
+    private var shares: [(start: Double, share: Double)] {
+        let total = max(parts.reduce(0) { $0 + $1.value }, 0.0001)
+        let least = 0.06
+        var raw = parts.map { max($0.value / total, least) }
+        let sum = raw.reduce(0, +)
+        raw = raw.map { $0 / sum }
+        var start = 0.0
+        return raw.map { share in
+            defer { start += share }
+            return (start, share)
+        }
     }
 }
