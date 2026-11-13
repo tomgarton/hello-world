@@ -349,6 +349,8 @@ struct PuggleHeader: View {
     @State private var walkStart: CGFloat?
     /// True for a moment after a walk, so letting go of her is not taken for a tap.
     @State private var justWalked = false
+    /// Counts her reactions to a tap, so whoever is with her can answer.
+    @State private var reactions = 0
 
     static let sceneHeight: CGFloat = 250
 
@@ -437,8 +439,16 @@ struct PuggleHeader: View {
         let x = canWalk ? min(max(walkedTo ?? home, -reach), reach) : 0
         return ZStack(alignment: .bottom) {
             PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x)
+            // Whoever is with her today stands behind her, on the same ground.
+            if let company = Company.today(kind: .today, room: room) {
+                CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim)
+                    .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
+                    .offset(x: company.x * width)
+                    .padding(.bottom, 26)
+                    .id(company.member)
+            }
             Button {
-                if justWalked { justWalked = false } else { react() }
+                if justWalked { justWalked = false } else { react(); reactions += 1 }
             } label: {
                 PuggleView(controller: controller)
                     .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))

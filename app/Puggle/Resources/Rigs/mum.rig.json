@@ -1,0 +1,751 @@
+{
+ "name": "Mum",
+ "size": [
+  240,
+  456
+ ],
+ "about": "Mum: a flower behind her ear, a green dress. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "parts": [
+  {
+   "id": "body",
+   "pivot": [
+    120,
+    446
+   ],
+   "shapes": []
+  },
+  {
+   "id": "tail",
+   "parent": "body",
+   "pivot": [
+    158,
+    392.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 184.0,
+     "y": 400.0,
+     "rx": 34.0,
+     "ry": 15.0,
+     "rotate": -28.0,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#5E3A24"
+    }
+   ],
+   "spring": 70
+  },
+  {
+   "id": "legs",
+   "parent": "body",
+   "pivot": [
+    120,
+    442
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M100 370 L102 370 Q112 370 112 380 L112 432 Q112 442 102 442 L100 442 Q90 442 90 432 L90 380 Q90 370 100 370 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#5E3A24"
+    },
+    {
+     "kind": "ellipse",
+     "x": 101.0,
+     "y": 446.0,
+     "rx": 24.0,
+     "ry": 10.0,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#465668"
+    },
+    {
+     "kind": "path",
+     "d": "M138 370 L140 370 Q150 370 150 380 L150 432 Q150 442 140 442 L138 442 Q128 442 128 432 L128 380 Q128 370 138 370 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#5E3A24"
+    },
+    {
+     "kind": "ellipse",
+     "x": 139.0,
+     "y": 446.0,
+     "rx": 24.0,
+     "ry": 10.0,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#465668"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "parent": "body",
+   "pivot": [
+    120,
+    390.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M86 168 Q120 158 154 168 L192 380 Q194 390 182 390 L58 390 Q46 390 48 380 Z",
+     "fill": "#3C9A5F",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#105F2E"
+    }
+   ]
+  },
+  {
+   "id": "arm-left",
+   "parent": "upper",
+   "pivot": [
+    88.0,
+    182.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 182 Q74.5 243.7 46 300",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#105F2E"
+    },
+    {
+     "kind": "path",
+     "d": "M88 182 Q74.5 243.7 46 300",
+     "stroke": "#3C9A5F",
+     "width": 22.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M41.6 284.3 L61.2 294.3",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "cap": "round",
+     "tint": "#105F2E"
+    },
+    {
+     "kind": "ellipse",
+     "x": 46.0,
+     "y": 300.0,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#5E3A24"
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "arm-right",
+   "parent": "upper",
+   "pivot": [
+    152.0,
+    182.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 182 Q165.5 243.7 194 300",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#105F2E"
+    },
+    {
+     "kind": "path",
+     "d": "M152 182 Q165.5 243.7 194 300",
+     "stroke": "#3C9A5F",
+     "width": 22.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M178.8 294.3 L198.4 284.3",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "cap": "round",
+     "tint": "#105F2E"
+    },
+    {
+     "kind": "ellipse",
+     "x": 194.0,
+     "y": 300.0,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#5E3A24"
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "head",
+   "parent": "upper",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": []
+  },
+  {
+   "id": "face",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 108.0,
+     "rx": 70.0,
+     "ry": 60.0,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#5E3A24"
+    },
+    {
+     "kind": "ellipse",
+     "x": 70.0,
+     "y": 132.0,
+     "rx": 12.0,
+     "ry": 7.5,
+     "fill": "#C27C66"
+    },
+    {
+     "kind": "ellipse",
+     "x": 170.0,
+     "y": 132.0,
+     "rx": 12.0,
+     "ry": 7.5,
+     "fill": "#C27C66"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 151.0,
+     "rx": 47.0,
+     "ry": 19.0,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#465668"
+    },
+    {
+     "kind": "ellipse",
+     "x": 114.0,
+     "y": 143.0,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 126.0,
+     "y": 143.0,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "eye-left",
+   "parent": "head",
+   "pivot": [
+    88.0,
+    117.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88.0,
+     "y": 117.0,
+     "rx": 6.8,
+     "ry": 6.8,
+     "fill": "#3A2A20"
+    }
+   ],
+   "spring": 0,
+   "when": "eyes=open"
+  },
+  {
+   "id": "eye-right",
+   "parent": "head",
+   "pivot": [
+    152.0,
+    117.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 152.0,
+     "y": 117.0,
+     "rx": 6.8,
+     "ry": 6.8,
+     "fill": "#3A2A20"
+    }
+   ],
+   "spring": 0,
+   "when": "eyes=open"
+  },
+  {
+   "id": "head-2",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M156 52 Q170 36 182 50 Q174 60 156 52 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "tint": "#B23A26"
+    }
+   ]
+  },
+  {
+   "id": "eyes-closed",
+   "parent": "head",
+   "pivot": [
+    120,
+    110
+   ],
+   "when": "eyes=closed",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M80 116 Q88 124 96 116",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M144 116 Q152 124 160 116",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  }
+ ],
+ "moves": {
+  "nod": {
+   "about": "An everyday log was saved: one small happy bounce.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "head": {
+       "y": 5,
+       "r": 3
+      },
+      "arm-left": {
+       "r": 8
+      },
+      "arm-right": {
+       "r": -8
+      }
+     }
+    },
+    {
+     "t": 0.16,
+     "pose": {
+      "upper": {
+       "sy": 1.03
+      },
+      "head": {
+       "y": -3
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {}
+    },
+    {
+     "t": 0.62,
+     "pose": {}
+    }
+   ],
+   "length": 0.85
+  },
+  "greet": {
+   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      },
+      "body": {
+       "y": -2
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {}
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    }
+   ],
+   "length": 1.75
+  },
+  "celebrate": {
+   "about": "A milestone: two hops with her arms up. The only big reaction; keep it rare.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "tail": {
+       "r": -36
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "upper": {
+       "sy": 0.93
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      },
+      "tail": {
+       "r": -10
+      }
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "tail": {
+       "r": -36
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 0.68,
+     "pose": {
+      "upper": {
+       "sy": 0.94
+      },
+      "arm-left": {
+       "r": 62
+      },
+      "arm-right": {
+       "r": -62
+      },
+      "tail": {
+       "r": -30
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "tail": {
+       "r": -30
+      },
+      "head": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    },
+    {
+     "t": 1.9,
+     "pose": {}
+    },
+    {
+     "t": 2.1,
+     "pose": {}
+    }
+   ],
+   "length": 2.4
+  },
+  "wake": {
+   "about": "A sleep ended: a long stretch with her eyes shut, then wide awake.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "head": {
+       "r": 4,
+       "y": 3
+      }
+     }
+    },
+    {
+     "t": 0.2,
+     "pose": {
+      "upper": {
+       "sy": 1.06
+      },
+      "head": {
+       "r": -7,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 58
+      },
+      "arm-right": {
+       "r": -58
+      },
+      "tail": {
+       "r": -12
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "upper": {
+       "sy": 0.98
+      },
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.95,
+     "pose": {
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      }
+     }
+    },
+    {
+     "t": 1.2,
+     "pose": {}
+    },
+    {
+     "t": 1.45,
+     "pose": {}
+    }
+   ],
+   "length": 1.7
+  },
+  "walk": {
+   "about": "Walking on the spot, a waddle from side to side. Goes round until told to stop.",
+   "loops": true,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "body": {
+       "r": -3,
+       "x": -2,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 12
+      },
+      "arm-right": {
+       "r": 12
+      },
+      "head": {
+       "r": 2.5
+      },
+      "tail": {
+       "r": -14
+      }
+     }
+    },
+    {
+     "t": 0.17,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.32,
+     "pose": {
+      "body": {
+       "r": 3,
+       "x": 2,
+       "y": -2
+      },
+      "arm-left": {
+       "r": -12
+      },
+      "arm-right": {
+       "r": -12
+      },
+      "head": {
+       "r": -2.5
+      },
+      "tail": {
+       "r": 10
+      }
+     }
+    },
+    {
+     "t": 0.49,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "tail": {
+       "r": 2
+      }
+     }
+    }
+   ],
+   "length": 0.64
+  }
+ },
+ "face": {
+  "eyes": "open"
+ }
+}

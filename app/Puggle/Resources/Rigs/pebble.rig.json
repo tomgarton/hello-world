@@ -1,0 +1,738 @@
+{
+ "name": "Pebble",
+ "size": [
+  240,
+  270
+ ],
+ "about": "Pebble: Puggle's baby sibling, about six months, sitting with a bottle. A Kewpie curl. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "parts": [
+  {
+   "id": "body",
+   "pivot": [
+    120,
+    260
+   ],
+   "shapes": []
+  },
+  {
+   "id": "tail",
+   "parent": "body",
+   "pivot": [
+    158,
+    250.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 184.0,
+     "y": 246.0,
+     "rx": 34.0,
+     "ry": 15.0,
+     "rotate": -28.0,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#5E3A24"
+    },
+    {
+     "kind": "path",
+     "d": "M173.2 242.7 Q180.5 247.9 180.7 256.8 M186 234.8 Q194.6 240.4 194.4 250.7 M171.6 252.6 L200.8 237.1",
+     "stroke": "#3A2A20",
+     "width": 2.5,
+     "cap": "round",
+     "tint": "#5E3A24"
+    }
+   ],
+   "spring": 70
+  },
+  {
+   "id": "legs",
+   "parent": "body",
+   "pivot": [
+    120,
+    256
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 82.0,
+     "y": 250.0,
+     "rx": 20.0,
+     "ry": 15.0,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#465668"
+    },
+    {
+     "kind": "ellipse",
+     "x": 158.0,
+     "y": 250.0,
+     "rx": 20.0,
+     "ry": 15.0,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#465668"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "parent": "body",
+   "pivot": [
+    120,
+    248.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L182 238 Q184 248 172 248 L68 248 Q56 248 58 238 Z",
+     "fill": "#F4BE2C",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#B8892A"
+    }
+   ]
+  },
+  {
+   "id": "arm-left",
+   "parent": "upper",
+   "pivot": [
+    88.0,
+    182.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 182 Q102.2 195.1 106 214",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "path",
+     "d": "M88 182 Q102.2 195.1 106 214",
+     "stroke": "#F4BE2C",
+     "width": 22.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M92.9 204.4 L114.4 200.1",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "cap": "round",
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "ellipse",
+     "x": 106.0,
+     "y": 214.0,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#5E3A24"
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "arm-right",
+   "parent": "upper",
+   "pivot": [
+    152.0,
+    182.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 182 Q137.8 195.1 134 214",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "path",
+     "d": "M152 182 Q137.8 195.1 134 214",
+     "stroke": "#F4BE2C",
+     "width": 22.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M125.6 200.1 L147.1 204.4",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "cap": "round",
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "ellipse",
+     "x": 134.0,
+     "y": 214.0,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#5E3A24"
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "held",
+   "parent": "upper",
+   "pivot": [
+    120,
+    248.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M110 188.2 L117.6 185.7 Q124.3 183.6 126.4 190.2 L133.2 211.2 Q135.4 217.8 128.7 220 L121.1 222.5 Q114.5 224.6 112.3 218 L105.5 197 Q103.4 190.4 110 188.2 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "tint": "#7E7766"
+    },
+    {
+     "kind": "path",
+     "d": "M114.6 205.6 L124.1 202.6 Q129.8 200.7 131.7 206.4 L133.6 212.1 Q135.4 217.8 129.7 219.7 L120.2 222.8 Q114.5 224.6 112.6 218.9 L110.8 213.2 Q108.9 207.5 114.6 205.6 Z",
+     "fill": "#FFF3D6",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "tint": "#80755A"
+    },
+    {
+     "kind": "path",
+     "d": "M102.5 184.4 L121.5 178.2 Q124.3 177.3 125.3 180.1 L125.9 182 Q126.8 184.9 123.9 185.8 L104.9 192 Q102.1 192.9 101.1 190 L100.5 188.1 Q99.6 185.3 102.5 184.4 Z",
+     "fill": "#2A62B8",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "tint": "#1B4387"
+    },
+    {
+     "kind": "path",
+     "d": "M106.3 183.1 Q107.6 168 117.7 179.4",
+     "fill": "#F4BE2C",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "tint": "#B8892A"
+    }
+   ]
+  },
+  {
+   "id": "head",
+   "parent": "upper",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": []
+  },
+  {
+   "id": "face",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 108.0,
+     "rx": 70.0,
+     "ry": 60.0,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#5E3A24"
+    },
+    {
+     "kind": "ellipse",
+     "x": 70.0,
+     "y": 132.0,
+     "rx": 13.7,
+     "ry": 8.6,
+     "fill": "#C27C66"
+    },
+    {
+     "kind": "ellipse",
+     "x": 170.0,
+     "y": 132.0,
+     "rx": 13.7,
+     "ry": 8.6,
+     "fill": "#C27C66"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 151.0,
+     "rx": 47.0,
+     "ry": 19.0,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#465668"
+    },
+    {
+     "kind": "ellipse",
+     "x": 114.0,
+     "y": 143.0,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 126.0,
+     "y": 143.0,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "path",
+     "d": "M80 120 Q88 111 96 120",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round",
+     "tint": "#465668"
+    },
+    {
+     "kind": "path",
+     "d": "M144 120 Q152 111 160 120",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round",
+     "tint": "#465668"
+    },
+    {
+     "kind": "path",
+     "d": "M80.1 98.8 Q87.6 93 96.1 97.2",
+     "stroke": "#5E3A24",
+     "width": 4.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M143.9 97.2 Q152.4 93 159.9 98.8",
+     "stroke": "#5E3A24",
+     "width": 4.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M120 52 Q104 30 120 14 Q140 2 146 18 Q148 30 134 30 Q124 28 128 20",
+     "stroke": "#3A2A20",
+     "width": 13.0,
+     "cap": "round",
+     "tint": "#5E3A24"
+    },
+    {
+     "kind": "path",
+     "d": "M120 52 Q104 30 120 14 Q140 2 146 18 Q148 30 134 30 Q124 28 128 20",
+     "stroke": "#8A5A3C",
+     "width": 5.0,
+     "cap": "round"
+    }
+   ]
+  }
+ ],
+ "moves": {
+  "nod": {
+   "about": "An everyday log was saved: one small happy bounce.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "head": {
+       "y": 5,
+       "r": 3
+      },
+      "arm-left": {
+       "r": 8
+      },
+      "arm-right": {
+       "r": -8
+      }
+     }
+    },
+    {
+     "t": 0.16,
+     "pose": {
+      "upper": {
+       "sy": 1.03
+      },
+      "head": {
+       "y": -3
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {}
+    },
+    {
+     "t": 0.62,
+     "pose": {}
+    }
+   ],
+   "length": 0.85
+  },
+  "greet": {
+   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      },
+      "body": {
+       "y": -2
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {}
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    }
+   ],
+   "length": 1.75
+  },
+  "celebrate": {
+   "about": "A milestone: two hops with her arms up. The only big reaction; keep it rare.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "tail": {
+       "r": -36
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "upper": {
+       "sy": 0.93
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      },
+      "tail": {
+       "r": -10
+      }
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "tail": {
+       "r": -36
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 0.68,
+     "pose": {
+      "upper": {
+       "sy": 0.94
+      },
+      "arm-left": {
+       "r": 62
+      },
+      "arm-right": {
+       "r": -62
+      },
+      "tail": {
+       "r": -30
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "tail": {
+       "r": -30
+      },
+      "head": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    },
+    {
+     "t": 1.9,
+     "pose": {}
+    },
+    {
+     "t": 2.1,
+     "pose": {}
+    }
+   ],
+   "length": 2.4
+  },
+  "wake": {
+   "about": "A sleep ended: a long stretch with her eyes shut, then wide awake.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "head": {
+       "r": 4,
+       "y": 3
+      }
+     }
+    },
+    {
+     "t": 0.2,
+     "pose": {
+      "upper": {
+       "sy": 1.06
+      },
+      "head": {
+       "r": -7,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 58
+      },
+      "arm-right": {
+       "r": -58
+      },
+      "tail": {
+       "r": -12
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "upper": {
+       "sy": 0.98
+      },
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.95,
+     "pose": {}
+    },
+    {
+     "t": 1.2,
+     "pose": {}
+    },
+    {
+     "t": 1.45,
+     "pose": {}
+    }
+   ],
+   "length": 1.7
+  },
+  "walk": {
+   "about": "Walking on the spot, a waddle from side to side. Goes round until told to stop.",
+   "loops": true,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "body": {
+       "r": -3,
+       "x": -2,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 12
+      },
+      "arm-right": {
+       "r": 12
+      },
+      "head": {
+       "r": 2.5
+      },
+      "tail": {
+       "r": -14
+      }
+     }
+    },
+    {
+     "t": 0.17,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.32,
+     "pose": {
+      "body": {
+       "r": 3,
+       "x": 2,
+       "y": -2
+      },
+      "arm-left": {
+       "r": -12
+      },
+      "arm-right": {
+       "r": -12
+      },
+      "head": {
+       "r": -2.5
+      },
+      "tail": {
+       "r": 10
+      }
+     }
+    },
+    {
+     "t": 0.49,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "tail": {
+       "r": 2
+      }
+     }
+    }
+   ],
+   "length": 0.64
+  }
+ },
+ "face": {
+  "eyes": "open"
+ }
+}

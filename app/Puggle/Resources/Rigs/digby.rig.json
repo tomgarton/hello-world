@@ -1,0 +1,737 @@
+{
+ "name": "Digby",
+ "size": [
+  240,
+  300
+ ],
+ "about": "Digby: a wombat who loves digging. A red beanie. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "parts": [
+  {
+   "id": "body",
+   "pivot": [
+    120,
+    290
+   ],
+   "shapes": []
+  },
+  {
+   "id": "legs",
+   "parent": "body",
+   "pivot": [
+    120,
+    286
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M97 250 L103 250 Q114 250 114 261 L114 267 Q114 278 103 278 L97 278 Q86 278 86 267 L86 261 Q86 250 97 250 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    },
+    {
+     "kind": "path",
+     "d": "M137 250 L143 250 Q154 250 154 261 L154 267 Q154 278 143 278 L137 278 Q126 278 126 267 L126 261 Q126 250 137 250 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    },
+    {
+     "kind": "ellipse",
+     "x": 100.0,
+     "y": 282.0,
+     "rx": 24.0,
+     "ry": 10.0,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    },
+    {
+     "kind": "ellipse",
+     "x": 140.0,
+     "y": 282.0,
+     "rx": 24.0,
+     "ry": 10.0,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "parent": "body",
+   "pivot": [
+    120,
+    258.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M74 220 L166 220 L170 258 L127 258 L120 244 L113 258 L70 258 Z",
+     "fill": "#2A62B8",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#1B4387"
+    },
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L168 218 Q170 228 158 228 L82 228 Q70 228 72 218 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#7E7766"
+    },
+    {
+     "kind": "path",
+     "d": "M80 186 L160 186",
+     "stroke": "#2A62B8",
+     "width": 6.0
+    },
+    {
+     "kind": "path",
+     "d": "M77 200 L163 200",
+     "stroke": "#2A62B8",
+     "width": 6.0
+    },
+    {
+     "kind": "path",
+     "d": "M74 214 L166 214",
+     "stroke": "#2A62B8",
+     "width": 6.0
+    }
+   ]
+  },
+  {
+   "id": "arm-left",
+   "parent": "upper",
+   "pivot": [
+    92.0,
+    176.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M96 171.5 L96 171.5 Q104.9 179.6 96.9 188.5 L79.5 207.8 Q71.5 216.7 62.6 208.7 L62.6 208.7 Q53.6 200.7 61.7 191.8 L79.1 172.4 Q87.1 163.5 96 171.5 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#7E7766"
+    },
+    {
+     "kind": "ellipse",
+     "x": 59.9,
+     "y": 211.7,
+     "rx": 11.5,
+     "ry": 11.5,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#46382D"
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "arm-right",
+   "parent": "upper",
+   "pivot": [
+    148.0,
+    176.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M144 171.5 L144 171.5 Q152.9 163.5 160.9 172.4 L178.3 191.8 Q186.4 200.7 177.4 208.7 L177.4 208.7 Q168.5 216.7 160.5 207.8 L143.1 188.5 Q135.1 179.6 144 171.5 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#7E7766"
+    },
+    {
+     "kind": "ellipse",
+     "x": 180.1,
+     "y": 211.7,
+     "rx": 11.5,
+     "ry": 11.5,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#46382D"
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "head",
+   "parent": "upper",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": []
+  },
+  {
+   "id": "head-back",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 70.0,
+     "y": 56.0,
+     "rx": 15.0,
+     "ry": 13.0,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    },
+    {
+     "kind": "ellipse",
+     "x": 170.0,
+     "y": 56.0,
+     "rx": 15.0,
+     "ry": 13.0,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    }
+   ]
+  },
+  {
+   "id": "face",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M96 50 L144 50 Q196 50 196 102 L196 122 Q196 174 144 174 L96 174 Q44 174 44 122 L44 102 Q44 50 96 50 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#46382D"
+    },
+    {
+     "kind": "ellipse",
+     "x": 68.0,
+     "y": 134.0,
+     "rx": 10.0,
+     "ry": 10.0,
+     "fill": "#EE9C88"
+    },
+    {
+     "kind": "path",
+     "d": "M61 139 L66 130 M70 139 L75 130",
+     "stroke": "#C24A36",
+     "width": 3.5,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 172.0,
+     "y": 134.0,
+     "rx": 10.0,
+     "ry": 10.0,
+     "fill": "#EE9C88"
+    },
+    {
+     "kind": "path",
+     "d": "M165 139 L170 130 M174 139 L179 130",
+     "stroke": "#C24A36",
+     "width": 3.5,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 130.0,
+     "rx": 23.0,
+     "ry": 15.0,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "eye-left",
+   "parent": "head",
+   "pivot": [
+    84.0,
+    104.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 104.0,
+     "rx": 6.5,
+     "ry": 6.5,
+     "fill": "#3A2A20"
+    }
+   ],
+   "spring": 0,
+   "when": "eyes=open"
+  },
+  {
+   "id": "eye-right",
+   "parent": "head",
+   "pivot": [
+    156.0,
+    104.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 104.0,
+     "rx": 6.5,
+     "ry": 6.5,
+     "fill": "#3A2A20"
+    }
+   ],
+   "spring": 0,
+   "when": "eyes=open"
+  },
+  {
+   "id": "head-2",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M52 92 Q52 34 120 32 Q188 34 188 92 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#B23A26"
+    },
+    {
+     "kind": "path",
+     "d": "M57 80 L183 80 Q194 80 194 91 L194 91 Q194 102 183 102 L57 102 Q46 102 46 91 L46 91 Q46 80 57 80 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#B23A26"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 26.0,
+     "rx": 12.0,
+     "ry": 12.0,
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#7E7766"
+    }
+   ]
+  },
+  {
+   "id": "eyes-closed",
+   "parent": "head",
+   "pivot": [
+    120,
+    110
+   ],
+   "when": "eyes=closed",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M76.3 103 Q84 110.7 91.7 103",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M148.3 103 Q156 110.7 163.7 103",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  }
+ ],
+ "moves": {
+  "nod": {
+   "about": "An everyday log was saved: one small happy bounce.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "head": {
+       "y": 5,
+       "r": 3
+      },
+      "arm-left": {
+       "r": 8
+      },
+      "arm-right": {
+       "r": -8
+      }
+     }
+    },
+    {
+     "t": 0.16,
+     "pose": {
+      "upper": {
+       "sy": 1.03
+      },
+      "head": {
+       "y": -3
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {}
+    },
+    {
+     "t": 0.62,
+     "pose": {}
+    }
+   ],
+   "length": 0.85
+  },
+  "greet": {
+   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      },
+      "body": {
+       "y": -2
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-right": {
+       "r": -60
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-right": {
+       "r": -80
+      },
+      "head": {
+       "r": -5
+      }
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {}
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    }
+   ],
+   "length": 1.75
+  },
+  "celebrate": {
+   "about": "A milestone: two hops with her arms up. The only big reaction; keep it rare.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "upper": {
+       "sy": 0.93
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      }
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 0.68,
+     "pose": {
+      "upper": {
+       "sy": 0.94
+      },
+      "arm-left": {
+       "r": 62
+      },
+      "arm-right": {
+       "r": -62
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "head": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    },
+    {
+     "t": 1.9,
+     "pose": {}
+    },
+    {
+     "t": 2.1,
+     "pose": {}
+    }
+   ],
+   "length": 2.4
+  },
+  "wake": {
+   "about": "A sleep ended: a long stretch with her eyes shut, then wide awake.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "head": {
+       "r": 4,
+       "y": 3
+      }
+     }
+    },
+    {
+     "t": 0.2,
+     "pose": {
+      "upper": {
+       "sy": 1.06
+      },
+      "head": {
+       "r": -7,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 58
+      },
+      "arm-right": {
+       "r": -58
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "upper": {
+       "sy": 0.98
+      },
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.95,
+     "pose": {
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      }
+     }
+    },
+    {
+     "t": 1.2,
+     "pose": {}
+    },
+    {
+     "t": 1.45,
+     "pose": {}
+    }
+   ],
+   "length": 1.7
+  },
+  "walk": {
+   "about": "Walking on the spot, a waddle from side to side. Goes round until told to stop.",
+   "loops": true,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "body": {
+       "r": -3,
+       "x": -2,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 12
+      },
+      "arm-right": {
+       "r": 12
+      },
+      "head": {
+       "r": 2.5
+      }
+     }
+    },
+    {
+     "t": 0.17,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      }
+     }
+    },
+    {
+     "t": 0.32,
+     "pose": {
+      "body": {
+       "r": 3,
+       "x": 2,
+       "y": -2
+      },
+      "arm-left": {
+       "r": -12
+      },
+      "arm-right": {
+       "r": -12
+      },
+      "head": {
+       "r": -2.5
+      }
+     }
+    },
+    {
+     "t": 0.49,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      }
+     }
+    }
+   ],
+   "length": 0.64
+  }
+ },
+ "face": {
+  "eyes": "open"
+ }
+}

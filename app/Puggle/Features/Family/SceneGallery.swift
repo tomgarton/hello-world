@@ -42,6 +42,31 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
+    /// The whole cast beside Puggle, to scale, by day and in the coloured line at night.
+    @MainActor static func writeCast(name: String) {
+        let puggle = PuggleController()
+        func row(dark: Bool) -> some View {
+            HStack(alignment: .bottom, spacing: 10) {
+                ForEach([CastMember.nan, .mum, .dad, .pop], id: \.self) { member in
+                    CastView(controller: CastController(member), frozen: true).frame(height: member.height)
+                }
+                PuggleView(controller: puggle, frozen: true).frame(height: 118)
+                ForEach([CastMember.pebble, .quill, .kip, .digby, .sunny], id: \.self) { member in
+                    CastView(controller: CastController(member), frozen: true).frame(height: member.height)
+                }
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity)
+            .background(dark ? Color(hex: 0x25275C) : Color(hex: 0xF2ECDD))
+            .environment(\.moonlit, dark)
+        }
+        let sheet = VStack(spacing: 4) { row(dark: false); row(dark: true) }
+            .frame(width: 1100)
+            .background(Color.gray)
+            .environment(\.lineStyle, .chosen)
+        save(sheet, as: name)
+    }
+
     /// The firework of Puggle's face, from the rocket going up to the sparks fading.
     @MainActor static func writeFirework(name: String) {
         let strip = HStack(spacing: 4) {
