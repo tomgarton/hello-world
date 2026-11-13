@@ -4,7 +4,7 @@
   240,
   385
  ],
- "about": "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a pale blue cardigan. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "about": "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
  "parts": [
   {
    "id": "body",
@@ -324,6 +324,47 @@
    "spring": 150
   },
   {
+   "id": "scarf",
+   "parent": "upper",
+   "pivot": [
+    120,
+    170
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M148 170 L160 200 L146 204 L138 174 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M148 186 L158 184",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150 196 L159 194",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
    "id": "head",
    "parent": "upper",
    "pivot": [
@@ -446,7 +487,7 @@
    "shapes": [
     {
      "kind": "ellipse",
-     "x": 93.0,
+     "x": 88,
      "y": 117.0,
      "rx": 15.0,
      "ry": 15.0,
@@ -456,7 +497,7 @@
     },
     {
      "kind": "ellipse",
-     "x": 147.0,
+     "x": 152,
      "y": 117.0,
      "rx": 15.0,
      "ry": 15.0,
@@ -466,7 +507,7 @@
     },
     {
      "kind": "path",
-     "d": "M108 117 Q120 111 132 117",
+     "d": "M103 117 Q120 110 137 117",
      "stroke": "#3A2A20",
      "width": 5.0,
      "cap": "round",
@@ -474,7 +515,7 @@
     },
     {
      "kind": "path",
-     "d": "M78 115 L56 109 M162 115 L184 109",
+     "d": "M73 115 L52 109 M167 115 L188 109",
      "stroke": "#3A2A20",
      "width": 5.0,
      "cap": "round",
@@ -951,5 +992,30 @@
  },
  "face": {
   "eyes": "open"
+ },
+ "wardrobe": {
+  "looks": [
+   {},
+   {
+    "#BFD9F5": "#F3D9C9",
+    "#4E637A": "#7A6254",
+    "#DFECFA": "#F9ECE4"
+   },
+   {
+    "#BFD9F5": "#F4E7B0",
+    "#4E637A": "#978B56",
+    "#DFECFA": "#FAF3D8"
+   },
+   {
+    "#BFD9F5": "#CFE5D2",
+    "#4E637A": "#5A725D",
+    "#DFECFA": "#E7F2E8"
+   }
+  ],
+  "rain": {
+   "#BFD9F5": "#F4C95D",
+   "#4E637A": "#B8892A",
+   "#DFECFA": "#FBE7A6"
+  }
  }
 }

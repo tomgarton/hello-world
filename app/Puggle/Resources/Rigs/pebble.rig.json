@@ -279,6 +279,47 @@
    ]
   },
   {
+   "id": "scarf",
+   "parent": "upper",
+   "pivot": [
+    120,
+    170
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M148 170 L160 200 L146 204 L138 174 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M148 186 L158 184",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150 196 L159 194",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
    "id": "head",
    "parent": "upper",
    "pivot": [
@@ -851,5 +892,30 @@
  },
  "face": {
   "eyes": "open"
+ },
+ "wardrobe": {
+  "looks": [
+   {},
+   {
+    "#F4BE2C": "#BFD9F5",
+    "#B8892A": "#4E637A",
+    "#FADE96": "#DFECFA"
+   },
+   {
+    "#F4BE2C": "#CFE5D2",
+    "#B8892A": "#5A725D",
+    "#FADE96": "#E7F2E8"
+   },
+   {
+    "#F4BE2C": "#F3D9C9",
+    "#B8892A": "#7A6254",
+    "#FADE96": "#F9ECE4"
+   }
+  ],
+  "rain": {
+   "#F4BE2C": "#F4C95D",
+   "#B8892A": "#B8892A",
+   "#FADE96": "#FBE7A6"
+  }
  }
 }

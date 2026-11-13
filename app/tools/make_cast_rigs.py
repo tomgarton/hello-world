@@ -28,16 +28,28 @@ def drawings():
     sys.argv = [sys.argv[0], CANVAS]   # the canvas scripts read their folder from here
     exec(src, g)
     adult, baby, inner, quokka, A = g['adult'], g['baby'], g['inner'], g['quokka_kid'], g['A']
+    kip = lambda garment: inner('koala', garment, '#F4BE2C') + A['bow'](150, 50, '#2A62B8')
+    digby = lambda garment: inner('wombat', garment, '#2A62B8') + A['beanie']('#E5553B')
+    quill = lambda garment: inner('echidna', garment, '#E5553B')
+    # name: (what they wear, by variant, the first being the canvas's own; the drawing's height; the
+    # garment's colour; the other colours it comes in; a line about them)
     return {
-        'nan': (adult('#E5553B', 'nan'), 456, "Nan: Puggle's grandmother. A fur bun, pale blue reading glasses on her bill, a red cardigan."),
-        'mum': (adult('#3C9A5F', 'mum'), 456, "Mum: a flower behind her ear, a green dress."),
-        'dad': (adult('#2A62B8', 'dad'), 456, "Dad: a blue shirt and shorts."),
-        'pop': (adult('#BFD9F5', 'pop'), 456, "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a pale blue cardigan."),
-        'pebble': (baby('neutral', '#F4BE2C'), 270, "Pebble: Puggle's baby sibling, about six months, sitting with a bottle. A Kewpie curl."),
-        'quill': (inner('echidna', 'dungarees', '#E5553B'), 300, "Quill: an echidna, Puggle's friend. Red dungarees; the spines are the signature."),
-        'kip': (inner('koala', 'dress', '#F4BE2C') + A['bow'](150, 50, '#2A62B8'), 300, "Kip: a koala, Puggle's best friend, who can fall asleep anywhere. A blue bow."),
-        'digby': (inner('wombat', 'tee', '#2A62B8') + A['beanie']('#E5553B'), 300, "Digby: a wombat who loves digging. A red beanie."),
-        'sunny': (quokka('#3C9A5F') + A['sunhat']('#F4E7B0'), 300, "Sunny: a quokka, always smiling. A sun hat."),
+        'nan': ({'': adult('#E5553B', 'nan')}, 456, '#E5553B', ['#2A62B8', '#3C9A5F', '#B9A0EA'],
+                "Nan: Puggle's grandmother. A fur bun, pale blue reading glasses on her bill, a cardigan."),
+        'mum': ({'': adult('#3C9A5F', 'mum')}, 456, '#3C9A5F', ['#E5553B', '#F4BE2C', '#2A62B8'], "Mum: a daisy on her head, a dress."),
+        'dad': ({'': adult('#2A62B8', 'dad')}, 456, '#2A62B8', ['#3C9A5F', '#E5553B', '#F4BE2C'], "Dad: a shirt and shorts."),
+        'pop': ({'': adult('#BFD9F5', 'pop')}, 456, '#BFD9F5', ['#F3D9C9', '#F4E7B0', '#CFE5D2'],
+                "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan."),
+        'pebble': ({'': baby('neutral', '#F4BE2C')}, 270, '#F4BE2C', ['#BFD9F5', '#CFE5D2', '#F3D9C9'],
+                   "Pebble: Puggle's baby sibling, about six months, sitting with a bottle. A Kewpie curl."),
+        'quill': ({'': quill('dungarees'), 'jumper': quill('jumper'), 'tee': quill('tee')}, 300, '#E5553B', ['#2A62B8', '#3C9A5F', '#F4BE2C'],
+                  "Quill: an echidna, Puggle's friend. The spines are the signature."),
+        'kip': ({'': kip('dress'), 'dungarees': kip('dungarees'), 'jumper': kip('jumper')}, 300, '#F4BE2C', ['#E5553B', '#3C9A5F', '#F3D9C9'],
+                "Kip: a koala, Puggle's best friend, who can fall asleep anywhere. A blue bow."),
+        'digby': ({'': digby('tee'), 'jumper': digby('jumper'), 'dungarees': digby('dungarees')}, 300, '#2A62B8', ['#3C9A5F', '#F4BE2C'],
+                  "Digby: a wombat who loves digging. A red beanie."),
+        'sunny': ({'': quokka('#3C9A5F') + A['sunhat']('#F4E7B0')}, 300, '#3C9A5F', ['#2A62B8', '#E5553B', '#F4BE2C'],
+                  "Sunny: a quokka, always smiling. A sun hat."),
     }
 
 
@@ -376,7 +388,9 @@ def refine(name, shapes, shade):
         # A wombat's nose is a broad, flat pad, squarer than it is round, with a nostril each side.
         swap(dark_oval(120, 130), lambda shp: [
             {'kind': 'path', 'd': 'M100 118 Q120 112 140 118 Q147 121 145 131 Q142 145 120 145 Q98 145 95 131 Q93 121 100 118 Z', 'fill': '#33302F', 'stroke': INK, 'width': 4},
-            {'kind': 'ellipse', 'x': 110, 'y': 132, 'rx': 4, 'ry': 3, 'fill': '#5B5350'}, {'kind': 'ellipse', 'x': 130, 'y': 132, 'rx': 4, 'ry': 3, 'fill': '#5B5350'}])
+            {'kind': 'ellipse', 'x': 110, 'y': 132, 'rx': 4, 'ry': 3, 'fill': '#5B5350'}, {'kind': 'ellipse', 'x': 130, 'y': 132, 'rx': 4, 'ry': 3, 'fill': '#5B5350'},
+            # A short line down from it, as Sunny has, so the pad reads as a nose and not an open mouth.
+            {'kind': 'path', 'd': 'M120 146 L120 154', 'stroke': shade('#8C7B6E'), 'width': 3, 'cap': 'round'}])
     if name == 'sunny':
         # A quokka has a small dark nose on a short, pale, rounded muzzle.
         fur = '#C2925F'
@@ -404,7 +418,12 @@ def refine(name, shapes, shade):
     if name == 'pop':
         # His round glasses go where his eyes are.
         for shp in out:
-            if 'fill' not in shp and shp.get('width') in (5, 5.0) and 95 < (shp['box'][1] + shp['box'][3]) / 2 < 112 and shp['d0'] != 'M48 66H192': shift(shp, 0, 9)
+            if 'fill' not in shp and shp.get('width') in (5, 5.0) and 95 < (shp['box'][1] + shp['box'][3]) / 2 < 112 and shp['d0'] != 'M48 66H192':
+                shift(shp, 0, 9)
+                # And each lens goes round an eye. They were set for the old, closer eyes, which made him look two ways at once.
+                if shp['kind'] == 'ellipse': shp['x'] = 88 if shp['x'] < 120 else 152
+                elif 'Q' in shp['d']: shp['d'] = 'M103 117 Q120 110 137 117'
+                else: shp['d'] = 'M73 115 L52 109 M167 115 L188 109'
     if name == 'digby':
         # His beanie sat over his eyes: up it goes, to where a beanie sits.
         for s in out:
@@ -572,6 +591,15 @@ def build(name, svg, height, about, shade, moves, puggle):
             x, y, r = eye['x'], eye['y'], eye['rx'] + 1.2
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
+    # Dressed for the weather, as she is: a scarf for everyone when it is cold (their necks are where hers is),
+    # and her hats for the two with nothing on their heads.
+    borrow = {p['id']: p for p in puggle['parts']}
+    head_at_part = next(i for i, p in enumerate(parts) if p['id'] == 'head')
+    parts.insert(head_at_part, json.loads(json.dumps(borrow['scarf'])))
+    if name in ('mum', 'dad'):
+        at = next(i for i, p in enumerate(parts) if p['id'] == 'eyes-closed') + 1 if any(p['id'] == 'eyes-closed' for p in parts) else len(parts)
+        if name == 'mum': at = next(i for i, p in enumerate(parts) if p['id'] == 'head-2')    # under her daisy
+        for hat in ('beanie', 'sunhat', 'rainhat'): parts.insert(at, json.loads(json.dumps(borrow[hat])))
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.
     borrowed = {}
@@ -591,11 +619,16 @@ def main():
     shade = shade_rule()
     puggle = json.load(open(RIGS + '/puggle.rig.json'))
     moves = puggle['moves']
-    for name, (svg, height, about) in drawings().items():
-        rig = build(name, svg, height, about, shade, moves, puggle)
-        with open(f'{RIGS}/{name}.rig.json', 'w') as out:
-            json.dump(rig, out, indent=1, ensure_ascii=False)
-        print(name, [f"{p['id']}:{len(p['shapes'])}" for p in rig['parts']])
+    for name, (variants, height, colour, others, about) in drawings().items():
+        # The same garment in other colours: a swap of its colour, its outline and its pocket.
+        def swap(to, pocket=None): return {colour: to, shade(colour): shade(to), lighten(colour): pocket or lighten(to)}
+        wardrobe = {'looks': [{}] + [swap(c) for c in others], 'rain': swap('#F4C95D', '#FBE7A6')}
+        for variant, svg in variants.items():
+            rig = build(name, svg, height, about, shade, moves, puggle)
+            rig['wardrobe'] = wardrobe
+            with open(f'{RIGS}/{name}{"-" + variant if variant else ""}.rig.json', 'w') as out:
+                json.dump(rig, out, indent=1, ensure_ascii=False)
+            print(name, variant or '(as drawn)', len(rig['parts']), 'parts')
 
 if __name__ == '__main__':
     main()

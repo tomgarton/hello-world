@@ -4,7 +4,7 @@
   240,
   385
  ],
- "about": "Nan: Puggle's grandmother. A fur bun, pale blue reading glasses on her bill, a red cardigan. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "about": "Nan: Puggle's grandmother. A fur bun, pale blue reading glasses on her bill, a cardigan. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
  "parts": [
   {
    "id": "body",
@@ -322,6 +322,47 @@
     }
    ],
    "spring": 150
+  },
+  {
+   "id": "scarf",
+   "parent": "upper",
+   "pivot": [
+    120,
+    170
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M148 170 L160 200 L146 204 L138 174 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M148 186 L158 184",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150 196 L159 194",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
   },
   {
    "id": "head",
@@ -969,5 +1010,30 @@
  },
  "face": {
   "eyes": "open"
+ },
+ "wardrobe": {
+  "looks": [
+   {},
+   {
+    "#E5553B": "#2A62B8",
+    "#B23A26": "#1B4387",
+    "#F2AA9D": "#94B0DC"
+   },
+   {
+    "#E5553B": "#3C9A5F",
+    "#B23A26": "#105F2E",
+    "#F2AA9D": "#9ECCAF"
+   },
+   {
+    "#E5553B": "#B9A0EA",
+    "#B23A26": "#634C91",
+    "#F2AA9D": "#DCD0F4"
+   }
+  ],
+  "rain": {
+   "#E5553B": "#F4C95D",
+   "#B23A26": "#B8892A",
+   "#F2AA9D": "#FBE7A6"
+  }
  }
 }

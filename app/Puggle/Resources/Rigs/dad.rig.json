@@ -4,7 +4,7 @@
   240,
   385
  ],
- "about": "Dad: a blue shirt and shorts. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "about": "Dad: a shirt and shorts. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
  "parts": [
   {
    "id": "body",
@@ -281,6 +281,47 @@
    "spring": 150
   },
   {
+   "id": "scarf",
+   "parent": "upper",
+   "pivot": [
+    120,
+    170
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M148 170 L160 200 L146 204 L138 174 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M148 186 L158 184",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150 196 L159 194",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
    "id": "head",
    "parent": "upper",
    "pivot": [
@@ -414,6 +455,121 @@
      "d": "M144 116 Q152 124 160 116",
      "stroke": "#3A2A20",
      "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "rainhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M26 80 Q30 62 120 60 Q210 62 214 80 Q216 92 198 90 Q120 80 42 90 Q24 92 26 80 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M70 74 Q70 26 120 26 Q170 26 170 74 Q120 84 70 74 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 66 Q120 76 166 66",
+     "stroke": "#B8892A",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M120 28 L120 68",
+     "stroke": "#B8892A",
+     "width": 2.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=sun",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 74,
+     "rx": 92,
+     "ry": 17,
+     "fill": "#EBCB8B",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 74 Q74 30 120 30 Q166 30 166 74 Q120 84 74 74 Z",
+     "fill": "#F2D9A2",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M76 66 Q120 76 164 66",
+     "stroke": "#E5553B",
+     "width": 6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "beanie",
+   "parent": "head",
+   "pivot": [
+    120,
+    60
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 36,
+     "rx": 11,
+     "ry": 11,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4.5
+    },
+    {
+     "kind": "path",
+     "d": "M56 88 Q58 40 120 40 Q182 40 184 88 Q120 74 56 88 Z",
+     "fill": "#7FB48F",
+     "stroke": "#3A2A20",
+     "tint": "#4E8060",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M60 80 Q120 64 180 80",
+     "stroke": "#4E8060",
+     "width": 3,
      "cap": "round"
     }
    ]
@@ -846,5 +1002,30 @@
  },
  "face": {
   "eyes": "open"
+ },
+ "wardrobe": {
+  "looks": [
+   {},
+   {
+    "#2A62B8": "#3C9A5F",
+    "#1B4387": "#105F2E",
+    "#94B0DC": "#9ECCAF"
+   },
+   {
+    "#2A62B8": "#E5553B",
+    "#1B4387": "#B23A26",
+    "#94B0DC": "#F2AA9D"
+   },
+   {
+    "#2A62B8": "#F4BE2C",
+    "#1B4387": "#B8892A",
+    "#94B0DC": "#FADE96"
+   }
+  ],
+  "rain": {
+   "#2A62B8": "#F4C95D",
+   "#1B4387": "#B8892A",
+   "#94B0DC": "#FBE7A6"
+  }
  }
 }

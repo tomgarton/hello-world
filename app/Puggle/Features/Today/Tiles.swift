@@ -441,11 +441,14 @@ struct PuggleHeader: View {
             PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x)
             // Whoever is with her today stands behind her, on the same ground.
             if let company = Company.today(kind: .today, room: room) {
-                CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim)
+                // Dressed for the weather when they are out in it, as she is.
+                let wearing = room == nil ? weather.outfit(night: PuggleScene.isNight(dark: dim)) : "none"
+                CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim, rain: wearing == "rain")
                     .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
+                    .environment(\.outfit, wearing)
                     .offset(x: company.x * width)
                     .padding(.bottom, 26)
-                    .id(company.member)
+                    .id("\(company.member.rawValue)-\(wearing)")
             }
             Button {
                 if justWalked { justWalked = false } else { react(); reactions += 1 }

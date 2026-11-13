@@ -26,6 +26,31 @@ enum CastMember: String, CaseIterable, Identifiable {
         }
     }
 
+    /// The garments this character has, as rig names. The first is how the canvas draws them.
+    var garments: [String] {
+        switch self {
+        case .quill: ["quill", "quill-jumper", "quill-tee"]
+        case .kip: ["kip", "kip-dungarees", "kip-jumper"]
+        case .digby: ["digby", "digby-jumper", "digby-dungarees"]
+        default: [rawValue]
+        }
+    }
+
+    /// What they have on today: which garment, and which of its colours. It changes from day to day and
+    /// is the same all day, as getting dressed is. Each of them has their own pattern, so two friends
+    /// seldom change on the same morning.
+    func outfitToday() -> (rig: String, look: Int) {
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
+        let turn = day + (CastMember.allCases.firstIndex(of: self) ?? 0) * 3
+        var garment = turn % garments.count, look = (turn / 2) % 4
+        #if DEBUG
+        // For checking: "-debugWear 1" (which garment) and "-debugLook 2" (which colour).
+        if let forced = UserDefaults.standard.string(forKey: "debugWear").flatMap(Int.init) { garment = forced % garments.count }
+        if let forced = UserDefaults.standard.string(forKey: "debugLook").flatMap(Int.init) { look = forced }
+        #endif
+        return (garments[garment], look)
+    }
+
     /// The drawing's own proportions.
     var aspect: CGFloat { 240 / (grownUp ? 385 : (self == .pebble ? 270 : 300)) }
 }
@@ -97,9 +122,13 @@ final class CastController: ObservableObject {
     let member: CastMember
     let rig: RigRuntime?
 
-    init(_ member: CastMember) {
+    /// As the canvas draws them, or in a named garment and one of its colours. In the rain the garment is a raincoat's yellow.
+    init(_ member: CastMember, rig name: String? = nil, look: Int = 0, rain: Bool = false) {
         self.member = member
-        rig = Rig.load(member.rawValue).map(RigRuntime.init)
+        guard let drawn = Rig.load(name ?? member.rawValue) else { rig = nil; return }
+        let looks = drawn.wardrobe?.looks ?? []
+        let swaps = rain ? (drawn.wardrobe?.rain ?? [:]) : (looks.isEmpty ? [:] : looks[look % looks.count])
+        rig = RigRuntime(rig: drawn.wearing(swaps))
     }
 
     func play(_ move: String) {
@@ -147,13 +176,14 @@ struct CompanyView: View {
     @StateObject private var controller: CastController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
-    init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool) {
+    init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool, rain: Bool = false) {
         self.company = company
         self.puggleReacted = puggleReacted
         self.quiet = quiet
         self.appeared = appeared
         self.dark = dark
-        _controller = StateObject(wrappedValue: CastController(company.member))
+        let outfit = company.member.outfitToday()
+        _controller = StateObject(wrappedValue: CastController(company.member, rig: outfit.rig, look: outfit.look, rain: rain))
     }
 
     private var sleeps: Bool { company.activity == .dozing || (quiet && !company.member.grownUp) }

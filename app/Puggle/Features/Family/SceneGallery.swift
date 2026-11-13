@@ -67,6 +67,35 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
+    /// Everyone's wardrobe: each garment they have, in each colour it comes in, then dressed for rain and for cold.
+    @MainActor static func writeWardrobe(name: String) {
+        func figure(_ member: CastMember, _ rig: String, look: Int = 0, rain: Bool = false, outfit: String = "none") -> some View {
+            CastView(controller: CastController(member, rig: rig, look: look, rain: rain), frozen: true)
+                .frame(height: member.height * 0.8)
+                .environment(\.outfit, outfit)
+        }
+        let sheet = VStack(alignment: .leading, spacing: 14) {
+            ForEach(CastMember.allCases) { member in
+                HStack(alignment: .bottom, spacing: 8) {
+                    Text(member.name).font(.headline).foregroundStyle(Color(hex: 0x3A2A20)).frame(width: 70, alignment: .leading)
+                    ForEach(member.garments, id: \.self) { rig in
+                        ForEach(0..<(Rig.load(rig)?.wardrobe?.looks.count ?? 1), id: \.self) { look in
+                            figure(member, rig, look: look)
+                        }
+                    }
+                    Spacer(minLength: 16)
+                    figure(member, member.garments[0], rain: true, outfit: "rain")
+                    figure(member, member.garments[0], outfit: "warm")
+                    figure(member, member.garments[0], outfit: "sun")
+                }
+            }
+        }
+        .padding(24)
+        .background(Color(hex: 0xF2ECDD))
+        .environment(\.lineStyle, .chosen)
+        save(sheet, as: name)
+    }
+
     /// Everyone's portrait with their name, as the character picker shows them.
     @MainActor static func writePortraits(name: String) {
         let sheet = HStack(spacing: 16) {

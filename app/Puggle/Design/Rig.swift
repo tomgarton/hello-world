@@ -24,6 +24,29 @@ struct Rig: Codable {
     /// The face she has when nothing says otherwise: ["eyes": "open", "bill": "closed"].
     var face: [String: String]?
     var moves: [String: Move]?
+    /// The colours this character's clothes come in, for the cast: each is a swap of one colour for another.
+    var wardrobe: Wardrobe?
+
+    struct Wardrobe: Codable {
+        /// The first is as drawn (no swaps).
+        var looks: [[String: String]]
+        /// A raincoat's yellow, for wet days.
+        var rain: [String: String]?
+    }
+
+    /// The same character with some colours swapped for others: the same clothes in another colour.
+    func wearing(_ swaps: [String: String]) -> Rig {
+        guard !swaps.isEmpty else { return self }
+        var copy = self
+        for part in copy.parts.indices {
+            for shape in copy.parts[part].shapes.indices {
+                if let fill = copy.parts[part].shapes[shape].fill, let new = swaps[fill.uppercased()] { copy.parts[part].shapes[shape].fill = new }
+                if let stroke = copy.parts[part].shapes[shape].stroke, let new = swaps[stroke.uppercased()] { copy.parts[part].shapes[shape].stroke = new }
+                if let tint = copy.parts[part].shapes[shape].tint, let new = swaps[tint.uppercased()] { copy.parts[part].shapes[shape].tint = new }
+            }
+        }
+        return copy
+    }
 
     struct Part: Codable {
         var id: String
