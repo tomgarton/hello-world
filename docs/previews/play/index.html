@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The shape heap and play ideas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: each part is one live phone with its controls and notes beside it. */
+  --page: #F2ECDD; --card: #FBF6E9; --ink: #3A2A20; --muted: #6B5E52; --line: #E0D6C2; --accent: #C2412A;
+  --display: "Bricolage Grotesque", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* The app's own day colours: the phones always use these. */
+  --sand: #F2ECDD; --paper: #FBF6E9; --field: #EAE2D2; --app-ink: #3A2A20; --app-muted: #6B5E52;
+  --wattle: #F4BE2C; --waratah: #C2412A; --moon: #1B2440;
+  --sky: #BFD9F5; --shell: #F3D5C9; --mint: #CFE5D2; --sun: #F6E2A8; --lilac: #E2D4F1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--body); line-height: 1.5; padding: 28px 16px 64px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+h1 { font-family: var(--display); font-size: 34px; line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 24px; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+p { margin: 0; max-width: 66ch; }
+.lede { color: var(--muted); }
+.q { display: flex; flex-direction: column; gap: 18px; }
+.num { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+.row { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start; }
+.opt { display: flex; flex-direction: column; gap: 10px; width: 300px; max-width: 100%; }
+.opt h3 { font-size: 16px; margin: 0; }
+.opt p { font-size: 14px; color: var(--muted); }
+.pick { font-size: 12px; font-weight: 700; color: var(--accent); }
+.note { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.note h3 { margin: 0; font-size: 16px; }
+.note ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 66ch; }
+
+/* The phone. Fixed day palette, whatever the page theme. */
+.phone { width: 300px; max-width: 100%; border-radius: 38px; background: var(--sand); color: var(--app-ink); border: 7px solid #2A211B; padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 560px; font-size: 14px; line-height: 1.3; position: relative; overflow: hidden; }
+.phone.sheet { background: #CFC6B6; padding-top: 44px; }
+.phone .inner { background: var(--sand); border-radius: 26px 26px 0 0; margin: 0 -14px -18px; padding: 14px 14px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.bar { display: flex; justify-content: space-between; align-items: center; }
+.pill { background: var(--paper); border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+.pill.dark { background: var(--app-ink); color: var(--paper); }
+.title { font-family: var(--display); font-size: 26px; font-weight: 700; margin-top: 6px; }
+.stitle { font-weight: 700; font-size: 15px; text-align: center; flex: 1; }
+.label { font-weight: 700; font-size: 13px; margin: 6px 4px 0; }
+.foot { font-size: 12px; color: var(--app-muted); margin: 0 4px; }
+.cardp { background: var(--paper); border-radius: 20px; padding: 2px 14px; display: flex; flex-direction: column; }
+.item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #E6DCC8; min-height: 48px; }
+.item:first-child { border-top: 0; }
+.item .t { flex: 1; min-width: 0; }
+.item .t b { display: block; font-size: 14px; }
+.item .t span { display: block; font-size: 12px; color: var(--app-muted); }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: none; }
+.av.lg { width: 50px; height: 50px; font-size: 18px; }
+.chev { color: #B5A894; font-weight: 700; }
+.tick { font-weight: 800; }
+.tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--field); white-space: nowrap; }
+.tag.wait { background: var(--sun); }
+.faces { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+.face { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; width: 54px; text-align: center; }
+.face small { font-weight: 400; color: var(--app-muted); font-size: 10.5px; }
+.plus { background: var(--field); border: 1.5px dashed #B5A894; }
+.btn { background: var(--app-ink); color: var(--paper); border-radius: 999px; text-align: center; padding: 13px; font-weight: 700; }
+.btn.soft { background: var(--field); color: var(--app-ink); }
+.btn.red { background: transparent; color: var(--waratah); }
+.center { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 18px 8px 6px; }
+.big { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.15; }
+.kids { display: flex; gap: -6px; }
+.kids .av { margin-left: -8px; border: 3px solid var(--sand); }
+.kids .av:first-child { margin-left: 0; }
+.spacer { flex: 1; }
+.tabs { display: flex; justify-content: space-around; background: var(--paper); border-radius: 999px; padding: 9px 6px; font-size: 10.5px; font-weight: 600; color: var(--app-muted); margin-top: auto; }
+.tabs b { color: var(--app-ink); background: var(--field); padding: 3px 10px; border-radius: 999px; }
+.warn { background: var(--sun); border-radius: 16px; padding: 12px 14px; font-size: 13px; }
+
+.phone { padding: 0; min-height: 0; height: 614px; }
+.stage { position: relative; width: 286px; height: 600px; overflow: hidden; touch-action: none; cursor: grab; }
+.stage.dark { background: #0E0E0E; }
+.bit { position: absolute; left: 0; top: 0; will-change: transform; pointer-events: none; }
+.bit b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-weight: 700; color: #3A2A20; }
+.over { position: absolute; left: 0; right: 0; top: 54px; text-align: center; pointer-events: none; z-index: 5; display: flex; flex-direction: column; gap: 8px; align-items: center; padding: 0 20px; }
+.h { font-family: var(--display); font-weight: 700; font-size: 26px; line-height: 1.1; }
+.b { font-size: 13.5px; color: var(--app-muted); }
+.go { background: var(--app-ink); color: var(--paper); border-radius: 999px; padding: 11px 26px; font-weight: 700; font-size: 14px; margin-top: 6px; }
+.two { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; }
+.ctl { display: flex; flex-direction: column; gap: 10px; width: 300px; max-width: 100%; }
+.ctl label { font-size: 13px; font-weight: 600; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.ctl input[type=range] { width: 100%; accent-color: var(--accent); }
+.pillb { font: inherit; font-weight: 600; font-size: 14px; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+.rowb { display: flex; gap: 8px; flex-wrap: wrap; }
+.ideas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.idea { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.idea h3 { margin: 0; font-size: 15px; } .idea p { font-size: 13.5px; color: var(--muted); }
+.idea .have { font-size: 11px; font-weight: 700; color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+<header><h1>The shape heap, and things to hand a child</h1>
+<p class="lede">The "building your family" screen redone as you described: big shapes that fall across the whole screen and pile up at the bottom, and that you can push around. Then a sketch of a high-contrast view for young babies, and other quiet distractions. All of it is a sketch; nothing is built.</p></header>
+
+<section class="q"><div><div class="num">PART 1</div><h2>Building your family: the heap</h2>
+<p class="lede">Fourteen large shapes drop in and pile up. Five carry the family's initials. Drag any shape to throw it, or move the tilt slider to tip the phone.</p></div>
+<div class="two">
+<div class="phone"><div class="stage" id="heap" role="img" aria-label="Large coloured shapes fall and pile up at the bottom of the screen">
+<div class="over"><div class="h" id="ttl">Building your family</div><div class="b">Ollie, Bea and everyone who looks after them.</div><div class="go" id="go" style="opacity:.3">Open Today</div></div></div></div>
+<div class="ctl">
+<label>Tilt the phone<input type="range" id="tilt" min="-1" max="1" step="0.01" value="0" aria-label="Tilt left or right"></label>
+<div class="rowb"><button class="pillb" id="again" type="button">Drop again</button><button class="pillb" id="flip" type="button">Turn it upside down</button><button class="pillb" id="real" type="button" hidden>Use this phone's tilt</button></div>
+<div class="note"><h3>How it would work in the app</h3>
+<ul>
+<li><strong>The phone's own tilt moves the heap,</strong> through its motion sensors. Tip it and the shapes slide and tumble; turn it over and they fall to the other end.</li>
+<li><strong>Touch works too:</strong> drag, flick and poke. With a soft tap from the phone when shapes land, if haptics are on.</li>
+<li><strong>The button wakes once the shapes have landed,</strong> about two seconds in. Nobody has to wait, and a parent in a hurry can tap straight through.</li>
+<li><strong>Real outlines.</strong> This sketch treats every shape as round, so they overlap a little and stack loosely. The app would use each shape's true outline, so they would lock together more like blocks.</li>
+<li><strong>Reduce Motion</strong> shows the finished heap, still.</li>
+<li><strong>No sensor permission is needed</strong> for tilt on iPhone.</li>
+</ul></div></div>
+</div></section>
+
+<section class="q"><div><div class="num">PART 2</div><h2>For a young baby: high contrast</h2>
+<p class="lede">Black, white and red shapes that drift slowly across a dark screen. Newborns pick out strong contrast most easily, which is why these three colours are used in books and cards for them.</p></div>
+<div class="two">
+<div class="phone"><div class="stage dark" id="con" role="img" aria-label="Large black, white and red patterned shapes drift slowly"></div></div>
+<div class="ctl">
+<label>Speed<input type="range" id="speed" min="0.3" max="2" step="0.05" value="1" aria-label="Speed"></label>
+<div class="note"><h3>What I'd hold to</h3>
+<ul>
+<li><strong>Slow, and never flashing.</strong> Nothing blinks, strobes or changes suddenly. Shapes only glide and turn.</li>
+<li><strong>No claims.</strong> The app would call it something to look at, and would not say it helps development. That keeps to the rule of no medical advice.</li>
+<li><strong>It ends itself.</strong> A parent picks two, five or ten minutes, then it fades to a still picture. No count, no streak, nothing kept.</li>
+<li><strong>Screen dimmed, sound off</strong> unless the parent turns a soft sound on.</li>
+<li><strong>Held behind the cover</strong> the play pad already uses, so a stray hand can't leave it.</li>
+</ul></div></div>
+</div></section>
+
+<section class="q"><div><div class="num">PART 3</div><h2>Other quiet distractions</h2>
+<p class="lede">For the shops, a waiting room or a plane. I'd keep them few, slow and free of scores, and put them together in one "Play" place beside the play pad.</p></div>
+<div class="ideas">
+<div class="idea"><span class="have">ALREADY IN THE APP</span><h3>The play pad</h3><p>Crayons, pens and colouring sheets, behind a cover that guards against stray swipes.</p></div>
+<div class="idea"><span class="have">FROM PART 1</span><h3>The shape heap</h3><p>The same heap as a toy: tilt, poke and throw. Shapes could make a soft knock when they land.</p></div>
+<div class="idea"><span class="have">FROM PART 2</span><h3>High contrast</h3><p>For the youngest. Slow black, white and red shapes.</p></div>
+<div class="idea"><h3>Peekaboo with Puggle</h3><p>She hides behind a shape, a tap moves it, she waves. Uses the moves she already has.</p></div>
+<div class="idea"><h3>Pop the bubbles</h3><p>Slow bubbles drift up from the beach scene and pop with a tap. No timer, no score.</p></div>
+<div class="idea"><h3>Feed the animals</h3><p>Drag a leaf to the snail or a shell to the crab from her scenes, and they do a small happy move.</p></div>
+<div class="idea"><h3>Night sky</h3><p>Tap the dark sky to add a star, and a few make a shape. Very calm, for a tired child.</p></div>
+<div class="idea"><h3>Free stamping</h3><p>The stamps from the stamp book on a blank page, apart from the potty cards so those stay special.</p></div>
+</div>
+<div class="note"><h3>Things to decide before building any of it</h3>
+<ul>
+<li><strong>Does it belong in this app?</strong> It makes the app more loved by the child and more useful on a hard day. It also moves it away from "a calm tracker for the parent". One "Play" place, off the main screen, keeps both.</li>
+<li><strong>Everything works with no signal,</strong> since a plane is one of the main places for it.</li>
+<li><strong>No guilt.</strong> No totals of time spent, no reminders to play, nothing in Insights.</li>
+<li><strong>Getting out.</strong> The cover needs a way out a parent can find and a child can't: the hold-to-leave the play pad uses, and a note about Guided Access in Help.</li>
+<li><strong>Free or paid.</strong> This would be a natural part of a paid tier later, if you want one.</li>
+</ul></div>
+</section>
+</main>
+<script>
+(function(){
+var W=286,H=600,NS='http://www.w3.org/2000/svg';
+function make(stage,list,render){
+  return list.map(function(b,i){var d=document.createElement('div');d.className='bit';var s=b.r*2*24/17;d.style.width=d.style.height=s+'px';d.innerHTML=render(b,s,i);stage.appendChild(d);return d;});
+}
+function world(stage,list,els,opt){
+  var st=[],g={x:0,y:opt.g},grab=null,ptr={x:0,y:0},t=0,landed=false;
+  function reset(){t=0;landed=false;st=list.map(function(b,i){return opt.start(b,i);});}
+  function step(dt){
+    t+=dt;
+    for(var k=0;k<2;k++){var h=dt/2;
+      st.forEach(function(s){
+        if(s===grab){s.vx=(ptr.x-s.x)*14;s.vy=(ptr.y-s.y)*14;}
+        else{s.vx+=g.x*h;s.vy+=g.y*h;s.vx*=opt.drag;s.vy*=opt.drag;}
+        s.x+=s.vx*h;s.y+=s.vy*h;s.a+=(opt.spin?s.va:s.vx/s.r)*h;
+      });
+      for(var it=0;it<4;it++){
+        for(var i=0;i<st.length;i++)for(var j=i+1;j<st.length;j++){
+          var a=st[i],b=st[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||0.01,m=(a.r+b.r)*opt.fit;
+          if(d<m){var nx=dx/d,ny=dy/d,o=(m-d)/2;a.x-=nx*o;a.y-=ny*o;b.x+=nx*o;b.y+=ny*o;
+            var rv=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;if(rv<0){var jj=-(1+opt.e)*rv/2;a.vx-=jj*nx;a.vy-=jj*ny;b.vx+=jj*nx;b.vy+=jj*ny;}}
+        }
+        st.forEach(function(s){
+          if(s.y>H-s.r){s.y=H-s.r;if(s.vy>0)s.vy*=-opt.e;s.vx*=opt.fr;}
+          if(s.y<s.r&&(opt.roof||g.y<0)){s.y=s.r;if(s.vy<0)s.vy*=-opt.e;s.vx*=opt.fr;}
+          if(s.x<s.r){s.x=s.r;if(s.vx<0)s.vx*=-opt.e;s.vy*=opt.fr;}
+          if(s.x>W-s.r){s.x=W-s.r;if(s.vx>0)s.vx*=-opt.e;s.vy*=opt.fr;}
+        });
+      }
+    }
+    if(!landed&&opt.onLand&&t>2){landed=true;opt.onLand();}
+  }
+  function draw(){st.forEach(function(s,i){var z=s.r*24/17;els[i].style.transform='translate('+(s.x-z)+'px,'+(s.y-z)+'px) rotate('+s.a+'rad)';});}
+  function pt(e){var r=stage.getBoundingClientRect();return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
+  stage.addEventListener('pointerdown',function(e){ptr=pt(e);var best=null;st.forEach(function(s){var dx=s.x-ptr.x,dy=s.y-ptr.y;if(dx*dx+dy*dy<s.r*s.r)best=s;});grab=best;if(best){stage.setPointerCapture(e.pointerId);stage.style.cursor='grabbing';}});
+  stage.addEventListener('pointermove',function(e){if(grab)ptr=pt(e);});
+  function up(){grab=null;stage.style.cursor='grab';}
+  stage.addEventListener('pointerup',up);stage.addEventListener('pointercancel',up);
+  reset();
+  return {reset:reset,step:step,draw:draw,g:g,opt:opt};
+}
+var HEAP=[{"p": "M12 3.5C18.5 3.5 21.3 7.5 20.8 12.6S16.6 20.8 11 20.4S2.8 16.8 3.3 11.4S6 3.5 12 3.5Z", "c": "#CFE5D2", "l": "A", "r": 58, "dark": false}, {"p": "M7.85 6.28A4.3 4.3 0 0 1 16.15 6.28A4.3 4.3 0 0 1 18.72 14.18A4.3 4.3 0 0 1 12.00 19.07A4.3 4.3 0 0 1 5.28 14.18A4.3 4.3 0 0 1 7.85 6.28Z", "c": "#E2D4F1", "l": "R", "r": 56, "dark": false}, {"p": "M17.99 6.92L19.81 9.80Q21.20 12.00 19.81 14.20L17.99 17.08Q16.60 19.27 14.00 19.27L10.00 19.27Q7.40 19.27 6.01 17.08L4.19 14.20Q2.80 12.00 4.19 9.80L6.01 6.92Q7.40 4.73 10.00 4.73L14.00 4.73Q16.60 4.73 17.99 6.92Z", "c": "#F6E2A8", "l": "N", "r": 50, "dark": false}, {"p": "M8.5 3.5H15.5Q20.5 3.5 20.5 8.5V15.5Q20.5 20.5 15.5 20.5H8.5Q3.5 20.5 3.5 15.5V8.5Q3.5 3.5 8.5 3.5Z", "c": "#BFD9F5", "l": "O", "r": 44, "dark": false}, {"p": "M7.31 7.31A4.7 4.7 0 0 1 16.69 7.31A4.7 4.7 0 0 1 16.69 16.69A4.7 4.7 0 0 1 7.31 16.69A4.7 4.7 0 0 1 7.31 7.31Z", "c": "#F3D5C9", "l": "B", "r": 44, "dark": false}, {"p": "M12 3.5A8.5 8.5 0 1 1 12 20.5A8.5 8.5 0 1 1 12 3.5Z", "c": "#F4BE2C", "l": "", "r": 46, "dark": false}, {"p": "M12 3.5C18.5 3.5 21.3 7.5 20.8 12.6S16.6 20.8 11 20.4S2.8 16.8 3.3 11.4S6 3.5 12 3.5Z", "c": "#2A62B8", "l": "", "r": 52, "dark": true}, {"p": "M7.85 6.28A4.3 4.3 0 0 1 16.15 6.28A4.3 4.3 0 0 1 18.72 14.18A4.3 4.3 0 0 1 12.00 19.07A4.3 4.3 0 0 1 5.28 14.18A4.3 4.3 0 0 1 7.85 6.28Z", "c": "#C2412A", "l": "", "r": 42, "dark": true}, {"p": "M8.5 3.5H15.5Q20.5 3.5 20.5 8.5V15.5Q20.5 20.5 15.5 20.5H8.5Q3.5 20.5 3.5 15.5V8.5Q3.5 3.5 8.5 3.5Z", "c": "#9DB8A0", "l": "", "r": 50, "dark": false}, {"p": "M17.99 6.92L19.81 9.80Q21.20 12.00 19.81 14.20L17.99 17.08Q16.60 19.27 14.00 19.27L10.00 19.27Q7.40 19.27 6.01 17.08L4.19 14.20Q2.80 12.00 4.19 9.80L6.01 6.92Q7.40 4.73 10.00 4.73L14.00 4.73Q16.60 4.73 17.99 6.92Z", "c": "#C9806E", "l": "", "r": 44, "dark": false}, {"p": "M7.31 7.31A4.7 4.7 0 0 1 16.69 7.31A4.7 4.7 0 0 1 16.69 16.69A4.7 4.7 0 0 1 7.31 16.69A4.7 4.7 0 0 1 7.31 7.31Z", "c": "#BFD9F5", "l": "", "r": 38, "dark": false}, {"p": "M12 3.5A8.5 8.5 0 1 1 12 20.5A8.5 8.5 0 1 1 12 3.5Z", "c": "#F3D5C9", "l": "", "r": 34, "dark": false}, {"p": "M12 3.5C18.5 3.5 21.3 7.5 20.8 12.6S16.6 20.8 11 20.4S2.8 16.8 3.3 11.4S6 3.5 12 3.5Z", "c": "#F6E2A8", "l": "", "r": 36, "dark": false}, {"p": "M8.5 3.5H15.5Q20.5 3.5 20.5 8.5V15.5Q20.5 20.5 15.5 20.5H8.5Q3.5 20.5 3.5 15.5V8.5Q3.5 3.5 8.5 3.5Z", "c": "#E2D4F1", "l": "", "r": 40, "dark": false}],CON=[{"p": "M12 3.5A8.5 8.5 0 1 1 12 20.5A8.5 8.5 0 1 1 12 3.5Z", "f": "bull", "r": 58}, {"p": "M8.5 3.5H15.5Q20.5 3.5 20.5 8.5V15.5Q20.5 20.5 15.5 20.5H8.5Q3.5 20.5 3.5 15.5V8.5Q3.5 3.5 8.5 3.5Z", "f": "stripe", "r": 52}, {"p": "M7.85 6.28A4.3 4.3 0 0 1 16.15 6.28A4.3 4.3 0 0 1 18.72 14.18A4.3 4.3 0 0 1 12.00 19.07A4.3 4.3 0 0 1 5.28 14.18A4.3 4.3 0 0 1 7.85 6.28Z", "f": "red", "r": 50}, {"p": "M17.99 6.92L19.81 9.80Q21.20 12.00 19.81 14.20L17.99 17.08Q16.60 19.27 14.00 19.27L10.00 19.27Q7.40 19.27 6.01 17.08L4.19 14.20Q2.80 12.00 4.19 9.80L6.01 6.92Q7.40 4.73 10.00 4.73L14.00 4.73Q16.60 4.73 17.99 6.92Z", "f": "check", "r": 50}, {"p": "M12 3.5C18.5 3.5 21.3 7.5 20.8 12.6S16.6 20.8 11 20.4S2.8 16.8 3.3 11.4S6 3.5 12 3.5Z", "f": "white", "r": 44}, {"p": "M7.31 7.31A4.7 4.7 0 0 1 16.69 7.31A4.7 4.7 0 0 1 16.69 16.69A4.7 4.7 0 0 1 7.31 16.69A4.7 4.7 0 0 1 7.31 7.31Z", "f": "dots", "r": 46}];
+var heapEl=document.getElementById('heap'),conEl=document.getElementById('con');
+var he=make(heapEl,HEAP,function(b,s){return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24"><path d="'+b.p+'" fill="'+b.c+'"/></svg>'+(b.l?'<b style="font-size:'+(b.r*0.7)+'px">'+b.l+'</b>':'');});
+var defs='<defs><pattern id="stripe" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#fff"/><rect width="2.5" height="5" fill="#0E0E0E"/></pattern><pattern id="check" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><rect width="3" height="3" fill="#0E0E0E"/><rect x="3" y="3" width="3" height="3" fill="#0E0E0E"/></pattern><pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#E0231C"/><circle cx="3" cy="3" r="1.6" fill="#fff"/></pattern><radialGradient id="bull"><stop offset="0" stop-color="#E0231C"/><stop offset=".28" stop-color="#E0231C"/><stop offset=".28" stop-color="#fff"/><stop offset=".55" stop-color="#fff"/><stop offset=".55" stop-color="#0E0E0E"/><stop offset=".8" stop-color="#0E0E0E"/><stop offset=".8" stop-color="#fff"/></radialGradient></defs>';
+var ce=make(conEl,CON,function(b,s){var f=b.f==='red'?'#E0231C':b.f==='white'?'#fff':'url(#'+b.f+')';return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24">'+defs+'<path d="'+b.p+'" fill="'+f+'" stroke="#fff" stroke-width="'+(b.f==='white'||b.f==='red'?0:0.5)+'"/></svg>';});
+var heap=world(heapEl,HEAP,he,{g:2400,drag:0.999,e:0.18,fr:0.92,fit:0.94,roof:false,
+  start:function(b,i){return {x:50+((i*71)%190),y:-b.r-30-i*120,vx:(i%2?40:-40),vy:0,a:i,va:0,r:b.r};},
+  onLand:function(){document.getElementById('ttl').textContent='Here they are';document.getElementById('go').style.opacity=1;}});
+var speed=1;
+var con=world(conEl,CON,ce,{g:0,drag:1,e:1,fr:1,fit:0.9,roof:true,spin:true,
+  start:function(b,i){var an=i*1.1+0.4;return {x:60+((i*97)%170),y:70+i*88,vx:Math.cos(an)*26,vy:Math.sin(an)*26,a:i,va:(i%2?0.25:-0.2),r:b.r};}});
+var tilt=document.getElementById('tilt'),flipped=1;
+function setG(){var a=parseFloat(tilt.value)*1.1;heap.g.x=Math.sin(a)*2400;heap.g.y=Math.cos(a)*2400*flipped;}
+tilt.addEventListener('input',setG);
+document.getElementById('flip').addEventListener('click',function(){flipped=-flipped;setG();});
+document.getElementById('again').addEventListener('click',function(){flipped=1;tilt.value=0;setG();document.getElementById('ttl').textContent='Building your family';document.getElementById('go').style.opacity=.3;heap.reset();});
+document.getElementById('speed').addEventListener('input',function(e){speed=parseFloat(e.target.value);});
+var real=document.getElementById('real');
+if(window.DeviceOrientationEvent&&'ontouchstart' in window){real.hidden=false;real.addEventListener('click',function(){
+  function on(){window.addEventListener('deviceorientation',function(e){if(e.gamma==null)return;var gx=Math.sin(e.gamma*Math.PI/180),gy=Math.sin(e.beta*Math.PI/180);heap.g.x=gx*2400;heap.g.y=gy*2400;});real.textContent='Following this phone';}
+  if(DeviceOrientationEvent.requestPermission){DeviceOrientationEvent.requestPermission().then(function(r){if(r==='granted')on();else real.textContent='Tilt was not allowed';}).catch(function(){real.textContent='Tilt is not available here';});}else on();
+});}
+var m=/^#t=([0-9.]+)(?:,(-?[0-9.]+))?/.exec(location.hash),still=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if(m||still){var T=m?parseFloat(m[1]):4;if(m&&m[2]){tilt.value=m[2];}
+  for(var t=0;t<T;t+=1/60){if(m&&m[2]&&t>2.5)setG();heap.step(1/60);con.step(1/60);}heap.draw();con.draw();}
+else{var last=0;(function loop(ts){var dt=Math.min((ts-(last||ts))/1000,1/30);last=ts;if(dt>0){heap.step(dt);con.step(dt*speed);}heap.draw();con.draw();requestAnimationFrame(loop);})(0);}
+})();
+</script>
+</body>
+</html>

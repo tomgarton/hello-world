@@ -115,7 +115,7 @@ p { margin: 0; max-width: 66ch; }
 <body>
 <main>
 <header><h1>Logo lockups, and building your family</h1>
-<p class="lede">Round 2 looks at how to be warm without being childish, with twelve new lockups in other typefaces. The first fourteen and the "building your family" sketch are kept below. Nothing is built.</p></header>
+<p class="lede">Round 2 looks at how to be warm without being childish, with twelve new lockups in other typefaces. The first fourteen are kept below. The "building your family" sketch has moved to its own page. Nothing is built.</p></header>
 
 <section class="q"><div><div class="num">ROUND 2, PART 1</div><h2>Where the line is</h2>
 <p class="lede">The same word at five points between a toy shop and a perfume counter. The aim is the middle: warm enough that a tired parent trusts it, calm enough that it looks cared for.</p></div>
@@ -187,79 +187,7 @@ p { margin: 0; max-width: 66ch; }
 <p>These are sketches in code, not finished artwork. Spacing, the exact face and the colours would all be tuned on whichever you pick.</p></div>
 </section>
 
-<section class="q"><div><div class="num">ALSO</div><h2>Building your family</h2>
-<p class="lede">The shapes drop in with gravity, bump and settle, then each finds its place and takes a name. It plays after the last setup question, in place of a plain "You're set".</p></div>
-<div class="two">
-<div class="opt">
-<div class="phone"><div class="stage" id="stage" role="img" aria-label="Shapes fall and settle into a family: Alex, Robin and Nan above, Ollie and Bea below"></div>
-<div class="pad"><div class="h" id="ttl">Building your family</div><div class="b" id="subt">Ollie, Bea and everyone who looks after them.</div><div class="spacer"></div><div class="btn" id="go" style="opacity:.35">Open Today</div></div></div>
-<button class="replay" id="replay" type="button">Play again</button>
-</div>
-<div class="note" style="flex:1;min-width:280px"><h3>How it would work</h3>
-<ul>
-<li><strong>One shape for each person,</strong> in their colour, with their initial. Grown-ups are larger, children smaller. A few plain shapes come along for the ride.</li>
-<li><strong>About three seconds,</strong> and a tap anywhere finishes it at once. It is a small celebration, not a loading bar: nothing is being waited for, so it never shows a percentage or pretends to work.</li>
-<li><strong>Then the names fade in</strong> and the button wakes up. Puggle could cheer beside it.</li>
-<li><strong>Reduce Motion</strong> shows the finished family straight away.</li>
-<li><strong>The same shapes</strong> could then be each person's picture until they add a photo, and each child's, which would also fix twins who share an initial and differ only by colour.</li>
-<li><strong>In the app</strong> this is a small physics scene. The sketch here uses simple round collisions, so shapes overlap a little at their corners.</li>
-</ul></div>
-</div>
-</section>
 </main>
-<script>
-(function(){
-var BITS=[{"p": "M12 3.5C18.5 3.5 21.3 7.5 20.8 12.6S16.6 20.8 11 20.4S2.8 16.8 3.3 11.4S6 3.5 12 3.5Z", "c": "#CFE5D2", "l": "A", "n": "Alex", "r": 34}, {"p": "M7.85 6.28A4.3 4.3 0 0 1 16.15 6.28A4.3 4.3 0 0 1 18.72 14.18A4.3 4.3 0 0 1 12.00 19.07A4.3 4.3 0 0 1 5.28 14.18A4.3 4.3 0 0 1 7.85 6.28Z", "c": "#E2D4F1", "l": "R", "n": "Robin", "r": 34}, {"p": "M17.99 6.92L19.81 9.80Q21.20 12.00 19.81 14.20L17.99 17.08Q16.60 19.27 14.00 19.27L10.00 19.27Q7.40 19.27 6.01 17.08L4.19 14.20Q2.80 12.00 4.19 9.80L6.01 6.92Q7.40 4.73 10.00 4.73L14.00 4.73Q16.60 4.73 17.99 6.92Z", "c": "#F6E2A8", "l": "N", "n": "Nan", "r": 30}, {"p": "M8.5 3.5H15.5Q20.5 3.5 20.5 8.5V15.5Q20.5 20.5 15.5 20.5H8.5Q3.5 20.5 3.5 15.5V8.5Q3.5 3.5 8.5 3.5Z", "c": "#BFD9F5", "l": "O", "n": "Ollie", "r": 25}, {"p": "M7.31 7.31A4.7 4.7 0 0 1 16.69 7.31A4.7 4.7 0 0 1 16.69 16.69A4.7 4.7 0 0 1 7.31 16.69A4.7 4.7 0 0 1 7.31 7.31Z", "c": "#F3D5C9", "l": "B", "n": "Bea", "r": 25}, {"p": "M6.5 8H17.5Q21.5 8 21.5 12V12Q21.5 16 17.5 16H6.5Q2.5 16 2.5 12V12Q2.5 8 6.5 8Z", "c": "#F4BE2C", "l": "", "n": "", "r": 15}, {"p": "M5 6H14a6 6 0 0 1 0 12H5a1.5 1.5 0 0 1-1.5-1.5V7.5A1.5 1.5 0 0 1 5 6Z", "c": "#C2412A", "l": "", "n": "", "r": 13}, {"p": "M4.5 18.5a1.5 1.5 0 0 1-1.5-1.5V12.5a3 3 0 0 1 6 0a3 3 0 0 1 6 0a3 3 0 0 1 6 0V17a1.5 1.5 0 0 1-1.5 1.5Z", "c": "#2A62B8", "l": "", "n": "", "r": 14}];
-var stage=document.getElementById('stage'),W=286,H=380,els=[],st=[],names=[],raf=0,t0=0,sync=false;
-var slots=[[62,150],[143,150],[224,150],[104,250],[182,250],[30,340],[143,345],[256,338]];
-BITS.forEach(function(b,i){
-  var d=document.createElement('div');d.className='bit';var s=b.r*2*24/18;
-  d.style.width=d.style.height=s+'px';
-  d.innerHTML='<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24"><path d="'+b.p+'" fill="'+b.c+'"/></svg>'+(b.l?'<b style="font-size:'+(b.r*0.8)+'px">'+b.l+'</b>':'');
-  stage.appendChild(d);els.push(d);
-  var n=document.createElement('div');n.className='nm';n.textContent=b.n;n.style.left=slots[i][0]+'px';n.style.top=(slots[i][1]+b.r+6)+'px';stage.appendChild(n);names.push(n);
-});
-function reset(){
-  st=BITS.map(function(b,i){return {x:40+((i*83)%200)+ (i%2?12:-8),y:-b.r-20-i*95,vx:(i%2?60:-70)+i*9,vy:0,a:0,va:(i%2?2:-2.500),r:b.r};});
-  names.forEach(function(n){n.style.opacity=0;});
-  document.getElementById('ttl').textContent='Building your family';
-  document.getElementById('go').style.opacity=.35;t0=0;
-}
-function draw(){st.forEach(function(s,i){var z=s.r*24/18;els[i].style.transform='translate('+(s.x-z)+'px,'+(s.y-z)+'px) rotate('+s.a+'rad)';});}
-function done(){st.forEach(function(s,i){s.x=slots[i][0];s.y=slots[i][1];s.a=0;});draw();finish();}
-function finish(){names.forEach(function(n){n.style.opacity=1;});document.getElementById('ttl').textContent='Here they are';document.getElementById('go').style.opacity=1;}
-function step(ts){
-  if(!t0)t0=ts;var t=(ts-t0)/1000,dt=1/60,settle=t>3.1;
-  for(var k=0;k<2;k++){
-    st.forEach(function(s,i){
-      if(settle){var tx=slots[i][0],ty=slots[i][1];s.vx+=(tx-s.x)*60*dt;s.vy+=(ty-s.y)*60*dt;s.vx*=0.86;s.vy*=0.86;s.va=-s.a*6;s.a+=s.va*dt;}
-      else{s.vy+=1700*dt;s.va*=0.985;s.a+=s.va*dt;}
-      s.x+=s.vx*dt/2;s.y+=s.vy*dt/2;
-      if(!settle){
-        if(s.y>H-s.r-6){s.y=H-s.r-6;s.vy*=-0.38;s.vx*=0.9;s.va*=0.7;}
-        if(s.x<s.r){s.x=s.r;s.vx*=-0.5;} if(s.x>W-s.r){s.x=W-s.r;s.vx*=-0.5;}
-      }
-    });
-    if(!settle)for(var i=0;i<st.length;i++)for(var j=i+1;j<st.length;j++){
-      var a=st[i],b=st[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||0.01,m=a.r+b.r;
-      if(d<m){var nx=dx/d,ny=dy/d,o=(m-d)/2;a.x-=nx*o;a.y-=ny*o;b.x+=nx*o;b.y+=ny*o;
-        var rv=(b.vx-a.vx)*nx+(b.vy-a.vy)*ny;if(rv<0){var jj=-(1.35)*rv/2;a.vx-=jj*nx;a.vy-=jj*ny;b.vx+=jj*nx;b.vy+=jj*ny;}}
-    }
-  }
-  draw();
-  if(t>4.3){done();return;}
-  if(sync)return;
-  if(settle&&names[0].style.opacity!=='1'&&t>3.7)finish();
-  raf=requestAnimationFrame(step);
-}
-function play(){cancelAnimationFrame(raf);reset();
-  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
-  raf=requestAnimationFrame(step);}
-document.getElementById('replay').addEventListener('click',play);
-stage.addEventListener('click',function(){cancelAnimationFrame(raf);done();});
-var m=/^#t=([0-9.]+)/.exec(location.hash);
-if(m){sync=true;reset();for(var ts=1;ts/1000<parseFloat(m[1]);ts+=1000/60)step(ts);}else play();
-})();
-</script>
+
 </body>
 </html>
