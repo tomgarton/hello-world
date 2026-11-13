@@ -22,9 +22,10 @@ struct SceneGalleryView: View {
                 HStack(spacing: 4) {
                     ForEach(SceneKind.allCases, id: \.rawValue) { kind in
                         ZStack(alignment: .bottom) {
-                            PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour)
+                            PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour, puggleX: PuggleScene.stand(for: kind) * 402)
                             if !empty {
                                 PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                                    .offset(x: PuggleScene.stand(for: kind) * 402)
                                     .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
                                     .environment(\.warmLight, PuggleScene.lamp(for: kind, night: PuggleScene.isNight(dark: look.dark, hour: look.hour)))
                             }
@@ -39,6 +40,17 @@ struct SceneGalleryView: View {
         .background(Color.gray)
         .environment(\.lineStyle, style)
         save(sheet, as: name)
+    }
+
+    /// The firework of Puggle's face, from the rocket going up to the sparks fading.
+    @MainActor static func writeFirework(name: String) {
+        let strip = HStack(spacing: 4) {
+            ForEach([0.4, 0.8, 1.1, 1.6, 2.6, 3.6, 4.4], id: \.self) { moment in
+                PuggleFirework(t: moment).frame(width: 150, height: 130).padding(10).background(Color(hex: 0x1C1F52))
+            }
+        }
+        .background(Color.gray)
+        save(strip, as: name)
     }
 
     /// The four rooms, in the evening light and in the dark look, pulled down to show what hangs higher up.

@@ -57,13 +57,15 @@ struct RoomFrame: View {
     var t = 0.0
     var hour = 20
     var weather: Weather = .clear
+    var puggleX: CGFloat = 0
     @Environment(\.lineStyle) private var lineStyle
 
     var body: some View {
         let style = lineStyle
         return Canvas { context, size in
-            RoomPainter(context: &context, w: size.width, top: size.height - 250, dark: dark, t: t, hour: hour, weather: weather, style: style)
-                .paint(room)
+            var painter = RoomPainter(context: &context, w: size.width, top: size.height - 250, dark: dark, t: t, hour: hour, weather: weather, style: style)
+            painter.puggleX = puggleX
+            painter.paint(room)
         }
         .opacity(appeared ? 1 : 0.6)
         .accessibilityHidden(true)
@@ -100,6 +102,8 @@ struct RoomPainter {
     /// A copy draws to the same canvas.
     private let context: GraphicsContext
     let w: CGFloat, top: CGFloat, dark: Bool, t: Double, hour: Int, weather: Weather, style: LineStyle
+    /// How far Puggle stands from the middle of the room.
+    var puggleX: CGFloat = 0
 
     init(context: inout GraphicsContext, w: CGFloat, top: CGFloat, dark: Bool, t: Double, hour: Int, weather: Weather, style: LineStyle) {
         self.context = context
@@ -180,7 +184,7 @@ struct RoomPainter {
         oval(w / 2, 228, 96, 15, edge)
         oval(w / 2, 228, 86, 11.5, colour)
         // Her shadow on it.
-        oval(w / 2, 224, 36, 4.5, Palette.fixedInk.opacity(dark ? 0.3 : 0.12))
+        oval(w / 2 + puggleX, 224, 36, 4.5, Palette.fixedInk.opacity(dark ? 0.3 : 0.12))
     }
 
     /// A window with whatever is outside: the evening sky, or the moon and stars, and rain on the glass.

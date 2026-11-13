@@ -52,6 +52,8 @@ struct PuggleScene: View {
     var weather: Weather?
     /// Today only: after tea time she is indoors, in the room for the hour.
     var rooms = false
+    /// How far Puggle stands from the middle, so her shadow is under her.
+    var puggleX: CGFloat = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("debugWeather") private var chosenWeather = ""
     @AppStorage(WeatherWatch.liveKey) private var liveWeather = ""
@@ -61,12 +63,12 @@ struct PuggleScene: View {
         let weather = weather ?? WeatherWatch.resolve(chosen: chosenWeather, live: liveWeather, on: weatherOn)
         if still || reduceMotion {
             // Half a second in, so rain and snow are already falling in a still picture.
-            SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather, rooms: rooms)
+            SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather, rooms: rooms, puggleX: puggleX)
         } else {
             // Thirty times a second is plenty for things that drift and sway.
             TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
                 SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride,
-                           t: timeline.date.timeIntervalSince(SceneClock.start), weather: weather, rooms: rooms)
+                           t: timeline.date.timeIntervalSince(SceneClock.start), weather: weather, rooms: rooms, puggleX: puggleX)
             }
         }
     }
@@ -74,6 +76,17 @@ struct PuggleScene: View {
     /// Where a warm lamp sits beside Puggle in this scene after dark, on her own box. Nil when there is none.
     static func lamp(for kind: SceneKind, night: Bool) -> UnitPoint? {
         kind == .backyard && night ? UnitPoint(x: -0.15, y: 0.3) : nil
+    }
+
+    /// Where she stands when Today opens, as a share of the width from the middle: a little to one side,
+    /// away from the scene's friend, so the picture is not symmetrical. She can be walked anywhere from there.
+    static func stand(for kind: SceneKind) -> CGFloat {
+        switch kind {
+        case .hills: 0.06
+        case .beach: 0.08
+        case .backyard: -0.07
+        case .bush: 0.08
+        }
     }
 
     /// The room Today is showing just now, or nil while she is outdoors.
@@ -99,6 +112,7 @@ struct SceneFrame: View {
     var t: Double = 0
     var weather: Weather = .clear
     var rooms = false
+    var puggleX: CGFloat = 0
 
     private var hour: Int {
         if let hourOverride { return hourOverride }
@@ -136,7 +150,7 @@ struct SceneFrame: View {
 
     var body: some View {
         if rooms, let room = Room.at(hour: hour, dark: dark) {
-            RoomFrame(room: room, dark: dark, appeared: appeared, pull: pull, t: t, hour: hour, weather: weather)
+            RoomFrame(room: room, dark: dark, appeared: appeared, pull: pull, t: t, hour: hour, weather: weather, puggleX: puggleX)
         } else {
             outdoors
         }
@@ -169,7 +183,7 @@ struct SceneFrame: View {
                     details(w, h)
                     // Puggle's shadow, so she stands on the hill.
                     Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
-                        .frame(width: 72, height: 9).position(x: w / 2, y: h - 27)
+                        .frame(width: 72, height: 9).position(x: w / 2 + puggleX, y: h - 27)
                     friend(w, h)
                     WeatherNear(weather: weather, t: t)
                 }
@@ -382,8 +396,8 @@ struct SceneFrame: View {
                 turnsUp(first, x: w * 0.72, y: pull - 46 + CGFloat(sin(t * 0.9)) * 3) {
                     Balloon(dark: starry).frame(width: 40, height: 60).rotationEffect(.degrees(sway))
                 }
-                turnsUp(second, x: w * 0.28, y: pull - 118) {
-                    if starry { ShootingStar().frame(width: 70, height: 20) }
+                turnsUp(second, x: starry ? w * 0.5 : w * 0.28, y: pull - 118) {
+                    if starry { Aurora(t: t).frame(width: w * 0.9, height: 86) }
                     else { Kite().frame(width: 44, height: 76).rotationEffect(.degrees(-sway * 2)) }
                 }
                 turnsUp(third, x: w * 0.55, y: pull - 190, from: CGSize(width: -w * 0.7, height: 0)) {
@@ -400,16 +414,17 @@ struct SceneFrame: View {
                 }
             case .beach:
                 // A beach ball, a little plane trailing a streamer, then a rainbow. After dark: the Southern Cross and fireworks.
-                turnsUp(first, x: w * 0.3, y: pull - 50 - abs(CGFloat(sin(t * 2.6))) * 12) {
-                    if starry { ShootingStar().frame(width: 70, height: 20) }
+                turnsUp(first, x: w * 0.3, y: pull - 50 - (starry ? 0 : abs(CGFloat(sin(t * 2.6))) * 12)) {
+                    if starry { SouthernCross(t: t).frame(width: 84, height: 96) }
                     else { BeachBall().frame(width: 34, height: 34).rotationEffect(.degrees(t * 70)) }
                 }
-                turnsUp(second, x: w * 0.6, y: pull - 122 + CGFloat(sin(t * 1.1)) * 3, from: starry ? .zero : CGSize(width: w * 0.8, height: 0)) {
-                    if starry { SouthernCross(t: t).frame(width: 84, height: 96) }
+                turnsUp(second, x: starry ? w * 0.5 : w * 0.6, y: pull - 122 + (starry ? 0 : CGFloat(sin(t * 1.1)) * 3), from: starry ? .zero : CGSize(width: w * 0.8, height: 0)) {
+                    if starry { Fireworks(t: t).frame(width: w * 0.86, height: 110) }
                     else { StreamerPlane(t: t).frame(width: 118, height: 34) }
                 }
-                turnsUp(third, x: w * 0.5, y: pull - 196) {
-                    if starry { Fireworks(t: t).frame(width: w * 0.8, height: 110) }
+                turnsUp(third, x: w * 0.5, y: pull - 204) {
+                    // The finale: one that opens into her face.
+                    if starry { PuggleFirework(t: t).frame(width: 150, height: 130) }
                     else { Rainbow().frame(width: w * 0.72, height: w * 0.36) }
                 }
             case .backyard:
@@ -418,13 +433,21 @@ struct SceneFrame: View {
                     if starry { Fireflies(t: t).frame(width: 90, height: 64) }
                     else { Bubbles(t: t).frame(width: 96, height: 84) }
                 }
-                turnsUp(second, x: w * 0.68 + CGFloat(sin(t * 0.8)) * 14, y: pull - 124 + CGFloat(sin(t * 1.6)) * 6, from: starry ? .zero : CGSize(width: -w * 0.8, height: 30)) {
-                    if starry { ShootingStar().frame(width: 70, height: 20) }
+                turnsUp(second, x: w * 0.68 + CGFloat(sin(t * 0.8)) * (starry ? 4 : 14), y: pull - 124 + CGFloat(sin(t * 1.6)) * (starry ? 3 : 6), from: starry ? .zero : CGSize(width: -w * 0.8, height: 30)) {
+                    if starry { SkyLantern(t: t).frame(width: 44, height: 64) }
                     else { PaperPlane().frame(width: 46, height: 30).rotationEffect(.degrees(-8 + 10 * sin(t * 1.6))) }
                 }
                 turnsUp(third, x: w * 0.5, y: pull - 196) {
-                    if starry { SkyLantern(t: t).frame(width: 44, height: 64).offset(y: CGFloat(sin(t * 0.7)) * 5) }
-                    else { DandelionSeeds(t: t).frame(width: w * 0.7, height: 70) }
+                    if starry {
+                        // More lanterns, further off.
+                        HStack(spacing: 34) {
+                            ForEach(0..<3, id: \.self) { i in
+                                SkyLantern(t: t + Double(i) * 1.7).frame(width: 44, height: 64)
+                                    .scaleEffect(i == 1 ? 0.5 : 0.68)
+                                    .offset(y: (i == 1 ? -14 : 6) + CGFloat(sin(t * 0.7 + Double(i))) * 4)
+                            }
+                        }
+                    } else { DandelionSeeds(t: t).frame(width: w * 0.7, height: 70) }
                 }
             case .bush:
                 // Gum leaves on the wind, cockatoos, and a sugar glider. After dark: flying foxes, and the glider again.
@@ -432,8 +455,8 @@ struct SceneFrame: View {
                     if starry { FlyingFoxes(t: t).frame(width: 120, height: 60) }
                     else { GumLeaves(t: t).frame(width: 96, height: 76) }
                 }
-                turnsUp(second, x: w * 0.62, y: pull - 122, from: CGSize(width: -w * 0.7, height: 0)) {
-                    if starry { ShootingStar().frame(width: 70, height: 20) } else {
+                turnsUp(second, x: w * 0.62, y: pull - 122, from: starry ? .zero : CGSize(width: -w * 0.7, height: 0)) {
+                    if starry { SouthernCross(t: t).frame(width: 84, height: 96) } else {
                         HStack(spacing: 10) {
                             ForEach(0..<2, id: \.self) { i in
                                 Bird(dark: false, flying: true, flap: 0.5 * sin(t * 9 + Double(i) * 2), colours: (0xFBF7EC, 0xE4DCC6, 0x5A5F66), crest: 0xF4D03F)
@@ -573,15 +596,16 @@ struct SceneFrame: View {
             Crab(dark: starry, step: t * 16, stride: moves.stride, pinch: moves.pinch, sink: moves.buried,
                  look: moves.buried == 1 ? sin(t * 0.8) : 0)
                 .frame(width: 76, height: 44)
-                .offset(x: moves.digging ? CGFloat(sin(t * 38)) * 1.6 : 0, y: CGFloat(moves.buried) * 30)
+                .offset(x: moves.digging ? CGFloat(sin(t * 38)) * 1.6 : 0, y: CGFloat(moves.buried) * 25)
                 .frame(width: 76, height: 44).clipped()
                 .position(x: x, y: h * 0.85)
                 .scaleEffect(pop).opacity(appeared ? 1 : 0)
             if moves.buried > 0 {
                 // The sand she has pushed up, and a few grains flying while she digs.
-                Ellipse().fill(Palette.sand).overlay(Ellipse().fill(Palette.ink.opacity(0.13)))
-                    .frame(width: 44 * min(1, CGFloat(moves.buried) * 1.6), height: 7)
-                    .position(x: x, y: h * 0.85 + 22)
+                SandMound()
+                    .frame(width: 66, height: 20)
+                    .scaleEffect(x: 0.5 + 0.5 * min(1, CGFloat(moves.buried) * 1.5), y: min(1, CGFloat(moves.buried) * 1.5), anchor: .bottom)
+                    .position(x: x, y: h * 0.85 + 19)
                 if moves.digging {
                     ForEach(0..<5, id: \.self) { i in
                         let fling = (t * 2.6 + Double(i) * 0.37).truncatingRemainder(dividingBy: 1)
@@ -1464,6 +1488,109 @@ struct Kite: View {
             sticks.move(to: left); sticks.addLine(to: right)
             context.stroke(sticks, with: .color(Palette.fixedInk.opacity(0.55)), lineWidth: 1.2)
         }
+    }
+}
+
+/// What the crab pushes up when she digs in: a heap of sand with a lit side, a shaded side and loose grains.
+struct SandMound: View {
+    var body: some View {
+        Canvas { context, size in
+            let w = size.width, base = size.height - 3
+            // Where it meets the beach.
+            context.fill(Path(ellipseIn: CGRect(x: w * 0.06, y: base - 3, width: w * 0.88, height: 6)), with: .color(Color(hex: 0x8A6A3C).opacity(0.22)))
+            // The heap: higher in the middle, slumping at the sides, with a smaller heap against it.
+            var heap = Path()
+            heap.move(to: CGPoint(x: w * 0.1, y: base))
+            heap.addCurve(to: CGPoint(x: w * 0.44, y: base - 11), control1: CGPoint(x: w * 0.2, y: base - 3), control2: CGPoint(x: w * 0.3, y: base - 11))
+            heap.addCurve(to: CGPoint(x: w * 0.7, y: base - 6), control1: CGPoint(x: w * 0.55, y: base - 11), control2: CGPoint(x: w * 0.62, y: base - 7))
+            heap.addCurve(to: CGPoint(x: w * 0.92, y: base), control1: CGPoint(x: w * 0.8, y: base - 8), control2: CGPoint(x: w * 0.86, y: base - 3))
+            heap.closeSubpath()
+            context.fill(heap, with: .color(Palette.sand))
+            // Sunlit on one side, in its own shade on the other: sand colours, never grey.
+            context.fill(heap, with: .linearGradient(Gradient(colors: [Color(hex: 0xFFF3D6).opacity(0.55), Color(hex: 0xB08A52).opacity(0.5)]),
+                                                     startPoint: CGPoint(x: w * 0.25, y: base - 14), endPoint: CGPoint(x: w * 0.8, y: base)))
+            // Grains: on the heap and rolled off it.
+            var random = SeededRandom(41)
+            for index in 0..<16 {
+                let x = w * CGFloat(random.range(0.04, 0.96)), up = CGFloat(random.range(0, 1))
+                let onHeap = x > w * 0.16 && x < w * 0.84
+                let y = base - (onHeap ? up * 9 * (1 - abs(x / w - 0.47) * 2) : 0) + (onHeap ? -1 : 1)
+                let radius = CGFloat(random.range(0.6, 1.3))
+                context.fill(Path(ellipseIn: CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)),
+                             with: .color(index.isMultiple(of: 3) ? Color(hex: 0xFFF3D6).opacity(0.8) : Color(hex: 0x8A6A3C).opacity(0.55)))
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// Soft ribbons of light low in the night sky, slowly moving.
+struct Aurora: View {
+    var t = 0.0
+    var body: some View {
+        Canvas { context, size in
+            for (index, colour) in ([0x7FE0B0, 0x8FB4E3, 0xB9A0EA] as [UInt32]).enumerated() {
+                var band = Path()
+                let phase = t * 0.35 + Double(index) * 1.9, top = size.height * (0.12 + 0.16 * CGFloat(index))
+                let steps = 30
+                var upper: [CGPoint] = []
+                for step in 0...steps {
+                    let along = CGFloat(step) / CGFloat(steps)
+                    upper.append(CGPoint(x: size.width * along, y: top + CGFloat(sin(Double(along) * 5 + phase)) * 9 + CGFloat(sin(Double(along) * 11 - phase * 1.3)) * 3))
+                }
+                band.addLines(upper)
+                band.addLines(upper.reversed().map { CGPoint(x: $0.x, y: $0.y + 34) })
+                band.closeSubpath()
+                context.fill(band, with: .linearGradient(Gradient(colors: [Color(hex: colour).opacity(0.34), Color(hex: colour).opacity(0)]),
+                                                         startPoint: CGPoint(x: 0, y: top - 10), endPoint: CGPoint(x: 0, y: top + 40)))
+            }
+        }
+        .mask(LinearGradient(colors: [.clear, .black, .black, .clear], startPoint: .leading, endPoint: .trailing))
+    }
+}
+
+/// A firework that opens into Puggle's face: her head, eyes, bill, cheeks and clip, in sparks.
+struct PuggleFirework: View {
+    var t = 0.0
+    private static let sparks: [(x: CGFloat, y: CGFloat, colour: UInt32, size: CGFloat)] = {
+        var list: [(CGFloat, CGFloat, UInt32, CGFloat)] = []
+        func ring(_ count: Int, cx: CGFloat, cy: CGFloat, rx: CGFloat, ry: CGFloat, _ colour: UInt32, _ size: CGFloat) {
+            for index in 0..<count {
+                let angle = Double(index) / Double(count) * 2 * .pi
+                list.append((cx + CGFloat(cos(angle)) * rx, cy + CGFloat(sin(angle)) * ry, colour, size))
+            }
+        }
+        ring(30, cx: 0, cy: 0, rx: 34, ry: 29, 0xE2A66C, 2.1)          // her head
+        ring(14, cx: 0, cy: 11, rx: 17, ry: 8, 0xA9C4DA, 1.9)          // her bill
+        ring(6, cx: 26, cy: -24, rx: 6.5, ry: 6.5, 0xF58A70, 2)        // her clip
+        list.append((26, -24, 0xF4D03F, 2.2))
+        list.append((-11, -5, 0xFFF6DC, 3)); list.append((11, -5, 0xFFF6DC, 3))   // her eyes
+        list.append((-22, 6, 0xF2A0A0, 2.4)); list.append((22, 6, 0xF2A0A0, 2.4)) // her cheeks
+        return list
+    }()
+
+    var body: some View {
+        Canvas { context, size in
+            let centre = CGPoint(x: size.width / 2, y: size.height / 2)
+            let life = (t / 5).truncatingRemainder(dividingBy: 1)
+            // A rocket goes up, the face opens and hangs, then drifts down and fades.
+            if life < 0.12 {
+                let rise = life / 0.12
+                dot(&context, centre.x, size.height - CGFloat(rise) * (size.height / 2), 2, Color(hex: 0xFFF6DC).opacity(0.9))
+                return
+            }
+            let open = 1 - pow(1 - min((life - 0.12) / 0.16, 1), 3)
+            let fade = life < 0.7 ? 1 : max(0, 1 - (life - 0.7) / 0.3)
+            let droop = CGFloat(max(0, life - 0.55)) * 26
+            for (index, spark) in Self.sparks.enumerated() {
+                let twinkle = 0.75 + 0.25 * sin(t * 9 + Double(index) * 1.3)
+                let at = CGPoint(x: centre.x + spark.x * 1.45 * CGFloat(open), y: centre.y + spark.y * 1.45 * CGFloat(open) + droop)
+                context.fill(Path(ellipseIn: CGRect(x: at.x - spark.size * 2.4, y: at.y - spark.size * 2.4, width: spark.size * 4.8, height: spark.size * 4.8)),
+                             with: .radialGradient(Gradient(colors: [Color(hex: spark.colour).opacity(0.35 * fade), Color(hex: spark.colour).opacity(0)]), center: at, startRadius: 0, endRadius: spark.size * 2.4))
+                dot(&context, at.x, at.y, spark.size, Color(hex: spark.colour).opacity(fade * twinkle))
+            }
+        }
+        .accessibilityHidden(true)
     }
 }
 

@@ -344,6 +344,11 @@ struct PuggleHeader: View {
     private var weather: Weather { WeatherWatch.resolve(chosen: chosenWeather, live: liveWeather, on: weatherOn) }
     @State private var lift: CGFloat = 0
     @State private var tilt: Double = 0
+    /// Where she has been walked to, in points from the middle. Nil until she is moved: she starts a little to one side.
+    @State private var walkedTo: CGFloat?
+    @State private var walkStart: CGFloat?
+    /// True for a moment after a walk, so letting go of her is not taken for a tap.
+    @State private var justWalked = false
 
     static let sceneHeight: CGFloat = 250
 
@@ -411,7 +416,7 @@ struct PuggleHeader: View {
     private var scene: some View {
         GeometryReader { geometry in
             let amount = max(0, geometry.frame(in: .named("todayScroll")).minY)
-            sceneContent
+            sceneContent(width: geometry.size.width)
                 .frame(width: geometry.size.width, height: Self.sceneHeight + amount)
                 .offset(y: -amount)
                 .onChange(of: amount) { _, now in pulled(to: now) }
@@ -421,13 +426,20 @@ struct PuggleHeader: View {
     }
 
     /// The sky grows upwards as Today is pulled down, so Puggle stays on her hill.
-    private var sceneContent: some View {
+    private func sceneContent(width: CGFloat) -> some View {
         let dim = scheme == .dark || night
         // After tea time she is indoors: lamplight, no coat, and pyjamas at bedtime.
         let room = PuggleScene.room(dark: dim)
+        // She sits at the tea table; anywhere else she can be walked along the ground.
+        let canWalk = room != .dining
+        let reach = max(width / 2 - 58, 0)
+        let home = room == nil ? PuggleScene.stand(for: .today) * width : 0
+        let x = canWalk ? min(max(walkedTo ?? home, -reach), reach) : 0
         return ZStack(alignment: .bottom) {
-            PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true)
-            Button(action: react) {
+            PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x)
+            Button {
+                if justWalked { justWalked = false } else { react() }
+            } label: {
                 PuggleView(controller: controller)
                     .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
                     .environment(\.outfit, room?.outfit ?? weather.outfit(night: PuggleScene.isNight(dark: dim)))
@@ -438,12 +450,31 @@ struct PuggleHeader: View {
                     .rotationEffect(.degrees(tilt), anchor: .bottom)
             }
             .buttonStyle(.plain)
+            // Drag her sideways and she walks there, and stays.
+            .simultaneousGesture(DragGesture(minimumDistance: 12)
+                .onChanged { drag in
+                    guard canWalk, walkStart != nil || abs(drag.translation.width) > abs(drag.translation.height) else { return }
+                    if walkStart == nil { walkStart = x }
+                    justWalked = true
+                    walkedTo = min(max((walkStart ?? 0) + drag.translation.width, -reach), reach)
+                    if !quiet && !reduceMotion { controller.walking = true }
+                }
+                .onEnded { _ in
+                    guard walkStart != nil else { return }
+                    walkStart = nil
+                    controller.walking = false
+                    Haptics.tap()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { justWalked = false }
+                })
+            .offset(x: x)
             // She pops up from behind the hill when Today first opens.
             .offset(y: appeared ? 0 : 60)
             .opacity(appeared ? 1 : 0)
             .padding(.bottom, 26)
             .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
             .accessibilityHint("Says hello")
+            .accessibilityAction(named: "Walk left") { if canWalk { walkedTo = max(x - 60, -reach) } }
+            .accessibilityAction(named: "Walk right") { if canWalk { walkedTo = min(x + 60, reach) } }
             // The tea table stands in front of her.
             if let room { RoomFront(room: room, dark: dim).opacity(appeared ? 1 : 0) }
         }
