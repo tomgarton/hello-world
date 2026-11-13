@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Onboarding mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: a column of numbered parts, each a row of phone mockups that wraps to one column on a phone. Scenes, moves and screens are real pictures taken from the app. */
+  --page: #F2ECDD; --card: #FBF6E9; --ink: #3A2A20; --muted: #6B5E52; --line: #E0D6C2; --accent: #C2412A;
+  --display: "Bricolage Grotesque", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* The app's own day colours: the phones always use these. */
+  --sand: #F2ECDD; --paper: #FBF6E9; --field: #EAE2D2; --app-ink: #3A2A20; --app-muted: #6B5E52;
+  --wattle: #F4BE2C; --waratah: #C2412A; --moon: #1B2440;
+  --sky: #BFD9F5; --shell: #F3D5C9; --mint: #CFE5D2; --sun: #F6E2A8; --lilac: #E2D4F1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--body); line-height: 1.5; padding: 28px 16px 64px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+h1 { font-family: var(--display); font-size: 34px; line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 24px; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+p { margin: 0; max-width: 66ch; }
+.lede { color: var(--muted); }
+.q { display: flex; flex-direction: column; gap: 18px; }
+.num { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+.row { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start; }
+.opt { display: flex; flex-direction: column; gap: 10px; width: 300px; max-width: 100%; }
+.opt h3 { font-size: 16px; margin: 0; }
+.opt p { font-size: 14px; color: var(--muted); }
+.pick { font-size: 12px; font-weight: 700; color: var(--accent); }
+.note { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.note h3 { margin: 0; font-size: 16px; }
+.note ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 66ch; }
+
+/* The phone. Fixed day palette, whatever the page theme. */
+.phone { width: 300px; max-width: 100%; border-radius: 38px; background: var(--sand); color: var(--app-ink); border: 7px solid #2A211B; padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 560px; font-size: 14px; line-height: 1.3; position: relative; overflow: hidden; }
+.phone.sheet { background: #CFC6B6; padding-top: 44px; }
+.phone .inner { background: var(--sand); border-radius: 26px 26px 0 0; margin: 0 -14px -18px; padding: 14px 14px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.bar { display: flex; justify-content: space-between; align-items: center; }
+.pill { background: var(--paper); border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+.pill.dark { background: var(--app-ink); color: var(--paper); }
+.title { font-family: var(--display); font-size: 26px; font-weight: 700; margin-top: 6px; }
+.stitle { font-weight: 700; font-size: 15px; text-align: center; flex: 1; }
+.label { font-weight: 700; font-size: 13px; margin: 6px 4px 0; }
+.foot { font-size: 12px; color: var(--app-muted); margin: 0 4px; }
+.cardp { background: var(--paper); border-radius: 20px; padding: 2px 14px; display: flex; flex-direction: column; }
+.item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #E6DCC8; min-height: 48px; }
+.item:first-child { border-top: 0; }
+.item .t { flex: 1; min-width: 0; }
+.item .t b { display: block; font-size: 14px; }
+.item .t span { display: block; font-size: 12px; color: var(--app-muted); }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: none; }
+.av.lg { width: 50px; height: 50px; font-size: 18px; }
+.chev { color: #B5A894; font-weight: 700; }
+.tick { font-weight: 800; }
+.tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--field); white-space: nowrap; }
+.tag.wait { background: var(--sun); }
+.faces { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+.face { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; width: 54px; text-align: center; }
+.face small { font-weight: 400; color: var(--app-muted); font-size: 10.5px; }
+.plus { background: var(--field); border: 1.5px dashed #B5A894; }
+.btn { background: var(--app-ink); color: var(--paper); border-radius: 999px; text-align: center; padding: 13px; font-weight: 700; }
+.btn.soft { background: var(--field); color: var(--app-ink); }
+.btn.red { background: transparent; color: var(--waratah); }
+.center { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 18px 8px 6px; }
+.big { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.15; }
+.kids { display: flex; gap: -6px; }
+.kids .av { margin-left: -8px; border: 3px solid var(--sand); }
+.kids .av:first-child { margin-left: 0; }
+.spacer { flex: 1; }
+.tabs { display: flex; justify-content: space-around; background: var(--paper); border-radius: 999px; padding: 9px 6px; font-size: 10.5px; font-weight: 600; color: var(--app-muted); margin-top: auto; }
+.tabs b { color: var(--app-ink); background: var(--field); padding: 3px 10px; border-radius: 999px; }
+.warn { background: var(--sun); border-radius: 16px; padding: 12px 14px; font-size: 13px; }
+
+.phone { padding: 0; gap: 0; min-height: 590px; }
+.pad { padding: 14px 16px 18px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+.scene { width: 100%; display: block; object-fit: cover; object-position: 48% 100%; }
+.word { font-family: var(--display); font-weight: 700; font-size: 44px; line-height: 1; color: var(--app-ink); }
+.sub { font-size: 14px; color: var(--app-muted); }
+.h { font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.12; }
+.b { font-size: 13.5px; color: var(--app-muted); }
+.dots { display: flex; gap: 6px; justify-content: center; }
+.dots i { width: 7px; height: 7px; border-radius: 50%; background: #CFC6B6; }
+.dots i.on { background: var(--app-ink); width: 18px; border-radius: 4px; }
+.skip { position: absolute; top: 14px; right: 16px; font-size: 13px; font-weight: 600; background: rgba(251,246,233,.85); padding: 6px 12px; border-radius: 999px; z-index: 3; }
+.mini { width: 150px; border-radius: 26px; border: 5px solid #2A211B; overflow: hidden; background: var(--sand); box-shadow: 0 10px 24px rgba(58,42,32,.22); flex: none; }
+.mini img { width: 100%; display: block; object-fit: cover; }
+.stage { position: relative; display: flex; justify-content: center; }
+.over { margin-top: -96px; position: relative; z-index: 2; }
+.sprbox { width: 134px; height: 180px; overflow: hidden; position: relative; flex: none; }
+.sprbox.lg { width: 202px; height: 270px; }
+.spr { width: 224px; height: 300px; transform-origin: 0 0; transform: scale(.6); background: url(img/greet.jpg) -8px 0 / 4560px 300px no-repeat; animation: greet 3.6s steps(18) infinite; }
+.sprbox.lg .spr { transform: scale(.9); }
+.spr.yay { background-image: url(img/celebrate.jpg); background-size: 5520px 300px; animation: yay 4.4s steps(22) infinite; }
+.sprbox::before { content: ""; position: absolute; left: 0; top: 0; width: 46px; height: 26px; background: var(--sand); z-index: 1; }
+@keyframes greet { 0% { background-position-x: -8px; } 50%, 100% { background-position-x: -4328px; } }
+@keyframes yay { 0% { background-position-x: -8px; } 50%, 100% { background-position-x: -5288px; } }
+@media (prefers-reduced-motion: reduce) { .spr { animation: none; background-position-x: -1448px; } }
+.lock { background: var(--sand); color: var(--app-ink); border-radius: 20px; padding: 22px 20px; width: 300px; max-width: 100%; display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
+table { border-collapse: collapse; font-size: 14px; max-width: 100%; }
+td, th { text-align: left; padding: 6px 14px 6px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; color: var(--muted); font-weight: 600; }
+.steps { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 66ch; }
+</style>
+</head>
+<body>
+<main>
+<header><h1>A more visual first run</h1>
+<p class="lede">Options for bringing Puggle, her scenes and the app's own screens into onboarding, and for the line under the name. The scenes, the wave and the screens here are real pictures taken from the app. Nothing is built.</p></header>
+
+<section class="q"><div><div class="num">PART 1</div><h2>The line under the name</h2>
+<p class="lede">You're right that "Puggle" alone doesn't say what it is. The line does two jobs: on the welcome screen it tells a parent they are in the right place, and on the App Store it is what search reads.</p></div>
+<div class="row">
+<div class="opt"><div class="lock"><div class="word">Puggle</div><div class="sub">Baby tracker for the whole family</div></div><div class="pick">MY PICK</div><h3>Baby tracker for the whole family</h3><p>Leads with the words people search for, then says what is different: everyone logs together.</p></div>
+<div class="opt"><div class="lock"><div class="word">Puggle</div><div class="sub">Baby and family tracker</div></div><h3>Baby and family tracker</h3><p>What the welcome screen says today. Short, but "family tracker" can read as location tracking.</p></div>
+<div class="opt"><div class="lock"><div class="word">Puggle</div><div class="sub">Feeds, sleeps and nappies, together</div></div><h3>Feeds, sleeps and nappies, together</h3><p>Warmer and more concrete, but it drops the words "baby tracker", which is what people type.</p></div>
+</div>
+<div class="note"><h3>On the App Store</h3>
+<table><tr><th>Field</th><th>Suggestion</th><th>Why</th></tr>
+<tr><td>Name (30 characters)</td><td>Puggle: Baby Tracker</td><td>Words in the name count most in search.</td></tr>
+<tr><td>Subtitle (30 characters)</td><td>Feeds, sleeps, nappies, potty</td><td>The next most searched words, without repeating the name.</td></tr>
+<tr><td>US store</td><td>"diapers" in place of "nappies"</td><td>The subtitle can differ by country.</td></tr></table>
+<p>Inside the app, the name and its line stay on the welcome screen, the splash and Help only, as now. I have not checked that the name is free on the App Store, or how much each phrase is searched.</p></div>
+</section>
+
+<section class="q"><div><div class="num">PART 2</div><h2>The welcome screen</h2>
+<p class="lede">Today it is the name and one line on plain sand. Three ways to make it a picture.</p></div>
+<div class="row">
+<div class="opt"><div class="phone "><img class="scene" src="img/hills-dawn.jpg" alt="Puggle standing in the hills at dawn" style="height:330px"><div class="pad"><div class="word">Puggle</div><div class="sub">Baby tracker for the whole family</div><div class="b" style="margin-top:4px">Feeds, sleeps, nappies and the potty, for every child you have.</div><div class="spacer"></div><div class="btn">Get started</div><div class="btn soft">I've been invited</div></div></div><div class="pick">MY PICK</div><h3>A. Her world first</h3><p>A scene fills the top, at the real time of day and in the real weather if that is on. In the app she waves and the clouds drift. The first thing a parent sees is the calm, not a form.</p></div>
+<div class="opt"><div class="phone "><div class="pad" style="align-items:center;text-align:center"><div style="height:44px"></div><div class="sprbox lg"><div class="spr "></div></div><div class="word" style="margin-top:8px">Puggle</div><div class="sub">Baby tracker for the whole family</div><div class="spacer"></div><div class="btn" style="align-self:stretch">Get started</div><div class="btn soft" style="align-self:stretch">I've been invited</div></div></div><h3>B. Puggle on her own</h3><p>The wave you see here is her real greeting from the app. Simplest and quickest to build, but it shows nothing of what the app does.</p></div>
+<div class="opt"><div class="phone "><div class="pad"><div style="height:18px"></div><div class="stage" style="align-items:flex-end;gap:0"><div class="mini" style="width:128px;transform:rotate(-4deg)"><img src="img/today.jpg" alt="The Today screen" style="height:240px;object-position:top"></div><div style="margin-left:6px"><div class="sprbox "><div class="spr "></div></div></div></div><div class="word" style="margin-top:14px">Puggle</div><div class="sub">Baby tracker for the whole family</div><div class="spacer"></div><div class="btn">Get started</div><div class="btn soft">I've been invited</div></div></div><h3>C. The app in her hands</h3><p>A device frame showing Today, with Puggle beside it. It says what kind of app this is fastest, and looks most like other apps.</p></div>
+</div></section>
+
+<section class="q"><div><div class="num">PART 3</div><h2>Showing what it does: a day with Puggle</h2>
+<p class="lede">Four pages to swipe, in place of today's two pages of text. Each shows one real screen in a device frame, and the scene behind moves through the day: dawn, day, dusk, night. Skip is on every page.</p></div>
+<div class="row">
+<div class="opt"><div class="phone "><span class="skip">Skip</span><img class="scene" src="img/hills-dawn.jpg" alt="Hills at dawn" style="height:200px"><div class="stage over"><div class="mini"><img src="img/log.jpg" alt="Logging a bottle" style="height:216px;object-position:bottom"></div></div><div class="pad" style="padding-top:12px"><div class="h">Log the day in a tap or two</div><div class="b">Feeds, sleeps, nappies and the potty. One thumb is enough.</div><div class="spacer"></div><div class="dots"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></div><div class="btn">Continue</div></div></div><div class="pick">MY PICK</div><h3>1. Dawn: logging</h3><p>The bottle sheet, as it really looks.</p></div>
+<div class="opt"><div class="phone "><span class="skip">Skip</span><img class="scene" src="img/beach-day.jpg" alt="The beach in the day" style="height:200px"><div class="stage over"><div class="mini"><img src="img/family.jpg" alt="The Family tab" style="height:216px;object-position:50% 62%"></div></div><div class="pad" style="padding-top:12px"><div class="h">Everyone sees the same day</div><div class="b">Invite a partner, Nan or a friend. Each on their own iPhone.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class="on"></i><i class=""></i><i class=""></i></div><div class="btn">Continue</div></div></div><h3>2. Day: together</h3><p>The Family tab, with Parent, Helper and Viewer.</p></div>
+<div class="opt"><div class="phone "><span class="skip">Skip</span><img class="scene" src="img/yard-dusk.jpg" alt="The backyard at dusk" style="height:200px"><div class="stage over"><div class="mini"><img src="img/insights.jpg" alt="A week of sleep in Insights" style="height:216px;object-position:50% 38%"></div></div><div class="pad" style="padding-top:12px"><div class="h">Look back when you want to</div><div class="b">The week as totals and counts. Nothing to hit, nothing to miss.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class=""></i><i class="on"></i><i class=""></i></div><div class="btn">Continue</div></div></div><h3>3. Dusk: looking back</h3><p>A week of sleep in Insights.</p></div>
+<div class="opt"><div class="phone "><span class="skip">Skip</span><img class="scene" src="img/yard-night.jpg" alt="The backyard at night" style="height:200px"><div class="stage over"><div class="mini"><img src="img/today.jpg" alt="The Today screen" style="height:216px;object-position:top"></div></div><div class="pad" style="padding-top:12px"><div class="h">Gentle at three in the morning</div><div class="b">A dim night look, big buttons, and Puggle keeping you company.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class=""></i><i class=""></i><i class="on"></i></div><div class="btn">Set up your family</div></div></div><h3>4. Night: calm</h3><p>Today. In the app this page would show the night look itself.</p></div>
+</div>
+<div class="row">
+<div class="opt"><div class="phone "><span class="skip">Skip</span><div class="pad"><div style="height:30px"></div><div style="border-radius:22px;overflow:hidden;box-shadow:0 10px 24px rgba(58,42,32,.18)"><img src="img/log.jpg" alt="The bottle sheet on its own" style="width:100%;height:190px;object-fit:cover;object-position:bottom;display:block"></div><div style="margin-top:6px"><div class="sprbox "><div class="spr "></div></div></div><div class="h">Log the day in a tap or two</div><div class="b">Feeds, sleeps, nappies and the potty. One thumb is enough.</div><div class="spacer"></div><div class="dots"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></div><div class="btn">Continue</div></div></div><h3>Another way: the piece, not the phone</h3><p>No device frame and no scene: one component lifted out of the app, with Puggle beside it. Cleaner at large text sizes, and less like an advert. It loses the day passing.</p></div>
+</div></section>
+
+<section class="q"><div><div class="num">PART 4</div><h2>The questions, and the finish</h2>
+<p class="lede">The setup questions keep a strip of scene at the top so the picture never goes away, and the last page celebrates.</p></div>
+<div class="row">
+<div class="opt"><div class="phone "><img class="scene" src="img/hills-day.jpg" alt="Puggle in the hills" style="height:150px"><div class="pad"><div class="dots"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div><div class="h" style="margin-top:4px">What should we call you?</div><div class="b">Optional. It shows beside what you log.</div><div class="cardp"><div class="item"><div class="t"><b style="font-weight:400;color:var(--app-muted)">Your name</b></div></div></div><div class="spacer"></div><div class="btn">Continue</div><div class="btn soft">Skip</div></div></div><h3>A strip of scene over each question</h3><p>Small enough to leave room for the keyboard. She could nod when a name is typed and look at the child's colour when one is chosen.</p></div>
+<div class="opt"><div class="phone "><div class="pad" style="align-items:center;text-align:center"><div style="height:36px"></div><div class="sprbox lg"><div class="spr yay"></div></div><div class="h" style="margin-top:6px">You're set</div><div class="b">Tap a tile on Today to log something. You can change any of this later.</div><div class="spacer"></div><div class="btn" style="align-self:stretch">Open Today</div></div></div><h3>You're set</h3><p>Her real celebrate move, once, then Today opens. With Reduce Motion on, she stands and smiles.</p></div>
+</div></section>
+
+<section class="note"><h3>The order I'd suggest</h3>
+<ol class="steps">
+<li><strong>Welcome</strong> (Part 2), with "Get started" and "I've been invited".</li>
+<li><strong>Four pages to swipe</strong> (Part 3). These replace "Log the day in a tap or two" and "Log together".</li>
+<li><strong>Your name, your child, anyone else, invite, how much to see.</strong> The same questions as now, each under a strip of scene.</li>
+<li><strong>You're set,</strong> with the celebration.</li>
+</ol>
+<p>That is two more screens than today, all of them skippable. The questions do not change, so nothing about saving or sync is touched.</p></section>
+
+<section class="note"><h3>Things to know</h3>
+<ul>
+<li><strong>These are stills, apart from the wave and the celebration.</strong> In the app the scenes would be the live ones from Today, so clouds, animals and weather move.</li>
+<li><strong>The screens in the frames would be drawn by the app itself,</strong> with the sample family, so they never go out of date and follow dark mode and text size.</li>
+<li><strong>Reduce Motion</strong> gets still pictures throughout.</li>
+<li><strong>Night.</strong> Opened at night, the whole flow would use the night scenes.</li>
+</ul></section>
+</main>
+</body>
+</html>
