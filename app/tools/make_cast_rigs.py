@@ -312,33 +312,28 @@ def toed_foot(cx, top, half, lobes, drop=18.0):
     return d, nicks, tips, base
 
 def paw(kind, side, cx, ankle, fur, shade):
-    """A friend's foot, in the same hand as Puggle's: one shape with toes, turned out a little, with the
-    claws of that animal showing past the toes."""
+    """A friend's foot, in the same hand as Puggle's: one soft shape with toes, turned out a little.
+    No claws: each toe has a small rounded nail, a shade lighter than the foot. (Pointed claws were
+    tried and read as fierce beside her.) The animals still differ: by how many toes, how broad the
+    foot is, and how long the nails are."""
     sign = -1 if side == 'left' else 1
     top = ankle - 5
     spec = {
-        # half-width, toes, pad colour, claw colour, claw length, claw width
-        'koala': (19, 3, '#7F8791', '#3F444B', 4.5, 7),        # dark leathery pads, short claws
-        'wombat': (21, 4, '#6E6058', CLAW, 5.5, 7.5),           # broad and flat, stout pale digging claws
-        'echidna': (17, 3, None, CLAW, 11, 7.5),                # three long curved claws
-        'quokka': (23, 3, '#A97C4C', '#4A382A', 4, 6.5),        # long hind feet, small dark claws
+        # half-width, toes, pad colour, nail length
+        'koala': (19, 3, '#939CA6', 2.0),      # round, soft pads
+        'wombat': (22, 4, '#7F7168', 2.4),      # broad and flat
+        'echidna': (17, 3, None, 3.6),          # longer nails, for digging
+        'quokka': (24, 3, '#B58A5C', 2.0),      # long hind feet
     }[kind]
-    half, lobes, pad, claw_colour, length, claw_w = spec
+    half, lobes, pad, nail = spec
     pad = pad or fur
-    d, nicks, tips, base = toed_foot(cx, top, half, lobes, drop=20 if kind == 'quokka' else 18)
+    d, nicks, tips, base = toed_foot(cx, top, half, lobes, drop=19 if kind == 'quokka' else 18)
     turn = {'x': cx, 'y': ankle - 4, 'rotate': -7 * sign}
-    out = []
-    for i, (tx, ty) in enumerate(tips):
-        # Claws are drawn first, so the toe covers their root and only the point shows.
-        # A claw is a short rounded point, not a needle: wide at the toe, blunt at the end.
-        lean = (tx - cx) / half * (0.35 if kind == 'echidna' else 0.15)
-        tip = (tx + lean * length, ty + length)
-        out.append(dict(turn, kind='path',
-                        d=f'M{tx - claw_w / 2:g} {ty - 6:g} L{tx - claw_w / 2:g} {ty:g} Q{tx - claw_w * 0.35 + lean * length:g} {ty + length:g} {tip[0]:g} {tip[1]:g} Q{tx + claw_w * 0.35 + lean * length:g} {ty + length:g} {tx + claw_w / 2:g} {ty:g} L{tx + claw_w / 2:g} {ty - 6:g} Z',
-                        fill=claw_colour, stroke=INK, tint=shade(claw_colour), width=2.2))
-    out.append(dict(turn, kind='path', d=d, fill=pad, stroke=INK, tint=shade(pad), width=5.5))
+    out = [dict(turn, kind='path', d=d, fill=pad, stroke=INK, tint=shade(pad), width=5.5)]
     for nx in nicks:   # the line up from each nick, as on hers
         out.append(dict(turn, kind='path', d=f'M{nx:g} {base - 1:g} L{nx + (cx - nx) * 0.12:g} {base - 8:g}', stroke=shade(pad), width=2.4, cap='round'))
+    for tx, ty in tips:
+        out.append(dict(turn, kind='ellipse', x=round(tx, 1), y=round(ty - 3.2 - nail * 0.3, 1), rx=2.6, ry=nail, fill=lighten(pad, 0.55)))
     return out
 
 def puggle_arm(side, sleeve, hand, shade, shoulder_y=178):
