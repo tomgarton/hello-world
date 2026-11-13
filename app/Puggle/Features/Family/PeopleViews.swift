@@ -230,9 +230,8 @@ struct PersonSheet: View {
                     Section {
                         Button("Leave this family", role: .destructive) { confirmingLeave = true }
                             .foregroundStyle(Palette.waratah)
-                            .frame(maxWidth: .infinity)
                     } footer: {
-                        Text("The children come off this iPhone. Nothing is deleted for \(store.holderName), and what you added stays with them.")
+                        Text("Takes the family off this iPhone. What you logged is kept for them.")
                     }
                     .listRowBackground(Palette.paper)
                     .disabled(busy)
@@ -266,7 +265,7 @@ struct PersonSheet: View {
                 Button("Leave", role: .destructive) { leave() }
                 Button("Stay", role: .cancel) {}
             } message: {
-                Text("The children come off this iPhone. To come back, ask \(store.holderName) for a new invite.")
+                Text("The children come off this iPhone. What you logged is kept for the family. To come back, ask \(store.holderName) for a new invite.")
             }
             .onAppear { name = isMe && !yourName.isEmpty ? yourName : (person.name ?? "") }
             .onDisappear(perform: saveName)
