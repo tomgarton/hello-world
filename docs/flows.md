@@ -23,7 +23,7 @@ From install to Today in under a minute. No account, no email, no password. Nine
 6. **Add your first child.** Name, birth date and how they feed.
 7. **Anyone else?** Each child added, with a tick. Add another returns to the form.
 8. **Who else looks after them?** Parent, Helper and Viewer explained, and Invite someone. Not shown in a build that can't share.
-9. **Your family.** Shapes drop in and pile up, lettered for you and the children. Tilt the phone or throw one. Puggle stands on top and cheers once when it lands. The title becomes the family's name. Open Today works from the start.
+9. **Your family.** The brand's soft shapes, flat in the brand colours with no outline, drop in and pile up, lettered for you and the children. Tilt the phone or throw one. Puggle stands on top and cheers once when it lands. The title becomes the family's name. Open Today works from the start.
 
 Rules and edge cases:
 

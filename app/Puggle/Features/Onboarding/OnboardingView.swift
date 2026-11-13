@@ -118,6 +118,14 @@ struct OnboardingView: View {
 
     /// Back where first run was left, with any child already added kept.
     private func resume() {
+        #if DEBUG
+        // For checking the finish: "-debugFirstRun 1 -debugHeap 1".
+        if UserDefaults.standard.string(forKey: "debugHeap") == "1" {
+            if yourName.isEmpty { yourName = "Alex" }
+            step = .family
+            return
+        }
+        #endif
         guard let saved = OnboardingStep(rawValue: savedStep), saved != .welcome else { return }
         if saved == .child, !children.isEmpty { step = .more } else { step = saved }
     }

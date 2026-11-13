@@ -86,9 +86,10 @@ final class HeapScene: SKScene {
     private var startedAt: TimeInterval?
     private var landed = false
 
-    private static let plainColours: [UIColor] = [
-        UIColor(Palette.waratahFill), UIColor(Palette.harbour), UIColor(Palette.gum), UIColor(Palette.wattle),
-    ] + Palette.childColours.map { UIColor($0) }
+    /// The brand palette: the four brights and the four soft fields.
+    private static let plainColours: [UIColor] = ([
+        0xF4BE2C, 0xBFD9F5, 0x2A62B8, 0xF3D9C9, 0xE5553B, 0xCFE5D2, 0x3C9A5F, 0xF4E7B0,
+    ] as [UInt32]).map { UIColor(Color(hex: $0)) }
 
     override func didMove(to view: SKView) {
         backgroundColor = .clear
@@ -119,7 +120,7 @@ final class HeapScene: SKScene {
 
     private func drop() {
         let total = max(13, letters.count)
-        let side = min(size.width / 4.1, size.height / 4.6) * sqrt(13 / CGFloat(total))
+        let side = min(size.width / 3.4, size.height / 3.9) * sqrt(13 / CGFloat(total))
         var seed = SeededRandom(UInt64(letters.map(\.0).joined().hashValue & 0xFFFF) &+ 11)
         // The lettered shapes are spread through the drop, so they don't all end at the bottom.
         let slots = Array(0..<total)
@@ -128,9 +129,9 @@ final class HeapScene: SKScene {
         })
         var letterIndex = 0
         // Shapes that hold a letter well, in turn, so two of the same initial still differ.
-        let letterKinds: [HeapShape] = [.circle, .square, .hexagon]
+        let letterKinds = HeapShape.forLetters
         for slot in slots {
-            var kind = HeapShape.allCases[(slot * 5 + 2) % HeapShape.allCases.count]
+            var kind = HeapShape.allCases[(slot * 3 + 1) % HeapShape.allCases.count]
             var letter: (String, UIColor)?
             if letterSlots.contains(slot), letterIndex < letters.count {
                 letter = letters[letterIndex]
@@ -169,8 +170,11 @@ final class HeapScene: SKScene {
         guard landed else { return }
         // The highest shape near the middle, so Puggle stays on the heap and not up a wall.
         let middle = shapes.filter { $0.parent != nil }.filter { abs($0.position.x - size.width / 2) < size.width * 0.3 && $0.position.y < size.height }
-        guard let highest = (middle.isEmpty ? shapes : middle).max(by: { $0.frame.maxY < $1.frame.maxY }) else { return }
-        let point = CGPoint(x: highest.position.x, y: size.height - highest.frame.maxY)
+        // The shapes are round-ish and fill most of their square, so the top is near half the side above the centre,
+        // however the shape has turned. A rotated bounding box would stand her in mid-air.
+        func crown(_ node: SKSpriteNode) -> CGFloat { node.position.y + node.size.height * 0.42 }
+        guard let highest = (middle.isEmpty ? shapes : middle).max(by: { crown($0) < crown($1) }) else { return }
+        let point = CGPoint(x: highest.position.x, y: size.height - crown(highest))
         Task { @MainActor [weak top] in top?.update(point) }
     }
 
@@ -210,78 +214,32 @@ final class HeapScene: SKScene {
 }
 
 /// The shapes of the heap: all convex, so each collides on its true outline.
-enum HeapShape: CaseIterable {
-    case circle, square, triangle, pill, half, hexagon
+/// The brand book's soft shapes, drawn flat with no outline, as everywhere in the world around the cast.
+/// Each collides on its own drawn edge, so a quatrefoil or a blossom nests into the heap as it looks.
+enum HeapShape: String, CaseIterable {
+    case quatrefoil, pill, scallop, softSquare = "soft-square", softHexagon = "soft-hexagon", pebble, halfPill = "half-pill", blossom
 
-    func path(side s: CGFloat) -> CGPath {
-        let rect = CGRect(x: -s / 2, y: -s / 2, width: s, height: s)
-        switch self {
-        case .circle:
-            return CGPath(ellipseIn: rect, transform: nil)
-        case .square:
-            return CGPath(roundedRect: rect.insetBy(dx: s * 0.04, dy: s * 0.04), cornerWidth: s * 0.2, cornerHeight: s * 0.2, transform: nil)
-        case .triangle:
-            return Self.rounded([CGPoint(x: 0, y: s * 0.5), CGPoint(x: s * 0.55, y: -s * 0.45), CGPoint(x: -s * 0.55, y: -s * 0.45)], radius: s * 0.1)
-        case .pill:
-            let pill = CGRect(x: -s * 0.65, y: -s * 0.3, width: s * 1.3, height: s * 0.6)
-            return CGPath(roundedRect: pill, cornerWidth: s * 0.3, cornerHeight: s * 0.3, transform: nil)
-        case .half:
-            let path = CGMutablePath()
-            path.move(to: CGPoint(x: -s * 0.6, y: -s * 0.3))
-            path.addArc(center: CGPoint(x: 0, y: -s * 0.3), radius: s * 0.6, startAngle: .pi, endAngle: 0, clockwise: true)
-            path.closeSubpath()
-            return path
-        case .hexagon:
-            return Self.rounded((0..<6).map { index in
-                let angle = CGFloat(index) * .pi / 3 + .pi / 6
-                return CGPoint(x: cos(angle) * s * 0.55, y: sin(angle) * s * 0.55)
-            }, radius: s * 0.08)
-        }
-    }
+    /// Shapes that hold a letter well.
+    static let forLetters: [HeapShape] = [.quatrefoil, .softSquare, .blossom, .softHexagon, .pebble]
 
-    /// A polygon with its corners rounded off.
-    private static func rounded(_ points: [CGPoint], radius: CGFloat) -> CGPath {
-        let path = CGMutablePath()
-        let count = points.count
-        let start = CGPoint(x: (points[count - 1].x + points[0].x) / 2, y: (points[count - 1].y + points[0].y) / 2)
-        path.move(to: start)
-        for index in 0..<count {
-            path.addArc(tangent1End: points[index], tangent2End: points[(index + 1) % count], radius: radius)
-        }
-        path.closeSubpath()
-        return path
-    }
-
-    /// A shape with Puggle's dark outline, and a letter if it carries one.
     static func node(_ kind: HeapShape, side: CGFloat, colour: UIColor, letter: String?) -> SKSpriteNode {
-        let path = kind.path(side: side)
-        let bounds = path.boundingBoxOfPath.insetBy(dx: -3, dy: -3)
-        let ink = UIColor(Palette.fixedInk)
-        let image = UIGraphicsImageRenderer(size: bounds.size).image { context in
-            let cg = context.cgContext
-            // UIKit draws top down: flip so the path matches SpriteKit's y-up shape.
-            cg.translateBy(x: -bounds.minX, y: bounds.maxY)
-            cg.scaleBy(x: 1, y: -1)
-            cg.addPath(path)
-            cg.setFillColor(colour.cgColor)
-            cg.setStrokeColor(ink.cgColor)
-            cg.setLineWidth(3)
-            cg.drawPath(using: .fillStroke)
+        let size = CGSize(width: side, height: side)
+        let shape = UIImage(named: "shape-\(kind.rawValue)")?.withTintColor(colour, renderingMode: .alwaysOriginal)
+        let image = UIGraphicsImageRenderer(size: size).image { _ in
+            shape?.draw(in: CGRect(origin: .zero, size: size))
             if let letter {
-                cg.scaleBy(x: 1, y: -1)
-                let font = UIFont.systemFont(ofSize: side * 0.42, weight: .heavy)
-                let rounded = font.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: side * 0.42) } ?? font
-                let light = colour.isDark
-                let text = NSAttributedString(string: letter, attributes: [.font: rounded, .foregroundColor: light ? UIColor(Palette.fixedPaper) : ink])
-                let size = text.size()
-                let centre = CGPoint(x: path.boundingBoxOfPath.midX, y: -path.boundingBoxOfPath.midY + (kind == .half ? side * 0.08 : 0))
-                text.draw(at: CGPoint(x: centre.x - size.width / 2, y: centre.y - size.height / 2))
+                let font = UIFont.systemFont(ofSize: side * 0.4, weight: .heavy)
+                let rounded = font.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: side * 0.4) } ?? font
+                let ink = colour.isDark ? UIColor(Palette.fixedPaper) : UIColor(Palette.fixedInk)
+                let text = NSAttributedString(string: letter, attributes: [.font: rounded, .foregroundColor: ink])
+                let measured = text.size()
+                let lift: CGFloat = kind == .halfPill ? side * 0.08 : 0
+                text.draw(at: CGPoint(x: (side - measured.width) / 2, y: (side - measured.height) / 2 + lift))
             }
         }
-        let node = SKSpriteNode(texture: SKTexture(image: image))
-        node.anchorPoint = CGPoint(x: -bounds.minX / bounds.width, y: -bounds.minY / bounds.height)
-        let body = SKPhysicsBody(polygonFrom: kind == .circle ? CGPath(ellipseIn: path.boundingBoxOfPath, transform: nil) : path)
-        if kind == .circle { node.physicsBody = SKPhysicsBody(circleOfRadius: side / 2) } else { node.physicsBody = body }
+        let texture = SKTexture(image: image)
+        let node = SKSpriteNode(texture: texture, size: size)
+        node.physicsBody = SKPhysicsBody(texture: texture, alphaThreshold: 0.5, size: size)
         node.physicsBody?.restitution = 0.15
         node.physicsBody?.friction = 0.7
         node.physicsBody?.density = 1.2
