@@ -15,6 +15,7 @@ struct DeveloperView: View {
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
     @State private var showingSplash = false
     @State private var showingPad = false
+    @State private var showingFirstRun = false
     @State private var sticker: EarnedSticker?
     @State private var cleared = false
 
@@ -58,6 +59,15 @@ struct DeveloperView: View {
                 Text("Today")
             } footer: {
                 Text("Go back to Today to see a change. The entrance plays when Today comes back into view.")
+            }
+            .listRowBackground(Palette.paper)
+
+            Section {
+                Button("Play first run as a demo") { showingFirstRun = true }
+            } header: {
+                Text("First run")
+            } footer: {
+                Text("The first-run screens as a new family sees them. Children added in the demo go into a family kept in memory, and the name and other choices are kept apart from the real ones. Closing it throws all of it away. Inviting someone does nothing in a demo.")
             }
             .listRowBackground(Palette.paper)
 
@@ -142,6 +152,7 @@ struct DeveloperView: View {
                 }
         }
         .protectedCover(isPresented: $showingPad) { PlayPadView() }
+        .fullScreenCover(isPresented: $showingFirstRun) { OnboardingDemoView() }
         .sheet(item: $sticker) { StickerDetailView(sticker: $0) }
     }
 

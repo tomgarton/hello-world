@@ -198,7 +198,10 @@ struct RootView: View {
     @ViewBuilder private var content: some View {
         #if DEBUG
         // For checking the play pad: launch with "-debugPad 1".
-        if let join = UserDefaults.standard.string(forKey: "debugJoin") {
+        if UserDefaults.standard.string(forKey: "debugFirstRun") == "1" {
+            // For checking the first-run demo: launch with "-debugFirstRun 1".
+            OnboardingDemoView()
+        } else if let join = UserDefaults.standard.string(forKey: "debugJoin") {
             // For checking the join screens: "-debugJoin ask" (or viewer, joined, used, noICloud, offline).
             let invite = Invite(inviter: "Alex", familyTitle: "Ollie and Bea's family", lookOnly: join == "viewer")
             JoinView(invite: invite,
