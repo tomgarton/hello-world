@@ -14,7 +14,8 @@ struct SceneGalleryView: View {
     ]
 
     /// Every scene and look in one picture, saved to Documents: "-debugSheet 1".
-    @MainActor static func writeSheet(pull: CGFloat, name: String, style: LineStyle = .chosen) {
+    /// `empty` leaves Puggle out, so a scene can sit behind something else.
+    @MainActor static func writeSheet(pull: CGFloat, name: String, style: LineStyle = .chosen, empty: Bool = false) {
         let controller = PuggleController()
         let sheet = VStack(spacing: 4) {
             ForEach(looks, id: \.name) { look in
@@ -22,9 +23,11 @@ struct SceneGalleryView: View {
                     ForEach(SceneKind.allCases, id: \.rawValue) { kind in
                         ZStack(alignment: .bottom) {
                             PuggleScene(kind: kind, dark: look.dark, pull: pull, hourOverride: look.hour)
-                            PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
-                                .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
-                                .environment(\.warmLight, PuggleScene.lamp(for: kind, night: PuggleScene.isNight(dark: look.dark, hour: look.hour)))
+                            if !empty {
+                                PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                                    .environment(\.moonlit, PuggleScene.isNight(dark: look.dark, hour: look.hour))
+                                    .environment(\.warmLight, PuggleScene.lamp(for: kind, night: PuggleScene.isNight(dark: look.dark, hour: look.hour)))
+                            }
                         }
                         .frame(width: 402, height: PuggleHeader.sceneHeight + pull)
                         .clipped()
@@ -89,7 +92,8 @@ struct SceneGalleryView: View {
     }
 
     /// A move as a strip of frames, one every `every` seconds: "-debugSheet 1".
-    @MainActor static func writeStrip(move: String?, seconds: Double, every: Double, name: String) {
+    /// `clear` leaves out the background, the gaps and the times, for use as a see-through film strip.
+    @MainActor static func writeStrip(move: String?, seconds: Double, every: Double, name: String, clear: Bool = false) {
         guard let rig = Rig.load("puggle") else { return }
         let runtime = RigRuntime(rig: rig)
         let start = Date.now
@@ -108,6 +112,15 @@ struct SceneGalleryView: View {
                 frames.append((t, states, runtime.face))
                 next += every
             }
+        }
+        if clear {
+            let film = HStack(spacing: 0) {
+                ForEach(Array(frames.enumerated()), id: \.offset) { _, frame in
+                    RigFrame(rig: rig, states: frame.1, face: frame.2).frame(width: 160, height: 200)
+                }
+            }
+            save(film, as: name)
+            return
         }
         let strip = HStack(spacing: 2) {
             ForEach(Array(frames.enumerated()), id: \.offset) { _, frame in

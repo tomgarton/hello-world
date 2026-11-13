@@ -170,6 +170,10 @@ struct RootView: View {
                     SceneGalleryView.writeStrip(move: "wake", seconds: 1.6, every: 0.1, name: "strip-wake.png")
                     SceneGalleryView.writeStrip(move: "asleep", seconds: 0.25, every: 0.1, name: "strip-asleep.png")
                     SceneGalleryView.writeStrip(move: "walk", seconds: 0.7, every: 0.08, name: "strip-walk.png")
+                    SceneGalleryView.writeStrip(move: "greet", seconds: 1.8, every: 0.1, name: "film-greet.png", clear: true)
+                    SceneGalleryView.writeStrip(move: "celebrate", seconds: 2.2, every: 0.1, name: "film-celebrate.png", clear: true)
+                    SceneGalleryView.writeStrip(move: "nod", seconds: 0.8, every: 0.05, name: "film-nod.png", clear: true)
+                    SceneGalleryView.writeSheet(pull: 220, name: "scenes-empty.png", empty: true)
                     SceneGalleryView.writeSheet(pull: 0, name: "scenes.png")
                     SceneGalleryView.writeSheet(pull: 220, name: "scenes-pulled.png")
                 }
