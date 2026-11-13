@@ -187,6 +187,41 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertEqual(store.milkOnHand().fridge, 200)
     }
 
+    // MARK: Waking together, and where a sleep is listed
+
+    func testTwoWakingTogetherCanBeUndoneOneAtATime() {
+        let harry = store.addChild(name: "Harry", birthDate: Date.now.addingTimeInterval(-900 * 86_400), colourIndex: 0)
+        let sam = store.addChild(name: "Sam", birthDate: Date.now.addingTimeInterval(-150 * 86_400), colourIndex: 1)
+        store.startSleep(for: [harry, sam])
+        store.endSleep(for: harry)
+        store.endSleep(for: sam)
+        XCTAssertEqual(store.lastSaved?.events.count, 2, "both wakings are offered")
+        let saved = store.lastSaved?.id
+
+        let harrysSleep = try! XCTUnwrap(store.latest(.sleep, for: harry))
+        store.undo(harrysSleep)
+        XCTAssertNotNil(store.activeSleep(for: harry), "Harry is asleep again")
+        XCTAssertNil(store.activeSleep(for: sam), "Sam stays awake")
+        XCTAssertEqual(store.lastSaved?.events.count, 1)
+        XCTAssertEqual(store.lastSaved?.id, saved, "taking one off is not a new save")
+
+        let samsSleep = try! XCTUnwrap(store.latest(.sleep, for: sam))
+        store.forget(samsSleep)
+        XCTAssertNil(store.lastSaved)
+        XCTAssertNil(store.activeSleep(for: sam), "dismissing changes nothing")
+    }
+
+    func testAFinishedSleepIsListedWhenItEnded() {
+        let harry = store.addChild(name: "Harry", birthDate: Date.now.addingTimeInterval(-900 * 86_400), colourIndex: 0)
+        let began = Date.now.addingTimeInterval(-11 * 3600), ended = Date.now.addingTimeInterval(-60)
+        let sleep = store.log(.sleep, for: [harry], at: began, end: ended)
+        XCTAssertEqual(sleep.listedAt, ended)
+        let running = store.log(.sleep, for: [harry], at: began)
+        XCTAssertEqual(running.listedAt, began, "a sleep still going is listed where it began")
+        let nappy = store.log(.nappy, for: [harry], at: began, end: nil, detail: "Wet")
+        XCTAssertEqual(nappy.listedAt, began)
+    }
+
     // MARK: Stamps and stickers
 
     func testFiveStampsFillACardAndEarnItsSticker() {

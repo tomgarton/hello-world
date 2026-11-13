@@ -156,6 +156,7 @@ struct TodayView: View {
                     .padding(.horizontal, 16)
                     .padding(.bottom, 6)
                     .animation(.spring(duration: 0.4, bounce: 0), value: store.lastSaved?.id)
+                    .animation(.spring(duration: 0.4, bounce: 0), value: store.lastSaved?.events.count)
                     .animation(.spring(duration: 0.4, bounce: 0), value: store.justDeleted?.deletedAt)
             }
         }
@@ -510,12 +511,17 @@ struct TodaySoFar: View {
 
     init(onOpen: @escaping (Event) -> Void) {
         self.onOpen = onOpen
+        // Begun today, or ended today: last night's sleep belongs to this morning.
+        let midnight = Calendar.current.startOfDay(for: .now) as NSDate
         _events = FetchRequest(sortDescriptors: [SortDescriptor(\Event.startedAt, order: .reverse)],
-                               predicate: NSPredicate(format: "startedAt >= %@", Calendar.current.startOfDay(for: .now) as NSDate))
+                               predicate: NSPredicate(format: "startedAt >= %@ OR endedAt >= %@", midnight, midnight))
     }
 
     var body: some View {
-        let today = events.filter { !($0.kind == .pump && $0.detail == Pump.count) }
+        let midnight = Calendar.current.startOfDay(for: .now)
+        let today = events
+            .filter { !($0.kind == .pump && $0.detail == Pump.count) && ($0.listedAt ?? .distantPast) >= midnight }
+            .sorted { ($0.listedAt ?? .distantPast) > ($1.listedAt ?? .distantPast) }
         let shown = showingAll ? today : Array(today.prefix(6))
         VStack(alignment: .leading, spacing: 0) {
             // The same room above and below the label (Today's own gap is 14).
@@ -556,78 +562,71 @@ struct TodaySoFar: View {
     }
 }
 
-/// "Last saved" stays on Today until the next save, with a way back.
+/// Just saved, or just deleted: bars above the tab bar in the reverse of the
+/// page's colours, so they are seen. One bar for each entry, each with its own
+/// Undo, and each can be swiped away. They stay until the next save.
 struct LastSavedRow: View {
     @EnvironmentObject private var store: FamilyStore
     let onChange: (Event) -> Void
 
     var body: some View {
-        if let gone = store.justDeleted {
-            // Straight after deleting: a way back, until the next save.
-            HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Deleted").font(.caption).foregroundStyle(Palette.paper.opacity(0.75))
-                    Text(gone.childNames.isEmpty ? gone.summary : "\(gone.childNames.joined(separator: ", ")): \(gone.summary)")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Palette.paper)
-                        .lineLimit(1)
-                }
-                .accessibilityElement(children: .combine)
-                Spacer(minLength: 0)
-                action("Undo") {
-                    Haptics.tap()
-                    store.restore(gone)
-                }
-                Button {
-                    withAnimation { store.justDeleted = nil }
-                } label: {
-                    Image(systemName: "xmark").font(.footnote.weight(.bold)).frame(width: 36, height: 44)
-                }
-                .foregroundStyle(Palette.paper.opacity(0.75))
-                .accessibilityLabel("Dismiss")
-            }
-            .padding(.leading, 14)
-            .padding(.trailing, 4)
-            .padding(.vertical, 6)
-            .background(Palette.ink, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-            .shadow(color: .black.opacity(0.25), radius: 14, y: 5)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
-        } else if let saved = store.lastSaved {
-            let events = saved.events.filter(\.isLive)
-            if let first = events.first {
-                let names = ListFormatter.localizedString(byJoining: events.flatMap(\.sortedChildren).map(\.displayName))
-                HStack(spacing: 8) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Last saved")
-                            .font(.caption)
-                            .foregroundStyle(Palette.paper.opacity(0.75))
-                        Text(Set(events.map(\.summary)).count == 1
-                             ? (names.isEmpty ? first.summary : "\(names): \(first.summary)")
-                             : events.map { "\($0.sortedChildren.first?.displayName ?? ""): \($0.summary)" }.joined(separator: "\n"))
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Palette.paper)
+        VStack(spacing: 8) {
+            if let gone = store.justDeleted {
+                // Straight after deleting: a way back, until the next save.
+                bar(title: "Deleted",
+                    text: gone.childNames.isEmpty ? gone.summary : "\(gone.childNames.joined(separator: ", ")): \(gone.summary)",
+                    dismiss: { store.justDeleted = nil }) {
+                    action("Undo") {
+                        Haptics.tap()
+                        store.restore(gone)
                     }
-                    .accessibilityElement(children: .combine)
-                    Spacer(minLength: 0)
-                    if saved.undo != .none {
-                        action("Undo") {
-                            Haptics.tap()
-                            store.undoLastSaved()
+                }
+                .id(gone.id)
+            } else if let saved = store.lastSaved {
+                let events = saved.events.filter(\.isLive)
+                ForEach(events, id: \.objectID) { event in
+                    let names = ListFormatter.localizedString(byJoining: event.sortedChildren.map(\.displayName))
+                    bar(title: "Last saved",
+                        text: names.isEmpty ? event.summary : "\(names): \(event.summary)",
+                        dismiss: { store.forget(event) }) {
+                        if saved.undo != .none {
+                            action("Undo") {
+                                Haptics.tap()
+                                store.undo(event)
+                            }
+                        }
+                        // Room for it only when there is one bar.
+                        if events.count == 1 {
+                            action("Change") { onChange(event) }
                         }
                     }
-                    if events.count == 1 {
-                        action("Change") { onChange(first) }
-                    }
                 }
-                .padding(.leading, 14)
-                .padding(.trailing, 8)
-                .padding(.vertical, 6)
-                .background(Palette.ink, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .shadow(color: .black.opacity(0.25), radius: 14, y: 5)
-                .id(saved.id)
-                .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
             }
         }
+    }
+
+    private func bar(title: String, text: String, dismiss: @escaping () -> Void,
+                     @ViewBuilder buttons: () -> some View) -> some View {
+        HStack(spacing: 8) {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(.caption).foregroundStyle(Palette.paper.opacity(0.75))
+                Text(text)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Palette.paper)
+                    .lineLimit(2)
+            }
+            .accessibilityElement(children: .combine)
+            Spacer(minLength: 0)
+            buttons()
+        }
+        .padding(.leading, 14)
+        .padding(.trailing, 8)
+        .padding(.vertical, 6)
+        .background(Palette.ink, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .shadow(color: .black.opacity(0.25), radius: 14, y: 5)
+        .modifier(SwipeAway(perform: dismiss))
+        .transition(.asymmetric(insertion: .move(edge: .bottom).combined(with: .opacity), removal: .opacity))
+        .accessibilityAction(named: "Dismiss") { dismiss() }
     }
 
     private func action(_ title: String, perform: @escaping () -> Void) -> some View {
@@ -638,6 +637,46 @@ struct LastSavedRow: View {
             .frame(minHeight: 44)
             .background(Palette.paper.opacity(0.18), in: Capsule())
             .buttonStyle(PressStyle())
+    }
+}
+
+/// Swipe a bar off to either side, or down, to dismiss it. Let go early and it springs back.
+private struct SwipeAway: ViewModifier {
+    let perform: () -> Void
+    @State private var pulled = CGSize.zero
+    @State private var gone = false
+
+    func body(content: Content) -> some View {
+        content
+            .offset(x: pulled.width, y: max(0, pulled.height))
+            .opacity(gone ? 0 : 1 - min(0.6, Double(max(abs(pulled.width), pulled.height)) / 300))
+            .gesture(
+                DragGesture(minimumDistance: 12)
+                    .onChanged { value in
+                        // Sideways or down, whichever the finger set off in.
+                        if abs(value.translation.width) > abs(value.translation.height) {
+                            pulled = CGSize(width: value.translation.width, height: 0)
+                        } else {
+                            pulled = CGSize(width: 0, height: max(0, value.translation.height))
+                        }
+                    }
+                    .onEnded { value in
+                        let across = abs(value.predictedEndTranslation.width) > 160 && pulled.width != 0
+                        let down = value.predictedEndTranslation.height > 70 && pulled.height > 0
+                        if across || down {
+                            withAnimation(.easeOut(duration: 0.2)) {
+                                gone = true
+                                pulled = across ? CGSize(width: value.translation.width > 0 ? 500 : -500, height: 0)
+                                                : CGSize(width: 0, height: 200)
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                                withAnimation(.spring(duration: 0.35, bounce: 0)) { perform() }
+                            }
+                        } else {
+                            withAnimation(.spring(duration: 0.3, bounce: 0.2)) { pulled = .zero }
+                        }
+                    }
+            )
     }
 }
 

@@ -29,8 +29,11 @@ struct HistoryView: View {
     }
 
     private var days: [DayGroup] {
-        let grouped = Dictionary(grouping: filtered) { Calendar.current.startOfDay(for: $0.startedAt ?? .distantPast) }
-        return grouped.keys.sorted(by: >).map { DayGroup(day: $0, events: grouped[$0] ?? []) }
+        // A finished sleep is listed on the day it ended, at the time it ended.
+        let grouped = Dictionary(grouping: filtered) { Calendar.current.startOfDay(for: $0.listedAt ?? .distantPast) }
+        return grouped.keys.sorted(by: >).map { day in
+            DayGroup(day: day, events: (grouped[day] ?? []).sorted { ($0.listedAt ?? .distantPast) > ($1.listedAt ?? .distantPast) })
+        }
     }
 
     var body: some View {
@@ -128,16 +131,30 @@ struct EventRow: View {
                     Text(note).font(.footnote).foregroundStyle(Palette.muted).lineLimit(2)
                 }
                 // At the largest text sizes the time sits under the rest, not beside it.
-                if textSize.isAccessibilitySize, let at = event.startedAt {
-                    Text(at, style: .time).font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
-                }
+                if textSize.isAccessibilitySize { when }
             }
             Spacer(minLength: 8)
-            if !textSize.isAccessibilitySize, let at = event.startedAt {
-                Text(at, style: .time).font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
-            }
+            if !textSize.isAccessibilitySize { when }
         }
         .padding(.vertical, Self.verticalPadding)
         .contentShape(Rectangle())
+    }
+
+    /// The time it happened. A finished sleep shows when it began and ended.
+    @ViewBuilder private var when: some View {
+        if let at = event.startedAt {
+            Group {
+                if event.kind == .sleep, let end = event.endedAt {
+                    VStack(alignment: textSize.isAccessibilitySize ? .leading : .trailing, spacing: 1) {
+                        Text(at, style: .time)
+                        Text("to ") + Text(end, style: .time)
+                    }
+                    .accessibilityElement(children: .combine)
+                } else {
+                    Text(at, style: .time)
+                }
+            }
+            .font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
+        }
     }
 }

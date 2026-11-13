@@ -4,7 +4,7 @@ import SwiftUI
 /// What the "Last saved" row on Today points at. It stays until the next save.
 struct LastSaved: Identifiable {
     enum Undo { case delete, resumeSleep, backToSleep, none }
-    let id = UUID()
+    var id = UUID()
     let events: [Event]
     let undo: Undo
 }
@@ -235,11 +235,39 @@ final class FamilyStore: ObservableObject {
         lastSaved = LastSaved(events: [event], undo: .none)
     }
 
+    /// Undoes one of the entries just saved and leaves the others as they are.
+    func undo(_ event: Event) {
+        guard let saved = lastSaved, saved.events.contains(event) else { return }
+        forget(event)
+        guard event.isLive else { return }
+        apply(saved.undo, to: [event])
+        persistence.save()
+    }
+
+    /// Takes one entry off the "Last saved" list without changing it.
+    func forget(_ event: Event) {
+        guard let saved = lastSaved else { return }
+        let rest = saved.events.filter { $0 != event }
+        guard rest.count != saved.events.count else { return }
+        if rest.isEmpty {
+            lastSaved = nil
+        } else {
+            // The same save, less one: keep its id so nothing reacts as if to a new save.
+            var fewer = LastSaved(events: rest, undo: saved.undo)
+            fewer.id = saved.id
+            lastSaved = fewer
+        }
+    }
+
     func undoLastSaved() {
         guard let saved = lastSaved else { return }
         lastSaved = nil
-        let live = saved.events.filter(\.isLive)
-        switch saved.undo {
+        apply(saved.undo, to: saved.events.filter(\.isLive))
+        persistence.save()
+    }
+
+    private func apply(_ undo: LastSaved.Undo, to live: [Event]) {
+        switch undo {
         case .delete: live.forEach(context.delete)
         case .resumeSleep: live.forEach { $0.endedAt = nil }
         case .backToSleep:
@@ -252,7 +280,6 @@ final class FamilyStore: ObservableObject {
             }
         case .none: break
         }
-        persistence.save()
     }
 
     /// Sleep is a timer: start now, finish later. One open sleep per child.

@@ -135,6 +135,14 @@ extension Event {
         set { kindRaw = newValue.rawValue }
     }
 
+    /// The moment an entry is listed at, in Today and History. A finished sleep
+    /// is listed when it ended, so last night's sleep is in this morning's list
+    /// and not back in yesterday's.
+    var listedAt: Date? {
+        if kind == .sleep, let endedAt { return endedAt }
+        return startedAt
+    }
+
     /// False once the entry has been deleted, here or on another phone.
     var isLive: Bool { !isDeleted && managedObjectContext != nil }
 
