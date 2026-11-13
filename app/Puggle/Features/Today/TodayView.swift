@@ -30,7 +30,7 @@ struct TodayView: View {
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @State private var pendingSticker: Event?
     @State private var stickerFor: EditTarget?
-    @State private var showingStickers = false
+    @State private var showingPlay = false
     @State private var staleSleep: Event?
     @State private var staleFeed: Event?
     @State private var askedAbout: Set<NSManagedObjectID> = []
@@ -128,11 +128,16 @@ struct TodayView: View {
                                 .accessibilityLabel("Choose the tiles on Today")
                         }
                         }
-                        if stickersOn, !stickerChildren.isEmpty {
-                            Button { showingStickers = true } label: {
+                        // One door to everything for the child: drawing, and the stamp book if there is one.
+                        Button { showingPlay = true } label: {
                                 HStack {
-                                    Image(systemName: "star.circle")
-                                    Text("Stamp book").fontWeight(.semibold)
+                                    Image(systemName: "scribble.variable")
+                                    VStack(alignment: .leading, spacing: 1) {
+                                        Text("Play").fontWeight(.semibold)
+                                        Text(stickersOn && !stickerChildren.isEmpty ? "Draw, and the stamp book" : "Draw and colour in")
+                                            .font(.footnote)
+                                            .foregroundStyle(Palette.muted)
+                                    }
                                     Spacer()
                                     Image(systemName: "chevron.right").font(.footnote).foregroundStyle(Palette.muted)
                                 }
@@ -140,8 +145,8 @@ struct TodayView: View {
                                 .frame(minHeight: 52)
                                 .foregroundStyle(Palette.ink)
                                 .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                            }
                         }
+                        .accessibilityHint("Things to hand a child")
                         TodaySoFar { looking = EditTarget(event: $0) }
                     }
                 }
@@ -195,8 +200,8 @@ struct TodayView: View {
         .sheet(isPresented: $pumping) {
             PumpSheet()
         }
-        .sheet(isPresented: $showingStickers) {
-            StampBookView(children: stickerChildren)
+        .sheet(isPresented: $showingPlay) {
+            PlayShelfView(stampChildren: stickersOn ? stickerChildren : [])
         }
         .sheet(item: $editing) { target in
             if !store.canChange(target.event) && !(target.endingSleep && store.canLog) {
