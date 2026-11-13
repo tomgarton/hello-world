@@ -95,6 +95,8 @@ p { margin: 0; max-width: 66ch; }
 .ctl input[type=range] { width: 100%; accent-color: var(--accent); }
 .pillb { font: inherit; font-weight: 600; font-size: 14px; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
 .rowb { display: flex; gap: 8px; flex-wrap: wrap; }
+.phone.m { height: auto; min-height: 540px; padding: 14px 14px 18px; gap: 10px; }
+.phone.m .inner { margin: 0 -14px -18px; }
 .ideas { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
 .idea { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
 .idea h3 { margin: 0; font-size: 15px; } .idea p { font-size: 13.5px; color: var(--muted); }
@@ -119,7 +121,7 @@ p { margin: 0; max-width: 66ch; }
 <li><strong>The phone's own tilt moves the heap,</strong> through its motion sensors. Tip it and the shapes slide and tumble; turn it over and they fall to the other end.</li>
 <li><strong>Touch works too:</strong> drag, flick and poke. With a soft tap from the phone when shapes land, if haptics are on.</li>
 <li><strong>The button wakes once the shapes have landed,</strong> about two seconds in. Nobody has to wait, and a parent in a hurry can tap straight through.</li>
-<li><strong>Real outlines.</strong> This sketch treats every shape as round, so they overlap a little and stack loosely. The app would use each shape's true outline, so they would lock together more like blocks.</li>
+<li><strong>They touch and never overlap.</strong> The overlap in the last sketch was the mockup. Here each shape keeps clear of its neighbours, though it still collides as a circle, so flat sides leave small gaps. The app would use each shape's true outline, so they would sit flush and lock together like blocks.</li>
 <li><strong>Reduce Motion</strong> shows the finished heap, still.</li>
 <li><strong>No sensor permission is needed</strong> for tilt on iPhone.</li>
 </ul></div></div>
@@ -162,12 +164,58 @@ p { margin: 0; max-width: 66ch; }
 <li><strong>Free or paid.</strong> This would be a natural part of a paid tier later, if you want one.</li>
 </ul></div>
 </section>
+
+<section class="q"><div><div class="num">PART 4</div><h2>Where it all lives</h2>
+<p class="lede">The four tabs stay as they are, and stay for the parent. Play gets one door on Today, and the shapes become how the family looks.</p></div>
+<div class="two">
+<div class="opt"><div class="phone m">
+<div class="title" style="font-size:22px">Friday 13 November</div>
+<div class="cardp"><div class="item"><div class="av" style="background:var(--sky)">O</div><div class="t"><b>Ollie</b><span>Bottle, 40 min ago</span></div><span class="tag">Start sleep</span></div><div class="item"><div class="av" style="background:var(--shell)">B</div><div class="t"><b>Bea</b><span>Potty, 1 h ago</span></div><span class="tag">Start sleep</span></div></div>
+<div style="display:flex;gap:8px"><div class="cardp" style="flex:1;padding:14px 0;text-align:center;font-weight:600;font-size:13px">Feeding</div><div class="cardp" style="flex:1;padding:14px 0;text-align:center;font-weight:600;font-size:13px">Nappy</div><div class="cardp" style="flex:1;padding:14px 0;text-align:center;font-weight:600;font-size:13px">Potty</div></div>
+<div class="cardp" style="outline:2px solid var(--waratah);outline-offset:2px"><div class="item"><div class="t"><b>Play</b><span>Draw, shapes and stamps</span></div><span class="chev">&#8250;</span></div></div>
+<div class="foot">Today so far</div>
+<div class="tabs"><b>Today</b><span>History</span><span>Insights</span><span>Family</span></div>
+</div><h3>One door, on Today</h3><p>A "Play" row where the Stamp book row is now. Today the play pad can only be reached from inside the Stamp book, and only if a child is potty training.</p></div>
+<div class="opt"><div class="phone m" style="background:#CFC6B6;padding-top:44px"><div class="inner">
+<div class="bar"><span class="pill">Close</span><span class="stitle">Play</span><span style="width:58px"></span></div>
+<div class="foot" style="text-align:center">Hand over the phone. Hold the corner to come back.</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="cardp" style="padding:16px 12px;gap:4px"><b>Draw</b><span class="foot" style="margin:0">Crayons and colouring</span></div>
+<div class="cardp" style="padding:16px 12px;gap:4px"><b>Shapes</b><span class="foot" style="margin:0">Tilt and tumble</span></div>
+<div class="cardp" style="padding:16px 12px;gap:4px"><b>Look</b><span class="foot" style="margin:0">Black, white and red, for Ollie</span></div>
+<div class="cardp" style="padding:16px 12px;gap:4px"><b>Stamp book</b><span class="foot" style="margin:0">Bea's cards and stickers</span></div>
+</div>
+<div class="spacer"></div>
+<div class="cardp"><div class="item"><div class="t"><b>Ends after</b></div><span style="color:var(--app-muted)">5 minutes</span></div></div>
+</div></div><h3>The Play shelf</h3><p>Four things, each opening behind the cover. "Look" is offered while there is a baby under about four months, and the parent can hide or show any of them.</p></div>
+<div class="opt"><div class="phone m">
+<div class="title">Family</div>
+<div class="label">Children</div>
+<div class="cardp"><div class="item"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 3.5H15.5Q20.5 3.5 20.5 8.5V15.5Q20.5 20.5 15.5 20.5H8.5Q3.5 20.5 3.5 15.5V8.5Q3.500 3.500 8.5 3.5Z" fill="#BFD9F5"/><text x="12" y="16" text-anchor="middle" font-size="9" font-weight="700" fill="#3A2A20">O</text></svg><div class="t"><b>Ollie</b><span>5 months</span></div></div><div class="item"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.31 7.31A4.7 4.7 0 0 1 16.69 7.31A4.7 4.7 0 0 1 16.69 16.69A4.7 4.7 0 0 1 7.31 16.69A4.7 4.7 0 0 1 7.31 7.31Z" fill="#F3D5C9"/><text x="12" y="15.500" text-anchor="middle" font-size="9" font-weight="700" fill="#3A2A20">B</text></svg><div class="t"><b>Bea</b><span>2&#189; years</span></div></div></div>
+<div class="label">Family and friends</div>
+<div class="cardp"><div class="item"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5C18.5 3.5 21.3 7.5 20.8 12.6S16.6 20.8 11 20.4S2.8 16.8 3.3 11.4S6 3.5 12 3.5Z" fill="#CFE5D2"/><text x="12" y="15.500" text-anchor="middle" font-size="9" font-weight="700" fill="#3A2A20">A</text></svg><div class="t"><b>You</b><span>Parent</span></div></div><div class="item"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.85 6.28A4.3 4.3 0 0 1 16.15 6.28A4.3 4.3 0 0 1 18.72 14.18A4.3 4.3 0 0 1 12.00 19.07A4.3 4.3 0 0 1 5.28 14.18A4.3 4.3 0 0 1 7.85 6.28Z" fill="#E2D4F1"/><text x="12" y="15.500" text-anchor="middle" font-size="9" font-weight="700" fill="#3A2A20">R</text></svg><div class="t"><b>Robin</b><span>Parent</span></div></div><div class="item"><svg width="36" height="36" viewBox="0 0 24 24" aria-hidden="true"><path d="M17.99 6.92L19.81 9.80Q21.20 12.00 19.81 14.20L17.99 17.08Q16.60 19.27 14.00 19.27L10.00 19.27Q7.40 19.27 6.01 17.08L4.19 14.20Q2.80 12.00 4.19 9.80L6.01 6.92Q7.40 4.73 10.00 4.73L14.00 4.73Q16.60 4.730 17.99 6.92Z" fill="#F6E2A8"/><text x="12" y="15.500" text-anchor="middle" font-size="9" font-weight="700" fill="#3A2A20">N</text></svg><div class="t"><b>Nan</b><span>Helper</span></div></div></div>
+<div class="tabs" style="margin-top:auto"><span>Today</span><span>History</span><span>Insights</span><b>Family</b></div>
+</div><h3>Shapes as faces</h3><p>Everyone gets a shape as well as a colour, until they add a photo. The same shapes that fell in the heap, so the first run and the app match.</p></div>
+</div>
+<div class="note"><h3>The whole picture</h3>
+<ul>
+<li><strong>First run:</strong> welcome, three pages, setup, then the heap as the finish.</li>
+<li><strong>Today:</strong> the parent's screen, with one "Play" row.</li>
+<li><strong>Play:</strong> Draw, Shapes, Look and the Stamp book, all behind the cover, all working with no signal.</li>
+<li><strong>Family:</strong> shapes as each person's and each child's picture.</li>
+<li><strong>Settings:</strong> one "Play" section for sound, how long it runs, and which things show.</li>
+<li><strong>The logo:</strong> if you choose the family-of-shapes mark, the same shapes sit there too.</li>
+</ul></div>
+</section>
 </main>
 <script>
 (function(){
 var W=286,H=600,NS='http://www.w3.org/2000/svg';
+var probe=document.createElementNS(NS,'svg');probe.setAttribute('width','0');probe.setAttribute('height','0');probe.style.position='absolute';document.body.appendChild(probe);
+function reach(p){var el=document.createElementNS(NS,'path');el.setAttribute('d',p);probe.appendChild(el);var L=el.getTotalLength(),m=0;for(var i=0;i<=240;i++){var q=el.getPointAtLength(L*i/240),dx=q.x-12,dy=q.y-12;m=Math.max(m,Math.sqrt(dx*dx+dy*dy));}probe.removeChild(el);return m||8.5;}
 function make(stage,list,render){
-  return list.map(function(b,i){var d=document.createElement('div');d.className='bit';var s=b.r*2*24/17;d.style.width=d.style.height=s+'px';d.innerHTML=render(b,s,i);stage.appendChild(d);return d;});
+  // Each shape is sized so its farthest point sits on its collision circle: touching, never overlapping.
+  return list.map(function(b,i){var d=document.createElement('div');d.className='bit';b.z=b.r*12/reach(b.p);var s=b.z*2;d.style.width=d.style.height=s+'px';d.innerHTML=render(b,s,i);stage.appendChild(d);return d;});
 }
 function world(stage,list,els,opt){
   var st=[],g={x:0,y:opt.g},grab=null,ptr={x:0,y:0},t=0,landed=false;
@@ -180,7 +228,7 @@ function world(stage,list,els,opt){
         else{s.vx+=g.x*h;s.vy+=g.y*h;s.vx*=opt.drag;s.vy*=opt.drag;}
         s.x+=s.vx*h;s.y+=s.vy*h;s.a+=(opt.spin?s.va:s.vx/s.r)*h;
       });
-      for(var it=0;it<4;it++){
+      for(var it=0;it<8;it++){
         for(var i=0;i<st.length;i++)for(var j=i+1;j<st.length;j++){
           var a=st[i],b=st[j],dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy)||0.01,m=(a.r+b.r)*opt.fit;
           if(d<m){var nx=dx/d,ny=dy/d,o=(m-d)/2;a.x-=nx*o;a.y-=ny*o;b.x+=nx*o;b.y+=ny*o;
@@ -196,7 +244,7 @@ function world(stage,list,els,opt){
     }
     if(!landed&&opt.onLand&&t>2){landed=true;opt.onLand();}
   }
-  function draw(){st.forEach(function(s,i){var z=s.r*24/17;els[i].style.transform='translate('+(s.x-z)+'px,'+(s.y-z)+'px) rotate('+s.a+'rad)';});}
+  function draw(){st.forEach(function(s,i){var z=list[i].z;els[i].style.transform='translate('+(s.x-z)+'px,'+(s.y-z)+'px) rotate('+s.a+'rad)';});}
   function pt(e){var r=stage.getBoundingClientRect();return {x:(e.clientX-r.left)*W/r.width,y:(e.clientY-r.top)*H/r.height};}
   stage.addEventListener('pointerdown',function(e){ptr=pt(e);var best=null;st.forEach(function(s){var dx=s.x-ptr.x,dy=s.y-ptr.y;if(dx*dx+dy*dy<s.r*s.r)best=s;});grab=best;if(best){stage.setPointerCapture(e.pointerId);stage.style.cursor='grabbing';}});
   stage.addEventListener('pointermove',function(e){if(grab)ptr=pt(e);});
@@ -210,11 +258,11 @@ var heapEl=document.getElementById('heap'),conEl=document.getElementById('con');
 var he=make(heapEl,HEAP,function(b,s){return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24"><path d="'+b.p+'" fill="'+b.c+'"/></svg>'+(b.l?'<b style="font-size:'+(b.r*0.7)+'px">'+b.l+'</b>':'');});
 var defs='<defs><pattern id="stripe" width="5" height="5" patternUnits="userSpaceOnUse"><rect width="5" height="5" fill="#fff"/><rect width="2.5" height="5" fill="#0E0E0E"/></pattern><pattern id="check" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#fff"/><rect width="3" height="3" fill="#0E0E0E"/><rect x="3" y="3" width="3" height="3" fill="#0E0E0E"/></pattern><pattern id="dots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="#E0231C"/><circle cx="3" cy="3" r="1.6" fill="#fff"/></pattern><radialGradient id="bull"><stop offset="0" stop-color="#E0231C"/><stop offset=".28" stop-color="#E0231C"/><stop offset=".28" stop-color="#fff"/><stop offset=".55" stop-color="#fff"/><stop offset=".55" stop-color="#0E0E0E"/><stop offset=".8" stop-color="#0E0E0E"/><stop offset=".8" stop-color="#fff"/></radialGradient></defs>';
 var ce=make(conEl,CON,function(b,s){var f=b.f==='red'?'#E0231C':b.f==='white'?'#fff':'url(#'+b.f+')';return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 24 24">'+defs+'<path d="'+b.p+'" fill="'+f+'" stroke="#fff" stroke-width="'+(b.f==='white'||b.f==='red'?0:0.5)+'"/></svg>';});
-var heap=world(heapEl,HEAP,he,{g:2400,drag:0.999,e:0.18,fr:0.92,fit:0.94,roof:false,
+var heap=world(heapEl,HEAP,he,{g:2400,drag:0.999,e:0.15,fr:0.9,fit:1.0,roof:false,
   start:function(b,i){return {x:50+((i*71)%190),y:-b.r-30-i*120,vx:(i%2?40:-40),vy:0,a:i,va:0,r:b.r};},
   onLand:function(){document.getElementById('ttl').textContent='Here they are';document.getElementById('go').style.opacity=1;}});
 var speed=1;
-var con=world(conEl,CON,ce,{g:0,drag:1,e:1,fr:1,fit:0.9,roof:true,spin:true,
+var con=world(conEl,CON,ce,{g:0,drag:1,e:1,fr:1,fit:1.0,roof:true,spin:true,
   start:function(b,i){var an=i*1.1+0.4;return {x:60+((i*97)%170),y:70+i*88,vx:Math.cos(an)*26,vy:Math.sin(an)*26,a:i,va:(i%2?0.25:-0.2),r:b.r};}});
 var tilt=document.getElementById('tilt'),flipped=1;
 function setG(){var a=parseFloat(tilt.value)*1.1;heap.g.x=Math.sin(a)*2400;heap.g.y=Math.cos(a)*2400*flipped;}
