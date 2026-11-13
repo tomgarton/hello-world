@@ -257,7 +257,7 @@ H = 'font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: 
 def chips(cols): return ''.join(f'<div style="width: 16px; height: 16px; border-radius: 99px; background: {c}; border: 1.2px solid rgba(58,42,32,0.25)"></div>' for c in cols)
 scene_html = ''.join(f'<div style="display: flex; flex-direction: column; gap: 6px; width: 312px"><svg role="img" aria-label="{n} scene" width="312" height="240" viewBox="0 0 {W} {Hh}" style="border-radius: 22px; display: block">{s}</svg>'
                      f'<div style="display: flex; align-items: center; gap: 8px"><div style="font-size: 16px; font-weight: 800">{n}</div><div style="display: flex; gap: 3px">{chips(k)}</div></div><div style="{T}">{d}</div></div>' for n, s, k, d in SCENES)
-rules = [('No outlines on the world', 'Places are flat shapes. Only the cast keeps the Ink line, so they are always the first thing you see.'),
+rules = [('No outlines on the world', 'Places are flat shapes. Only the cast has a line, a darker shade of each colour, so they are always the first thing you see.'),
          ('A colour key', 'Three or four colours per scene, shown as dots beside each name. Light and shade are tones of those colours.'),
          ('One big shape', 'Each scene has one shape that owns it: an umbrella, an arch, a roof, a tree. Things overlap and crop at the edges.'),
          ('Real light', 'Every scene knows where the sun is: a lit side, a shade side and a cast shadow on the ground.'),

@@ -82,7 +82,41 @@ def fabric():
     return f'<svg role="img" aria-label="Single-colour fabric repeat" width="250" height="320" viewBox="0 0 290 370"><rect width="290" height="370" fill="#F3D9C9"></rect>{out}</svg>'
 
 FONT = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,200..800&display=swap">'
-def wrap(title, body, w, h, fname, y):
+# ---- Coloured outlines (Tom, 12 November 2026): each line is a darker shade of the colour it goes round ----
+import colorsys as _cs, re as _re2
+_LINE = {'#8A5A3C': '#5E3A24', '#6E7F8D': '#465668', '#2A62B8': '#1B4387', '#E5553B': '#B23A26', '#F4C95D': '#B8892A', '#F4BE2C': '#B8892A', '#8FB4E3': '#1B4387'}
+NOTINT = ('Logo', 'IconSystem', 'Icons', 'PuggleStyle', 'StyleWorld', 'Holo', 'References', 'ModelSheet', 'Flow', 'Motion')
+def shade(c):
+    c = c.upper()
+    if c in _LINE: return _LINE[c]
+    r, g, b = (int(c[i:i+2], 16) / 255 for i in (1, 3, 5))
+    h, s_, v = _cs.rgb_to_hsv(r, g, b)
+    r, g, b = _cs.hsv_to_rgb(h, min(1, s_ * 1.2 + 0.1), v * (0.5 if s_ < 0.25 else 0.62))
+    return '#%02X%02X%02X' % (round(r * 255), round(g * 255), round(b * 255))
+def tint(svg, ink='#3A2A20'):
+    """Recolours dark outlines. A filled shape takes a darker shade of its fill; a wide stroke-only
+    path under a coloured one (an arm) and the cuff after it take a darker shade of that colour.
+    Thin stroke-only lines (eyes, marks) stay dark."""
+    tags = _re2.split(r'(<[^>]+>)', svg); arm = None
+    for i, t in enumerate(tags):
+        if not t.startswith('<') or 'stroke="' + ink + '"' not in t: 
+            if t.startswith('<circle') or t.startswith('<ellipse') or t.startswith('<rect'): arm = None
+            continue
+        f = _re2.search(r'fill="(#[0-9A-Fa-f]{6})"', t)
+        wd = _re2.search(r'stroke-width="([\d.]+)"', t); wd = float(wd.group(1)) if wd else 1
+        if f and f.group(1).upper() != ink:
+            tags[i] = t.replace('stroke="' + ink + '"', 'stroke="' + shade(f.group(1)) + '"'); arm = arm if t.startswith('<circle') else None
+        elif not f and wd >= 28:
+            nxt = next((u for u in tags[i+1:i+4] if u.startswith('<path')), '')
+            m = _re2.search(r'stroke="(#[0-9A-Fa-f]{6})"', nxt)
+            if m and m.group(1).upper() != ink:
+                arm = shade(m.group(1)); tags[i] = t.replace('stroke="' + ink + '"', 'stroke="' + arm + '"')
+        elif not f and arm and wd <= 4.5 and 'L' in t:
+            tags[i] = t.replace('stroke="' + ink + '"', 'stroke="' + arm + '"'); arm = None
+    return ''.join(tags)
+def wrap(title, body, w, h, fname, y, tinted=None):
+    if tinted is None: tinted = not fname.startswith(NOTINT)
+    if tinted: body = tint(body)
     html = f'''<!doctype html>
 <html lang="en">
 <head>
@@ -113,7 +147,8 @@ return {{}};
 '''
     open(P + fname, 'w').write(html)
     c = json.load(open(P + 'canvas.json'))
-    c['boards'][fname] = {'x': 0, 'y': y, 'w': w, 'h': h, 'title': title}
+    prev = c['boards'].get(fname, {})   # keep a board's place and page when it is regenerated
+    c['boards'][fname] = {**prev, 'x': prev.get('x', 0), 'y': prev.get('y', y), 'w': w, 'h': h, 'title': title}
     if fname not in c['order']: c['order'].append(fname)
     json.dump(c, open(P + 'canvas.json', 'w'), separators=(',', ':'))
     open(ROOT + '/gen/' + fname.replace('.dc.html', '.html'), 'w').write('<head>' + FONT + '</head><body style="margin:0">' + body.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ') + '</body>')

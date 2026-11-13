@@ -2,16 +2,14 @@ import math, sys, json
 P = sys.argv[1] + '/project/'
 O = '#3A2A20'; PF = '#8A5A3C'; BILL = '#6E7F8D'; EF = '#9B6B43'; SPINE = '#F3E3C3'; SN = '#CFA277'; ST = '#C24A36'; BL = '#EE9C88'
 def cheeks(y, dx):
-    s = ''
-    for x in (120 - dx, 120 + dx):
-        s += f'<circle cx="{x}" cy="{y}" r="10" fill="{BL}"></circle><path d="M{x-7} {y+5}l5-9M{x+2} {y+5}l5-9" fill="none" stroke="{ST}" stroke-width="3.500" stroke-linecap="round"></path>'
-    return s
+    # soft ovals, no marks at rest (12 November 2026)
+    return ''.join(f'<ellipse cx="{x}" cy="{y}" rx="12" ry="7.5" fill="#C27C66"></ellipse>' for x in (120 - dx, 120 + dx))
 def eyes(y, dx, shut=False):
-    if shut: return ''.join(f'<path d="M{x-9} {y}q9 8 18 0" fill="none" stroke="{O}" stroke-width="6" stroke-linecap="round"></path>' for x in (120-dx, 120+dx))
-    return ''.join(f'<circle cx="{x}" cy="{y}" r="6.500" fill="{O}"></circle>' for x in (120-dx, 120+dx))
+    if shut: return ''.join(f'<path d="M{x-8} {y-1}q8 7 16 0" fill="none" stroke="{O}" stroke-width="4.5" stroke-linecap="round"></path>' for x in (120-dx, 120+dx))
+    return ''.join(f'<circle cx="{x}" cy="{y}" r="6.8" fill="{O}"></circle>' for x in (120-dx, 120+dx))
 def phead(shut=False):
-    return (f'<ellipse cx="120" cy="108" rx="70" ry="60" fill="{PF}" stroke="{O}" stroke-width="7"></ellipse>' + cheeks(127, 53) +
-        f'<ellipse cx="120" cy="151" rx="47" ry="19" fill="{BILL}" stroke="{O}" stroke-width="6"></ellipse><circle cx="114" cy="143" r="1.8" fill="{O}"></circle><circle cx="126" cy="143" r="1.8" fill="{O}"></circle>' + eyes(108, 27, shut))
+    return (f'<ellipse cx="120" cy="108" rx="70" ry="60" fill="{PF}" stroke="{O}" stroke-width="7"></ellipse>' + cheeks(132, 50) +
+        f'<ellipse cx="120" cy="151" rx="47" ry="19" fill="{BILL}" stroke="{O}" stroke-width="6"></ellipse><circle cx="114" cy="143" r="1.8" fill="{O}"></circle><circle cx="126" cy="143" r="1.8" fill="{O}"></circle>' + eyes(117, 32, shut))
 def ehead(shut=False):
     sp = ''
     for i in range(8):
@@ -22,8 +20,11 @@ def ehead(shut=False):
         f'<path d="M106 110Q120 98 134 110L128 168Q120 178 112 168z" fill="{SN}" stroke="{O}" stroke-width="6" stroke-linejoin="round"></path><ellipse cx="120" cy="169" rx="7" ry="5" fill="{O}"></ellipse>' + eyes(104, 33, shut))
 def trap(col, hem=254, flare=28):
     return f'<path d="M88 166Q120 156 152 166L{152+flare} {hem-10}Q{154+flare} {hem} {142+flare} {hem}L{98-flare} {hem}Q{86-flare} {hem} {88-flare} {hem-10}Z" fill="{col}" stroke="{O}" stroke-width="7" stroke-linejoin="round"></path>'
-def pocket(y):
-    return f'<path d="M100 {y}h40v9a20 16 0 0 1-40 0z" fill="none" stroke="{O}" stroke-width="5" stroke-linejoin="round"></path>'
+def lighter(c, k=0.5):
+    return '#%02X%02X%02X' % tuple(round(int(c[i:i+2], 16) + (255 - int(c[i:i+2], 16)) * k) for i in (1, 3, 5))
+def pocket(y, col=None):
+    fill = 'none' if not col else ('#8FB4E3' if col.upper() == '#2A62B8' else lighter(col))
+    return f'<path d="M100 {y}h40v9a20 16 0 0 1-40 0z" fill="{fill}" stroke="{O}" stroke-width="5" stroke-linejoin="round" data-pocket="1"></path>'
 def arm(side, angle, col, hand):
     sx = 92 if side < 0 else 148
     return (f'<g transform="rotate({angle} {sx} 176)"><rect x="{sx-12}" y="170" width="24" height="50" rx="12" fill="{col}" stroke="{O}" stroke-width="6"></rect>'
@@ -31,9 +32,16 @@ def arm(side, angle, col, hand):
 def legs(col, y=244):
     return ''.join(f'<rect x="{x}" y="{y}" width="28" height="{278-y}" rx="11" fill="{col}" stroke="{O}" stroke-width="6"></rect>' for x in (86, 126))
 def feet(col, y=282):
-    return ''.join(f'<ellipse cx="{x}" cy="{y}" rx="24" ry="10" fill="{col}" stroke="{O}" stroke-width="6"></ellipse>' for x in (100, 140))
+    # webbed, with toes, each turned out a little
+    out = ''
+    for cx, rot in ((100, 7), (140, -7)):
+        d = (f'M{cx-9} 273 L{cx+9} 273 Q{cx+20} 277 {cx+19} 285 Q{cx+19} 292 {cx+12.5} 291 Q{cx+9.5} 287 {cx+6.3} 291 Q{cx} 294 {cx-6.3} 291 Q{cx-9.5} 287 {cx-12.5} 291 Q{cx-19} 292 {cx-19} 285 Q{cx-20} 277 {cx-9} 273 Z')
+        out += (f'<g data-p="foot" transform="translate(0 {y-282}) rotate({rot} {cx} 274)"><path d="{d}" fill="{col}" stroke="{O}" stroke-width="5.5" stroke-linejoin="round"></path>'
+                f'<path d="M{cx-6.3} 290 L{cx-4.7} 283 M{cx+6.3} 290 L{cx+4.7} 283" fill="none" stroke="{O}" stroke-width="2.4" stroke-linecap="round" opacity="0.55"></path></g>')
+    return out
 def tail(col):
-    return f'<ellipse cx="184" cy="246" rx="34" ry="15" transform="rotate(-28 184 246)" fill="{col}" stroke="{O}" stroke-width="6"></ellipse>'
+    return (f'<g data-p="tail" transform="rotate(-28 184 246)"><ellipse cx="184" cy="246" rx="34" ry="15" fill="{col}" stroke="{O}" stroke-width="6"></ellipse>'
+            f'<path d="M176 238 Q180 246 176 254 M191 237 Q196 246 191 255 M170 246 L203 246" fill="none" stroke="{O}" stroke-width="2.5" stroke-linecap="round" opacity="0.5"></path></g>')
 def svg(inner, size, label, vb='0 0 240 300'):
     w, h = [float(x) for x in vb.split()[2:]]
     return f'<svg role="img" aria-label="{label}" width="{size}" height="{size*h/w:.0f}" viewBox="{vb}">{inner}</svg>'

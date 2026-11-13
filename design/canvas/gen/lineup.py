@@ -10,7 +10,7 @@ wsrc = open(ROOT + '/gen/world.py').read(); wsrc = wsrc[:wsrc.index('walls = f')
 w = {'__name__': 'x'}; exec(wsrc, w); inner = w['inner']
 def quokka_kid(col='#F4BE2C'):
     fur = '#C2925F'
-    s = p['legs'](fur).replace(PF, fur) + p['feet'](fur) + p['trap'](col) + p['pocket'](210) + limb(88, 178, 50, 214, col, 4, hand=fur) + limb(152, 178, 190, 214, col, -4, hand=fur)
+    s = p['legs'](fur).replace(PF, fur) + p['feet'](fur) + p['trap'](col) + p['pocket'](210, col) + limb(88, 178, 50, 214, col, 4, hand=fur) + limb(152, 178, 190, 214, col, -4, hand=fur)
     s += ''.join(f'<circle cx="{cx}" cy="58" r="19" fill="{fur}" stroke="{O}" stroke-width="6"></circle>' for cx in (72, 168))
     s += f'<ellipse cx="120" cy="110" rx="68" ry="62" fill="{fur}" stroke="{O}" stroke-width="7"></ellipse>'
     s += ''.join(f'<circle cx="{cx}" cy="124" r="10" fill="{BL}"></circle><path d="M{cx-7} 129l5-9M{cx+2} 129l5-9" stroke="{ST}" stroke-width="3.500" stroke-linecap="round"></path>' for cx in (70, 170))

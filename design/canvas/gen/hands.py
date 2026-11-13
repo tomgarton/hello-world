@@ -6,7 +6,7 @@ O, PF, BILL, p, head, limb, sparkle, wrap = x['O'], x['PF'], x['BILL'], x['p'], 
 TAN = '#B9845A'
 def fig(arms, e, col, hand, foot, front=False, extra_back='', extra_front=''):
     L = ''.join(limb(a[0], a[1], a[2], a[3], col, a[4], hand=hand) for a in arms)
-    base = p['tail'](PF) + p['legs'](PF) + p['feet'](foot) + extra_back + p['trap'](col) + p['pocket'](210)
+    base = p['tail'](PF) + p['legs'](PF) + p['feet'](foot) + extra_back + p['trap'](col) + p['pocket'](210, col)
     if front:
         hands = ''.join(f'<circle cx="{a[2]}" cy="{a[3]}" r="12" fill="{hand}" stroke="{O}" stroke-width="5"></circle>' for a in arms)
         return base + L + head(e) + hands + extra_front
@@ -25,8 +25,8 @@ wattle = ('<path d="M178 196Q182 150 168 110" fill="none" stroke="#6E9C7E" strok
 balloon = ('<path d="M206 126Q214 90 210 64" fill="none" stroke="#3A2A20" stroke-width="3"></path><ellipse cx="210" cy="36" rx="22" ry="27" fill="#E5553B" stroke="#3A2A20" stroke-width="5"></ellipse>'
            '<path d="M205 64h10l-5 -6z" fill="#E5553B" stroke="#3A2A20" stroke-width="3" stroke-linejoin="round"></path><path d="M200 24q4 -8 10 -8" fill="none" stroke="#FBF6E9" stroke-width="4" stroke-linecap="round"></path>')
 clapmarks = ''.join(f'<path d="M{120+math.cos(math.radians(a))*46:.0f} {196+math.sin(math.radians(a))*46:.0f}l{math.cos(math.radians(a))*13:.0f} {math.sin(math.radians(a))*13:.0f}" stroke="#3A2A20" stroke-width="5" stroke-linecap="round"></path>' for a in (-172, 166, -8, 14))
-acts = [('Peekaboo', fig([(88, 178, 93, 107, 30), (152, 178, 147, 107, -30)], 'neutral', '#E5553B', H, F, front=True), '#F3D9C9', 'For the baby. The only time hands go over the face.'),
-        ('Oh!', fig([(88, 178, 70, 122, 20), (152, 178, 170, 122, -20)], 'surprised', '#3C9A5F', H, F, front=True), '#BFD9F5', 'Hands to cheeks, for surprise or delight.'),
+acts = [('Peekaboo', fig([(88, 178, 88, 116, 30), (152, 178, 152, 116, -30)], 'neutral', '#E5553B', H, F, front=True), '#F3D9C9', 'For the baby. The only time hands go over the face.'),
+        ('Oh!', fig([(88, 178, 60, 138, 16), (152, 178, 180, 138, -16)], 'surprised', '#3C9A5F', H, F, front=True), '#BFD9F5', 'Hands to cheeks, for surprise or delight.'),
         ('Clap', fig([(90, 180, 112, 196, 10), (150, 180, 128, 196, -10)], 'happy', '#F4BE2C', H, F, extra_front=clapmarks), '#CFE5D2', 'Hands meet in front, with clap marks.'),
         ('Holding wattle', fig([(88, 178, 50, 214, 4), (152, 178, 178, 196, -6)], 'happy', '#2A62B8', H, F, extra_front=wattle), '#F4E7B0', 'One hand holds a prop: flowers, a bottle, a toy, Pebble’s hand.'),
         ('Balloon', fig([(88, 178, 50, 214, 4), (152, 178, 206, 126, -8)], 'proud', '#BFD9F5', H, F, extra_front=balloon), '#F4BE2C', 'Birthdays and milestones.')]

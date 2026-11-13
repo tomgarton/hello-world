@@ -21,7 +21,7 @@ Most scripts load earlier ones, so keep them together. The chain for the current
 
 `world.py`, `builder.py`, `platy.py` → `express.py` (Puggle's face, poses, small versions) → `lineup.py` (the cast) → `style.py` (activity icons) → `scenes.py`, `scenes2.py` → `night2.py` → `three.py` (app scenes) → `scenes3.py` (twelve scenes, kit) → `wallbooks.py`, `refs.py`. `puggle3.py` is the three proposed additions.
 
-`rig.py` draws Puggle from a copy of the app's rig file (`gen/puggle.rig.json`; copy it again from `app/Puggle/Resources/Rigs/` when the app's changes). `model2.py` builds the model sheet from it and replaces `model.py`. The scripts in the chain above still draw the 10 November Puggle.
+`rig.py` draws Puggle from a copy of the app's rig file (`gen/puggle.rig.json`; copy it again from `app/Puggle/Resources/Rigs/` when the app's changes). `model2.py` builds the model sheet from it and replaces `model.py`. `platy.py` and `express.py` now draw the 12 November Puggle (eyes, cheeks, eyebrows, pocket, feet, tail). `wrap()` in `world.py` recolours dark outlines to a darker shade of each fill (`tint`), except on boards named in `NOTINT`, and keeps a board's place on the canvas when it is regenerated.
 
 Things to know:
 

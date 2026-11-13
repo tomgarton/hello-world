@@ -495,7 +495,7 @@ Puggle's style guide should contain:
 - **Dressed for the weather:** coat and boots for rain, scarf and beanie for cold, straw hat and zinc for heat.
 - **Night:** she keeps her colours, seen by moonlight (cooler, leaning violet).
 
-Applied so far: the app and the model sheet. Every other canvas board (expressions, family, cast line-up, scenes, wallpapers, books, logos, flows) still shows the 10 November face with the dark line and stitched cheeks.
+Applied (13 November): the app, the model sheet, and the canvas boards for expressions, hands, family, cast line-up, glasses, marks, heads, construction, the three app scenes, the twelve scenes, wallpapers, books, onboarding and the refined app screens. The coloured line is applied to the whole cast on those boards. Not yet: the flows, the motion studies, logos and the icon and sticker boards (the dark line may stay for logos and small marks), and the friends' cheeks, which still have stitches.
 
 **Side view (2026-11-10).** In profile the bill is the same rounded ellipse as the front view (80 x 36, tilted up 4 degrees), overlapping the front of the face by about half, not a flat slab stuck on the side. Eye and blush sit just behind it. Applied to the model sheet and the walk poses.
 

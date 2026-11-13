@@ -22,7 +22,7 @@ def baby(e='happy', col='#F4BE2C', hold=True):
 def potty(e='proud', col='#E5553B'):
     s = (f'<path d="M64 214H176L166 266Q164 276 154 276H86Q76 276 74 266Z" fill="#FBF6E9" stroke="{O}" stroke-width="6" stroke-linejoin="round"></path>'
          f'<rect x="56" y="204" width="128" height="18" rx="9" fill="#BFD9F5" stroke="{O}" stroke-width="6"></rect>')
-    s += p['tail'](PF).replace('cx="184" cy="246"', 'cx="190" cy="214"')
+    s += ('<g data-t="1" transform="translate(4 -30)">' + p['tail'](PF) + '</g>')
     s += p['trap'](col, 212, 18)
     s += ''.join(f'<ellipse cx="{x0}" cy="232" rx="19" ry="11" fill="{BILL}" stroke="{O}" stroke-width="6"></ellipse>' for x0 in (92, 148))
     s += limb(88, 180, 50, 136, col, 8) + limb(152, 180, 190, 136, col, -8)
