@@ -23,6 +23,14 @@ enum Role: String, CaseIterable, Identifiable {
         }
     }
 
+    var symbol: String {
+        switch self {
+        case .parent: "person.2"
+        case .helper: "pencil"
+        case .viewer: "eye"
+        }
+    }
+
     /// One line for the person choosing.
     var about: String {
         switch self {

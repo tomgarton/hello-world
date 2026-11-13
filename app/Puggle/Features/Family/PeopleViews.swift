@@ -191,7 +191,12 @@ struct PersonSheet: View {
                             Button {
                                 choose(role)
                             } label: {
-                                HStack {
+                                HStack(spacing: 12) {
+                                    Image(systemName: role.symbol)
+                                        .font(.body.weight(.semibold))
+                                        .frame(width: 36, height: 36)
+                                        .background(Palette.field, in: Circle())
+                                        .accessibilityHidden(true)
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(role.title).font(.headline)
                                         Text(role.about).font(.subheadline).foregroundStyle(Palette.muted)
@@ -362,7 +367,12 @@ struct InviteSheet: View {
                         Button {
                             role = option
                         } label: {
-                            HStack {
+                            HStack(spacing: 12) {
+                                Image(systemName: option.symbol)
+                                    .font(.body.weight(.semibold))
+                                    .frame(width: 36, height: 36)
+                                    .background(Palette.field, in: Circle())
+                                    .accessibilityHidden(true)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(option.title).font(.headline)
                                     Text(option.whoFor).font(.subheadline).foregroundStyle(Palette.muted)
