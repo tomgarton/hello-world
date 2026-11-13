@@ -77,7 +77,7 @@ struct LogSheet: View {
                         Button("Delete entry", role: .destructive) { confirmingDelete = true }
                     .foregroundStyle(Palette.waratah)
                             .frame(maxWidth: .infinity, minHeight: 44)
-                            .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+                            .alert("Delete this entry?", isPresented: $confirmingDelete) {
                                 Button("Delete", role: .destructive) { deleteEntry() }
                                 Button("Keep it", role: .cancel) {}
                             }

@@ -410,11 +410,12 @@ struct ChildInsights: View {
             let total = pieces.reduce(0.0) { $0 + $1.end.timeIntervalSince($1.start) }
             let longest = pieces.map { $0.end.timeIntervalSince($0.start) }.max() ?? 0
             HStack(alignment: .top, spacing: 12) {
-                tile("Last night", hours(total),
+                // The hours asleep, and the span they fall in, so a gap between the two reads as wakings.
+                tile("Asleep last night", hours(total),
                      last.open ? "From \(first.start.formatted(date: .omitted, time: .shortened)), still asleep"
-                               : "\(first.start.formatted(date: .omitted, time: .shortened)) to \(last.end.formatted(date: .omitted, time: .shortened))")
+                               : "Between \(first.start.formatted(date: .omitted, time: .shortened)) and \(last.end.formatted(date: .omitted, time: .shortened))")
                 tile("Longest stretch", hours(longest),
-                     pieces.count > 1 ? "\(pieces.count - 1) waking\(pieces.count == 2 ? "" : "s")" : "Slept through")
+                     pieces.count > 1 ? "\(pieces.count - 1) waking\(pieces.count == 2 ? "" : "s") logged" : "No wakings logged")
             }
         }
     }

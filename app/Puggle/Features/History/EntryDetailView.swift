@@ -122,7 +122,7 @@ struct EntryDetailView: View {
                     ToolbarItem(placement: .primaryAction) { Button("Edit") { editing = true } }
                 }
             }
-            .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+            .alert("Delete this entry?", isPresented: $confirmingDelete) {
                 Button("Delete", role: .destructive) {
                     Haptics.tap()
                     dismiss()
@@ -138,7 +138,7 @@ struct EntryDetailView: View {
                 }
             }
         }
-        .presentationDetents([.medium, .large])
+        .presentationDetents([.fraction(0.75), .large])
         .presentationDragIndicator(.visible)
     }
 }
@@ -172,7 +172,7 @@ struct EntrySwipeActions: ViewModifier {
                     .tint(Palette.moonDeep)
                 }
             }
-            .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+            .alert("Delete this entry?", isPresented: $confirmingDelete) {
                 Button("Delete", role: .destructive) {
                     Haptics.tap()
                     store.delete(event)
@@ -299,7 +299,7 @@ struct SwipeableEntryRow<Content: View>: View {
                     else { offset = 0 }
                 }
             }))
-        .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
+        .alert("Delete this entry?", isPresented: $confirmingDelete) {
             Button("Delete", role: .destructive) {
                 Haptics.tap()
                 close()

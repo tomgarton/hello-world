@@ -617,7 +617,9 @@ struct TodaySoFar: View {
 struct LastSavedRow: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.dynamicTypeSize) private var textSize
-    let onChange: (Event) -> Void
+    /// Only the Deleted bar, for screens other than Today.
+    var onlyDeleted = false
+    var onChange: (Event) -> Void = { _ in }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -632,7 +634,7 @@ struct LastSavedRow: View {
                     }
                 }
                 .id(gone.id)
-            } else if let saved = store.lastSaved {
+            } else if !onlyDeleted, let saved = store.lastSaved {
                 let events = saved.events.filter(\.isLive)
                 ForEach(events, id: \.objectID) { event in
                     let names = ListFormatter.localizedString(byJoining: event.sortedChildren.map(\.displayName))

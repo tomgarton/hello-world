@@ -39,7 +39,7 @@ struct OnboardingDemoView: View {
                     Button("Close") { dismiss() }
                         .font(.footnote.weight(.semibold))
                         .padding(.horizontal, 12)
-                        .frame(minHeight: 32)
+                        .frame(minHeight: 44)
                         .background(Palette.paper, in: Capsule())
                 }
                 .foregroundStyle(Palette.fixedInk)

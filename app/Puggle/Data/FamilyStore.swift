@@ -28,7 +28,7 @@ final class FamilyStore: ObservableObject {
     }
     /// The entry just deleted, so Today can offer to bring it back.
     @Published var justDeleted: DeletedEntry? {
-        didSet { if justDeleted != nil { announce("Deleted. Undo is on Today.") } }
+        didSet { if justDeleted != nil { announce("Deleted. Undo is at the bottom of the screen.") } }
     }
 
     private func announce(_ text: String) {

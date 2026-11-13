@@ -95,12 +95,13 @@ struct PersonRow: View {
             }
             Spacer(minLength: 0)
             if !person.hasJoined {
+                // Solid, so the dark ink reads in every look, night included.
                 Text("Not joined yet")
-                    .font(.caption.weight(.semibold))
+                    .font(.footnote.weight(.semibold))
                     .padding(.horizontal, 8)
                     .padding(.vertical, 4)
                     .foregroundStyle(Palette.fixedInk)
-                    .background(Palette.wattle.opacity(0.55), in: Capsule())
+                    .background(Palette.wattle, in: Capsule())
             }
             if opens {
                 Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)

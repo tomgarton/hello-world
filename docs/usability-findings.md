@@ -112,4 +112,14 @@ Also: two children's real names were in the test file and one was in a Help answ
 
 Later: **a joiner who already has children (3)** now sees only the family they joined. Their own children are kept on the phone out of sight, and they are offered once to bring them in, with a backup taken first. A Family tab section, "Only on this iPhone", offers the same later. Tested in code only; not yet run on two phones.
 
+Later still, on 13 November:
+
+- **Export and the doctor's summary (8):** only a Parent sees them. A Helper or Viewer is told who to ask.
+- **Deleting everything (4, in part):** when other people have joined, it asks a second time and names them. A backup is taken first. Handing the family to someone else is still not possible.
+- **Undo after a delete in History:** the Deleted bar with Undo now shows on History too.
+- **The delete confirmation:** now a centred alert with Keep it and Delete. The entry sheet opens taller, so Delete entry is in view.
+- **Last night:** reads "Asleep last night" with "Between 19:06 and 10:06", and "No wakings logged" replaces "Slept through".
+- **"Not joined yet" pill:** solid, so it passes contrast in dark and at night, and no longer under 13 points.
+- **First-run dots:** replaced by the new first run.
+
 Still open from the tables above: transferring a family, a recoverable copy when a child is deleted, limiting export by level, writing the share back before the list of people is rebuilt, and the smaller simulator findings (Undo on every tab, clipped sheet rows, the delete confirmation, first-run dots, the Time row, last night's figures).

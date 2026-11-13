@@ -73,6 +73,13 @@ struct HistoryView: View {
             .softTopEdge()
             .background(Palette.sand)
             .navigationTitle("History")
+            // A delete made here can be undone here, not only on Today.
+            .safeAreaInset(edge: .bottom) {
+                LastSavedRow(onlyDeleted: true)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 6)
+                    .animation(.spring(duration: 0.4, bounce: 0), value: store.justDeleted?.deletedAt)
+            }
             .sheet(item: $looking) { EntryDetailView(event: $0.event) }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

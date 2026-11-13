@@ -7,6 +7,18 @@ struct YourDataView: View {
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @State private var exportURL: URL?
     @State private var confirmingDelete = false
+    @State private var confirmingForEveryone = false
+
+    /// Others who have joined this family and would lose it too.
+    private var othersJoined: [Person] {
+        guard !store.hasJoinedFamily, let family = store.existingFamily() else { return [] }
+        return (family.people ?? []).filter { !$0.isDeleted && $0.joinedAt != nil && !store.isMe($0) }
+    }
+
+    private func deleteEverything() {
+        // Back to the start only if nothing is left to show.
+        if store.deleteEverything() { hasOnboarded = false }
+    }
 
     var body: some View {
         List {
@@ -22,7 +34,10 @@ struct YourDataView: View {
             .listRowBackground(Palette.paper)
 
             Section {
-                if let exportURL {
+                if !store.isParent {
+                    Text("Only a parent can export the family's entries. Ask \(store.whoToAsk) for a copy.")
+                        .foregroundStyle(Palette.muted)
+                } else if let exportURL {
                     ShareLink(item: exportURL) {
                         Label("Export everything", systemImage: "square.and.arrow.up")
                     }
@@ -48,8 +63,7 @@ struct YourDataView: View {
                     .foregroundStyle(Palette.waratah)
                     .confirmationDialog("Delete everything?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                         Button(store.hasJoinedFamily ? "Delete what I own" : "Delete every child and entry", role: .destructive) {
-                            // Back to the start only if nothing is left to show.
-                            if store.deleteEverything() { hasOnboarded = false }
+                            if othersJoined.isEmpty { deleteEverything() } else { confirmingForEveryone = true }
                         }
                         Button("Keep it", role: .cancel) {}
                     } message: {
@@ -71,7 +85,14 @@ struct YourDataView: View {
         .background(Palette.sand)
         .navigationTitle("Your data")
         .navigationBarTitleDisplayMode(.inline)
-        .onAppear { exportURL = store.exportCSV() }
+        .onAppear { if store.isParent { exportURL = store.exportCSV() } }
+        // Asked again when other people would lose the family too.
+        .confirmationDialog("Delete it for everyone?", isPresented: $confirmingForEveryone, titleVisibility: .visible) {
+            Button("Delete for everyone", role: .destructive) { deleteEverything() }
+            Button("Keep it", role: .cancel) {}
+        } message: {
+            Text("\(ListFormatter.localizedString(byJoining: othersJoined.map(\.displayName))) will lose every child and entry too. A copy is kept in Backups on this iPhone first.")
+        }
     }
 }
 
