@@ -100,7 +100,7 @@ struct YouView: View {
                          ? "As a viewer, your name and photo stay on this iPhone."
                          : "Your name and photo are shown to your family, beside what you log.")
                 }
-                .listRowBackground(Palette.paper)
+                .listRowBackground(Palette.input)
 
                 Section("Make it yours") {
                     NavigationLink("Appearance and night") { AppearanceSettingsView() }

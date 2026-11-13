@@ -70,7 +70,7 @@ struct LogSheet: View {
                     details
                     TextField("Note", text: $note, axis: .vertical)
                         .padding(14)
-                        .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                        .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     if let editing, store.canChange(editing) {
                         Button("Delete entry", role: .destructive) { confirmingDelete = true }
                     .foregroundStyle(Palette.waratah)
@@ -374,13 +374,13 @@ struct LogSheet: View {
                 .frame(width: 90)
         }
         .padding(14)
-        .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func field(_ prompt: String, text: Binding<String>) -> some View {
         TextField(prompt, text: text)
             .padding(14)
-            .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private func chip(_ title: String, isOn: Bool = false, action: @escaping () -> Void) -> some View {
@@ -480,7 +480,7 @@ struct LogSheet: View {
             VStack(alignment: .leading, spacing: 16) {
                 TextField("What did they try?", text: $food)
                     .padding(14)
-                    .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 if !pastFoods.isEmpty {
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {

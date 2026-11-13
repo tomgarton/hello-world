@@ -19,6 +19,8 @@ enum Palette {
     static let paper = Color(light: 0xFBF6E9, dark: 0x2A2420, night: 0x15110E)
     static let sand = Color(light: 0xF2ECDD, dark: 0x14110F, night: 0x0A0807)
     static let field = Color(light: 0xEAE2D2, dark: 0x3B332D, night: 0x221C18)
+    /// Behind anything you type into: lighter than paper, never pure white.
+    static let input = Color(light: 0xFFFCF6, dark: 0x352E29, night: 0x1C1714)
     static let card = Color(light: 0xECE4D4, dark: 0x1F1A17, night: 0x100D0B)
     static let muted = Color(light: 0x6B5E52, dark: 0xB3A590, night: 0x9C8A72)
     /// The sleeping row. A touch lighter in dark so it still reads as blue.
@@ -56,7 +58,12 @@ enum Palette {
         Color(light: 0xF3D9C9, dark: 0x5E4234, night: 0x422E25), // Shell
         Color(light: 0xCFE5D2, dark: 0x33523C, night: 0x243A2B), // Mint
         Color(light: 0xF4E7B0, dark: 0x5C5024, night: 0x40381A), // Sun
+        Color(light: 0xE2D4F1, dark: 0x46395E, night: 0x30283F), // Lilac
+        Color(light: 0xF6CFDC, dark: 0x5E3542, night: 0x42252E), // Rose
+        Color(light: 0xC4E6E4, dark: 0x2C514F, night: 0x1F3937), // Sea
+        Color(light: 0xDDD8D0, dark: 0x4A4540, night: 0x34302D), // Stone
     ]
+    static let childColourNames = ["Sky", "Shell", "Mint", "Sun", "Lilac", "Rose", "Sea", "Stone"]
 
     static func childColour(_ index: Int16) -> Color {
         childColours[Int(index) % childColours.count]

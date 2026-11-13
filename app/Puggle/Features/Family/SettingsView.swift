@@ -84,7 +84,7 @@ struct SettingsView: View {
         } footer: {
             Text("Shown beside what you log, so the family can see who added it. Optional.")
         }
-        .listRowBackground(Palette.paper)
+        .listRowBackground(Palette.input)
     }
 
     private var lookSection: some View {

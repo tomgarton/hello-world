@@ -360,7 +360,7 @@ struct InviteSheet: View {
                 } footer: {
                     Text("Shown in your list until they join.")
                 }
-                .listRowBackground(Palette.paper)
+                .listRowBackground(Palette.input)
 
                 Section {
                     ForEach(Role.allCases) { option in

@@ -55,7 +55,7 @@ struct FamilyView: View {
                             .onChange(of: namingFamily) { _, focused in
                                 if !focused { store.setFamilyName(familyName) }
                             }
-                            .listRowBackground(Palette.paper)
+                            .listRowBackground(Palette.input)
                     } header: {
                         Text("Family name")
                     } footer: {

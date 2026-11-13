@@ -55,7 +55,6 @@ struct ChildForm: View {
     /// True once "Choose" has been tapped here, so the date wheel is open and ready.
     @State private var picking = false
 
-    private let colourNames = ["Sky", "Shell", "Mint", "Sun"]
 
     var body: some View {
         Section {
@@ -93,6 +92,7 @@ struct ChildForm: View {
                 Text("Their age decides what shows on Today.")
             }
         }
+        .listRowBackground(Palette.input)
         if draft.asksFeeding {
             Section {
                 ForEach([Feeding.bottle, .breast, .both, .neither]) { option in
@@ -106,6 +106,7 @@ struct ChildForm: View {
             } footer: {
                 Text("This decides which tiles show on Today. You can change it any time.")
             }
+            .listRowBackground(Palette.paper)
         }
         if draft.asksPotty {
             Section {
@@ -113,6 +114,7 @@ struct ChildForm: View {
             } footer: {
                 Text("Adds a Potty tile. Leave it off if not yet.")
             }
+            .listRowBackground(Palette.paper)
         }
         // Says what is still needed, so a greyed-out button is never a puzzle.
         if let missing = draft.missing {
@@ -124,28 +126,37 @@ struct ChildForm: View {
             }
         }
         Section("Colour") {
-            HStack(spacing: 14) {
+            // Four a row, each with its name, so two close colours can still be told apart.
+            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 4), spacing: 12) {
                 ForEach(Palette.childColours.indices, id: \.self) { index in
                     Button {
                         Haptics.selection()
                         draft.colour = index
                     } label: {
-                        Circle()
-                            .fill(Palette.childColours[index])
-                            .frame(width: 44, height: 44)
-                            .overlay(Circle().stroke(Palette.ink, lineWidth: draft.colour == index ? 3 : 0))
-                            .overlay {
-                                if draft.colour == index {
-                                    Image(systemName: "checkmark").font(.footnote.weight(.bold)).foregroundStyle(Palette.ink)
+                        VStack(spacing: 4) {
+                            Circle()
+                                .fill(Palette.childColours[index])
+                                .frame(width: 44, height: 44)
+                                .overlay(Circle().stroke(Palette.ink, lineWidth: draft.colour == index ? 3 : 0))
+                                .overlay {
+                                    if draft.colour == index {
+                                        Image(systemName: "checkmark").font(.footnote.weight(.bold)).foregroundStyle(Palette.ink)
+                                    }
                                 }
-                            }
+                            Text(Palette.childColourNames[index])
+                                .font(.footnote)
+                                .foregroundStyle(draft.colour == index ? Palette.ink : Palette.muted)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel(colourNames[index])
+                    .accessibilityLabel(Palette.childColourNames[index])
                     .accessibilityAddTraits(draft.colour == index ? .isSelected : [])
                 }
             }
         }
+        .listRowBackground(Palette.paper)
     }
 
     private func choiceRow(_ title: String, isOn: Bool, action: @escaping () -> Void) -> some View {

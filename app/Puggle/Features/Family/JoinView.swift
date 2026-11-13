@@ -165,7 +165,7 @@ struct JoinView: View {
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(Palette.input, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
         .padding(.top, 8)
     }
 

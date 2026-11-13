@@ -348,7 +348,7 @@ struct OnboardingView: View {
                 .font(.title3)
                 .padding(.horizontal, 16)
                 .frame(minHeight: 56)
-                .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                .background(Palette.input, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
                 .padding(.top, 8)
             Text("You can change it any time in Settings.")
                 .font(.footnote)

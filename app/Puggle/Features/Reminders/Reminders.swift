@@ -362,6 +362,7 @@ private struct ReminderEditor: View {
             TextField("Which medicine?", text: $reminder.medicine)
             TextField("Dose, as on the label or as prescribed", text: $reminder.dose)
         }
+        .listRowBackground(Palette.input)
         Section {
             ForEach(reminder.times.indices, id: \.self) { index in
                 DatePicker("Time \(index + 1)", selection: timeBinding(index), displayedComponents: .hourAndMinute)

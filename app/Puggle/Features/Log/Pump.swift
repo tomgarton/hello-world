@@ -117,7 +117,7 @@ struct PumpSheet: View {
                             .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                         TextField("Note", text: $note, axis: .vertical)
                             .padding(14)
-                            .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                            .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                     }
                     if editing == nil {
                         onHand
