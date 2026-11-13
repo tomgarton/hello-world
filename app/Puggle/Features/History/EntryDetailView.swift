@@ -231,7 +231,7 @@ struct SwipeableEntryRow<Content: View>: View {
 
     @State private var offset: CGFloat = 0
     @State private var start: CGFloat = 0
-    @State private var sideways: Bool?
+    @State private var pulling = false
     @State private var confirmingDelete = false
 
     private let reveal: CGFloat = 84
@@ -256,30 +256,33 @@ struct SwipeableEntryRow<Content: View>: View {
             }
             content
                 .background(Palette.paper)
+                // While the row is being pulled, or sits open, a touch must not open the entry.
+                .allowsHitTesting(offset == 0 && !pulling)
+                .overlay {
+                    // Open: a tap anywhere on the row closes it again.
+                    if offset != 0 {
+                        Color.clear.contentShape(Rectangle()).onTapGesture { close() }
+                    }
+                }
                 .offset(x: offset)
         }
         .clipped()
-        .simultaneousGesture(
-            DragGesture(minimumDistance: 14)
-                .onChanged { value in
-                    if sideways == nil {
-                        sideways = abs(value.translation.width) > abs(value.translation.height) * 1.4
-                        start = offset
-                    }
-                    guard sideways == true else { return }
-                    let wanted = start + value.translation.width
-                    offset = min(canAgain ? reveal * 1.2 : 0, max(-reveal * 1.2, wanted))
+        .modifier(SidewaysPull(
+            onChanged: { across in
+                if !pulling {
+                    pulling = true
+                    start = offset
                 }
-                .onEnded { _ in
-                    defer { sideways = nil }
-                    guard sideways == true else { return }
-                    withAnimation(.spring(duration: 0.3, bounce: 0.15)) {
-                        if offset < -reveal / 2 { offset = -reveal }
-                        else if offset > reveal / 2, canAgain { offset = reveal }
-                        else { offset = 0 }
-                    }
+                offset = min(canAgain ? reveal * 1.2 : 0, max(-reveal * 1.2, start + across))
+            },
+            onEnded: {
+                pulling = false
+                withAnimation(.spring(duration: 0.3, bounce: 0.15)) {
+                    if offset < -reveal / 2 { offset = -reveal }
+                    else if offset > reveal / 2, canAgain { offset = reveal }
+                    else { offset = 0 }
                 }
-        )
+            }))
         .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
             Button("Delete", role: .destructive) {
                 Haptics.tap()
@@ -315,5 +318,78 @@ struct SwipeableEntryRow<Content: View>: View {
         }
         .buttonStyle(PressStyle())
         .accessibilityHidden(true)
+    }
+}
+
+/// A sideways pull on a row inside a scrolling page.
+///
+/// The page's own scrolling must never be held up by it. So the pull is a
+/// UIKit recogniser that only starts when the finger sets off sideways; a
+/// finger moving up or down is refused at once and the page scrolls as usual.
+/// Once a pull has started, the touch is taken from the row, so letting go
+/// doesn't also press it.
+private struct SidewaysPull: ViewModifier {
+    let onChanged: (CGFloat) -> Void
+    let onEnded: () -> Void
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content.gesture(SidewaysPan(onChanged: onChanged, onEnded: onEnded))
+        } else {
+            content.simultaneousGesture(Fallback(onChanged: onChanged, onEnded: onEnded).gesture)
+        }
+    }
+
+    /// Before iOS 18 there is no way to put a UIKit recogniser on a SwiftUI view, so a drag stands in.
+    private struct Fallback {
+        let onChanged: (CGFloat) -> Void
+        let onEnded: () -> Void
+        var gesture: some Gesture {
+            DragGesture(minimumDistance: 18)
+                .onChanged { value in
+                    guard abs(value.translation.width) > abs(value.translation.height) * 1.6 else { return }
+                    onChanged(value.translation.width)
+                }
+                .onEnded { _ in onEnded() }
+        }
+    }
+}
+
+@available(iOS 18.0, *)
+private struct SidewaysPan: UIGestureRecognizerRepresentable {
+    let onChanged: (CGFloat) -> Void
+    let onEnded: () -> Void
+
+    func makeCoordinator(converter: CoordinateSpaceConverter) -> Coordinator { Coordinator() }
+
+    func makeUIGestureRecognizer(context: Context) -> UIPanGestureRecognizer {
+        let pan = UIPanGestureRecognizer()
+        pan.delegate = context.coordinator
+        return pan
+    }
+
+    func handleUIGestureRecognizerAction(_ recognizer: UIPanGestureRecognizer, context: Context) {
+        switch recognizer.state {
+        case .began, .changed:
+            onChanged(recognizer.translation(in: recognizer.view).x)
+        case .ended, .cancelled, .failed:
+            onEnded()
+        default:
+            break
+        }
+    }
+
+    final class Coordinator: NSObject, UIGestureRecognizerDelegate {
+        /// Only a finger setting off sideways starts the pull.
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return false }
+            let speed = pan.velocity(in: pan.view)
+            return abs(speed.x) > abs(speed.y) * 1.3
+        }
+
+        /// The page waits to hear whether this is a sideways pull. It hears at once, so scrolling is not slowed.
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy other: UIGestureRecognizer) -> Bool {
+            other.view is UIScrollView
+        }
     }
 }
