@@ -41,6 +41,8 @@ struct ChildPatterns {
     var prompt: String?
     var ageMonths = 0
     var ageDays = 0
+    /// The most days with entries in any one month of age, for counting towards the first pattern.
+    var bestMonthDays = 0
 }
 
 enum Patterns {
@@ -111,6 +113,7 @@ enum Patterns {
 
         var byMonth: [Int: [DayFacts]] = [:]
         for (key, f) in facts { byMonth[months(from: birth, to: key), default: []].append(f) }
+        result.bestMonthDays = byMonth.filter { $0.key >= 0 }.values.map(\.count).max() ?? 0
         for (m, list) in byMonth.sorted(by: { $0.key < $1.key }) where m >= 0 && list.count >= enough {
             var month = ChildPatterns.Month(id: m, days: list.count)
             let beds = list.compactMap(\.bedtime).sorted()

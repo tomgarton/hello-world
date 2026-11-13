@@ -553,6 +553,8 @@ final class FamilyStoreTests: XCTestCase {
 
     func testPatternsSayNothingWithTooLittleLogged() {
         store.logEach(.bottle, for: [ollie], amountML: 120)
-        XCTAssertTrue(Patterns.make(child: ollie).months.isEmpty)
+        let p = Patterns.make(child: ollie)
+        XCTAssertTrue(p.months.isEmpty)
+        XCTAssertEqual(p.bestMonthDays, 1, "One day with entries counts towards the five")
     }
 }

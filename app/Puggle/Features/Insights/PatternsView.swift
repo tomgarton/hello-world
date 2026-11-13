@@ -12,14 +12,13 @@ struct PatternsView: View {
         let p = Patterns.make(child: child)
         VStack(alignment: .leading, spacing: 16) {
             if p.months.isEmpty {
-                Text(child.birthDate == nil
-                     ? "Patterns need \(child.displayName)'s birth date, on the Family tab."
-                     : "Patterns appear once there are a few weeks of entries for \(child.displayName). They show how bedtime, sleep, naps and bottles have changed with age.")
-                    .foregroundStyle(Palette.muted)
-                    .fixedSize(horizontal: false, vertical: true)
-                    .padding(16)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                if child.birthDate == nil {
+                    card {
+                        Text("Patterns need \(child.displayName)'s birth date, on the Family tab.").foregroundStyle(Palette.muted)
+                    }
+                } else {
+                    countdown(days: p.bestMonthDays)
+                }
             } else {
                 if let prompt = p.prompt {
                     card {
@@ -63,6 +62,13 @@ struct PatternsView: View {
                     ForEach(readings) { one in card { reading(one) } }
                 }
 
+                if p.changes.isEmpty {
+                    Text("What changed appears once there are two months of age with enough entries to compare.")
+                        .font(.footnote)
+                        .foregroundStyle(Palette.muted)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
                 Text("Worked out from what was logged, by month of age. Days with nothing logged are left out. The app doesn't say what is usual for a child.")
                     .font(.footnote)
                     .foregroundStyle(Palette.muted)
@@ -71,6 +77,28 @@ struct PatternsView: View {
                 if !others.isEmpty { comparison(p) }
             }
         }
+    }
+
+    /// Before the first pattern: how far there is to go, as days with entries.
+    private func countdown(days: Int) -> some View {
+        let needed = Patterns.enough, done = min(days, Patterns.enough)
+        return card {
+            Text(done == 0 ? "Patterns start after \(needed) days with entries" : "\(done) of \(needed) days so far")
+                .font(.headline)
+            HStack(spacing: 6) {
+                ForEach(0..<needed, id: \.self) { index in
+                    Capsule()
+                        .fill(index < done ? InsightColour.sleep : Palette.field)
+                        .frame(height: 8)
+                }
+            }
+            .accessibilityHidden(true)
+            Text("They show how bedtime, sleep, naps and bottles change as \(child.displayName) grows. The days count within one month of age, and don't need to be in a row.")
+                .font(.subheadline)
+                .foregroundStyle(Palette.muted)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .accessibilityElement(children: .combine)
     }
 
     // MARK: Cards
