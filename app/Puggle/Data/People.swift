@@ -301,8 +301,29 @@ extension FamilyStore {
 
     // MARK: Sharing, on the phone that holds the family
 
-    /// "Ollie and Bea's family": what the person invited sees before they join.
+    /// The name a parent gave the family ("The Wattle family"), or "" if they haven't.
+    var familyName: String {
+        let name = (existingFamily()?.name ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+        return name == "Our family" ? "" : name
+    }
+
+    func setFamilyName(_ name: String) {
+        guard isParent, let family = existingFamily() else { return }
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let wanted = trimmed.isEmpty ? "Our family" : trimmed
+        guard family.name != wanted else { return }
+        family.name = wanted
+        persistence.save()
+    }
+
+    /// What the person invited sees before they join: the family's own name,
+    /// or "Ollie and Bea's family" from the children when it has none.
     var shareTitle: String {
+        if !familyName.isEmpty { return familyName }
+        return childrenTitle
+    }
+
+    var childrenTitle: String {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]

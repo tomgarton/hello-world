@@ -16,6 +16,8 @@ struct FamilyView: View {
     @State private var pending: PendingInvite?
     @State private var opened: Person?
     @ObservedObject private var cloud = CloudStatus.shared
+    @State private var familyName = ""
+    @FocusState private var namingFamily: Bool
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage(Setting.yourName) private var yourName = ""
 
@@ -42,6 +44,23 @@ struct FamilyView: View {
                         }
                     }
                     .listRowBackground(Palette.paper)
+                }
+                if store.isParent && !sample.isOn {
+                    Section {
+                        TextField(store.childrenTitle, text: $familyName)
+                            .focused($namingFamily)
+                            .textInputAutocapitalization(.words)
+                            .submitLabel(.done)
+                            .onSubmit { store.setFamilyName(familyName) }
+                            .onChange(of: namingFamily) { _, focused in
+                                if !focused { store.setFamilyName(familyName) }
+                            }
+                            .listRowBackground(Palette.paper)
+                    } header: {
+                        Text("Family name")
+                    } footer: {
+                        Text("Shown on invites, such as \"The Wattle family\". Leave it empty to use the children's names.")
+                    }
                 }
                 Section("Children") {
                     ForEach(children.filter { !$0.archived }) { child in
@@ -142,6 +161,7 @@ struct FamilyView: View {
                 .ignoresSafeArea()
             }
             .onAppear {
+                familyName = store.familyName
                 store.reconcilePeople()
                 store.ensureMe()
                 store.refreshRole()

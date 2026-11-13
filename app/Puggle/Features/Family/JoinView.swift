@@ -30,7 +30,9 @@ struct Invite: Identifiable {
     var headline: String {
         let who = inviter.isEmpty ? "You've been invited" : "\(inviter) invited you"
         let generic = familyTitle.isEmpty || familyTitle == "Our family"
-        return generic ? "\(who) to their family" : "\(who) to \(familyTitle)"
+        // "The Wattle family" reads as "to the Wattle family" inside the sentence.
+        let title = familyTitle.hasPrefix("The ") ? "the " + familyTitle.dropFirst(4) : familyTitle
+        return generic ? "\(who) to their family" : "\(who) to \(title)"
     }
 }
 
