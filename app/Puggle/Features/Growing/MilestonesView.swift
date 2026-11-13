@@ -38,8 +38,10 @@ struct MilestonesView: View {
                 .listRowBackground(Palette.paper)
                 .accessibilityHint("Opens this milestone to change it")
             }
-            Button("Add a milestone") { adding = true }
-                .listRowBackground(Palette.paper)
+            if store.canLog {
+                Button("Add a milestone") { adding = true }
+                    .listRowBackground(Palette.paper)
+            }
         }
         .scrollContentBackground(.hidden)
         .background(Palette.sand)
@@ -58,7 +60,11 @@ struct MilestonesView: View {
             }
         }
         .sheet(item: $editing) { target in
-            LogSheet(kind: .milestone, children: [child], editing: target.event)
+            if store.canChange(target.event) {
+                LogSheet(kind: .milestone, children: [child], editing: target.event)
+            } else {
+                EntryDetailView(event: target.event)
+            }
         }
         .overlay {
             if let title = celebrating {

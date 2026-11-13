@@ -81,7 +81,7 @@ struct EntryDetailView: View {
                 }
                 .listRowBackground(Palette.paper)
 
-                if store.canLogAgain(event) {
+                if store.canLogAgain(event), store.canLog {
                     Section {
                         Button {
                             Haptics.success()
@@ -96,11 +96,19 @@ struct EntryDetailView: View {
                     .listRowBackground(Palette.paper)
                 }
 
-                Section {
-                    Button("Delete entry", role: .destructive) { confirmingDelete = true }
-                        .foregroundStyle(Palette.waratah)
+                if store.canChange(event) {
+                    Section {
+                        Button("Delete entry", role: .destructive) { confirmingDelete = true }
+                            .foregroundStyle(Palette.waratah)
+                    }
+                    .listRowBackground(Palette.paper)
+                } else if store.role == .helper {
+                    Section {
+                        EmptyView()
+                    } footer: {
+                        Text("\((event.loggedBy ?? "").isEmpty ? "Someone else" : event.loggedBy!) logged this. If it needs changing, ask \(store.whoToAsk).")
+                    }
                 }
-                .listRowBackground(Palette.paper)
             }
             .scrollContentBackground(.hidden)
             .background(Palette.sand)
@@ -109,7 +117,9 @@ struct EntryDetailView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Done") { dismiss() } }
-                ToolbarItem(placement: .primaryAction) { Button("Edit") { editing = true } }
+                if store.canChange(event) {
+                    ToolbarItem(placement: .primaryAction) { Button("Edit") { editing = true } }
+                }
             }
             .confirmationDialog("Delete this entry?", isPresented: $confirmingDelete, titleVisibility: .visible) {
                 Button("Delete", role: .destructive) {
@@ -141,15 +151,17 @@ struct EntrySwipeActions: ViewModifier {
     func body(content: Content) -> some View {
         content
             .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button {
-                    confirmingDelete = true
-                } label: {
-                    Label("Delete", systemImage: "trash")
+                if store.canChange(event) {
+                    Button {
+                        confirmingDelete = true
+                    } label: {
+                        Label("Delete", systemImage: "trash")
+                    }
+                    .tint(Palette.waratahFill)
                 }
-                .tint(Palette.waratahFill)
             }
             .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                if store.canLogAgain(event) {
+                if store.canLogAgain(event), store.canLog {
                     Button {
                         Haptics.success()
                         store.logAgain(event)
@@ -237,7 +249,8 @@ struct SwipeableEntryRow<Content: View>: View {
     private let reveal: CGFloat = 84
 
     var body: some View {
-        let canAgain = store.canLogAgain(event)
+        let canAgain = store.canLogAgain(event) && store.canLog
+        let canDelete = store.canChange(event)
         ZStack {
             HStack(spacing: 0) {
                 if canAgain {
@@ -249,10 +262,12 @@ struct SwipeableEntryRow<Content: View>: View {
                     .opacity(offset > 12 ? 1 : 0)
                 }
                 Spacer(minLength: 0)
-                action("Delete", symbol: "trash", tint: Palette.waratahFill) {
-                    confirmingDelete = true
+                if canDelete {
+                    action("Delete", symbol: "trash", tint: Palette.waratahFill) {
+                        confirmingDelete = true
+                    }
+                    .opacity(offset < -12 ? 1 : 0)
                 }
-                .opacity(offset < -12 ? 1 : 0)
             }
             content
                 .background(Palette.paper)
@@ -273,12 +288,12 @@ struct SwipeableEntryRow<Content: View>: View {
                     pulling = true
                     start = offset
                 }
-                offset = min(canAgain ? reveal * 1.2 : 0, max(-reveal * 1.2, start + across))
+                offset = min(canAgain ? reveal * 1.2 : 0, max(canDelete ? -reveal * 1.2 : 0, start + across))
             },
             onEnded: {
                 pulling = false
                 withAnimation(.spring(duration: 0.3, bounce: 0.15)) {
-                    if offset < -reveal / 2 { offset = -reveal }
+                    if offset < -reveal / 2, canDelete { offset = -reveal }
                     else if offset > reveal / 2, canAgain { offset = reveal }
                     else { offset = 0 }
                 }
@@ -293,7 +308,7 @@ struct SwipeableEntryRow<Content: View>: View {
         } message: {
             Text(event.summary)
         }
-        .accessibilityAction(named: "Delete") { confirmingDelete = true }
+        .accessibilityAction(named: "Delete") { if canDelete { confirmingDelete = true } }
         .accessibilityAction(named: "Log again") {
             guard canAgain else { return }
             store.logAgain(event)

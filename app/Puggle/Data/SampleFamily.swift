@@ -12,7 +12,8 @@ final class SampleFamily: ObservableObject {
 
     var isOn: Bool { store != nil }
 
-    func start() {
+    /// `role` shows the family as a helper or a viewer sees it, for checking those screens.
+    func start(as role: Role? = nil) {
         guard store == nil, !loading else { return }
         loading = true
         Task {
@@ -22,6 +23,11 @@ final class SampleFamily: ObservableObject {
             sample.isSample = true
             SampleData(store: sample).fill()
             sample.authorOverride = nil
+            if let role, role != .parent {
+                sample.authorOverride = role == .helper ? "Nan" : "Pop"
+                sample.roleOverride = role
+            }
+            sample.refreshRole()
             store = sample
             loading = false
         }
@@ -83,6 +89,22 @@ private struct SampleData {
                                  feeding: .neither, pottyTraining: true)
         baby(ollie)
         toddler(bea)
+        let family = store.currentFamily()
+        let grownUps: [(String, Role, Bool, Bool)] = [(Terms.mum, .parent, true, true), ("Dad", .parent, false, true),
+                                                      ("Nan", .helper, false, true), ("Pop", .viewer, false, true),
+                                                      ("Jo", .helper, false, false)]
+        for (index, (name, role, holds, joined)) in grownUps.enumerated() {
+            let person = Person(context: store.context)
+            store.place(person, with: family)
+            person.id = UUID()
+            person.name = name
+            person.role = role
+            person.holdsFamily = holds
+            person.createdAt = ago(days: 40 - index)
+            person.invitedAt = ago(days: joined ? 40 - index : 3)
+            person.joinedAt = joined ? ago(days: 39 - index) : nil
+            person.family = family
+        }
         store.persistence.save()
         store.lastSaved = nil
     }

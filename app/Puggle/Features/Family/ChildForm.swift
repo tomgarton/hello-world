@@ -181,6 +181,7 @@ struct ChildDetailView: View {
                 NavigationLink { EarnedStickersView(child: child) } label: { Label("Stickers", systemImage: "seal") }
                 NavigationLink { SummaryView(child: child) } label: { Label("Summary for the doctor", systemImage: "doc.text") }
             }
+            if store.isParent {
             ChildForm(draft: $draft)
             Section {
                 Button(child.archived ? "Show on Today again" : "Hide from Today") {
@@ -205,6 +206,13 @@ struct ChildDetailView: View {
             } footer: {
                 Text("Deleting asks twice. It cannot be undone.")
             }
+            } else {
+                Section {
+                    LabeledContent("Born") { Text(child.birthDate?.formatted(date: .abbreviated, time: .omitted) ?? "") }
+                } footer: {
+                    Text("\(store.whoToAsk.prefix(1).uppercased() + store.whoToAsk.dropFirst()) can change \(child.displayName)'s details.")
+                }
+            }
         }
         .scrollContentBackground(.hidden)
         .background(Palette.sand)
@@ -212,7 +220,9 @@ struct ChildDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Save") { save() }.disabled(!draft.isComplete)
+                if store.isParent {
+                    Button("Save") { save() }.disabled(!draft.isComplete)
+                }
             }
         }
         .alert("Are you sure?", isPresented: $confirmingAgain) {

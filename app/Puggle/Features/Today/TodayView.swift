@@ -97,8 +97,14 @@ struct TodayView: View {
                         ForEach(children) { child in
                             ChildStatusRow(child: child) { dayOf = child }
                         }
-                        togetherButton
+                        if store.canLog { togetherButton }
                         let layout = tileLayout
+                        if !store.canLog {
+                            Text("You're following along. \(store.whoToAsk.prefix(1).uppercased() + store.whoToAsk.dropFirst()) can change that.")
+                                .font(.footnote)
+                                .foregroundStyle(Palette.muted)
+                                .padding(.horizontal, 4)
+                        } else {
                         if !layout.main.isEmpty {
                             // One tile per row at the largest text sizes, so the names fit.
                             let tiles = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))
@@ -120,6 +126,7 @@ struct TodayView: View {
                                 .padding(.horizontal, 10)
                                 .frame(minHeight: 44)
                                 .accessibilityLabel("Choose the tiles on Today")
+                        }
                         }
                         if stickersOn, !stickerChildren.isEmpty {
                             Button { showingStickers = true } label: {
@@ -192,7 +199,10 @@ struct TodayView: View {
             StampBookView(children: stickerChildren)
         }
         .sheet(item: $editing) { target in
-            if target.event.kind == .pump {
+            if !store.canChange(target.event) && !(target.endingSleep && store.canLog) {
+                // Someone else's entry, for a helper or a viewer: to read, not to change.
+                EntryDetailView(event: target.event)
+            } else if target.event.kind == .pump {
                 PumpSheet(editing: target.event)
             } else {
                 LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)
@@ -264,7 +274,7 @@ struct TodayView: View {
     /// A timer left running for 14 hours gets one gentle question each time the app opens.
     /// A feed timer left running for 90 minutes gets the same kind of question.
     private func checkForStaleSleep() {
-        guard staleSleep == nil, staleFeed == nil, editing == nil, !feedTimer else { return }
+        guard store.canLog, staleSleep == nil, staleFeed == nil, editing == nil, !feedTimer else { return }
         if let sleep = store.staleSleep(among: Array(children)), !askedAbout.contains(sleep.objectID) {
             askedAbout.insert(sleep.objectID)
             staleSleep = sleep
@@ -432,7 +442,7 @@ struct ChildStatusRow: View {
             .buttonStyle(.plain)
             .accessibilityElement(children: .combine)
             .accessibilityHint(justLog ? "Add a past sleep for \(child.displayName)" : "Shows \(child.displayName)'s day so far")
-            sleepButton(now: now, sleep: sleep)
+            if store.canLog { sleepButton(now: now, sleep: sleep) }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(14)
@@ -749,10 +759,12 @@ struct DaySoFarView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
-                    Text("Log for \(child.displayName)")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(Palette.muted)
-                    logGrid
+                    if store.canLog {
+                        Text("Log for \(child.displayName)")
+                            .font(.footnote.weight(.semibold))
+                            .foregroundStyle(Palette.muted)
+                        logGrid
+                    }
                     if !justLog {
                         SquiggleLabel("So far")
                             .padding(.vertical, 6)

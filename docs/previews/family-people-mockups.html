@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family and friends mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: a column of numbered questions, each with phone mockups side by side that wrap to one column on a phone. */
+  --page: #F2ECDD; --card: #FBF6E9; --ink: #3A2A20; --muted: #6B5E52; --line: #E0D6C2; --accent: #C2412A;
+  --display: "Bricolage Grotesque", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* The app's own day colours: the phones always use these. */
+  --sand: #F2ECDD; --paper: #FBF6E9; --field: #EAE2D2; --app-ink: #3A2A20; --app-muted: #6B5E52;
+  --wattle: #F4BE2C; --waratah: #C2412A; --moon: #1B2440;
+  --sky: #BFD9F5; --shell: #F3D5C9; --mint: #CFE5D2; --sun: #F6E2A8; --lilac: #E2D4F1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--body); line-height: 1.5; padding: 28px 16px 64px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+h1 { font-family: var(--display); font-size: 34px; line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 24px; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+p { margin: 0; max-width: 66ch; }
+.lede { color: var(--muted); }
+.q { display: flex; flex-direction: column; gap: 18px; }
+.num { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+.row { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start; }
+.opt { display: flex; flex-direction: column; gap: 10px; width: 300px; max-width: 100%; }
+.opt h3 { font-size: 16px; margin: 0; }
+.opt p { font-size: 14px; color: var(--muted); }
+.pick { font-size: 12px; font-weight: 700; color: var(--accent); }
+.note { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.note h3 { margin: 0; font-size: 16px; }
+.note ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 66ch; }
+
+/* The phone. Fixed day palette, whatever the page theme. */
+.phone { width: 300px; max-width: 100%; border-radius: 38px; background: var(--sand); color: var(--app-ink); border: 7px solid #2A211B; padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 560px; font-size: 14px; line-height: 1.3; position: relative; overflow: hidden; }
+.phone.sheet { background: #CFC6B6; padding-top: 44px; }
+.phone .inner { background: var(--sand); border-radius: 26px 26px 0 0; margin: 0 -14px -18px; padding: 14px 14px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.bar { display: flex; justify-content: space-between; align-items: center; }
+.pill { background: var(--paper); border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+.pill.dark { background: var(--app-ink); color: var(--paper); }
+.title { font-family: var(--display); font-size: 26px; font-weight: 700; margin-top: 6px; }
+.stitle { font-weight: 700; font-size: 15px; text-align: center; flex: 1; }
+.label { font-weight: 700; font-size: 13px; margin: 6px 4px 0; }
+.foot { font-size: 12px; color: var(--app-muted); margin: 0 4px; }
+.cardp { background: var(--paper); border-radius: 20px; padding: 2px 14px; display: flex; flex-direction: column; }
+.item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #E6DCC8; min-height: 48px; }
+.item:first-child { border-top: 0; }
+.item .t { flex: 1; min-width: 0; }
+.item .t b { display: block; font-size: 14px; }
+.item .t span { display: block; font-size: 12px; color: var(--app-muted); }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: none; }
+.av.lg { width: 50px; height: 50px; font-size: 18px; }
+.chev { color: #B5A894; font-weight: 700; }
+.tick { font-weight: 800; }
+.tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--field); white-space: nowrap; }
+.tag.wait { background: var(--sun); }
+.faces { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+.face { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; width: 54px; text-align: center; }
+.face small { font-weight: 400; color: var(--app-muted); font-size: 10.5px; }
+.plus { background: var(--field); border: 1.5px dashed #B5A894; }
+.btn { background: var(--app-ink); color: var(--paper); border-radius: 999px; text-align: center; padding: 13px; font-weight: 700; }
+.btn.soft { background: var(--field); color: var(--app-ink); }
+.btn.red { background: transparent; color: var(--waratah); }
+.center { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 18px 8px 6px; }
+.big { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.15; }
+.kids { display: flex; gap: -6px; }
+.kids .av { margin-left: -8px; border: 3px solid var(--sand); }
+.kids .av:first-child { margin-left: 0; }
+.spacer { flex: 1; }
+.tabs { display: flex; justify-content: space-around; background: var(--paper); border-radius: 999px; padding: 9px 6px; font-size: 10.5px; font-weight: 600; color: var(--app-muted); margin-top: auto; }
+.tabs b { color: var(--app-ink); background: var(--field); padding: 3px 10px; border-radius: 999px; }
+.warn { background: var(--sun); border-radius: 16px; padding: 12px 14px; font-size: 13px; }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <h1>Family and friends</h1>
+  <p class="lede">Second round. The list sits under the children, it is called "Family and friends", and there are three levels: Parent, Helper and Viewer. Nothing here is built. Names are examples.</p>
+</header>
+
+<section class="q">
+  <div><div class="num">PART 1</div><h2>The Family tab</h2>
+  <p class="lede">The same tab on two phones: the parent whose iCloud holds the family, and a helper.</p></div>
+  <div class="row">
+    <div class="opt">
+      <div class="phone">
+        <div class="title">Family</div>
+        <div class="label">Children</div>
+        <div class="cardp">
+          <div class="item"><div class="av" style="background:var(--sky)">O</div><div class="t"><b>Ollie</b><span>5 months</span></div><span class="chev">›</span></div>
+          <div class="item"><div class="av" style="background:var(--shell)">B</div><div class="t"><b>Bea</b><span>2½ years</span></div><span class="chev">›</span></div>
+          <div class="item"><div class="t"><b>Add a child</b></div></div>
+        </div>
+        <div class="label">Family and friends</div>
+        <div class="cardp">
+          <div class="item"><div class="av" style="background:var(--mint)">Y</div><div class="t"><b>You</b><span>Parent</span></div><span class="chev">›</span></div>
+          <div class="item"><div class="av" style="background:var(--lilac)">R</div><div class="t"><b>Robin</b><span>Parent</span></div><span class="chev">›</span></div>
+          <div class="item"><div class="av" style="background:var(--sun)">N</div><div class="t"><b>Nan</b><span>Helper</span></div><span class="chev">›</span></div>
+          <div class="item"><div class="av" style="background:var(--sky)">P</div><div class="t"><b>Pop</b><span>Viewer</span></div><span class="chev">›</span></div>
+          <div class="item"><div class="av plus">J</div><div class="t"><b>Jo</b><span>Helper. Invited on Tuesday</span></div><span class="tag wait">Not joined yet</span></div>
+          <div class="item"><div class="t"><b>Invite someone</b></div></div>
+        </div>
+        <div class="tabs"><span>Today</span><span>History</span><span>Insights</span><b>Family</b></div>
+      </div>
+      <h3>On your phone</h3>
+      <p>One word under each name says what they can do. An invite that has not been taken up is plain to see.</p>
+    </div>
+    <div class="opt">
+      <div class="phone">
+        <div class="title">Family</div>
+        <div class="label">Children</div>
+        <div class="cardp">
+          <div class="item"><div class="av" style="background:var(--sky)">O</div><div class="t"><b>Ollie</b><span>5 months</span></div></div>
+          <div class="item"><div class="av" style="background:var(--shell)">B</div><div class="t"><b>Bea</b><span>2½ years</span></div></div>
+        </div>
+        <div class="label">Family and friends</div>
+        <div class="cardp">
+          <div class="item"><div class="av" style="background:var(--sun)">Y</div><div class="t"><b>You</b><span>Helper</span></div><span class="chev">›</span></div>
+          <div class="item"><div class="av" style="background:var(--mint)">A</div><div class="t"><b>Alex</b><span>Parent</span></div></div>
+          <div class="item"><div class="av" style="background:var(--lilac)">R</div><div class="t"><b>Robin</b><span>Parent</span></div></div>
+          <div class="item"><div class="av" style="background:var(--sky)">P</div><div class="t"><b>Pop</b><span>Viewer</span></div></div>
+        </div>
+        <div class="foot">Alex can invite people and change what they can do.</div>
+        <div class="tabs"><span>Today</span><span>History</span><span>Insights</span><b>Family</b></div>
+      </div>
+      <h3>On Nan's phone, as a helper</h3>
+      <p>The same list, with nothing to tap that could change the family. No "Add a child", no "Invite someone", and a line saying who to ask.</p>
+    </div>
+  </div>
+</section>
+
+<section class="q">
+  <div><div class="num">PART 2</div><h2>The three levels</h2>
+  <p class="lede">Tapping someone opens their sheet. Your own row gets a different one.</p></div>
+  <div class="row">
+    <div class="opt">
+      <div class="phone sheet"><div class="inner">
+        <div class="bar"><span class="pill">Close</span><span class="stitle">Nan</span><span style="width:58px"></span></div>
+        <div class="center" style="padding-top:6px"><div class="av lg" style="background:var(--sun)">N</div><div class="foot">Joined 2 November</div></div>
+        <div class="label">What Nan can do</div>
+        <div class="cardp">
+          <div class="item"><div class="t"><b>Parent</b><span>Everything, including children and settings</span></div></div>
+          <div class="item"><div class="t"><b>Helper</b><span>Logs the day and fixes their own entries. Can't change anyone else's</span></div><span class="tick">✓</span></div>
+          <div class="item"><div class="t"><b>Viewer</b><span>Sees the day. Can't add or change anything</span></div></div>
+        </div>
+        <div class="foot">Changes straight away on Nan's iPhone.</div>
+        <div class="spacer"></div>
+        <div class="btn red">Remove Nan from the family</div>
+        <div class="foot" style="text-align:center">Everything Nan added stays.</div>
+      </div></div>
+      <h3>Someone else</h3>
+      <p>Three choices, each with one line saying what it means. Removing someone keeps what they logged.</p>
+    </div>
+    <div class="opt">
+      <div class="phone sheet"><div class="inner">
+        <div class="bar"><span class="pill">Close</span><span class="stitle">Bottle</span><span style="width:58px"></span></div>
+        <div class="cardp">
+          <div class="item"><div class="av" style="background:var(--sky)">O</div><div class="t"><b>Ollie</b><span>Today, 2:10 pm</span></div></div>
+          <div class="item"><div class="t"><b>Amount</b></div><span style="color:var(--app-muted)">120 ml</span></div>
+          <div class="item"><div class="t"><b>Logged by</b></div><span style="color:var(--app-muted)">Alex</span></div>
+        </div>
+        <div class="foot">Alex logged this. If it needs changing, ask Alex or Robin.</div>
+        <div class="spacer"></div>
+        <div class="btn soft">Log the same again</div>
+      </div></div>
+      <h3>What a helper sees on someone else's entry</h3>
+      <p>No Edit and no Delete. On an entry Nan logged herself, both are there as usual, so a slip is easy to fix.</p>
+    </div>
+    <div class="opt">
+      <div class="phone sheet"><div class="inner">
+        <div class="bar"><span class="pill">Close</span><span class="stitle">You</span><span style="width:58px"></span></div>
+        <div class="center" style="padding-top:6px"><div class="av lg" style="background:var(--sun)">Y</div><div class="foot">Alex invited you on 28 October</div></div>
+        <div class="cardp">
+          <div class="item"><div class="t"><b>Your name</b><span>Shown beside what you log</span></div><span style="color:var(--app-muted)">Nan</span></div>
+          <div class="item"><div class="t"><b>What you can do</b></div><span style="color:var(--app-muted)">Helper</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn red">Leave this family</div>
+        <div class="foot" style="text-align:center">Ollie and Bea come off this iPhone. Nothing is deleted for Alex, and what you added stays with them.</div>
+      </div></div>
+      <h3>Yourself, when you were invited</h3>
+      <p>The way out that is missing today. "Delete everything" points here for a family that is not yours.</p>
+    </div>
+  </div>
+  <div class="note">
+    <h3>What each level can do</h3>
+    <ul>
+      <li><strong>Parent:</strong> everything. Logs, changes and deletes any entry, edits children, sets medicine rules, exports.</li>
+      <li><strong>Helper:</strong> logs sleeps, feeds, nappies, medicine and the rest. Can change or delete their own entries. Can't touch anyone else's entries, children, medicine rules or the family's data.</li>
+      <li><strong>Viewer:</strong> sees Today, History and Insights. Every log button is hidden.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="q">
+  <div><div class="num">PART 3</div><h2>Inviting someone</h2>
+  <p class="lede">Choose what they can do first, then Apple's own share sheet sends the link by Messages, Mail or anything else.</p></div>
+  <div class="row">
+    <div class="opt">
+      <div class="phone sheet"><div class="inner">
+        <div class="bar"><span class="pill">Cancel</span><span class="stitle">Invite someone</span><span style="width:58px"></span></div>
+        <div class="label">What can they do?</div>
+        <div class="cardp">
+          <div class="item"><div class="t"><b>Parent</b><span>For a partner. Can do everything you can</span></div></div>
+          <div class="item"><div class="t"><b>Helper</b><span>For anyone who looks after them. Logs the day</span></div><span class="tick">✓</span></div>
+          <div class="item"><div class="t"><b>Viewer</b><span>For someone who likes to follow along</span></div></div>
+        </div>
+        <div class="foot">You can change this later, or remove them.</div>
+        <div class="warn">They need an iPhone signed in to iCloud. The link works once, for seven days.</div>
+        <div class="spacer"></div>
+        <div class="btn">Send the invite</div>
+      </div></div>
+      <h3>One sheet, then the share sheet</h3>
+      <p>Starts on Helper, the safe middle. Says up front who can join, so nobody sends a link to an Android phone and wonders why nothing happens.</p>
+    </div>
+  </div>
+</section>
+
+<section class="q">
+  <div><div class="num">PART 4</div><h2>Joining, and when joining fails</h2>
+  <p class="lede">Today an invite is accepted silently, and a failure shows nothing at all.</p></div>
+  <div class="row">
+    <div class="opt">
+      <div class="phone">
+        <div class="center" style="padding-top:44px">
+          <div class="kids"><div class="av lg" style="background:var(--sky)">O</div><div class="av lg" style="background:var(--shell)">B</div></div>
+          <div class="big">Alex invited you to Ollie and Bea's family</div>
+          <p style="color:var(--app-muted);font-size:13.5px">You'll be a helper. You'll see their day on this iPhone and you can log sleeps, feeds, nappies and medicine.</p>
+        </div>
+        <div class="cardp">
+          <div class="item"><div class="t"><b>Your name</b><span>Shown beside what you log</span></div><span style="color:var(--app-muted)">Nan</span></div>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn">Join the family</div>
+        <div class="btn soft">Not now</div>
+      </div>
+      <h3>Opening the link</h3>
+      <p>Who invited you, to what, and what you will be able to do. One button.</p>
+    </div>
+    <div class="opt">
+      <div class="phone">
+        <div class="center" style="padding-top:56px">
+          <div class="av lg plus">!</div>
+          <div class="big">This invite can't be used any more</div>
+          <p style="color:var(--app-muted);font-size:13.5px">It may have been used already, or be more than seven days old. Ask Alex to send a new one from Family, then Invite someone.</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn">OK</div>
+      </div>
+      <h3>An old or used link</h3>
+      <p>Plain words and the next step. Never a code or an error number.</p>
+    </div>
+    <div class="opt">
+      <div class="phone">
+        <div class="center" style="padding-top:56px">
+          <div class="av lg plus">!</div>
+          <div class="big">Sign in to iCloud to join</div>
+          <p style="color:var(--app-muted);font-size:13.5px">The family is shared through iCloud. Open the Settings app, sign in at the top, then tap the invite link again. It will still work.</p>
+        </div>
+        <div class="spacer"></div>
+        <div class="btn">Open Settings</div>
+        <div class="btn soft">Not now</div>
+      </div>
+      <h3>No iCloud on this iPhone</h3>
+      <p>The other common reason a join fails, with a way to fix it.</p>
+    </div>
+  </div>
+</section>
+
+<section class="note">
+  <h3>What sits behind this</h3>
+  <ul>
+    <li><strong>Helper is the app's own rule.</strong> iCloud only knows "can change" and "can't change". A helper's phone is allowed to change things, and the app hides Edit and Delete. That stops accidents. It would not stop someone determined.</li>
+    <li><strong>Viewer is enforced by iCloud itself.</strong> A viewer's phone can't change anything, whatever the app shows.</li>
+    <li><strong>One phone invites and removes.</strong> Only the person whose iCloud holds the family can do it, so a second parent can't either. The word "owner" never appears. Other phones get a line saying who to ask.</li>
+    <li><strong>Each person's level is saved with the family.</strong> That adds one small record per person to what syncs, so it needs a yes before it is built.</li>
+    <li><strong>Names come from iCloud</strong> once someone joins, and they can change the name shown beside what they log.</li>
+    <li><strong>Choosing days is left out for now.</strong></li>
+    <li><strong>None of this can be fully tested with one iPhone.</strong> Inviting, joining, changing a level and leaving all need a second iPhone on a different Apple Account.</li>
+  </ul>
+</section>
+</main>
+</body>
+</html>

@@ -138,7 +138,8 @@ extension FamilyStore {
     func handleTimerAction(_ action: String, childID: String) {
         let request = NSFetchRequest<Child>(entityName: "Child")
         let children = (try? context.fetch(request)) ?? []
-        if let child = children.first(where: { $0.id?.uuidString == childID }) {
+        refreshRole()
+        if canLog, let child = children.first(where: { $0.id?.uuidString == childID }) {
             switch action {
             case TimerActions.wokeUp:
                 // A sleep under a minute old was a stray tap: take it back and leave no entry.

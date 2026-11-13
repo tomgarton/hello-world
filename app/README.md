@@ -225,8 +225,6 @@ The paragraphs that used to be here listed things as missing that have since bee
 
 Still not built:
 
-- People and roles: a list of who is in the family, and changing or ending access
-- A join screen, and plain words when joining fails
 - Leaving a family you were invited to ("Delete everything" leaves it alone)
 - Medicine rules shared across the family (they are kept on one phone)
 - Helper mode (journey 13)

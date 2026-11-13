@@ -49,8 +49,10 @@ struct GrowthView: View {
                     .listRowBackground(Palette.paper)
                     .accessibilityHint("Opens this weight to change it")
                 }
-                Button("Add a weight") { adding = true }
-                    .listRowBackground(Palette.paper)
+                if store.canLog {
+                    Button("Add a weight") { adding = true }
+                        .listRowBackground(Palette.paper)
+                }
             } footer: {
                 Text("The numbers you entered. For what they mean, ask your child health nurse or GP.")
             }
@@ -64,7 +66,11 @@ struct GrowthView: View {
             LogSheet(kind: .weight, children: [child])
         }
         .sheet(item: $editing) { target in
-            LogSheet(kind: .weight, children: [child], editing: target.event)
+            if store.canChange(target.event) {
+                LogSheet(kind: .weight, children: [child], editing: target.event)
+            } else {
+                EntryDetailView(event: target.event)
+            }
         }
     }
 

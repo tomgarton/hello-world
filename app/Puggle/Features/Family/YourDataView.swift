@@ -52,7 +52,7 @@ struct YourDataView: View {
                         Button("Keep it", role: .cancel) {}
                     } message: {
                         Text(store.hasJoinedFamily
-                             ? "This removes the children and entries you own, from this iPhone and from iCloud. It cannot be undone. The family you were invited to belongs to someone else, so it is not deleted."
+                             ? "This removes the children and entries you own, from this iPhone and from iCloud. It cannot be undone. The family you were invited to belongs to someone else, so it is not deleted. To stop seeing it, open Family, tap your own name, then Leave this family."
                              : Persistence.cloudSyncEnabled
                              ? "This removes every child and every entry from this iPhone and from iCloud, for everyone in the family. It cannot be undone. Export a copy first if you want one."
                              : "This removes every child and every entry from this iPhone. It cannot be undone. Export a copy first if you want one.")

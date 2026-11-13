@@ -277,4 +277,60 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertEqual(lines.count, 3)
         XCTAssertTrue(lines[0].lowercased().contains("child"))
     }
+
+    // MARK: Parent, helper and viewer
+
+    func testAHelperCanChangeOnlyTheirOwnEntries() {
+        store.authorOverride = "Alex"
+        let theirs = store.logEach(.bottle, for: [ollie], amountML: 120)[0]
+        store.authorOverride = "Nan"
+        let mine = store.logEach(.nappy, for: [ollie], detail: "Wet")[0]
+        store.roleOverride = .helper
+        store.refreshRole()
+        XCTAssertTrue(store.canLog)
+        XCTAssertTrue(store.canChange(mine))
+        XCTAssertFalse(store.canChange(theirs))
+    }
+
+    func testAViewerCanChangeNothing() {
+        let entry = store.logEach(.nappy, for: [ollie], detail: "Wet")[0]
+        store.roleOverride = .viewer
+        store.refreshRole()
+        XCTAssertFalse(store.canLog)
+        XCTAssertFalse(store.canChange(entry))
+    }
+
+    func testAParentCanChangeAnyEntry() {
+        store.authorOverride = "Nan"
+        let entry = store.logEach(.nappy, for: [ollie], detail: "Wet")[0]
+        store.authorOverride = "Alex"
+        store.refreshRole()
+        XCTAssertEqual(store.role, .parent)
+        XCTAssertTrue(store.canChange(entry))
+    }
+
+    func testAViewersChangesAreNotKept() {
+        store.persistence.readOnly = true
+        store.logEach(.nappy, for: [ollie], detail: "Wet")
+        XCTAssertNil(store.latest(.nappy, for: ollie))
+        store.persistence.readOnly = false
+    }
+
+    func testPeopleAreListedHolderFirstThenByLevel() {
+        let family = store.currentFamily()
+        func add(_ name: String, _ role: Role, holds: Bool = false) {
+            let person = Person(context: store.context)
+            person.id = UUID()
+            person.name = name
+            person.role = role
+            person.holdsFamily = holds
+            person.createdAt = .now
+            person.family = family
+        }
+        add("Pop", .viewer)
+        add("Nan", .helper)
+        add("Robin", .parent)
+        add("Alex", .parent, holds: true)
+        XCTAssertEqual(store.people().map(\.displayName), ["Alex", "Robin", "Nan", "Pop"])
+    }
 }

@@ -30,6 +30,11 @@ final class Persistence {
 
     var viewContext: NSManagedObjectContext { container.viewContext }
 
+    /// Set for a viewer, who iCloud lets look and not change. Their changes
+    /// could never be sent, so they are dropped here and the phone stays in
+    /// step with the family.
+    var readOnly = false
+
     init(inMemory: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "Puggle", managedObjectModel: PuggleModel.shared)
 
@@ -76,6 +81,10 @@ final class Persistence {
 
     func save() {
         guard viewContext.hasChanges else { return }
+        if readOnly {
+            viewContext.rollback()
+            return
+        }
         do { try viewContext.save() } catch { print("Save failed: \(error)") }
     }
 
@@ -99,6 +108,23 @@ final class Persistence {
         let (_, share, shareContainer) = try await container.share([family], to: nil)
         share[CKShare.SystemFieldKey.title] = (family.name ?? "Our family") as CKRecordValue
         return (share, shareContainer)
+    }
+
+    /// Sends a change to the share (who is in it, what they can do) to iCloud,
+    /// then keeps the copy Core Data holds in step. Only the family's holder can.
+    func saveShare(_ share: CKShare) async throws {
+        guard let privateStore else { return }
+        let database = CKContainer(identifier: Self.cloudKitContainerID).privateCloudDatabase
+        let saved = try await database.save(share)
+        try await container.persistUpdatedShare((saved as? CKShare) ?? share, in: privateStore)
+    }
+
+    /// Leaves a family someone else shared. For the person leaving, the shared
+    /// zone goes from their iCloud and this phone; the family's own copy is untouched.
+    func leave(_ family: Family) async throws {
+        guard let sharedStore, family.objectID.persistentStore == sharedStore,
+              let share = existingShare(for: family) else { return }
+        _ = try await container.purgeObjectsAndRecordsInZone(with: share.recordID.zoneID, in: sharedStore)
     }
 
     /// Called when someone taps an invitation link.

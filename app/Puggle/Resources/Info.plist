@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Reads the directions on a medicine box so you don't have to type them. The photo is not kept.</string>
+	<string>Takes a photo for a person in your family, or reads the directions on a medicine box. A photo of a medicine box is not kept.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Unlocks the app when you have switched on its lock.</string>
 	<key>NSLocationDefaultAccuracyReduced</key>

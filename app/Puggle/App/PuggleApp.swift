@@ -95,6 +95,11 @@ struct PuggleApp: App {
                         WidgetFeed.update(from: store)
                         // Only does anything if the parent has switched the weather on.
                         WeatherWatch.shared.refresh()
+                        // Who this person is in the family, and their name and photo for the others.
+                        Me.refreshCloudID()
+                        store.refreshRole()
+                        store.reconcilePeople()
+                        store.shareMyDetails()
                         refreshNight(with: active)
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()
@@ -127,6 +132,7 @@ struct RootView: View {
     @AppStorage(Setting.justLog) private var justLog = false
     @State private var inFirstRun = false
     @State private var splashing = !Palette.nightJustChanged
+    @ObservedObject private var invites = InviteCenter.shared
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.appLocked) private var appLocked
 
@@ -140,6 +146,7 @@ struct RootView: View {
                 }
             }
             .animation(.easeOut(duration: 0.25), value: sample.loading)
+            .fullScreenCover(item: $invites.invite) { JoinView(invite: $0) }
             .overlay {
                 if splashing {
                     SplashView().transition(.opacity)
@@ -170,7 +177,8 @@ struct RootView: View {
             .task {
                 guard UserDefaults.standard.string(forKey: "uitest") == "1" else { return }
                 splashing = false
-                sample.start()
+                // "-debugRole helper" (or viewer) shows the sample family as that person sees it.
+                sample.start(as: UserDefaults.standard.string(forKey: "debugRole").flatMap(Role.init(rawValue:)))
             }
             #endif
             // The splash waits behind the lock, so it is seen once Face ID is done.
@@ -184,7 +192,12 @@ struct RootView: View {
     @ViewBuilder private var content: some View {
         #if DEBUG
         // For checking the play pad: launch with "-debugPad 1".
-        if UserDefaults.standard.string(forKey: "debugPad") == "1" {
+        if let join = UserDefaults.standard.string(forKey: "debugJoin") {
+            // For checking the join screens: "-debugJoin ask" (or viewer, joined, used, noICloud, offline).
+            let invite = Invite(inviter: "Alex", familyTitle: "Ollie and Bea's family", lookOnly: join == "viewer")
+            JoinView(invite: invite,
+                     stage: join == "joined" ? .joined : JoinProblem(rawValue: join).map { .failed($0) } ?? .asking)
+        } else if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
         } else if UserDefaults.standard.string(forKey: "debugMoves") == "1" {
             // For checking her moves: launch with "-debugMoves 1".
@@ -255,14 +268,15 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 }
 
 final class SceneDelegate: NSObject, UIWindowSceneDelegate {
+    /// The invite link opened the app from cold.
+    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        guard let metadata = connectionOptions.cloudKitShareMetadata else { return }
+        Task { @MainActor in InviteCenter.shared.received(metadata) }
+    }
+
+    /// The invite link was opened while the app was already running.
     func windowScene(_ windowScene: UIWindowScene, userDidAcceptCloudKitShareWith metadata: CKShare.Metadata) {
-        Task {
-            do {
-                try await Persistence.shared.acceptShare(metadata)
-            } catch {
-                print("Accepting share failed: \(error)")
-            }
-        }
+        Task { @MainActor in InviteCenter.shared.received(metadata) }
     }
 }
 

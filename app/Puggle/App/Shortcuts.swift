@@ -47,6 +47,8 @@ extension FamilyStore {
     }
 
     func child(for entity: ChildEntity) throws -> Child {
+        refreshRole()
+        guard canLog else { throw ShortcutError.lookingOnly }
         let request = NSFetchRequest<Child>(entityName: "Child")
         let children = (try? context.fetch(request)) ?? []
         guard let child = children.first(where: { $0.id?.uuidString == entity.id }) else {
@@ -57,10 +59,13 @@ extension FamilyStore {
 }
 
 enum ShortcutError: Error, CustomLocalizedStringResourceConvertible {
-    case childNotFound
+    case childNotFound, lookingOnly
 
     var localizedStringResource: LocalizedStringResource {
-        "That child isn't in the app any more."
+        switch self {
+        case .childNotFound: "That child isn't in the app any more."
+        case .lookingOnly: "You're a viewer in this family, so you can look but not add."
+        }
     }
 }
 

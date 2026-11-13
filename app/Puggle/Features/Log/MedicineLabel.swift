@@ -348,11 +348,14 @@ struct LabelReaderView: View {
 /// The system camera, for one photo.
 struct CameraPicker: UIViewControllerRepresentable {
     @Environment(\.dismiss) private var dismiss
+    /// The front camera, for a photo of yourself.
+    var front = false
     let onImage: (UIImage) -> Void
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = .camera
+        if front, UIImagePickerController.isCameraDeviceAvailable(.front) { picker.cameraDevice = .front }
         picker.delegate = context.coordinator
         return picker
     }

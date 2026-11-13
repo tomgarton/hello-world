@@ -1,4 +1,3 @@
-import PhotosUI
 import SwiftUI
 
 /// Your own photo, kept small, on this phone only.
@@ -6,6 +5,8 @@ import SwiftUI
 final class YourPhoto: ObservableObject {
     static let shared = YourPhoto()
     @Published private(set) var image: UIImage?
+    /// The saved file, as it is: the same bytes each time, so it can be compared.
+    var data: Data? { image == nil ? nil : try? Data(contentsOf: url) }
 
     private var url: URL {
         let folder = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -24,15 +25,9 @@ final class YourPhoto: ObservableObject {
             return
         }
         // A square, 300 points across, is plenty for a round avatar.
-        let side = min(picked.size.width, picked.size.height)
-        let crop = CGRect(x: (picked.size.width - side) / 2, y: (picked.size.height - side) / 2, width: side, height: side)
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: 300, height: 300))
-        let small = renderer.image { _ in
-            picked.draw(in: CGRect(x: -crop.minX * 300 / side, y: -crop.minY * 300 / side,
-                                   width: picked.size.width * 300 / side, height: picked.size.height * 300 / side))
-        }
-        try? small.jpegData(compressionQuality: 0.8)?.write(to: url, options: .atomic)
-        image = small
+        guard let small = SmallPhoto.data(from: picked) else { return }
+        try? small.write(to: url, options: .atomic)
+        image = UIImage(data: small)
     }
 }
 
@@ -71,7 +66,7 @@ struct YourAvatar: View {
 struct YouView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage(Setting.yourName) private var yourName = ""
-    @State private var picked: PhotosPickerItem?
+    @EnvironmentObject private var store: FamilyStore
     @State private var choosingTiles = false
     @ObservedObject private var photo = YourPhoto.shared
 
@@ -86,14 +81,9 @@ struct YouView: View {
                 Section {
                     VStack(spacing: 10) {
                         YourAvatar(size: 104)
-                        PhotosPicker(selection: $picked, matching: .images) {
-                            Text(photo.image == nil ? "Add a photo" : "Change photo")
-                                .font(.subheadline.weight(.semibold))
-                        }
-                        if photo.image != nil {
-                            Button("Remove photo", role: .destructive) { photo.set(nil) }
-                                .font(.footnote)
-                                .foregroundStyle(Palette.waratah)
+                        PhotoMenu(hasPhoto: photo.image != nil) { image in
+                            photo.set(image)
+                            store.shareMyDetails()
                         }
                     }
                     .frame(maxWidth: .infinity)
@@ -104,8 +94,11 @@ struct YouView: View {
                     TextField("Your name", text: $yourName)
                         .textContentType(.givenName)
                         .submitLabel(.done)
+                        .onSubmit { store.shareMyDetails() }
                 } footer: {
-                    Text("Shown beside what you log, so the family can see who added it. Your photo stays on this phone.")
+                    Text(store.role == .viewer
+                         ? "As a viewer, your name and photo stay on this iPhone."
+                         : "Your name and photo are shown to your family, beside what you log.")
                 }
                 .listRowBackground(Palette.paper)
 
@@ -149,15 +142,7 @@ struct YouView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
             .sheet(isPresented: $choosingTiles) { TileChooserView(available: Tile.all) }
-            .onChange(of: picked) { _, item in
-                guard let item else { return }
-                Task {
-                    if let data = try? await item.loadTransferable(type: Data.self), let image = UIImage(data: data) {
-                        photo.set(image)
-                    }
-                    picked = nil
-                }
-            }
+            .onDisappear { store.shareMyDetails() }
         }
         .foregroundStyle(Palette.ink)
     }

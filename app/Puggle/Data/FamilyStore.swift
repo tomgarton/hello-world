@@ -25,8 +25,12 @@ final class FamilyStore: ObservableObject {
     var isSample = false
     /// Who new entries are marked as added by. Nil uses the name in Settings.
     var authorOverride: String?
+    /// What this person can do in the family on screen. Kept up to date by `refreshRole()`.
+    @Published var role: Role = .parent
+    /// For looking at the helper and viewer versions without a second iPhone.
+    var roleOverride: Role?
 
-    private var author: String? {
+    var author: String? {
         if let authorOverride { return authorOverride }
         let name = (UserDefaults.standard.string(forKey: "yourName") ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
         return name.isEmpty ? nil : name
@@ -46,6 +50,7 @@ final class FamilyStore: ObservableObject {
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.objectWillChange.send()
+                self.refreshRole()
                 LiveTimers.shared.sync(with: self)
             }
         }
@@ -57,13 +62,7 @@ final class FamilyStore: ObservableObject {
 
     /// The family on screen: a shared family if this person joined one, otherwise their own.
     func currentFamily() -> Family {
-        let request = NSFetchRequest<Family>(entityName: "Family")
-        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
-        let families = (try? context.fetch(request)) ?? []
-        if let joined = families.first(where: { $0.objectID.persistentStore == persistence.sharedStore }) {
-            return joined
-        }
-        if let own = families.first { return own }
+        if let family = existingFamily() { return family }
 
         let family = Family(context: context)
         family.id = UUID()
@@ -74,7 +73,18 @@ final class FamilyStore: ObservableObject {
         return family
     }
 
-    private func place(_ object: NSManagedObject, with family: Family) {
+    /// The family on screen, if there is one yet. Never makes one.
+    func existingFamily() -> Family? {
+        let request = NSFetchRequest<Family>(entityName: "Family")
+        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
+        let families = (try? context.fetch(request)) ?? []
+        if let joined = families.first(where: { $0.objectID.persistentStore == persistence.sharedStore }) {
+            return joined
+        }
+        return families.first
+    }
+
+    func place(_ object: NSManagedObject, with family: Family) {
         if let store = family.objectID.persistentStore {
             context.assign(object, to: store)
         }
@@ -122,6 +132,7 @@ final class FamilyStore: ObservableObject {
         event.value = value
         event.createdAt = .now
         event.loggedBy = author
+        event.loggedByID = stampID
         event.family = family
         event.children = Set(children)
         persistence.save()
@@ -449,7 +460,7 @@ final class FamilyStore: ObservableObject {
         lastSaved = nil
         let shared = persistence.sharedStore
         var left = false
-        for name in ["Event", "Child", "Family"] {
+        for name in ["Event", "Child", "Person", "Family"] {
             let request = NSFetchRequest<NSManagedObject>(entityName: name)
             for object in (try? context.fetch(request)) ?? [] {
                 if let shared, object.objectID.persistentStore == shared {

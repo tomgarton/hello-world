@@ -12,6 +12,33 @@ final class Family: NSManagedObject, Identifiable {
     @NSManaged var createdAt: Date?
     @NSManaged var children: Set<Child>?
     @NSManaged var events: Set<Event>?
+    /// Everyone in the family: whoever holds it in their iCloud, and each person invited.
+    @NSManaged var people: Set<Person>?
+}
+
+/// One grown-up in the family, saved with the family so every phone sees the
+/// same list. It carries what they can do (Parent, Helper or Viewer), and
+/// their name and photo.
+@objc(Person)
+final class Person: NSManagedObject, Identifiable {
+    @NSManaged var id: UUID?
+    @NSManaged var name: String?
+    @NSManaged var roleRaw: String?
+    /// Their iCloud user record name in this app's container, once known.
+    /// It is how a phone finds its own row. Never shown.
+    @NSManaged var userID: String?
+    /// A one-way hash of the email or number the invite went to, to match a
+    /// person who has not joined yet. The address itself is not kept.
+    @NSManaged var lookup: String?
+    /// True for the person whose iCloud holds the family. Only their phone
+    /// can invite people, remove them or change what they can do.
+    @NSManaged var holdsFamily: Bool
+    /// A small square photo, 300 points across.
+    @NSManaged var photo: Data?
+    @NSManaged var invitedAt: Date?
+    @NSManaged var joinedAt: Date?
+    @NSManaged var createdAt: Date?
+    @NSManaged var family: Family?
 }
 
 @objc(Child)
@@ -71,6 +98,9 @@ final class Event: NSManagedObject, Identifiable {
     @NSManaged var sideStartedAt: Date?
     /// The name of whoever added the entry, from their Settings. Optional.
     @NSManaged var loggedBy: String?
+    /// Who added the entry, as an id that does not change when a name does.
+    /// A helper can change the entries that carry their own id. Optional.
+    @NSManaged var loggedByID: String?
     /// Sleep: times the child woke and went back to sleep inside this sleep,
     /// as "start-end" seconds since 1970, separated by commas. Optional.
     @NSManaged var wakings: String?
@@ -415,7 +445,32 @@ enum PuggleModel {
         event.name = "Event"
         event.managedObjectClassName = NSStringFromClass(Event.self)
 
+        let person = NSEntityDescription()
+        person.name = "Person"
+        person.managedObjectClassName = NSStringFromClass(Person.self)
+
         // Family
+        let familyPeople = relationship("people", to: person, toMany: true)
+        let personFamily = relationship("family", to: family, toMany: false)
+        familyPeople.deleteRule = .cascadeDeleteRule
+        familyPeople.inverseRelationship = personFamily
+        personFamily.inverseRelationship = familyPeople
+        let photo = attribute("photo", .binaryDataAttributeType)
+        photo.allowsExternalBinaryDataStorage = true
+        person.properties = [
+            attribute("id", .UUIDAttributeType),
+            attribute("name", .stringAttributeType),
+            attribute("roleRaw", .stringAttributeType),
+            attribute("userID", .stringAttributeType),
+            attribute("lookup", .stringAttributeType),
+            attribute("holdsFamily", .booleanAttributeType, optional: false, defaultValue: false),
+            photo,
+            attribute("invitedAt", .dateAttributeType),
+            attribute("joinedAt", .dateAttributeType),
+            attribute("createdAt", .dateAttributeType),
+            personFamily,
+        ]
+
         let familyChildren = relationship("children", to: child, toMany: true)
         let familyEvents = relationship("events", to: event, toMany: true)
         familyChildren.deleteRule = .cascadeDeleteRule
@@ -440,7 +495,7 @@ enum PuggleModel {
             attribute("id", .UUIDAttributeType),
             attribute("name", .stringAttributeType),
             attribute("createdAt", .dateAttributeType),
-            familyChildren, familyEvents,
+            familyChildren, familyEvents, familyPeople,
         ]
         child.properties = [
             attribute("id", .UUIDAttributeType),
@@ -469,13 +524,14 @@ enum PuggleModel {
             attribute("runningSide", .stringAttributeType),
             attribute("sideStartedAt", .dateAttributeType),
             attribute("loggedBy", .stringAttributeType),
+            attribute("loggedByID", .stringAttributeType),
             attribute("wakings", .stringAttributeType),
             attribute("createdAt", .dateAttributeType),
             eventFamily, eventChildren,
         ]
 
         let model = NSManagedObjectModel()
-        model.entities = [family, child, event]
+        model.entities = [family, child, event, person]
         return model
     }
 }

@@ -9,8 +9,13 @@ struct FamilyView: View {
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
 
     @State private var addingChild = false
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Person.createdAt)]) private var allPeople: FetchedResults<Person>
     @State private var sharing: SharingItem?
     @State private var shareError: String?
+    @State private var inviting = false
+    @State private var pending: PendingInvite?
+    @State private var opened: Person?
+    @ObservedObject private var cloud = CloudStatus.shared
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage(Setting.yourName) private var yourName = ""
 
@@ -53,8 +58,10 @@ struct FamilyView: View {
                         }
                         .listRowBackground(Palette.paper)
                     }
-                    Button("Add a child") { addingChild = true }
-                        .listRowBackground(Palette.paper)
+                    if store.isParent {
+                        Button("Add a child") { addingChild = true }
+                            .listRowBackground(Palette.paper)
+                    }
                 }
                 if children.contains(where: \.archived) {
                     Section {
@@ -75,30 +82,38 @@ struct FamilyView: View {
                         Text("Their history is kept. Open a child to bring them back.")
                     }
                 }
-                if sample.isOn {
-                    EmptyView()
-                } else if Persistence.cloudSyncEnabled {
-                    if CloudStatus.shared.problem != nil {
-                        CloudProblemCard()
-                            .listRowInsets(EdgeInsets())
-                            .listRowBackground(Color.clear)
+                if !sample.isOn, Persistence.cloudSyncEnabled, cloud.problem != nil {
+                    CloudProblemCard()
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                }
+                Section {
+                    ForEach(people) { person in
+                        let opens = store.isParent || store.isMe(person)
+                        Button {
+                            if opens { opened = person }
+                        } label: {
+                            PersonRow(person: person, isMe: store.isMe(person), opens: opens)
+                        }
+                        .buttonStyle(.plain)
+                        .listRowBackground(Palette.paper)
                     }
-                    Section {
-                        Button("Invite someone") { Task { await startSharing() } }
-                            .disabled(!CloudStatus.shared.isAvailable)
+                    if canInvite {
+                        Button("Invite someone") { inviting = true }
+                            .disabled(!cloud.isAvailable)
                             .listRowBackground(Palette.paper)
-                    } header: {
-                        Text("Sharing")
-                    } footer: {
-                        Text("Anyone you invite sees and logs the same day on their own iPhone.")
                     }
-                } else {
-                    Section {
+                } header: {
+                    Text("Family and friends")
+                } footer: {
+                    if !store.managesPeople {
+                        Text("\(store.holderName) can invite people and change what they can do.")
+                    } else if sample.isOn {
+                        Text("A made-up family. Nobody is invited from here.")
+                    } else if !Persistence.cloudSyncEnabled {
                         Text("Test build: sharing is off, and everything stays on this iPhone.")
-                            .foregroundStyle(Palette.muted)
-                            .listRowBackground(Palette.paper)
-                    } header: {
-                        Text("Sharing")
+                    } else {
+                        Text("Anyone you invite sees the same day on their own iPhone.")
                     }
                 }
                 if let shareError {
@@ -109,40 +124,51 @@ struct FamilyView: View {
             .background(Palette.sand)
             .navigationTitle("Family")
             .sheet(isPresented: $addingChild) { AddChildView() }
-            .sheet(item: $sharing) { item in
-                CloudSharingView(share: item.share, container: item.container)
-                    .ignoresSafeArea()
+            .sheet(isPresented: $inviting) {
+                InviteSheet { invite in
+                    pending = invite
+                    Task { await startSharing(invite) }
+                }
+            }
+            .sheet(item: $opened) { PersonSheet(person: $0) }
+            .sheet(item: $sharing, onDismiss: {
+                // Whoever was added in the share sheet gets the name and level just chosen.
+                store.reconcilePeople(pending: pending)
+                pending = nil
+            }) { item in
+                CloudSharingView(share: item.share, container: item.container, lookOnly: item.lookOnly, title: item.title) {
+                    Task { @MainActor in store.reconcilePeople(pending: pending) }
+                }
+                .ignoresSafeArea()
+            }
+            .onAppear {
+                store.reconcilePeople()
+                store.ensureMe()
+                store.refreshRole()
             }
         }
     }
 
-    private func startSharing() async {
+    /// Everyone in the family on screen, in a steady order.
+    private var people: [Person] {
+        guard let family = store.existingFamily() else { return [] }
+        return allPeople.filter { $0.family == family }.sorted(by: FamilyStore.listOrder)
+    }
+
+    private var canInvite: Bool {
+        store.managesPeople && !sample.isOn && Persistence.cloudSyncEnabled
+    }
+
+    private func startSharing(_ invite: PendingInvite) async {
         do {
             let family = store.currentFamily()
             let (share, container) = try await store.persistence.share(family)
-            sharing = SharingItem(share: share, container: container)
+            let title = store.shareTitle
+            share[CKShare.SystemFieldKey.title] = title as CKRecordValue
+            sharing = SharingItem(share: share, container: container, lookOnly: invite.role == .viewer, title: title)
         } catch {
-            shareError = "Couldn't start sharing: \(error.localizedDescription). Check you're signed in to iCloud."
+            shareError = "Couldn't start the invite. Check this iPhone is signed in to iCloud, then try again."
+            print("Sharing failed: \(error)")
         }
     }
-}
-
-struct SharingItem: Identifiable {
-    let id = UUID()
-    let share: CKShare
-    let container: CKContainer
-}
-
-/// Apple's standard sharing sheet: invite by Messages, Mail or a link.
-struct CloudSharingView: UIViewControllerRepresentable {
-    let share: CKShare
-    let container: CKContainer
-
-    func makeUIViewController(context: Context) -> UICloudSharingController {
-        let controller = UICloudSharingController(share: share, container: container)
-        controller.availablePermissions = [.allowReadWrite, .allowPrivate]
-        return controller
-    }
-
-    func updateUIViewController(_ controller: UICloudSharingController, context: Context) {}
 }
