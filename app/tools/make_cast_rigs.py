@@ -33,7 +33,7 @@ def drawings():
         'mum': (adult('#3C9A5F', 'mum'), 456, "Mum: a flower behind her ear, a green dress."),
         'dad': (adult('#2A62B8', 'dad'), 456, "Dad: a blue shirt and shorts."),
         'pop': (adult('#BFD9F5', 'pop'), 456, "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a pale blue cardigan."),
-        'pebble': (baby('happy', '#F4BE2C'), 270, "Pebble: Puggle's baby sibling, about six months, sitting with a bottle. A Kewpie curl."),
+        'pebble': (baby('neutral', '#F4BE2C'), 270, "Pebble: Puggle's baby sibling, about six months, sitting with a bottle. A Kewpie curl."),
         'quill': (inner('echidna', 'dungarees', '#E5553B'), 300, "Quill: an echidna, Puggle's friend. Red dungarees; the spines are the signature."),
         'kip': (inner('koala', 'dress', '#F4BE2C') + A['bow'](150, 50, '#2A62B8'), 300, "Kip: a koala, Puggle's best friend, who can fall asleep anywhere. A blue bow."),
         'digby': (inner('wombat', 'tee', '#2A62B8') + A['beanie']('#E5553B'), 300, "Digby: a wombat who loves digging. A red beanie."),
@@ -232,11 +232,132 @@ def flatten(svg):
     return shapes
 
 
+# ---------- Puggle's refinements, for everyone ----------
+# The app's drawing of Puggle is the reference (spec: "As built in the app, 12 November"). The canvas
+# cast predates it, so the same changes are made here: soft oval cheeks with no marks, her eye size,
+# a filled pocket, her arms (sleeve, cuff, ball hand), tail markings, and each leg on its own ankle
+# with a real foot. Feet are bare, as hers are: webbed for the platypus family, and each friend's own.
+
+FEET = {'nan': 'webbed', 'mum': 'webbed', 'dad': 'webbed', 'pop': 'webbed', 'pebble': 'webbed',
+        'kip': 'koala', 'digby': 'wombat', 'quill': 'echidna', 'sunny': 'quokka'}
+CLAW = '#F3E3C3'
+
+def lighten(c, amount=0.5):
+    r, g, b = (int(c[i:i + 2], 16) for i in (1, 3, 5))
+    return '#%02X%02X%02X' % tuple(round(v + (255 - v) * amount) for v in (r, g, b))
+
+def moved(d, dx, dy):
+    nums = iter(re.findall(r'[A-Z]|-?\d*\.?\d+', d))
+    out, pair = [], []
+    for token in nums:
+        if token.isalpha(): out.append(token); continue
+        pair.append(float(token))
+        if len(pair) == 2:
+            out.append(f'{round(pair[0] + dx, 1):g} {round(pair[1] + dy, 1):g}'); pair = []
+    return re.sub(r'([A-Z]) ', r'\1', ' '.join(out))
+
+def shift(shape, dx, dy):
+    if shape['kind'] == 'ellipse': shape['x'] += dx; shape['y'] += dy
+    else: shape['d'] = moved(shape['d'], dx, dy)
+    b = shape['box']; shape['box'] = (b[0] + dx, b[1] + dy, b[2] + dx, b[3] + dy)
+
+def webbed_foot(puggle, side, cx, ankle, turn=None):
+    """Puggle's own foot, moved to this ankle."""
+    src = next(p for p in puggle['parts'] if p['id'] == f'foot-{side}')
+    home_x, home_bottom = (100 if side == 'left' else 140), 278
+    dx, dy = cx - home_x, ankle - home_bottom
+    out = []
+    for shp in src['shapes']:
+        new = dict(shp); new['d'] = moved(shp['d'], dx, dy); new['x'] = shp['x'] + dx; new['y'] = shp['y'] + dy
+        if turn is not None: new['rotate'] = turn
+        out.append(new)
+    return out
+
+def paw(kind, side, cx, ankle, fur, shade):
+    """A friend's foot, seen from the front: the pad of the foot, then its claws at the toe edge."""
+    out, line = [], shade(fur)
+    sign = -1 if side == 'left' else 1
+    def claw(x, y, w, length, lean=0.0, colour=CLAW):
+        tip = (x + lean * length, y + length)
+        return {'kind': 'path', 'd': f'M{x - w / 2:g} {y:g} Q{x - w / 2 + lean * length * 0.4:g} {y + length * 0.7:g} {tip[0]:g} {tip[1]:g} Q{x + w / 2 + lean * length * 0.4:g} {y + length * 0.7:g} {x + w / 2:g} {y:g} Z',
+                'fill': colour, 'stroke': INK, 'tint': shade(colour), 'width': 2.6}
+    if kind == 'koala':
+        # A round, soft paw with three short dark claws.
+        out.append({'kind': 'ellipse', 'x': cx, 'y': ankle + 3, 'rx': 23, 'ry': 10.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
+        for i in (-1, 0, 1): out.append(claw(cx + i * 10.5, ankle + 7 - abs(i) * 1.5, 6.5, 9, colour='#5A5F68'))
+    elif kind == 'wombat':
+        # Broad and flat, with four stout claws for digging.
+        out.append({'kind': 'ellipse', 'x': cx, 'y': ankle + 3, 'rx': 26, 'ry': 10.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
+        for i in (-1.5, -0.5, 0.5, 1.5): out.append(claw(cx + i * 10, ankle + 7 - abs(i) * 1.2, 7.5, 9.5))
+    elif kind == 'echidna':
+        # Three long curved claws, splayed outwards.
+        for i, lean in ((-1, -0.45), (0, 0.0), (1, 0.45)): out.append(claw(cx + i * 10 + sign * 2, ankle + 6, 6.5, 14, lean=lean + sign * 0.15))
+        out.append({'kind': 'ellipse', 'x': cx, 'y': ankle + 3, 'rx': 21, 'ry': 9.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
+    elif kind == 'quokka':
+        # Long hind feet, like a small kangaroo's, with two toe lines and small dark claws.
+        x = cx + sign * 7
+        out.append({'kind': 'ellipse', 'x': x, 'y': ankle + 3, 'rx': 29, 'ry': 9.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
+        for i in (-1, 0, 1): out.append(claw(x + i * 11 + sign * 4, ankle + 7 - abs(i), 5.5, 8, colour='#5A4636'))
+    return out
+
+def puggle_arm(side, sleeve, hand, shade, shoulder_y=178):
+    """Her arm: a sleeve with a dark edge, a cuff line, and a ball hand."""
+    def x(v): return v if side == 'left' else 240 - v
+    dy = shoulder_y - 178
+    return [
+        {'kind': 'path', 'd': f'M{x(88):g} {178 + dy:g} Q{x(71.8):g} {198.9 + dy:g} {x(56.5):g} {209.5 + dy:g}', 'stroke': INK, 'tint': shade(sleeve), 'width': 34, 'cap': 'round'},
+        {'kind': 'path', 'd': f'M{x(88):g} {178 + dy:g} Q{x(71.8):g} {198.9 + dy:g} {x(50):g} {214 + dy:g}', 'stroke': sleeve, 'width': 22, 'cap': 'round'},
+        {'kind': 'path', 'd': f'M{x(53.6):g} {198.1 + dy:g} L{x(66.1):g} {216.2 + dy:g}', 'stroke': INK, 'tint': shade(sleeve), 'width': 4, 'cap': 'round'},
+        {'kind': 'ellipse', 'x': x(50), 'y': 214 + dy, 'rx': 12.5, 'ry': 12.5, 'fill': hand, 'stroke': INK, 'tint': shade(hand), 'width': 5},
+    ]
+
+def refine(name, shapes, shade):
+    """Changes made to the flattened drawing before it is cut up."""
+    out, garment = [], None
+    for s in shapes:
+        if s.get('stroke') == '#C24A36': continue                       # the stitch marks: cheeks are plain at rest
+        if s['kind'] == 'ellipse' and s.get('fill') == '#EE9C88' and 'stroke' not in s:
+            s['rx'], s['ry'] = 12, 7.5                                   # soft ovals, her size
+        if s['kind'] == 'ellipse' and s.get('fill') == INK and 'stroke' not in s and 6 <= s['rx'] <= 8 and abs(s['rx'] - s['ry']) < 0.1:
+            s['rx'] = s['ry'] = 6.8                                      # her eyes
+        if s.get('fill') and s.get('width') in (6, 7) and s['kind'] == 'path': garment = s['fill']
+        if s['kind'] == 'path' and not s.get('fill') and s.get('stroke') == INK and re.match(r'M100 (19|2\d)\dh40v', s['d0']) and garment:
+            s['fill'] = lighten(garment)                                 # a pocket, filled a lighter shade of what it is on
+        out.append(s)
+    if name == 'digby':
+        # His beanie sat over his eyes: up it goes, to where a beanie sits.
+        for s in out:
+            if (s.get('fill') == '#E5553B' or s.get('fill') == '#FBF6E9') and s['box'][3] < 110 and s['box'][1] < 85 and s.get('width') == 5: shift(s, 0, -17)
+    if name == 'pop':
+        # The brim of his bucket hat was a single line: now it is a brim.
+        for i, s in enumerate(out):
+            if s['d0'] == 'M48 66H192':
+                segs = rounded_rect(46, 59, 148, 14, 7)
+                out[i] = {'kind': 'path', 'd': path_text(segs, IDENT), 'box': bounds(segs, IDENT), 'fill': '#3C9A5F', 'stroke': INK, 'width': 6, 'tags': s['tags'], 'opacity': 1, 'src': 'path', 'd0': ''}
+    if name == 'mum':
+        # Her flower read as a leaf. A small daisy, so it is plainly a flower and not Puggle's clip.
+        for i, s in enumerate(out):
+            if s['d0'].startswith('M156 52q14'):
+                cx, cy, daisy = 166, 52, []
+                petals = [(cx + 9 * math.cos(math.radians(a)), cy + 9 * math.sin(math.radians(a))) for a in range(-90, 270, 72)]
+                for px, py in petals: daisy.append({'kind': 'ellipse', 'x': round(px, 1), 'y': round(py, 1), 'rx': 7.5, 'ry': 7.5, 'fill': '#FBF6E9', 'stroke': INK, 'width': 4})
+                for px, py in petals: daisy.append({'kind': 'ellipse', 'x': round(px, 1), 'y': round(py, 1), 'rx': 6, 'ry': 6, 'fill': '#FBF6E9'})
+                daisy.append({'kind': 'ellipse', 'x': cx, 'y': cy, 'rx': 5.5, 'ry': 5.5, 'fill': '#F4BE2C'})
+                for d in daisy: d.update(tags=s['tags'], opacity=1, src='ellipse', d0='', box=(d['x'] - d['rx'], d['y'] - d['ry'], d['x'] + d['rx'], d['y'] + d['ry']))
+                out[i:i + 1] = daisy
+                break
+    return out
+
+
 # ---------- Cutting it into parts ----------
 
-def build(name, svg, height, about, shade, moves):
-    shapes = flatten(svg)
+def build(name, svg, height, about, shade, moves, puggle):
     grown = height > 400
+    if grown:
+        # The tail's marks were left at a child's height on the canvas: put them on the tail.
+        svg = svg.replace('M176 238 Q180 246 176 254 M191 237 Q196 246 191 255 M170 246 L203 246', 'M176 392 Q180 400 176 408 M191 391 Q196 400 191 409 M170 400 L203 400')
+    svg = svg.replace('stroke-width="2.5" stroke-linecap="round" opacity="0.5"', f'stroke-width="2.5" stroke-linecap="round" data-mark="1"')
+    shapes = refine(name, flatten(svg), shade)
     # The head: the first big outlined shape up where a head is.
     head_at = next(i for i, s in enumerate(shapes)
                    if s.get('fill') and s.get('stroke') and s['box'][3] - s['box'][1] >= 105 and 80 < (s['box'][1] + s['box'][3]) / 2 < 135)
@@ -250,7 +371,7 @@ def build(name, svg, height, about, shade, moves):
     for i, s in enumerate(shapes):
         cx, cy = (s['box'][0] + s['box'][2]) / 2, (s['box'][1] + s['box'][3]) / 2
         if s['tags'].get('part') == 'tail':
-            if s['opacity'] < 1 and grown: continue      # the tail's marks were left at a child's height on the canvas
+            if not s.get('fill') and s.get('width') == 2.5: s['stroke'] = shade('#8A5A3C')   # her tail's markings, in the fur's own dark
             put('tail', s); continue
         if i >= head_at:
             dark_dot = s['kind'] == 'ellipse' and s.get('fill') == INK and 'stroke' not in s and 6 <= s['rx'] <= 8 and abs(s['rx'] - s['ry']) < 0.1
@@ -277,8 +398,8 @@ def build(name, svg, height, about, shade, moves):
         nonlocal last
         out = []
         for j, s in enumerate(part_shapes):
-            shape = {k: s[k] for k in ('kind', 'x', 'y', 'rx', 'ry', 'd', 'rotate', 'fill', 'stroke', 'width', 'cap') if k in s}
-            if s.get('stroke') == INK:
+            shape = {k: s[k] for k in ('kind', 'x', 'y', 'rx', 'ry', 'd', 'rotate', 'fill', 'stroke', 'tint', 'width', 'cap') if k in s}
+            if s.get('stroke') == INK and 'tint' not in s:
                 if s.get('fill') and s['fill'] != INK: last = shade(s['fill'])
                 elif not s.get('fill') and j + 1 < len(part_shapes) and part_shapes[j + 1].get('d') == s.get('d') and part_shapes[j + 1].get('stroke') != INK:
                     last = shade(part_shapes[j + 1]['stroke'])
@@ -294,6 +415,33 @@ def build(name, svg, height, about, shade, moves):
     parts = [{'id': 'body', 'pivot': [120, height - 10], 'shapes': []}]
     seen, eyes = {}, {}
     for part, part_shapes in groups:
+        if part == 'legs':
+            # Each leg on its own ankle, with a real foot: hers for the platypus family, their own for her friends.
+            for side in ('left', 'right'):
+                mine = [s for s in part_shapes if ((s['box'][0] + s['box'][2]) / 2 < 120) == (side == 'left')]
+                leg = next((s for s in mine if s['src'] == 'rect'), None)
+                pad = next((s for s in mine if s['src'] in ('ellipse', 'circle')), None)
+                if leg:
+                    cx, ankle, fur = (leg['box'][0] + leg['box'][2]) / 2, leg['box'][3], leg['fill']
+                    parts.append({'id': f'leg-{side}', 'parent': 'body', 'pivot': [cx, leg['box'][1] + 2], 'shapes': finish([leg])})
+                else:
+                    cx, ankle, fur = pad['x'], pad['y'] - 6, pad['fill']
+                sitting = name == 'pebble'
+                if FEET[name] == 'webbed':
+                    if sitting: foot = webbed_foot(puggle, side, cx + (6 if side == 'left' else -6), pad['y'] + 4, turn=-20 if side == 'left' else 20)
+                    else: foot = webbed_foot(puggle, side, cx, ankle - (4 if grown else 0))
+                else:
+                    foot = paw(FEET[name], side, cx, ankle, fur, shade)
+                parts.append({'id': f'foot-{side}', 'parent': f'leg-{side}' if leg else 'body', 'pivot': [cx, ankle], 'spring': 200, 'shapes': foot})
+            continue
+        if part.startswith('arm-') and part_shapes[0]['src'] == 'rect':
+            # The friends' arms were plain blocks: give them hers.
+            side = part[4:]
+            hand = next(s['fill'] for s in part_shapes if s['kind'] == 'ellipse')
+            parts.append({'id': part, 'parent': 'upper', 'pivot': [88 if side == 'left' else 152, 178], 'spring': 150,
+                          'shapes': puggle_arm(side, part_shapes[0]['fill'], hand, shade)})
+            seen[part] = 1
+            continue
         seen[part] = seen.get(part, 0) + 1
         pid = part if seen[part] == 1 else f'{part}-{seen[part]}'
         entry = {'id': pid, 'parent': parents[part] if seen[part] == 1 or not part.startswith('head') else 'head', 'pivot': pivots.get(part), 'shapes': finish(part_shapes)}
@@ -332,9 +480,10 @@ def build(name, svg, height, about, shade, moves):
 
 def main():
     shade = shade_rule()
-    moves = json.load(open(RIGS + '/puggle.rig.json'))['moves']
+    puggle = json.load(open(RIGS + '/puggle.rig.json'))
+    moves = puggle['moves']
     for name, (svg, height, about) in drawings().items():
-        rig = build(name, svg, height, about, shade, moves)
+        rig = build(name, svg, height, about, shade, moves, puggle)
         with open(f'{RIGS}/{name}.rig.json', 'w') as out:
             json.dump(rig, out, indent=1, ensure_ascii=False)
         print(name, [f"{p['id']}:{len(p['shapes'])}" for p in rig['parts']])

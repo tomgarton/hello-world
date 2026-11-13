@@ -67,6 +67,21 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
+    /// Everyone's portrait with their name, as the character picker shows them.
+    @MainActor static func writePortraits(name: String) {
+        let sheet = HStack(spacing: 16) {
+            ForEach(CastPortrait.everyone, id: \.self) { who in
+                VStack(spacing: 6) {
+                    CastPortrait(who: who, size: 110)
+                    Text(CastPortrait.name(who)).font(.headline).foregroundStyle(Color(hex: 0x3A2A20))
+                }
+            }
+        }
+        .padding(24)
+        .background(Color(hex: 0xF2ECDD))
+        save(sheet, as: name)
+    }
+
     /// The firework of Puggle's face, from the rocket going up to the sparks fading.
     @MainActor static func writeFirework(name: String) {
         let strip = HStack(spacing: 4) {

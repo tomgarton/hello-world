@@ -220,3 +220,91 @@ struct CompanyView: View {
         }
     }
 }
+
+// MARK: Portraits, for avatars
+
+/// Anyone in the cast, Puggle included, as a round portrait: their head on one of the soft colours.
+struct CastPortrait: View {
+    /// The rig's name: "puggle", "kip", "nan"…
+    let who: String
+    var size: CGFloat = 64
+
+    static let everyone: [String] = ["puggle"] + [CastMember.pebble, .kip, .quill, .digby, .sunny, .mum, .dad, .nan, .pop].map(\.rawValue)
+
+    static func name(_ who: String) -> String { who.capitalized }
+
+    /// A soft field behind each, so no two neighbours match.
+    private var field: Color {
+        let fields: [UInt32] = [0xBFD9F5, 0xF4E7B0, 0xCFE5D2, 0xF3D9C9, 0xE2D4F1]
+        return Color(hex: fields[(Self.everyone.firstIndex(of: who) ?? 0) % fields.count])
+    }
+
+    var body: some View {
+        ZStack(alignment: .top) {
+            field
+            if let rig = Rig.load(who) {
+                // The head and shoulders: the drawing is scaled up and held by its top, and the circle crops the rest.
+                let wide = size * 1.12
+                RigFrame(rig: rig, states: [:])
+                    .frame(width: wide, height: wide * rig.size[1] / rig.size[0])
+                    .offset(y: size * 0.1)
+                    .frame(width: size, height: size, alignment: .top)
+            }
+        }
+        .frame(width: size, height: size)
+        .clipShape(Circle())
+        .environment(\.lineStyle, .chosen)
+        .accessibilityLabel(Self.name(who))
+    }
+
+    /// The portrait as a picture, to keep as someone's photo.
+    @MainActor static func image(of who: String) -> UIImage? {
+        let renderer = ImageRenderer(content: CastPortrait(who: who, size: 300).clipShape(Rectangle()))
+        renderer.scale = 1
+        return renderer.uiImage
+    }
+}
+
+/// "Choose a character": Puggle, her family and her friends, each with their name.
+struct CharacterPicker: View {
+    @Environment(\.dismiss) private var dismiss
+    let onPick: (UIImage) -> Void
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 14)], spacing: 18) {
+                    ForEach(CastPortrait.everyone, id: \.self) { who in
+                        Button {
+                            guard let image = CastPortrait.image(of: who) else { return }
+                            Haptics.tap()
+                            onPick(image)
+                            dismiss()
+                        } label: {
+                            VStack(spacing: 6) {
+                                CastPortrait(who: who, size: 84)
+                                Text(CastPortrait.name(who)).font(.subheadline.weight(.semibold))
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel(CastPortrait.name(who))
+                    }
+                }
+                .padding(20)
+                Text("Puggle, her family and her friends. Pick one to stand in for a photo; you can change it any time.")
+                    .font(.footnote)
+                    .foregroundStyle(Palette.muted)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 20)
+            }
+            .background(Palette.sand)
+            .navigationTitle("Choose a character")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
+        }
+        .foregroundStyle(Palette.ink)
+        .presentationDetents([.medium, .large])
+    }
+}

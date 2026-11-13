@@ -40,6 +40,7 @@ struct PhotoMenu: View {
 
     @State private var taking = false
     @State private var choosing = false
+    @State private var choosingCharacter = false
     @State private var picked: PhotosPickerItem?
 
     var body: some View {
@@ -48,6 +49,7 @@ struct PhotoMenu: View {
                 Button { taking = true } label: { Label("Take a photo", systemImage: "camera") }
             }
             Button { choosing = true } label: { Label("Choose a photo", systemImage: "photo") }
+            Button { choosingCharacter = true } label: { Label("Choose a character", systemImage: "face.smiling") }
             if hasPhoto {
                 Button(role: .destructive) { onImage(nil) } label: { Label("Remove photo", systemImage: "trash") }
             }
@@ -57,6 +59,7 @@ struct PhotoMenu: View {
                 .frame(minHeight: 44)
         }
         .photosPicker(isPresented: $choosing, selection: $picked, matching: .images)
+        .sheet(isPresented: $choosingCharacter) { CharacterPicker { onImage($0) } }
         .fullScreenCover(isPresented: $taking) {
             CameraPicker(front: front) { onImage($0) }
                 .ignoresSafeArea()
