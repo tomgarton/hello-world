@@ -82,7 +82,7 @@ enum NappyKind: String, AppEnum {
 
 struct StartSleepIntent: AppIntent {
     static var title: LocalizedStringResource = "Start sleep"
-    static var description = IntentDescription("Starts a child's sleep timer.")
+    static var description = IntentDescription("Starts a child's sleep timer.", searchKeywords: ["baby", "sleep", "nap", "bedtime", "asleep", "child", "tracker"])
 
     @Parameter(title: "Child") var child: ChildEntity
 
@@ -100,7 +100,7 @@ struct StartSleepIntent: AppIntent {
 
 struct WokeUpIntent: AppIntent {
     static var title: LocalizedStringResource = "Woke up"
-    static var description = IntentDescription("Ends a child's sleep timer.")
+    static var description = IntentDescription("Ends a child's sleep timer.", searchKeywords: ["baby", "awake", "woke", "wake up", "sleep", "nap", "child", "tracker"])
 
     @Parameter(title: "Child") var child: ChildEntity
 
@@ -118,7 +118,7 @@ struct WokeUpIntent: AppIntent {
 
 struct LogNappyIntent: AppIntent {
     static var title: LocalizedStringResource = "Log a nappy"
-    static var description = IntentDescription("Saves a nappy change.")
+    static var description = IntentDescription("Saves a nappy change.", searchKeywords: ["baby", "nappy", "diaper", "change", "wet", "dirty", "child", "tracker"])
 
     @Parameter(title: "Child") var child: ChildEntity
     @Parameter(title: "Nappy", default: .wet) var nappy: NappyKind
@@ -134,7 +134,7 @@ struct LogNappyIntent: AppIntent {
 
 struct LogBottleIntent: AppIntent {
     static var title: LocalizedStringResource = "Log a bottle"
-    static var description = IntentDescription("Saves a bottle. Without an amount it uses the child's last one.")
+    static var description = IntentDescription("Saves a bottle. Without an amount it uses the child's last one.", searchKeywords: ["baby", "bottle", "feed", "feeding", "formula", "milk", "child", "tracker"])
 
     @Parameter(title: "Child") var child: ChildEntity
     @Parameter(title: "Millilitres", inclusiveRange: (1, 1000)) var amount: Int?
@@ -160,7 +160,7 @@ struct LogBottleIntent: AppIntent {
 /// A question, not a log. It reports what was recorded and nothing more.
 struct LastFeedIntent: AppIntent {
     static var title: LocalizedStringResource = "Last feed"
-    static var description = IntentDescription("Says when a child was last fed.")
+    static var description = IntentDescription("Says when a child was last fed.", searchKeywords: ["baby", "feed", "feeding", "last feed", "bottle", "breastfeed", "child", "tracker"])
 
     @Parameter(title: "Child") var child: ChildEntity
 
