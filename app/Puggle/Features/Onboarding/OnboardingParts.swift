@@ -103,7 +103,7 @@ struct OnboardingSampleDay: View {
                     Text("5 months").font(.subheadline).foregroundStyle(Palette.muted)
                 }
             }
-            entry(.bottle, text: "Bottle, 150 ml", who: "Dad")
+            entry(.bottle, text: "Bottle, 150 ml", who: "Robin")
             entry(.sleep, text: "Nap, 1 h 20 min", who: "Nan")
         }
         .padding(16)

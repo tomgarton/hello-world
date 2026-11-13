@@ -92,3 +92,22 @@ File references are under `app/Puggle/`. "Checked" means the claim was read agai
 8. Announce saves to VoiceOver, and make each chart bar a labelled button.
 9. Let the log sheets and the Last saved bar stack at the largest text sizes.
 10. Add Help topics for finding support and for what the app cannot do: two homes with equal control, handing a child's record to someone else, corrected age.
+
+## What has been done since
+
+Fixed on 13 November, in the commit after this report. 34 tests pass. Only the Family tab and the Add a child sheet were looked at in the simulator afterwards.
+
+- **Helper delete paths (1 in the list above):** the store itself now refuses to delete an entry the person may not change, so the log sheet, the widget's Undo and "Cancel" on a sleep are all covered. A helper cancelling someone else's new sleep ends it instead.
+- **Medicine rules (2):** not shared yet. The medicine sheet now says "Checked on this iPhone only."
+- **Feeding (3):** "Neither now" is offered. Bottles go down to 5 ml, in steps of 5 at 30 ml and under. Tube feeding and cow's milk are not added.
+- **Empty states (4):** once a phone has shown a child, an empty Today says "No children on Today" with no picture. The widget says "No children to show."
+- **Joining and removal (5):** a "Getting the family" screen shows after an invite is accepted, for up to 15 minutes or until children arrive. A notice says "You're no longer in this family" if a joined family goes. Neither has been run on two phones.
+- **Wording (6):** "partner", "Mum" and "Dad" are out of first run, the invite levels and the sample family. "What should we call you?" is now "Your name". The top level is still called "Parent".
+- **Birth date (7):** "Choose" opens a date wheel at once, and the form says what is still needed before "Add" works.
+- **VoiceOver (8):** a save and a delete are announced. Each chart bar is read as its day and amount.
+- **Largest text (9):** the Last saved bar stacks its buttons underneath, the child panel's grid goes to one column, and log sheets open full height. Segmented pickers and chip rows inside the log sheets are unchanged.
+- **Help (10):** two new topics, "Finding support" and "What the app can't do". No helpline numbers are given.
+
+Also: two children's real names were in the test file and one was in a Help answer. Both are replaced with made-up names.
+
+Still open from the tables above: sharing medicine rules, a joiner who already has children, transferring a family, a recoverable copy when a child is deleted, limiting export by level, writing the share back before the list of people is rebuilt, and the smaller simulator findings (Undo on every tab, clipped sheet rows, the delete confirmation, first-run dots, the Time row, last night's figures).

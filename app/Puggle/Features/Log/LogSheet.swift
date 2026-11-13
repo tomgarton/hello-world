@@ -58,6 +58,7 @@ struct LogSheet: View {
     @State private var confirmingDelete = false
     @State private var loaded = false
     @FocusState private var amountFocused: Bool
+    @Environment(\.dynamicTypeSize) private var textSize
 
     private var isEditing: Bool { editing != nil }
 
@@ -70,7 +71,7 @@ struct LogSheet: View {
                     TextField("Note", text: $note, axis: .vertical)
                         .padding(14)
                         .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
-                    if isEditing {
+                    if let editing, store.canChange(editing) {
                         Button("Delete entry", role: .destructive) { confirmingDelete = true }
                     .foregroundStyle(Palette.waratah)
                             .frame(maxWidth: .infinity, minHeight: 44)
@@ -128,7 +129,8 @@ struct LogSheet: View {
             }
         }
         .foregroundStyle(Palette.ink)
-        .presentationDetents(isEditing ? [.large] : [.medium, .large])
+        // Full height at the largest text sizes, where half a screen is not enough room.
+        .presentationDetents(isEditing || textSize.isAccessibilitySize ? [.large] : [.medium, .large])
         .presentationDragIndicator(.visible)
         .onAppear(perform: load)
         .onChange(of: selected) { _, _ in rememberLastBottle() }
@@ -423,7 +425,7 @@ struct LogSheet: View {
                     ForEach(chosenChildren) { child in ownAmountRow(child) }
                 } else {
                     HStack {
-                        stepButton("minus", label: "Less") { amount = max(10, amount - Units.volumeStep) }
+                        stepButton("minus", label: "Less") { amount = max(Units.volumeFloor, amount - Units.volumeStep(from: amount, down: true)) }
                         Spacer()
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
                             // Shown and typed in the parent's units; stored in millilitres.
@@ -440,7 +442,7 @@ struct LogSheet: View {
                             Text(Units.volumeUnit).foregroundStyle(Palette.muted)
                         }
                         Spacer()
-                        stepButton("plus", label: "More") { amount = min(400, amount + Units.volumeStep) }
+                        stepButton("plus", label: "More") { amount = min(400, amount + Units.volumeStep(from: amount, down: false)) }
                     }
                 }
                 Picker("Milk", selection: $milk) {
@@ -581,6 +583,10 @@ struct LogSheet: View {
                 field("Dose, as on the label or as prescribed", text: $doseText)
                 ruleField("Smallest gap, in hours", text: $gapText, keyboard: .decimalPad)
                 ruleField("Most doses in 24 hours", text: $limitText, keyboard: .numberPad)
+                Text("Checked on this iPhone only. Other phones in the family don't get this check yet.")
+                    .font(.footnote)
+                    .foregroundStyle(Palette.muted)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("From the box or prescription. The app asks before a dose that goes past them, and never suggests one.")
                     .font(.footnote)
                     .foregroundStyle(Palette.muted)

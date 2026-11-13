@@ -128,6 +128,7 @@ struct PuggleApp: App {
 struct RootView: View {
     @FetchRequest(sortDescriptors: []) private var children: FetchedResults<Child>
     @EnvironmentObject private var sample: SampleFamily
+    @EnvironmentObject private var store: FamilyStore
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @AppStorage(Setting.justLog) private var justLog = false
     @State private var inFirstRun = false
@@ -147,6 +148,17 @@ struct RootView: View {
             }
             .animation(.easeOut(duration: 0.25), value: sample.loading)
             .fullScreenCover(item: $invites.invite) { JoinView(invite: $0) }
+            // The family arrived after an invite: no first run to go through.
+            .onChange(of: children.count) { _, count in
+                guard count > 0, invites.joinedAt != nil else { return }
+                invites.stopWaiting()
+                hasOnboarded = true
+            }
+            .alert("You're no longer in this family", isPresented: $store.removedNotice) {
+                Button("OK") {}
+            } message: {
+                Text("Whoever started it has removed you or stopped sharing. Their children have come off this iPhone. What you logged is still with them.")
+            }
             .overlay {
                 if splashing {
                     SplashView().transition(.opacity)
@@ -236,8 +248,11 @@ struct RootView: View {
     }
 
     @ViewBuilder private var mainContent: some View {
-        // First run shows until it is finished, even once the first child exists.
-        if !sample.isOn && !hasOnboarded && (children.isEmpty || inFirstRun) {
+        if !sample.isOn && invites.awaitingFamily && children.isEmpty {
+            // An invite was accepted and the family has not come down from iCloud yet.
+            ArrivingView { invites.stopWaiting() }
+        } else if !sample.isOn && !hasOnboarded && (children.isEmpty || inFirstRun) {
+            // First run shows until it is finished, even once the first child exists.
             OnboardingView {
                 hasOnboarded = true
                 inFirstRun = false

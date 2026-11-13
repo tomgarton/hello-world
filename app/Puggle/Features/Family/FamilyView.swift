@@ -34,12 +34,12 @@ struct FamilyView: View {
                         SettingsView()
                     } label: {
                         HStack(spacing: 12) {
-                            Image(systemName: "person.crop.circle")
+                            Image(systemName: "gearshape")
                                 .font(.system(size: 34))
                                 .frame(width: 40, height: 40)
                             VStack(alignment: .leading) {
-                                Text(yourName.trimmingCharacters(in: .whitespaces).isEmpty ? "You" : yourName).font(.headline)
-                                Text("Settings, your data and help").font(.subheadline).foregroundStyle(Palette.muted)
+                                Text("Settings").font(.headline)
+                                Text("Reminders, your data and help").font(.subheadline).foregroundStyle(Palette.muted)
                             }
                         }
                     }

@@ -257,6 +257,11 @@ struct ChildInsights: View {
                                     .onTapGesture {
                                         withAnimation(.easeOut(duration: 0.15)) { picked = picked == day.id ? nil : day.id }
                                     }
+                                    // Each bar is read as its day and its amount, and can be chosen like a button.
+                                    .accessibilityElement()
+                                    .accessibilityLabel(day.id.formatted(.dateTime.weekday(.wide).day().month(.wide)))
+                                    .accessibilityValue(value > 0 ? axis(value, showing) : "Nothing logged")
+                                    .accessibilityAddTraits(picked == day.id ? [.isButton, .isSelected] : .isButton)
                             }
                         }
                     }
@@ -270,7 +275,7 @@ struct ChildInsights: View {
                     Spacer(minLength: 0)
                     Text(axis(0, showing))
                 }
-                .font(.caption2)
+                .font(.footnote)
                 .monospacedDigit()
                 .foregroundStyle(Palette.muted)
                 .frame(height: 150)
@@ -282,7 +287,7 @@ struct ChildInsights: View {
                 ForEach(Array(days.enumerated()), id: \.element.id) { index, day in
                     let shown = period == .week || (days.count - 1 - index).isMultiple(of: 7)
                     Text(shown ? (period == .week ? day.id.formatted(.dateTime.weekday(.abbreviated)) : day.id.formatted(.dateTime.day())) : "")
-                        .font(.caption2)
+                        .font(period == .week ? .footnote : .caption2)
                         .foregroundStyle(picked == day.id ? Palette.ink : Palette.muted)
                         .fixedSize()
                         .frame(maxWidth: .infinity)

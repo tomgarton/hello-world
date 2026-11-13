@@ -35,6 +35,14 @@ struct ChildDraft {
     /// The name, and for a baby an answer to how they feed.
     var isComplete: Bool { !trimmedName.isEmpty && birthDateChosen && (!asksFeeding || feeding != nil) }
 
+    /// What is still needed before the child can be added, or nil when nothing is.
+    var missing: String? {
+        if trimmedName.isEmpty { return "Add a name to carry on." }
+        if !birthDateChosen { return "Choose a birth date to carry on." }
+        if asksFeeding && feeding == nil { return "Choose how they feed to carry on." }
+        return nil
+    }
+
     /// An older child who was never asked about feeding gets "neither", so
     /// their Today shows only what applies to them.
     var feedingToSave: Feeding? { asksFeeding ? feeding : (feeding ?? .neither) }
@@ -44,6 +52,8 @@ struct ChildDraft {
 /// Name, birth date, colour, and the two setup questions that build Today.
 struct ChildForm: View {
     @Binding var draft: ChildDraft
+    /// True once "Choose" has been tapped here, so the date wheel is open and ready.
+    @State private var picking = false
 
     private let colourNames = ["Sky", "Shell", "Mint", "Sun"]
 
@@ -51,12 +61,22 @@ struct ChildForm: View {
         Section {
             TextField("Name", text: $draft.name)
                 .textContentType(.givenName)
-            if draft.birthDateChosen {
+            if draft.birthDateChosen && picking {
+                // Open at once: no second tap, and nothing to close.
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Birth date").foregroundStyle(Palette.ink)
+                    DatePicker("Birth date", selection: $draft.birthDate, in: ...Date.now, displayedComponents: .date)
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity)
+                }
+            } else if draft.birthDateChosen {
                 DatePicker("Birth date", selection: $draft.birthDate, in: ...Date.now, displayedComponents: .date)
             } else {
                 Button {
                     Haptics.selection()
                     draft.birthDateChosen = true
+                    picking = true
                 } label: {
                     HStack {
                         Text("Birth date").foregroundStyle(Palette.ink)
@@ -66,7 +86,7 @@ struct ChildForm: View {
                             .background(Palette.field, in: Capsule())
                     }
                 }
-                .accessibilityHint("Shows the date picker, starting from today")
+                .accessibilityHint("Opens the date wheel, starting from today")
             }
         } footer: {
             if !draft.birthDateChosen {
@@ -75,7 +95,7 @@ struct ChildForm: View {
         }
         if draft.asksFeeding {
             Section {
-                ForEach([Feeding.bottle, .breast, .both]) { option in
+                ForEach([Feeding.bottle, .breast, .both, .neither]) { option in
                     choiceRow(option.title, isOn: draft.feeding == option) {
                         Haptics.selection()
                         draft.feeding = option
@@ -92,6 +112,15 @@ struct ChildForm: View {
                 Toggle("Potty training", isOn: $draft.pottyTraining)
             } footer: {
                 Text("Adds a Potty tile. Leave it off if not yet.")
+            }
+        }
+        // Says what is still needed, so a greyed-out button is never a puzzle.
+        if let missing = draft.missing {
+            Section {
+                Label(missing, systemImage: "arrow.up")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Palette.muted)
+                    .listRowBackground(Color.clear)
             }
         }
         Section("Colour") {

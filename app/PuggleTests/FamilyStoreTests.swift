@@ -190,35 +190,35 @@ final class FamilyStoreTests: XCTestCase {
     // MARK: Waking together, and where a sleep is listed
 
     func testTwoWakingTogetherCanBeUndoneOneAtATime() {
-        let harry = store.addChild(name: "Harry", birthDate: Date.now.addingTimeInterval(-900 * 86_400), colourIndex: 0)
-        let sam = store.addChild(name: "Sam", birthDate: Date.now.addingTimeInterval(-150 * 86_400), colourIndex: 1)
-        store.startSleep(for: [harry, sam])
-        store.endSleep(for: harry)
-        store.endSleep(for: sam)
+        let bea = store.addChild(name: "Bea", birthDate: Date.now.addingTimeInterval(-900 * 86_400), colourIndex: 0)
+        let ivy = store.addChild(name: "Ivy", birthDate: Date.now.addingTimeInterval(-150 * 86_400), colourIndex: 1)
+        store.startSleep(for: [bea, ivy])
+        store.endSleep(for: bea)
+        store.endSleep(for: ivy)
         XCTAssertEqual(store.lastSaved?.events.count, 2, "both wakings are offered")
         let saved = store.lastSaved?.id
 
-        let harrysSleep = try! XCTUnwrap(store.latest(.sleep, for: harry))
-        store.undo(harrysSleep)
-        XCTAssertNotNil(store.activeSleep(for: harry), "Harry is asleep again")
-        XCTAssertNil(store.activeSleep(for: sam), "Sam stays awake")
+        let beasSleep = try! XCTUnwrap(store.latest(.sleep, for: bea))
+        store.undo(beasSleep)
+        XCTAssertNotNil(store.activeSleep(for: bea), "Bea is asleep again")
+        XCTAssertNil(store.activeSleep(for: ivy), "Ivy stays awake")
         XCTAssertEqual(store.lastSaved?.events.count, 1)
         XCTAssertEqual(store.lastSaved?.id, saved, "taking one off is not a new save")
 
-        let samsSleep = try! XCTUnwrap(store.latest(.sleep, for: sam))
-        store.forget(samsSleep)
+        let ivysSleep = try! XCTUnwrap(store.latest(.sleep, for: ivy))
+        store.forget(ivysSleep)
         XCTAssertNil(store.lastSaved)
-        XCTAssertNil(store.activeSleep(for: sam), "dismissing changes nothing")
+        XCTAssertNil(store.activeSleep(for: ivy), "dismissing changes nothing")
     }
 
     func testAFinishedSleepIsListedWhenItEnded() {
-        let harry = store.addChild(name: "Harry", birthDate: Date.now.addingTimeInterval(-900 * 86_400), colourIndex: 0)
+        let bea = store.addChild(name: "Bea", birthDate: Date.now.addingTimeInterval(-900 * 86_400), colourIndex: 0)
         let began = Date.now.addingTimeInterval(-11 * 3600), ended = Date.now.addingTimeInterval(-60)
-        let sleep = store.log(.sleep, for: [harry], at: began, end: ended)
+        let sleep = store.log(.sleep, for: [bea], at: began, end: ended)
         XCTAssertEqual(sleep.listedAt, ended)
-        let running = store.log(.sleep, for: [harry], at: began)
+        let running = store.log(.sleep, for: [bea], at: began)
         XCTAssertEqual(running.listedAt, began, "a sleep still going is listed where it began")
-        let nappy = store.log(.nappy, for: [harry], at: began, end: nil, detail: "Wet")
+        let nappy = store.log(.nappy, for: [bea], at: began, end: nil, detail: "Wet")
         XCTAssertEqual(nappy.listedAt, began)
     }
 
@@ -332,5 +332,44 @@ final class FamilyStoreTests: XCTestCase {
         add("Robin", .parent)
         add("Alex", .parent, holds: true)
         XCTAssertEqual(store.people().map(\.displayName), ["Alex", "Robin", "Nan", "Pop"])
+    }
+
+    // MARK: Fixes from the usability findings
+
+    func testAHelperCannotDeleteSomeoneElsesEntryByAnyRoute() {
+        store.authorOverride = "Alex"
+        let theirs = store.logEach(.nappy, for: [ollie], detail: "Wet")[0]
+        store.startSleep(for: ollie)
+        store.authorOverride = "Nan"
+        store.roleOverride = .helper
+        store.refreshRole()
+        store.delete(theirs)
+        XCTAssertTrue(theirs.isLive, "The store itself refuses, whatever screen asked")
+        // A sleep someone else started moments ago is ended, not removed.
+        store.cancelSleep(for: ollie)
+        XCTAssertNil(store.activeSleep(for: ollie))
+        XCTAssertNotNil(store.latest(.sleep, for: ollie))
+    }
+
+    func testAChildDraftSaysWhatIsMissing() {
+        var draft = ChildDraft()
+        XCTAssertEqual(draft.missing, "Add a name to carry on.")
+        draft.name = "Ivy"
+        XCTAssertEqual(draft.missing, "Choose a birth date to carry on.")
+        draft.birthDateChosen = true
+        draft.birthDate = Date.now.addingTimeInterval(-60 * 86_400)
+        XCTAssertEqual(draft.missing, "Choose how they feed to carry on.")
+        draft.feeding = .neither
+        XCTAssertNil(draft.missing)
+        XCTAssertTrue(draft.isComplete)
+    }
+
+    func testSmallFeedsMoveInSmallSteps() {
+        guard !Units.ounces else { return }
+        XCTAssertEqual(Units.volumeStep(from: 60, down: true), 10)
+        XCTAssertEqual(Units.volumeStep(from: 30, down: true), 5)
+        XCTAssertEqual(Units.volumeStep(from: 25, down: false), 5)
+        XCTAssertEqual(Units.volumeStep(from: 30, down: false), 10)
+        XCTAssertEqual(Units.volumeFloor, 5)
     }
 }

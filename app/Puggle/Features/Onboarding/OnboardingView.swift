@@ -217,7 +217,7 @@ struct OnboardingView: View {
             Text(Persistence.cloudSyncEnabled ? "Everyone sees the same day" : "The whole day in one place")
                 .displayFont(34)
             Text(Persistence.cloudSyncEnabled
-                 ? "A partner, Nan or the nanny can log on their own iPhone. No account to make."
+                 ? "Anyone who helps can log on their own iPhone. No account to make."
                  : "This build keeps everything on this iPhone. No account, no email, no password.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
@@ -300,7 +300,7 @@ struct OnboardingView: View {
             OnboardingSampleDay(showsWho: true)
                 .padding(.vertical, 12)
             Text("Log together").displayFont(34)
-            Text("Invite a partner, Nan or the nanny. They see and log the same day on their own iPhone.")
+            Text("Invite anyone who helps. They see and log the same day on their own iPhone.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
             CloudProblemCard()
@@ -335,9 +335,9 @@ struct OnboardingView: View {
 
     private var namePage: some View {
         OnboardingPage {
-            Text("What should we call you?").displayFont(34)
+            Text("Your name").displayFont(34)
                 .padding(.top, 20)
-            Text("Optional. It shows beside what you log, so the family can see who added it.")
+            Text("Optional. It shows beside what you log. Use whatever you're called at home.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
             TextField("Your name", text: $nameDraft)

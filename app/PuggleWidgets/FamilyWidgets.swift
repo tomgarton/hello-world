@@ -236,7 +236,7 @@ private struct EmptyWidget: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             Image(systemName: "moon.stars").font(.title2)
-            Text("Open the app to add your little ones.").font(.subheadline)
+            Text("No children to show. Open the app to add one.").font(.subheadline)
         }
         .foregroundStyle(WTone.ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)

@@ -43,7 +43,7 @@ enum Role: String, CaseIterable, Identifiable {
     /// One line for the person inviting.
     var whoFor: String {
         switch self {
-        case .parent: "For a partner. Can do everything you can"
+        case .parent: "For another parent or carer. Can do everything you can"
         case .helper: "For anyone who looks after them. Logs the day"
         case .viewer: "For someone who likes to follow along"
         }
@@ -211,6 +211,7 @@ extension FamilyStore {
         } else {
             new = .parent
         }
+        noteMembership()
         // A viewer's changes would never reach iCloud, so they are not kept here either.
         persistence.readOnly = new == .viewer && !isSample
         if new != role { role = new }
@@ -218,6 +219,18 @@ extension FamilyStore {
 
     /// True on the one phone that can invite people, remove them and change what they can do.
     var managesPeople: Bool { roleOverride == nil && holdsFamily }
+
+    /// Remembers that this phone is in someone else's family, so it can say so if that ends.
+    private func noteMembership() {
+        guard !isSample, roleOverride == nil else { return }
+        let key = "inSharedFamily", defaults = UserDefaults.standard
+        if hasJoinedFamily {
+            if !defaults.bool(forKey: key) { defaults.set(true, forKey: key) }
+        } else if defaults.bool(forKey: key) {
+            defaults.set(false, forKey: key)
+            removedNotice = true
+        }
+    }
 
     var canLog: Bool { role.canLog }
     var isParent: Bool { role == .parent }
@@ -244,7 +257,7 @@ extension FamilyStore {
 
     /// The parent whose iCloud holds the family.
     var holderName: String {
-        people().first(where: \.holdsFamily)?.displayName ?? "The parent who invited you"
+        people().first(where: \.holdsFamily)?.displayName ?? "Whoever invited you"
     }
 
     // MARK: My own row
@@ -439,6 +452,8 @@ extension FamilyStore {
     func leaveFamily() async throws -> Bool {
         guard !holdsFamily, let family = existingFamily() else { throw PeopleError.notFound }
         lastSaved = nil
+        // Leaving by choice needs no notice afterwards.
+        UserDefaults.standard.set(false, forKey: "inSharedFamily")
         try await persistence.leave(family)
         context.refreshAllObjects()
         refreshRole()

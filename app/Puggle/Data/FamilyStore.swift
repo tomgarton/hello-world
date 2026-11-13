@@ -17,10 +17,24 @@ final class FamilyStore: ObservableObject {
     var context: NSManagedObjectContext { persistence.viewContext }
 
     @Published var lastSaved: LastSaved? {
-        didSet { if lastSaved != nil { justDeleted = nil } }
+        didSet {
+            if lastSaved != nil { justDeleted = nil }
+            // Said aloud for VoiceOver, which would otherwise hear nothing when a save lands.
+            if let saved = lastSaved, saved.id != oldValue?.id {
+                let what = saved.events.count == 1 ? (saved.events.first.map { $0.isLive ? $0.summary : "" } ?? "") : "\(saved.events.count) entries"
+                announce(what.isEmpty ? "Saved" : "Saved. \(what). Undo is on Today.")
+            }
+        }
     }
     /// The entry just deleted, so Today can offer to bring it back.
-    @Published var justDeleted: DeletedEntry?
+    @Published var justDeleted: DeletedEntry? {
+        didSet { if justDeleted != nil { announce("Deleted. Undo is on Today.") } }
+    }
+
+    private func announce(_ text: String) {
+        guard UIAccessibility.isVoiceOverRunning else { return }
+        UIAccessibility.post(notification: .announcement, argument: text)
+    }
     /// True for the made-up sample family, which lives in memory only.
     var isSample = false
     /// Who new entries are marked as added by. Nil uses the name in Settings.
@@ -29,6 +43,8 @@ final class FamilyStore: ObservableObject {
     @Published var role: Role = .parent
     /// For looking at the helper and viewer versions without a second iPhone.
     var roleOverride: Role?
+    /// Set when a family this person had joined is no longer on the phone, and they didn't leave it themselves.
+    @Published var removedNotice = false
 
     var author: String? {
         if let authorOverride { return authorOverride }
@@ -347,6 +363,8 @@ final class FamilyStore: ObservableObject {
     /// A stray tap on "Start sleep" leaves no entry.
     func cancelSleep(for child: Child) {
         guard let sleep = activeSleep(for: child) else { return }
+        // A helper can end a sleep someone else started, but not make it vanish.
+        guard canChange(sleep) else { endSleep(for: child); return }
         context.delete(sleep)
         persistence.save()
     }
@@ -420,6 +438,9 @@ final class FamilyStore: ObservableObject {
     }
 
     func delete(_ event: Event) {
+        // The level is checked here as well as in the screens, so no side door (a widget,
+        // a sheet opened another way) lets a helper or a viewer remove someone else's entry.
+        guard canChange(event) else { return }
         if lastSaved?.events.contains(event) == true { lastSaved = nil }
         // A copy is kept on this phone for 30 days, so it can be brought back.
         let copy = DeletedEntry(event)

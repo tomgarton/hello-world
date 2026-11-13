@@ -27,6 +27,8 @@ struct TodayView: View {
     @State private var scrolledUp: CGFloat = 0
     @State private var dayOf: Child?
     @State private var addingChild = false
+    /// True once this phone has ever shown a child, so an empty Today is never the cheerful first-time one again.
+    @AppStorage("hadChild") private var hadChild = false
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @State private var pendingSticker: Event?
     @State private var stickerFor: EditTarget?
@@ -94,13 +96,14 @@ struct TodayView: View {
                     if children.isEmpty {
                         emptyState
                     } else {
+                        let _ = markHadChild()
                         ForEach(children) { child in
                             ChildStatusRow(child: child) { dayOf = child }
                         }
                         if store.canLog { togetherButton }
                         let layout = tileLayout
                         if !store.canLog {
-                            Text("You're following along. \(store.whoToAsk.prefix(1).uppercased() + store.whoToAsk.dropFirst()) can change that.")
+                            Text("You're a viewer, so you can look but not log. \(store.holderName) can change that.")
                                 .font(.footnote)
                                 .foregroundStyle(Palette.muted)
                                 .padding(.horizontal, 4)
@@ -269,6 +272,11 @@ struct TodayView: View {
         }
     }
 
+    private func markHadChild() {
+        guard !hadChild, !store.isSample else { return }
+        DispatchQueue.main.async { hadChild = true }
+    }
+
     /// Runs once the log sheet has gone, so the two never overlap.
     private func offerSticker() {
         guard let event = pendingSticker, event.isLive else { return }
@@ -360,13 +368,36 @@ struct TodayView: View {
         return count == 0 ? hello : "\(hello) \(count) \(count == 1 ? "thing" : "things") logged today."
     }
 
-    private var emptyState: some View {
+    @ViewBuilder private var emptyState: some View {
+        if hadChild || !store.isParent {
+            // A family that has had a child, or someone who was invited: plain, with nothing cheerful to get wrong.
+            VStack(alignment: .leading, spacing: 12) {
+                Text("No children on Today")
+                    .font(.title3.weight(.semibold))
+                Text(store.isParent ? "A child hidden from Today is still on the Family tab, with everything logged for them."
+                                    : "The family's children show here once they have arrived on this iPhone.")
+                    .foregroundStyle(Palette.muted)
+                    .fixedSize(horizontal: false, vertical: true)
+                if store.isParent {
+                    Button("Add a child") { addingChild = true }
+                        .buttonStyle(PillButtonStyle(primary: false))
+                }
+            }
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Palette.card, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        } else {
+            firstChildPrompt
+        }
+    }
+
+    private var firstChildPrompt: some View {
         VStack(alignment: .leading, spacing: 12) {
             PuggleStanding(height: 150)
                 .frame(maxWidth: .infinity)
-            Text("Add your little ones")
+            Text("Add a child")
                 .font(.title3.weight(.semibold))
-            Text("Twins, siblings, as many as you have. Everyone in the family sees the same day.")
+            Text("Twins, siblings, as many as you have. They share one Today.")
                 .foregroundStyle(Palette.muted)
             Button("Add a child") { addingChild = true }
                 .buttonStyle(PillButtonStyle())
@@ -583,6 +614,7 @@ struct TodaySoFar: View {
 /// Undo, and each can be swiped away. They stay until the next save.
 struct LastSavedRow: View {
     @EnvironmentObject private var store: FamilyStore
+    @Environment(\.dynamicTypeSize) private var textSize
     let onChange: (Event) -> Void
 
     var body: some View {
@@ -623,18 +655,23 @@ struct LastSavedRow: View {
 
     private func bar(title: String, text: String, dismiss: @escaping () -> Void,
                      @ViewBuilder buttons: () -> some View) -> some View {
-        HStack(spacing: 8) {
+        // At the largest text sizes the buttons go underneath, so the words are never squeezed out.
+        let big = textSize.isAccessibilitySize
+        let layout = big ? AnyLayout(VStackLayout(alignment: .leading, spacing: 6)) : AnyLayout(HStackLayout(spacing: 8))
+        return layout {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.caption).foregroundStyle(Palette.paper.opacity(0.75))
+                Text(title).font(.footnote).foregroundStyle(Palette.paper.opacity(0.75))
                 Text(text)
                     .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Palette.paper)
-                    .lineLimit(2)
+                    .lineLimit(big ? nil : 2)
+                    .fixedSize(horizontal: false, vertical: true)
             }
             .accessibilityElement(children: .combine)
-            Spacer(minLength: 0)
-            buttons()
+            if !big { Spacer(minLength: 0) }
+            HStack(spacing: 8) { buttons() }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.leading, 14)
         .padding(.trailing, 8)
         .padding(.vertical, 6)
@@ -705,6 +742,7 @@ struct DaySoFarView: View {
     var onAddSleep: () -> Void = {}
     /// Called with what to log for this child; Today opens it once the panel has gone.
     var onLog: (EventKind) -> Void = { _ in }
+    @Environment(\.dynamicTypeSize) private var textSize
     /// Half height or full: the log buttons grow when the panel is pulled up.
     @State private var detent: PresentationDetent = .medium
     private var big: Bool { detent == .large }
@@ -717,7 +755,7 @@ struct DaySoFarView: View {
     }
 
     private var logGrid: some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: big ? 12 : 8), count: big ? 2 : 3),
+        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: big ? 12 : 8), count: textSize.isAccessibilitySize ? 1 : (big ? 2 : 3)),
                   spacing: big ? 12 : 8) {
             ForEach(kinds) { kind in
                 Button {

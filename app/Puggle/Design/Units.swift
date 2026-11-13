@@ -24,6 +24,14 @@ enum Units {
     static var volumeUnit: String { ounces ? "oz" : "ml" }
     /// One press of the − and + buttons.
     static var volumeStep: Double { ounces ? 0.5 * mlPerOz : 10 }
+    /// Small feeds move in smaller steps: 5 ml (a quarter ounce) at 30 ml and under.
+    static func volumeStep(from ml: Double, down: Bool) -> Double {
+        let small = down ? ml <= 30.5 : ml < 29.5
+        if ounces { return (small ? 0.25 : 0.5) * mlPerOz }
+        return small ? 5 : 10
+    }
+    /// The least the − button goes down to.
+    static var volumeFloor: Double { ounces ? 0.25 * mlPerOz : 5 }
 
     /// "7.25 kg" (or "850 g" under a kilogram), or "15 lb 15 oz".
     static func weight(_ grams: Double) -> String {

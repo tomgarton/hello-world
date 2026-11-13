@@ -45,6 +45,22 @@ final class InviteCenter: ObservableObject {
     func received(_ metadata: CKShare.Metadata) {
         invite = Invite(metadata)
     }
+
+    /// When an invite was accepted on this phone, until the family has arrived or the wait is given up.
+    @Published private(set) var joinedAt: Date? = UserDefaults.standard.object(forKey: "joinedAt") as? Date
+
+    /// True for a quarter of an hour after joining: long enough for a family to come down from iCloud.
+    var awaitingFamily: Bool { joinedAt.map { Date.now.timeIntervalSince($0) < 15 * 60 } ?? false }
+
+    func markJoined() {
+        joinedAt = .now
+        UserDefaults.standard.set(joinedAt, forKey: "joinedAt")
+    }
+
+    func stopWaiting() {
+        joinedAt = nil
+        UserDefaults.standard.removeObject(forKey: "joinedAt")
+    }
 }
 
 /// Why joining didn't work, in terms of what to do next.
@@ -225,6 +241,7 @@ struct JoinView: View {
         Task {
             do {
                 try await Persistence.shared.acceptShare(metadata)
+                InviteCenter.shared.markJoined()
                 Me.refreshCloudID()
                 stage = .joined
             } catch {
@@ -232,5 +249,39 @@ struct JoinView: View {
                 stage = .failed(JoinProblem(error))
             }
         }
+    }
+}
+
+/// After joining, while the family is on its way from iCloud. Without this a new
+/// phone would land back on the welcome screen with "Start a new family" in front of it.
+struct ArrivingView: View {
+    let onStop: () -> Void
+
+    var body: some View {
+        VStack(spacing: 14) {
+            Spacer()
+            ProgressView()
+                .controlSize(.large)
+                .tint(Palette.ink)
+            Text("Getting the family")
+                .displayFont(28)
+                .multilineTextAlignment(.center)
+            Text("The children and their entries are coming to this iPhone from iCloud. It can take a few minutes, and needs a connection.")
+                .foregroundStyle(Palette.muted)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+            Button("Stop waiting") { onStop() }
+                .buttonStyle(PillButtonStyle(primary: false))
+            Text("If they don't arrive, ask whoever invited you to check the invite went to the email or number you use for iCloud.")
+                .font(.footnote)
+                .foregroundStyle(Palette.muted)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(24)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Palette.sand.ignoresSafeArea())
+        .foregroundStyle(Palette.ink)
     }
 }

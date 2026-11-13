@@ -44,7 +44,8 @@ private struct SampleData {
     let store: FamilyStore
     private let calendar = Calendar.current
     private let now = Date.now
-    private let people = [Terms.mum, "Dad", "Nan"]
+    /// First names, so the sample assumes nothing about who is in a family.
+    private let people = ["Alex", "Robin", "Nan"]
 
     /// A steady pseudo-random number in 0..<range for a day and a slot.
     private func wobble(_ day: Int, _ slot: Int, _ range: Int) -> Int {
@@ -90,7 +91,7 @@ private struct SampleData {
         baby(ollie)
         toddler(bea)
         let family = store.currentFamily()
-        let grownUps: [(String, Role, Bool, Bool)] = [(Terms.mum, .parent, true, true), ("Dad", .parent, false, true),
+        let grownUps: [(String, Role, Bool, Bool)] = [("Alex", .parent, true, true), ("Robin", .parent, false, true),
                                                       ("Nan", .helper, false, true), ("Pop", .viewer, false, true),
                                                       ("Jo", .helper, false, false)]
         for (index, (name, role, holds, joined)) in grownUps.enumerated() {
