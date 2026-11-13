@@ -10,14 +10,14 @@ enum CastMember: String, CaseIterable, Identifiable {
     var name: String { rawValue.capitalized }
     var grownUp: Bool { self == .nan || self == .mum || self == .dad || self == .pop }
 
-    /// How tall they stand beside Puggle at 118 points. Children share her head size; grown-ups are
-    /// taller through longer bodies. (A little under the canvas's scale, so a grown-up clears the clock.)
+    /// How tall they stand beside Puggle at 118 points, drawn at her scale: everyone shares her head
+    /// size, and a grown-up is about a quarter taller, through the body.
     var height: CGFloat {
         switch self {
-        case .nan: 156
-        case .mum: 160
-        case .dad: 163
-        case .pop: 158
+        case .nan: 144
+        case .mum: 148
+        case .dad: 151
+        case .pop: 147
         case .pebble: 79
         case .quill: 118
         case .kip: 125
@@ -27,7 +27,7 @@ enum CastMember: String, CaseIterable, Identifiable {
     }
 
     /// The drawing's own proportions.
-    var aspect: CGFloat { 240 / (grownUp ? 456 : (self == .pebble ? 270 : 300)) }
+    var aspect: CGFloat { 240 / (grownUp ? 385 : (self == .pebble ? 270 : 300)) }
 }
 
 /// What someone is doing in the scene with her.

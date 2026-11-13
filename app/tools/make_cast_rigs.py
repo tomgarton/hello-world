@@ -273,31 +273,60 @@ def webbed_foot(puggle, side, cx, ankle, turn=None):
         out.append(new)
     return out
 
+def toed_foot(cx, top, half, lobes, drop=18.0):
+    """A foot drawn the way Puggle's is: a flat top at the ankle, rounded sides, and a row of toes along
+    the bottom with a nick between each. Returns the outline, where each nick is, and where each toe ends."""
+    notch = 6.2
+    width = (2 * half - notch * (lobes - 1)) / lobes          # each toe's width
+    base = top + drop
+    d = f'M{cx - 9:g} {top:g} L{cx + 9:g} {top:g} Q{cx + half + 1:g} {top + 4:g} {cx + half:g} {top + 12:g}'
+    x = cx + half
+    nicks, tips = [], []
+    for i in range(lobes):
+        left = x - width
+        first, last = i == 0, i == lobes - 1
+        if first:   # the outer toe runs on from the side of the foot
+            d += f' Q{x:g} {base + 1:g} {left:g} {base:g}' if not last else f' Q{x:g} {base + 3:g} {cx:g} {base + 3:g} Q{left:g} {base + 3:g} {left:g} {top + 12:g}'
+        elif last:
+            d += f' Q{left:g} {base + 1:g} {left:g} {top + 12:g}'
+        else:
+            d += f' Q{(x + left) / 2:g} {base + 3:g} {left:g} {base:g}'
+        tips.append(((x + left) / 2 + (2 if first and not last else (-2 if last and not first else 0)), base + (0.5 if first or last else 2)))
+        if not last:
+            d += f' Q{left - notch / 2:g} {base - 4:g} {left - notch:g} {base:g}'
+            nicks.append(left - notch / 2)
+            x = left - notch
+    d += f' Q{cx - half - 1:g} {top + 4:g} {cx - 9:g} {top:g} Z'
+    return d, nicks, tips, base
+
 def paw(kind, side, cx, ankle, fur, shade):
-    """A friend's foot, seen from the front: the pad of the foot, then its claws at the toe edge."""
-    out, line = [], shade(fur)
+    """A friend's foot, in the same hand as Puggle's: one shape with toes, turned out a little, with the
+    claws of that animal showing past the toes."""
     sign = -1 if side == 'left' else 1
-    def claw(x, y, w, length, lean=0.0, colour=CLAW):
-        tip = (x + lean * length, y + length)
-        return {'kind': 'path', 'd': f'M{x - w / 2:g} {y:g} Q{x - w / 2 + lean * length * 0.4:g} {y + length * 0.7:g} {tip[0]:g} {tip[1]:g} Q{x + w / 2 + lean * length * 0.4:g} {y + length * 0.7:g} {x + w / 2:g} {y:g} Z',
-                'fill': colour, 'stroke': INK, 'tint': shade(colour), 'width': 2.6}
-    if kind == 'koala':
-        # A round, soft paw with three short dark claws.
-        out.append({'kind': 'ellipse', 'x': cx, 'y': ankle + 3, 'rx': 23, 'ry': 10.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
-        for i in (-1, 0, 1): out.append(claw(cx + i * 10.5, ankle + 7 - abs(i) * 1.5, 6.5, 9, colour='#5A5F68'))
-    elif kind == 'wombat':
-        # Broad and flat, with four stout claws for digging.
-        out.append({'kind': 'ellipse', 'x': cx, 'y': ankle + 3, 'rx': 26, 'ry': 10.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
-        for i in (-1.5, -0.5, 0.5, 1.5): out.append(claw(cx + i * 10, ankle + 7 - abs(i) * 1.2, 7.5, 9.5))
-    elif kind == 'echidna':
-        # Three long curved claws, splayed outwards.
-        for i, lean in ((-1, -0.45), (0, 0.0), (1, 0.45)): out.append(claw(cx + i * 10 + sign * 2, ankle + 6, 6.5, 14, lean=lean + sign * 0.15))
-        out.append({'kind': 'ellipse', 'x': cx, 'y': ankle + 3, 'rx': 21, 'ry': 9.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
-    elif kind == 'quokka':
-        # Long hind feet, like a small kangaroo's, with two toe lines and small dark claws.
-        x = cx + sign * 7
-        out.append({'kind': 'ellipse', 'x': x, 'y': ankle + 3, 'rx': 29, 'ry': 9.5, 'fill': fur, 'stroke': INK, 'tint': line, 'width': 6})
-        for i in (-1, 0, 1): out.append(claw(x + i * 11 + sign * 4, ankle + 7 - abs(i), 5.5, 8, colour='#5A4636'))
+    top = ankle - 5
+    spec = {
+        # half-width, toes, pad colour, claw colour, claw length, claw width
+        'koala': (19, 3, '#7F8791', '#3F444B', 4.5, 7),        # dark leathery pads, short claws
+        'wombat': (21, 4, '#6E6058', CLAW, 5.5, 7.5),           # broad and flat, stout pale digging claws
+        'echidna': (17, 3, None, CLAW, 11, 7.5),                # three long curved claws
+        'quokka': (23, 3, '#A97C4C', '#4A382A', 4, 6.5),        # long hind feet, small dark claws
+    }[kind]
+    half, lobes, pad, claw_colour, length, claw_w = spec
+    pad = pad or fur
+    d, nicks, tips, base = toed_foot(cx, top, half, lobes, drop=20 if kind == 'quokka' else 18)
+    turn = {'x': cx, 'y': ankle - 4, 'rotate': -7 * sign}
+    out = []
+    for i, (tx, ty) in enumerate(tips):
+        # Claws are drawn first, so the toe covers their root and only the point shows.
+        # A claw is a short rounded point, not a needle: wide at the toe, blunt at the end.
+        lean = (tx - cx) / half * (0.35 if kind == 'echidna' else 0.15)
+        tip = (tx + lean * length, ty + length)
+        out.append(dict(turn, kind='path',
+                        d=f'M{tx - claw_w / 2:g} {ty - 6:g} L{tx - claw_w / 2:g} {ty:g} Q{tx - claw_w * 0.35 + lean * length:g} {ty + length:g} {tip[0]:g} {tip[1]:g} Q{tx + claw_w * 0.35 + lean * length:g} {ty + length:g} {tx + claw_w / 2:g} {ty:g} L{tx + claw_w / 2:g} {ty - 6:g} Z',
+                        fill=claw_colour, stroke=INK, tint=shade(claw_colour), width=2.2))
+    out.append(dict(turn, kind='path', d=d, fill=pad, stroke=INK, tint=shade(pad), width=5.5))
+    for nx in nicks:   # the line up from each nick, as on hers
+        out.append(dict(turn, kind='path', d=f'M{nx:g} {base - 1:g} L{nx + (cx - nx) * 0.12:g} {base - 8:g}', stroke=shade(pad), width=2.4, cap='round'))
     return out
 
 def puggle_arm(side, sleeve, hand, shade, shoulder_y=178):
@@ -324,6 +353,58 @@ def refine(name, shapes, shade):
         if s['kind'] == 'path' and not s.get('fill') and s.get('stroke') == INK and re.match(r'M100 (19|2\d)\dh40v', s['d0']) and garment:
             s['fill'] = lighten(garment)                                 # a pocket, filled a lighter shade of what it is on
         out.append(s)
+    def swap(match, make):
+        for i, shp in enumerate(out):
+            if match(shp):
+                new = make(shp)
+                for n in new:
+                    n.setdefault('tags', shp['tags']); n.setdefault('opacity', 1); n.setdefault('src', n['kind']); n.setdefault('d0', '')
+                    if 'box' not in n:
+                        n['box'] = (n['x'] - n['rx'], n['y'] - n['ry'], n['x'] + n['rx'], n['y'] + n['ry']) if n['kind'] == 'ellipse' else bounds(absolute(n['d']), IDENT)
+                out[i:i + 1] = new
+                return True
+        return False
+    def dark_oval(x, y): return lambda shp: shp['kind'] == 'ellipse' and shp.get('fill') == INK and abs(shp['x'] - x) < 1 and abs(shp['y'] - y) < 1 and shp['rx'] > 6.9
+    # Noses nearer the real animals. The nose is the face: it is how each is told apart.
+    if name == 'kip':
+        # A koala's nose is big, tall and leathery: a rounded spoon, wider at the top.
+        swap(dark_oval(120, 122), lambda shp: [{'kind': 'path', 'd': 'M104 110 Q104 98 120 98 Q136 98 136 110 L134 128 Q132 146 120 146 Q108 146 106 128 Z', 'fill': '#33302F', 'stroke': INK, 'width': 4}])
+        # Her bow sat between her ear and her head. On top, in the middle, it is plainly in her fur.
+        for shp in out:
+            if shp.get('fill') == '#2A62B8' and shp['box'][3] < 70: shift(shp, -30, -4)
+    if name == 'digby':
+        # A wombat's nose is a broad, flat pad, squarer than it is round, with a nostril each side.
+        swap(dark_oval(120, 130), lambda shp: [
+            {'kind': 'path', 'd': 'M100 118 Q120 112 140 118 Q147 121 145 131 Q142 145 120 145 Q98 145 95 131 Q93 121 100 118 Z', 'fill': '#33302F', 'stroke': INK, 'width': 4},
+            {'kind': 'ellipse', 'x': 110, 'y': 132, 'rx': 4, 'ry': 3, 'fill': '#5B5350'}, {'kind': 'ellipse', 'x': 130, 'y': 132, 'rx': 4, 'ry': 3, 'fill': '#5B5350'}])
+    if name == 'sunny':
+        # A quokka has a small dark nose on a short, pale, rounded muzzle.
+        fur = '#C2925F'
+        swap(dark_oval(120, 118), lambda shp: [
+            {'kind': 'ellipse', 'x': 120, 'y': 126, 'rx': 27, 'ry': 19, 'fill': lighten(fur, 0.38)},
+            {'kind': 'path', 'd': 'M109 114 Q120 108 131 114 Q132 122 120 128 Q108 122 109 114 Z', 'fill': '#33302F', 'stroke': INK, 'width': 3.5},
+            {'kind': 'path', 'd': 'M120 128 L120 135', 'stroke': shade(fur), 'width': 3, 'cap': 'round'}])
+        # Her hat sat on her eyebrows: up a little, with a slightly smaller brim, so her ears show.
+        for shp in out:
+            if (shp.get('fill') == '#F4E7B0' or shp.get('stroke') == '#E5553B') and shp['box'][1] < 70:
+                shift(shp, 0, -9)
+                if shp['kind'] == 'ellipse': shp['rx'] = 88
+    if name == 'quill':
+        # An echidna's snout is a long, slim tube with a small dark tip.
+        for shp in out:
+            if shp['d0'].startswith('M106 110Q120 98 134 110'):
+                shp['d'] = 'M109 112 Q120 102 131 112 L126 170 Q120 178 114 170 Z'
+            if shp['kind'] == 'ellipse' and shp.get('fill') == INK and abs(shp['y'] - 169) < 1: shp.update(y=171, rx=5.5, ry=4.5)
+    if name == 'nan':
+        # Her reading glasses rest on her bill, so her eyes look over them.
+        for shp in out:
+            if abs((shp['box'][1] + shp['box'][3]) / 2 - 134) < 9 and shp.get('width') in (5, 5.0) and shp['box'][3] - shp['box'][1] < 40 and shp is not None and (shp.get('fill') in ('#BFD9F5', None)):
+                shift(shp, 0, 8)
+                if shp['kind'] == 'ellipse': shp['rx'] = shp['ry'] = 12
+    if name == 'pop':
+        # His round glasses go where his eyes are.
+        for shp in out:
+            if 'fill' not in shp and shp.get('width') in (5, 5.0) and 95 < (shp['box'][1] + shp['box'][3]) / 2 < 112 and shp['d0'] != 'M48 66H192': shift(shp, 0, 9)
     if name == 'digby':
         # His beanie sat over his eyes: up it goes, to where a beanie sits.
         for s in out:
@@ -332,13 +413,17 @@ def refine(name, shapes, shade):
         # The brim of his bucket hat was a single line: now it is a brim.
         for i, s in enumerate(out):
             if s['d0'] == 'M48 66H192':
-                segs = rounded_rect(46, 59, 148, 14, 7)
+                segs = rounded_rect(40, 60, 160, 15, 7.5)
                 out[i] = {'kind': 'path', 'd': path_text(segs, IDENT), 'box': bounds(segs, IDENT), 'fill': '#3C9A5F', 'stroke': INK, 'width': 6, 'tags': s['tags'], 'opacity': 1, 'src': 'path', 'd0': ''}
+    if name == 'pop':
+        # A bucket hat has a deep crown, not a cap's.
+        for shp in out:
+            if shp['d0'] == 'M62 64Q120 22 178 64Z': shp['d'] = 'M66 66 Q64 24 120 24 Q176 24 174 66 Z'; shp['box'] = (64, 24, 176, 66)
     if name == 'mum':
         # Her flower read as a leaf. A small daisy, so it is plainly a flower and not Puggle's clip.
         for i, s in enumerate(out):
             if s['d0'].startswith('M156 52q14'):
-                cx, cy, daisy = 166, 52, []
+                cx, cy, daisy = 160, 60, []
                 petals = [(cx + 9 * math.cos(math.radians(a)), cy + 9 * math.sin(math.radians(a))) for a in range(-90, 270, 72)]
                 for px, py in petals: daisy.append({'kind': 'ellipse', 'x': round(px, 1), 'y': round(py, 1), 'rx': 7.5, 'ry': 7.5, 'fill': '#FBF6E9', 'stroke': INK, 'width': 4})
                 for px, py in petals: daisy.append({'kind': 'ellipse', 'x': round(px, 1), 'y': round(py, 1), 'rx': 6, 'ry': 6, 'fill': '#FBF6E9'})
@@ -358,6 +443,29 @@ def build(name, svg, height, about, shade, moves, puggle):
         svg = svg.replace('M176 238 Q180 246 176 254 M191 237 Q196 246 191 255 M170 246 L203 246', 'M176 392 Q180 400 176 408 M191 391 Q196 400 191 409 M170 400 L203 400')
     svg = svg.replace('stroke-width="2.5" stroke-linecap="round" opacity="0.5"', f'stroke-width="2.5" stroke-linecap="round" data-mark="1"')
     shapes = refine(name, flatten(svg), shade)
+    if grown:
+        # On the canvas a grown-up is Puggle's head on a body two and a half times as long, which reads
+        # as stretched beside her. Everything below the neck is drawn closer: about one and a quarter
+        # times her height, the same head.
+        K, NECK = 0.72, 166
+        def lower(y): return y if y <= NECK else NECK + (y - NECK) * K
+        tail_dy = None
+        for shp in shapes:
+            cy = (shp['box'][1] + shp['box'][3]) / 2
+            if shp['tags'].get('part') == 'tail':
+                if tail_dy is None: tail_dy = lower(400) - 400      # the tail moves as one piece
+                shift(shp, 0, tail_dy)
+            elif shp['kind'] == 'ellipse':
+                if cy > NECK: shift(shp, 0, lower(cy) - cy)         # hands and buttons keep their shape
+            elif shp['box'][3] > NECK:
+                nums = re.findall(r'[A-Z]|-?\d*\.?\d+', shp['d']); text, pair = [], []
+                for token in nums:
+                    if token.isalpha(): text.append(token); continue
+                    pair.append(float(token))
+                    if len(pair) == 2: text.append(f'{pair[0]:g} {round(lower(pair[1]), 1):g}'); pair = []
+                shp['d'] = re.sub(r'([A-Z]) ', r'\1', ' '.join(text))
+                shp['box'] = (shp['box'][0], lower(shp['box'][1]), shp['box'][2], lower(shp['box'][3]))
+        height = round(lower(442) + 20)
     # The head: the first big outlined shape up where a head is.
     head_at = next(i for i, s in enumerate(shapes)
                    if s.get('fill') and s.get('stroke') and s['box'][3] - s['box'][1] >= 105 and 80 < (s['box'][1] + s['box'][3]) / 2 < 135)
@@ -429,7 +537,7 @@ def build(name, svg, height, about, shade, moves, puggle):
                 sitting = name == 'pebble'
                 if FEET[name] == 'webbed':
                     if sitting: foot = webbed_foot(puggle, side, cx + (6 if side == 'left' else -6), pad['y'] + 4, turn=-20 if side == 'left' else 20)
-                    else: foot = webbed_foot(puggle, side, cx, ankle - (4 if grown else 0))
+                    else: foot = webbed_foot(puggle, side, cx, ankle)
                 else:
                     foot = paw(FEET[name], side, cx, ankle, fur, shade)
                 parts.append({'id': f'foot-{side}', 'parent': f'leg-{side}' if leg else 'body', 'pivot': [cx, ankle], 'spring': 200, 'shapes': foot})
@@ -474,6 +582,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             pose = key.get('pose', {})
             key['pose'] = {k: v for k, v in pose.items() if k in ids}
         borrowed[move_name] = move
+    # The shoulders move with the body.
     return {'name': name.capitalize(), 'size': [240, height], 'about': about + ' Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.',
             'parts': parts, 'moves': borrowed, 'face': {'eyes': 'open'}}
 
