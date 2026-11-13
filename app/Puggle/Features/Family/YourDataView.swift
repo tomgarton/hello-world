@@ -38,6 +38,7 @@ struct YourDataView: View {
             Section {
                 NavigationLink("Recently deleted") { RecentlyDeletedView() }
                 NavigationLink("Backups") { BackupsView() }
+                NavigationLink("Import from another app") { ImportView() }
             } footer: {
                 Text("Deleted entries can be brought back for \(RecentlyDeleted.keepDays) days. Backups hold the whole family as it was on a day.")
             }
@@ -137,6 +138,8 @@ struct HelpView: View {
                     : "Not in this build. It keeps everything on this iPhone."),
                 ("Where are our entries kept?",
                  "On your iPhone, and in your own iCloud once sharing is on. Nobody else can see them unless you invite them."),
+                ("Can I bring entries in from another app?",
+                 "From the Baby Tracker app, yes. Export its CSV file, then go to You, Your data, Import from another app. You see what the file holds before anything is added, and the import can be undone."),
                 ("How do I take everything with me?",
                  "You, Your data, Export everything: a spreadsheet file of every entry."),
             ]),

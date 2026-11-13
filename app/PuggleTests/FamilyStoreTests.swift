@@ -455,4 +455,50 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertFalse(store.restoreExactly(from: copy))
         XCTAssertTrue(store.restoreMissing(from: copy).isNothing)
     }
+
+    // MARK: Import
+
+    private func exportFiles() -> [(name: String, data: Data)] {
+        [("Ollie B. Test_formula.csv", Data("\u{FEFF}Baby,Time,Amount (ml),Note\nOllie B. Test,\"22/06/2025, 07:30\",120\nOllie B. Test,\"02/06/2025, 19:15\",150,\"Took it slowly, then all\"\n".utf8)),
+         ("Ollie B. Test_sleep.csv", Data("Baby,Time,Duration(minutes),Note\nOllie B. Test,\"21/06/2025, 12:25\",114\n".utf8)),
+         ("Ollie B. Test_diaper.csv", Data("Baby,Time,Status,Note\nOllie B. Test,\"22/06/2025, 09:53\",Mixed\n".utf8)),
+         ("Ollie B. Test_growth.csv", Data("Baby,Time,Length (cm),Weight (kg),Head size (cm),Note\nOllie B. Test,\"02/04/2025, 17:01\",73,9.17,45\n".utf8)),
+         ("pump.csv", Data("Time,Start Side,Left duration (min),Right duration (min),Total Duration (min),Left amount (ml),Right amount (ml),Total amount (ml),Note\n\"13/05/2024, 01:30\",Right,10,10,20,,,\n".utf8))]
+    }
+
+    func testAnExportIsReadIntoTheRightKindsAndDates() {
+        let reading = Importer.read(files: exportFiles())
+        XCTAssertEqual(reading.babies, ["Ollie B. Test"])
+        XCTAssertEqual(reading.count(.bottle), 2)
+        XCTAssertEqual(reading.count(.sleep), 1)
+        XCTAssertEqual(reading.count(.nappy), 1)
+        XCTAssertEqual(reading.count(.weight), 1)
+        XCTAssertEqual(reading.count(.pump), 0)
+        XCTAssertTrue(reading.leftOut.contains("1 pumping sessions with no amount."))
+        // 22/06 can only be the 22nd of June: the file settles day-first by itself.
+        let bottle = reading.drafts.last { $0.kind == .bottle }
+        let parts = Calendar.current.dateComponents([.day, .month, .hour, .minute], from: bottle?.start ?? .distantPast)
+        XCTAssertEqual([parts.day, parts.month, parts.hour, parts.minute], [22, 6, 7, 30])
+        XCTAssertEqual(reading.drafts.first { $0.note != nil && $0.kind == .bottle }?.note, "Took it slowly, then all")
+        let weight = reading.drafts.first { $0.kind == .weight }
+        XCTAssertEqual(weight?.value ?? 0, 9170, accuracy: 0.5)
+        XCTAssertEqual(weight?.note, "Length 73 cm · Head 45 cm")
+        XCTAssertEqual(reading.drafts.first { $0.kind == .nappy }?.detail, "Both")
+        let sleep = reading.drafts.first { $0.kind == .sleep }
+        XCTAssertEqual(sleep?.end?.timeIntervalSince(sleep?.start ?? .now), 114 * 60)
+    }
+
+    func testImportingTwiceAddsNothingTwiceAndCanBeUndone() {
+        store.backups = shelf()
+        let logged = store.logEach(.nappy, for: [ollie], detail: "Wet")[0]
+        let reading = Importer.read(files: exportFiles())
+        let first = store.importDrafts(reading.drafts, children: ["Ollie B. Test": ollie])
+        XCTAssertEqual(first.added, 5)
+        let second = store.importDrafts(reading.drafts, children: ["Ollie B. Test": ollie])
+        XCTAssertEqual(second.added, 0)
+        XCTAssertEqual(second.repeats, 5)
+        XCTAssertEqual(store.undoImport(batch: first.batch), 5)
+        XCTAssertTrue(logged.isLive, "What was logged here is not touched")
+        XCTAssertEqual(store.currentFamily().events?.count, 1)
+    }
 }
