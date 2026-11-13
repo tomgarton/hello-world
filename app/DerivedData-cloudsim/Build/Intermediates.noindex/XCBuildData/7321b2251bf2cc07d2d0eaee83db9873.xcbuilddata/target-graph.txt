@@ -1,4 +1,0 @@
-Target dependency graph (2 targets)
-Target 'Puggle' in project 'Puggle'
-➜ Explicit dependency on target 'PuggleWidgets' in project 'Puggle'
-Target 'PuggleWidgets' in project 'Puggle' (no dependencies)
