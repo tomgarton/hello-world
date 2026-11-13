@@ -93,8 +93,10 @@ struct SceneGalleryView: View {
 
     /// A move as a strip of frames, one every `every` seconds: "-debugSheet 1".
     /// `clear` leaves out the background, the gaps and the times, for use as a see-through film strip.
-    @MainActor static func writeStrip(move: String?, seconds: Double, every: Double, name: String, clear: Bool = false) {
-        guard let rig = Rig.load("puggle") else { return }
+    /// `rig` names another character's file; `frame` is the size each pose is drawn at, and `ground` what is behind it.
+    @MainActor static func writeStrip(move: String?, seconds: Double, every: Double, name: String, clear: Bool = false,
+                                      rig rigName: String = "puggle", frame: CGSize = CGSize(width: 120, height: 150), ground: Color = Color(hex: 0xF2ECDD)) {
+        guard let rig = Rig.load(rigName) else { return }
         let runtime = RigRuntime(rig: rig)
         let start = Date.now
         _ = runtime.advance(to: start)
@@ -122,11 +124,12 @@ struct SceneGalleryView: View {
             save(film, as: name)
             return
         }
+        let size = frame
         let strip = HStack(spacing: 2) {
             ForEach(Array(frames.enumerated()), id: \.offset) { _, frame in
                 RigFrame(rig: rig, states: frame.1, face: frame.2)
-                    .frame(width: 120, height: 150)
-                    .background(Color(hex: 0xF2ECDD))
+                    .frame(width: size.width, height: size.height)
+                    .background(ground)
                     .overlay(alignment: .topLeading) {
                         Text(String(format: "%.2f", frame.0)).font(.system(size: 9)).foregroundStyle(.black).padding(3)
                     }

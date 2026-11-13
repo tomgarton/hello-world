@@ -4,6 +4,7 @@ import SwiftUI
 /// Test builds only: Puggle on her own, with a button for each of her moves.
 struct MovesGalleryView: View {
     @StateObject private var puggle = PuggleController()
+    @StateObject private var hatchling = HatchlingController()
     @State private var asleep = false
     @State private var night = false
     @State private var quiet = false
@@ -38,6 +39,18 @@ struct MovesGalleryView: View {
                 .onChange(of: quiet) { _, now in puggle.setEnergy(now ? 0.5 : 1) }
             Text("Drag a finger over her and her eyes follow.")
                 .font(.footnote).foregroundStyle(Palette.muted)
+            // The logo mark: her as a baby, hatching.
+            HStack(spacing: 14) {
+                HatchlingView(controller: hatchling)
+                    .frame(height: 110)
+                    .padding(10)
+                    .background(Color(hex: 0x8FA7C4), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                Button("Hatch") { hatchling.hatch() }
+                    .font(.subheadline.weight(.semibold))
+                    .frame(width: 100, height: 44)
+                    .background(Palette.field, in: Capsule())
+                    .foregroundStyle(Palette.ink)
+            }
             Spacer(minLength: 0)
         }
         .padding(16)
