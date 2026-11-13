@@ -26,6 +26,8 @@ struct Rig: Codable {
     var moves: [String: Move]?
     /// The colours this character's clothes come in, for the cast: each is a swap of one colour for another.
     var wardrobe: Wardrobe?
+    /// Empty space above the head, in the drawing's units, for something held over it (an umbrella).
+    var headroom: CGFloat?
 
     struct Wardrobe: Codable {
         /// The first is as drawn (no swaps).
@@ -55,7 +57,7 @@ struct Rig: Codable {
         var pivot: [CGFloat]
         /// How tightly it follows its pose. Lower is looser; 0 follows at once.
         var spring: Double?
-        /// Drawn only while her face is set this way: "eyes=happy", "bill=open".
+        /// Drawn only while her face is set this way: "eyes=happy", or any of several: "outfit=rain|sun".
         var when: String?
         var shapes: [Shape]
     }
@@ -234,7 +236,9 @@ enum RigRenderer {
             world[part.id] = transform
             guard !part.shapes.isEmpty else { continue }
             // A face shape shows only while the face is set to it.
-            if let when = part.when?.split(separator: "="), when.count == 2, face[String(when[0])] != String(when[1]) { continue }
+            // "outfit=rain|sun" shows for either.
+            if let when = part.when?.split(separator: "="), when.count == 2,
+               !when[1].split(separator: "|").contains(where: { face[String(when[0])] == String($0) }) { continue }
             var layer = context
             layer.concatenate(transform)
             for (index, shape) in part.shapes.enumerated() {

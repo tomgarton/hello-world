@@ -192,6 +192,28 @@
    "spring": 150
   },
   {
+   "id": "mitten-left",
+   "parent": "arm-left",
+   "pivot": [
+    106.0,
+    214.0
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 106.0,
+     "y": 214.0,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
+  },
+  {
    "id": "arm-right",
    "parent": "upper",
    "pivot": [
@@ -235,6 +257,28 @@
     }
    ],
    "spring": 150
+  },
+  {
+   "id": "mitten-right",
+   "parent": "arm-right",
+   "pivot": [
+    134.0,
+    214.0
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 134.0,
+     "y": 214.0,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
   },
   {
    "id": "held",
@@ -306,14 +350,14 @@
     {
      "kind": "path",
      "d": "M148 186 L158 184",
-     "stroke": "#F7B9A8",
+     "stroke": "#F5BBB1",
      "width": 3,
      "cap": "round"
     },
     {
      "kind": "path",
      "d": "M150 196 L159 194",
-     "stroke": "#F7B9A8",
+     "stroke": "#F5BBB1",
      "width": 3,
      "cap": "round"
     }
@@ -478,6 +522,24 @@
      "d": "M144 116 Q152 124 160 116",
      "stroke": "#3A2A20",
      "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "zinc",
+   "parent": "head",
+   "pivot": [
+    120,
+    151
+   ],
+   "when": "outfit=sun",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M107 139.5 Q120 136.5 133 139.5",
+     "stroke": "#FF9CC0",
+     "width": 5.5,
      "cap": "round"
     }
    ]

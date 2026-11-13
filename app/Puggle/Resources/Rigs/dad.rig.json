@@ -236,6 +236,28 @@
    "spring": 150
   },
   {
+   "id": "mitten-left",
+   "parent": "arm-left",
+   "pivot": [
+    46.0,
+    262.48
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 46.0,
+     "y": 262.48,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#3C9A5F",
+     "stroke": "#3A2A20",
+     "tint": "#105F2E",
+     "width": 5
+    }
+   ]
+  },
+  {
    "id": "arm-right",
    "parent": "upper",
    "pivot": [
@@ -281,6 +303,28 @@
    "spring": 150
   },
   {
+   "id": "mitten-right",
+   "parent": "arm-right",
+   "pivot": [
+    194.0,
+    262.48
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 194.0,
+     "y": 262.48,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#3C9A5F",
+     "stroke": "#3A2A20",
+     "tint": "#105F2E",
+     "width": 5
+    }
+   ]
+  },
+  {
    "id": "scarf",
    "parent": "upper",
    "pivot": [
@@ -292,30 +336,30 @@
     {
      "kind": "path",
      "d": "M148 170 L160 200 L146 204 L138 174 Z",
-     "fill": "#E5553B",
+     "fill": "#3C9A5F",
      "stroke": "#3A2A20",
-     "tint": "#B23A26",
+     "tint": "#105F2E",
      "width": 5
     },
     {
      "kind": "path",
      "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
-     "fill": "#E5553B",
+     "fill": "#3C9A5F",
      "stroke": "#3A2A20",
-     "tint": "#B23A26",
+     "tint": "#105F2E",
      "width": 5
     },
     {
      "kind": "path",
      "d": "M148 186 L158 184",
-     "stroke": "#F7B9A8",
+     "stroke": "#B1D7BF",
      "width": 3,
      "cap": "round"
     },
     {
      "kind": "path",
      "d": "M150 196 L159 194",
-     "stroke": "#F7B9A8",
+     "stroke": "#B1D7BF",
      "width": 3,
      "cap": "round"
     }
@@ -531,7 +575,7 @@
     {
      "kind": "path",
      "d": "M76 66 Q120 76 164 66",
-     "stroke": "#E5553B",
+     "stroke": "#3C9A5F",
      "width": 6,
      "cap": "round"
     }
@@ -560,15 +604,15 @@
     {
      "kind": "path",
      "d": "M56 88 Q58 40 120 40 Q182 40 184 88 Q120 74 56 88 Z",
-     "fill": "#7FB48F",
+     "fill": "#3C9A5F",
      "stroke": "#3A2A20",
-     "tint": "#4E8060",
+     "tint": "#105F2E",
      "width": 6
     },
     {
      "kind": "path",
      "d": "M60 80 Q120 64 180 80",
-     "stroke": "#4E8060",
+     "stroke": "#105F2E",
      "width": 3,
      "cap": "round"
     }

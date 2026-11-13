@@ -10,28 +10,40 @@ enum CastMember: String, CaseIterable, Identifiable {
     var name: String { rawValue.capitalized }
     var grownUp: Bool { self == .nan || self == .mum || self == .dad || self == .pop }
 
-    /// How tall they stand beside Puggle at 118 points, drawn at her scale: everyone shares her head
-    /// size, and a grown-up is about a quarter taller, through the body.
-    var height: CGFloat {
+    /// Each drawing's size and headroom, read once.
+    private static let drawn: [CastMember: (height: CGFloat, headroom: CGFloat)] = Dictionary(uniqueKeysWithValues: allCases.map { member in
+        let rig = Rig.load(member.rawValue)
+        return (member, (rig?.size[1] ?? 300, rig?.headroom ?? 0))
+    })
+
+    /// How big they are beside Puggle. Everyone is drawn at her scale, so they share her head size; the
+    /// older friends are a touch bigger all over, as on the canvas.
+    private var scale: CGFloat {
         switch self {
-        case .nan: 144
-        case .mum: 148
-        case .dad: 151
-        case .pop: 147
-        case .pebble: 79
-        case .quill: 118
-        case .kip: 125
-        case .digby: 130
-        case .sunny: 134
+        case .nan: 0.95
+        case .mum: 0.98
+        case .dad: 1
+        case .pop: 0.97
+        case .pebble: 0.74
+        case .quill: 1
+        case .kip: 1.06
+        case .digby: 1.1
+        case .sunny: 1.14
         }
     }
+
+    /// The height of their drawing beside Puggle at 118 points, including any room above the head for an umbrella.
+    var height: CGFloat { 118 / 300 * (Self.drawn[self]?.height ?? 300) * scale }
+
+    /// How much of that height is empty space above the head.
+    var headroom: CGFloat { 118 / 300 * (Self.drawn[self]?.headroom ?? 0) * scale }
 
     /// The garments this character has, as rig names. The first is how the canvas draws them.
     var garments: [String] {
         switch self {
         case .quill: ["quill", "quill-jumper", "quill-tee"]
         case .kip: ["kip", "kip-dungarees", "kip-jumper"]
-        case .digby: ["digby", "digby-jumper", "digby-dungarees"]
+        case .digby: ["digby", "digby-dungarees"]
         default: [rawValue]
         }
     }
@@ -52,7 +64,7 @@ enum CastMember: String, CaseIterable, Identifiable {
     }
 
     /// The drawing's own proportions.
-    var aspect: CGFloat { 240 / (grownUp ? 385 : (self == .pebble ? 270 : 300)) }
+    var aspect: CGFloat { 240 / (Self.drawn[self]?.height ?? 300) }
 }
 
 /// What someone is doing in the scene with her.
@@ -74,20 +86,26 @@ struct Company: Equatable {
 
     /// Some days she is on her own; others her family or a friend is there. It changes each time
     /// the same place comes round, so a scene is not always the same company.
-    static func today(kind: SceneKind, room: Room?) -> Company? {
+    static func today(kind: SceneKind, room: Room?, afterDark: Bool = false) -> Company? {
         let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
         #if DEBUG
         // For checking: "-debugCompany kip", or "none".
         if let forced = UserDefaults.standard.string(forKey: "debugCompany") {
             guard let member = CastMember(rawValue: forced) else { return nil }
             let here = (room.map(indoors) ?? outdoors(kind)).compactMap { $0 }
-            if let match = here.first(where: { $0.member == member }) { return match }
-            return Company(member: member, x: here.first?.x ?? 0.3)
+            if let match = here.first(where: { $0.member == member }), !afterDark || member.grownUp { return match }
+            if !afterDark || member.grownUp { return Company(member: member, x: here.first?.x ?? 0.3) }
         }
         #endif
         if let room {
             let options = indoors(room)
             return options[(day + room.rawValue) % options.count]
+        }
+        // Outdoors after dark she is always with a grown-up, standing where that scene's company stands.
+        if afterDark {
+            let grownUps: [CastMember] = [.mum, .dad, .nan, .pop]
+            let side = outdoors(kind).compactMap { $0 }.first?.x ?? 0.3
+            return Company(member: grownUps[day % grownUps.count], x: side < 0 ? -0.3 : 0.26)
         }
         // An outdoor scene comes round every fourth day, so step through its company at that pace.
         let options = outdoors(kind)
@@ -191,7 +209,7 @@ struct CompanyView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             Ellipse().fill(dark ? Color(hex: 0x15163A).opacity(0.3) : Palette.fixedInk.opacity(0.1))
-                .frame(width: company.member.height * company.member.aspect * 0.8, height: 8)
+                .frame(width: 76, height: 8)
                 .offset(y: 3)
             if company.activity == .digging, !sleeps {
                 // The heap he has dug, beside him, and sand flying.
@@ -277,7 +295,7 @@ struct CastPortrait: View {
                 let wide = size * 1.12
                 RigFrame(rig: rig, states: [:])
                     .frame(width: wide, height: wide * rig.size[1] / rig.size[0])
-                    .offset(y: size * 0.1)
+                    .offset(y: size * 0.1 - wide / rig.size[0] * (rig.headroom ?? 0))
                     .frame(width: size, height: size, alignment: .top)
             }
         }

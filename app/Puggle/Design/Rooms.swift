@@ -15,11 +15,24 @@ enum Room: Int, CaseIterable {
         return Calendar.current.component(.hour, from: .now)
     }
 
+    /// One evening in three she is out after dark with a grown-up: a walk under the stars, never on her own.
+    static var outTonight: Bool {
+        #if DEBUG
+        // For checking: "-debugOut 1" (out tonight) or "0" (in).
+        if let forced = UserDefaults.standard.string(forKey: "debugOut") { return forced == "1" }
+        #endif
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
+        return day % 3 == 0
+    }
+
     /// The room for this hour, or nil while she is outdoors. `dark` is the dark or night look:
-    /// by day it keeps her in, since the scene outside would be drawn as night.
+    /// by day it keeps her in on most days, since the scene outside would be drawn as night.
+    /// When she is outdoors after dark, `Company` always gives her a grown-up.
     static func at(hour: Int, dark: Bool) -> Room? {
         let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
         let evening: Room = day.isMultiple(of: 2) ? .living : .playroom
+        // Out with a grown-up: from tea time until ten, and by day when the look is dark. Bed is still bed.
+        if outTonight, !(22...23).contains(hour), !(0..<6).contains(hour), hour >= 18 || dark { return nil }
         #if DEBUG
         // For checking a room at any hour: launch with "-debugRoom 0" to "3".
         if let forced = UserDefaults.standard.string(forKey: "debugRoom").flatMap(Int.init), let room = Room(rawValue: forced) { return room }

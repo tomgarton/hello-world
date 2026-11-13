@@ -440,7 +440,8 @@ struct PuggleHeader: View {
         return ZStack(alignment: .bottom) {
             PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x)
             // Whoever is with her today stands behind her, on the same ground.
-            if let company = Company.today(kind: .today, room: room) {
+            if let company = Company.today(kind: .today, room: room,
+                                           afterDark: room == nil && (PuggleScene.isNight(dark: dim) || Room.hourNow >= 18)) {
                 // Dressed for the weather when they are out in it, as she is.
                 let wearing = room == nil ? weather.outfit(night: PuggleScene.isNight(dark: dim)) : "none"
                 CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim, rain: wearing == "rain")

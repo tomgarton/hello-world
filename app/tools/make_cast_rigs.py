@@ -46,7 +46,7 @@ def drawings():
                   "Quill: an echidna, Puggle's friend. The spines are the signature."),
         'kip': ({'': kip('dress'), 'dungarees': kip('dungarees'), 'jumper': kip('jumper')}, 300, '#F4BE2C', ['#E5553B', '#3C9A5F', '#F3D9C9'],
                 "Kip: a koala, Puggle's best friend, who can fall asleep anywhere. A blue bow."),
-        'digby': ({'': digby('tee'), 'jumper': digby('jumper'), 'dungarees': digby('dungarees')}, 300, '#2A62B8', ['#3C9A5F', '#F4BE2C'],
+        'digby': ({'': digby('tee'), 'dungarees': digby('dungarees')}, 300, '#2A62B8', ['#3C9A5F', '#F4BE2C'],
                   "Digby: a wombat who loves digging. A red beanie."),
         'sunny': ({'': quokka('#3C9A5F') + A['sunhat']('#F4E7B0')}, 300, '#3C9A5F', ['#2A62B8', '#E5553B', '#F4BE2C'],
                   "Sunny: a quokka, always smiling. A sun hat."),
@@ -448,6 +448,97 @@ def refine(name, shapes, shade):
     return out
 
 
+# ---------- Dressed for the weather ----------
+# Everyone is dressed for the weather as Puggle is, each in their own way. What makes each of them
+# who they are carries through: the accessories are in their own colour, their own hat stays where it
+# suits the weather, and whoever cannot wear a hat (Kip's ears, Quill's spines, Nan's bun, Sunny's own
+# hat) carries an umbrella where the others wear a raincoat and rain hat.
+#   cold: a scarf and mittens for all; a beanie for bare heads; ear warmers for Kip
+#   wet:  a yellow raincoat and rain hat, or their own clothes under an umbrella
+#   hot:  a sun hat for bare heads; a parasol for Nan; zinc on the nose for Quill and Pebble
+
+ACCENT = {'nan': '#E5553B', 'mum': '#F4BE2C', 'dad': '#3C9A5F', 'pop': '#3C9A5F', 'pebble': '#E5553B',
+          'quill': '#2A62B8', 'kip': '#2A62B8', 'digby': '#E5553B', 'sunny': '#E5553B'}
+UMBRELLA = {'nan', 'quill', 'kip', 'sunny'}     # the rest wear a raincoat
+HEADROOM = 62                                   # space above the head for an open umbrella, in the drawing's units
+
+def lowered(rig, by):
+    """The whole drawing moved down, to leave room above it."""
+    for part in rig['parts']:
+        part['pivot'] = [part['pivot'][0], part['pivot'][1] + by]
+        for shp in part['shapes']:
+            if 'd' in shp: shp['d'] = moved(shp['d'], 0, by)
+            if 'y' in shp: shp['y'] = shp['y'] + by
+    rig['size'] = [rig['size'][0], rig['size'][1] + by]
+    rig['headroom'] = by
+    return rig
+
+def dress_for_weather(name, parts, puggle, shade):
+    accent = ACCENT[name]
+    hers = {p['id']: p for p in puggle['parts']}
+    def at(part_id): return next(i for i, p in enumerate(parts) if p['id'] == part_id)
+    def copy(part_id, swaps=None, when=None, parent=None):
+        part = json.loads(json.dumps(hers[part_id]))
+        for shp in part['shapes']:
+            for key in ('fill', 'stroke', 'tint'):
+                if swaps and shp.get(key) in swaps: shp[key] = swaps[shp[key]]
+        if when: part['when'] = when
+        if parent: part['parent'] = parent
+        return part
+    hand = {side: next(shp for shp in reversed(parts[at(f'arm-{side}')]['shapes']) if shp['kind'] == 'ellipse') for side in ('left', 'right')}
+    own_hat = {'digby': 'outfit=none|warm|night', 'sunny': 'outfit=none|sun|rain|night'}
+    if name in own_hat:
+        # Their own hat comes off when the weather calls for another.
+        parts[at('head-2')]['when'] = own_hat[name]
+    last_face = max(i for i, p in enumerate(parts) if p['id'] in ('face', 'eye-left', 'eye-right', 'eyes-closed', 'head-2'))
+    top = at('head-2') if name in ('mum', 'kip') and any(p['id'] == 'head-2' for p in parts) else last_face + 1     # under a daisy or a bow
+
+    # Cold: a scarf in their colour, under the chin, and mittens over their hands.
+    scarf = copy('scarf', {'#E5553B': accent, '#B23A26': shade(accent), '#F7B9A8': lighten(accent, 0.6)})
+    parts.insert(at('head'), scarf)
+    for side in ('left', 'right'):
+        parts.insert(at(f'arm-{side}') + 1, {'id': f'mitten-{side}', 'parent': f'arm-{side}', 'pivot': [hand[side]['x'], hand[side]['y']], 'when': 'outfit=warm',
+                     'shapes': [{'kind': 'ellipse', 'x': hand[side]['x'], 'y': hand[side]['y'], 'rx': 13.5, 'ry': 13.5, 'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 5}]})
+    top = max(i for i, p in enumerate(parts) if p['id'] in ('face', 'eye-left', 'eye-right', 'eyes-closed')) + 1 if top == last_face + 1 else at('head-2')
+    beanie = lambda colour: copy('beanie', {'#7FB48F': colour, '#4E8060': shade(colour)}, parent='head')
+    if name in ('mum', 'dad'):
+        parts.insert(top, beanie(accent))
+    if name == 'sunny':
+        # Her sun hat's colours, as a beanie.
+        parts.insert(top, copy('beanie', {'#7FB48F': '#F4E7B0', '#4E8060': accent, '#FBF3E2': accent}, parent='head'))
+    if name == 'kip':
+        # Ear warmers over those ears, with the band behind her bow.
+        parts.insert(top, {'id': 'earmuffs', 'parent': 'head', 'pivot': [120, 60], 'when': 'outfit=warm', 'shapes': [
+            {'kind': 'path', 'd': 'M50 62 Q120 14 190 62', 'stroke': INK, 'tint': shade(accent), 'width': 11, 'cap': 'round'},
+            {'kind': 'path', 'd': 'M50 62 Q120 14 190 62', 'stroke': accent, 'width': 5.5, 'cap': 'round'},
+            {'kind': 'ellipse', 'x': 50, 'y': 76, 'rx': 19, 'ry': 22, 'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 5},
+            {'kind': 'ellipse', 'x': 190, 'y': 76, 'rx': 19, 'ry': 22, 'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 5}]})
+
+    # Hot: a straw hat with their colour for a band, on a bare head; zinc on the nose where a hat will not go.
+    if name in ('mum', 'dad', 'digby', 'kip'):
+        parts.insert(top, copy('sunhat', {'#E5553B': accent}, parent='head'))
+    if name == 'pebble':
+        parts.append(copy('zinc', parent='head'))
+    if name == 'quill':
+        parts.append({'id': 'zinc', 'parent': 'head', 'pivot': [120, 132], 'when': 'outfit=sun',
+                      'shapes': [{'kind': 'path', 'd': 'M113 132 L127 132', 'stroke': '#FBF6E9', 'width': 7, 'cap': 'round'}]})
+
+    # Wet: her rain hat with a raincoat, or an umbrella in their colour. Nan's is a parasol too when it is hot.
+    if name in ('mum', 'dad', 'digby'):
+        parts.insert(top, copy('rainhat', parent='head'))
+    if name in UMBRELLA:
+        hx, hy = hand['right']['x'], hand['right']['y']
+        parts.insert(at('head'), {'id': 'umbrella', 'parent': 'upper', 'pivot': [hx, hy], 'spring': 120, 'when': 'outfit=rain|sun' if name == 'nan' else 'outfit=rain', 'shapes': [
+            # The stick up from their hand, then a wide canopy over their head, with scalloped edges and a point on top.
+            # It stands above the drawing's own top, so these four have headroom added (see HEADROOM).
+            {'kind': 'path', 'd': f'M{hx:g} {hy - 4:g} L138 -30', 'stroke': INK, 'width': 8, 'cap': 'round'},
+            {'kind': 'path', 'd': f'M{hx:g} {hy - 4:g} L138 -30', 'stroke': '#D9B48A', 'width': 3.5, 'cap': 'round'},
+            {'kind': 'path', 'd': 'M26 30 Q32 -44 132 -48 Q232 -44 238 30 Q212 14 185 30 Q158 14 132 28 Q106 14 79 30 Q52 14 26 30 Z',
+             'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
+            {'kind': 'path', 'd': 'M132 -48 L132 -56', 'stroke': INK, 'tint': shade(accent), 'width': 5, 'cap': 'round'}]})
+    return parts
+
+
 # ---------- Cutting it into parts ----------
 
 def build(name, svg, height, about, shade, moves, puggle):
@@ -586,15 +677,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             x, y, r = eye['x'], eye['y'], eye['rx'] + 1.2
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
-    # Dressed for the weather, as she is: a scarf for everyone when it is cold (their necks are where hers is),
-    # and her hats for the two with nothing on their heads.
-    borrow = {p['id']: p for p in puggle['parts']}
-    head_at_part = next(i for i, p in enumerate(parts) if p['id'] == 'head')
-    parts.insert(head_at_part, json.loads(json.dumps(borrow['scarf'])))
-    if name in ('mum', 'dad'):
-        at = next(i for i, p in enumerate(parts) if p['id'] == 'eyes-closed') + 1 if any(p['id'] == 'eyes-closed' for p in parts) else len(parts)
-        if name == 'mum': at = next(i for i, p in enumerate(parts) if p['id'] == 'head-2')    # under her daisy
-        for hat in ('beanie', 'sunhat', 'rainhat'): parts.insert(at, json.loads(json.dumps(borrow[hat])))
+    parts = dress_for_weather(name, parts, puggle, shade)
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.
     borrowed = {}
@@ -617,10 +700,12 @@ def main():
     for name, (variants, height, colour, others, about) in drawings().items():
         # The same garment in other colours: a swap of its colour, its outline and its pocket.
         def swap(to, pocket=None): return {colour: to, shade(colour): shade(to), lighten(colour): pocket or lighten(to)}
-        wardrobe = {'looks': [{}] + [swap(c) for c in others], 'rain': swap('#F4C95D', '#FBE7A6')}
+        # In the rain the garment is a raincoat's yellow, unless they are under an umbrella.
+        wardrobe = {'looks': [{}] + [swap(c) for c in others], 'rain': {} if name in UMBRELLA else swap('#F4C95D', '#FBE7A6')}
         for variant, svg in variants.items():
             rig = build(name, svg, height, about, shade, moves, puggle)
             rig['wardrobe'] = wardrobe
+            if name in UMBRELLA: rig = lowered(rig, HEADROOM)
             with open(f'{RIGS}/{name}{"-" + variant if variant else ""}.rig.json', 'w') as out:
                 json.dump(rig, out, indent=1, ensure_ascii=False)
             print(name, variant or '(as drawn)', len(rig['parts']), 'parts')
