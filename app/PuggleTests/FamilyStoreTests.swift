@@ -207,8 +207,11 @@ final class FamilyStoreTests: XCTestCase {
     func testAnAccidentStopsThatDayCountingAsDry() {
         let bea = store.addChild(name: "Bea", birthDate: Date.now.addingTimeInterval(-900 * 86_400),
                                  colourIndex: 1, pottyTraining: true)
-        store.logEach(.potty, for: [bea], at: ago(minutes: 30), detail: "Wee")
-        store.logEach(.potty, for: [bea], at: ago(minutes: 20), detail: "Accident")
+        // Both on the same day whatever the time is now: just after midnight,
+        // "half an hour ago" and "twenty minutes ago" fall on different days.
+        let noon = Calendar.current.startOfDay(for: .now).addingTimeInterval(-12 * 3600)
+        store.logEach(.potty, for: [bea], at: noon, detail: "Wee")
+        store.logEach(.potty, for: [bea], at: noon.addingTimeInterval(600), detail: "Accident")
         XCTAssertFalse(store.earnedStickers(for: bea).map(\.id).contains("dry-1"))
     }
 
