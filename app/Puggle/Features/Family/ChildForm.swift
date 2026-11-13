@@ -3,7 +3,10 @@ import SwiftUI
 /// What the child form edits, for a new child or an existing one.
 struct ChildDraft {
     var name = ""
-    var birthDate = Calendar.current.date(byAdding: .month, value: -6, to: .now) ?? .now
+    var birthDate = Date.now
+    /// False for a new child until the parent has picked the date. It decides
+    /// which tiles show, so it is never guessed.
+    var birthDateChosen = false
     var colour = 0
     var feeding: Feeding?
     var pottyTraining = false
@@ -13,6 +16,7 @@ struct ChildDraft {
     init(child: Child) {
         name = child.name ?? ""
         birthDate = child.birthDate ?? .now
+        birthDateChosen = true
         colour = Int(child.colourIndex)
         feeding = child.feeding
         pottyTraining = child.pottyTraining
@@ -23,13 +27,13 @@ struct ChildDraft {
     }
 
     /// Babies are asked how they feed; older children about the potty.
-    var asksFeeding: Bool { ageMonths < 24 }
-    var asksPotty: Bool { ageMonths >= 18 }
+    var asksFeeding: Bool { birthDateChosen && ageMonths < 24 }
+    var asksPotty: Bool { birthDateChosen && ageMonths >= 18 }
 
     var trimmedName: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
 
     /// The name, and for a baby an answer to how they feed.
-    var isComplete: Bool { !trimmedName.isEmpty && (!asksFeeding || feeding != nil) }
+    var isComplete: Bool { !trimmedName.isEmpty && birthDateChosen && (!asksFeeding || feeding != nil) }
 
     /// An older child who was never asked about feeding gets "neither", so
     /// their Today shows only what applies to them.
@@ -47,7 +51,27 @@ struct ChildForm: View {
         Section {
             TextField("Name", text: $draft.name)
                 .textContentType(.givenName)
-            DatePicker("Birth date", selection: $draft.birthDate, in: ...Date.now, displayedComponents: .date)
+            if draft.birthDateChosen {
+                DatePicker("Birth date", selection: $draft.birthDate, in: ...Date.now, displayedComponents: .date)
+            } else {
+                Button {
+                    Haptics.selection()
+                    draft.birthDateChosen = true
+                } label: {
+                    HStack {
+                        Text("Birth date").foregroundStyle(Palette.ink)
+                        Spacer()
+                        Text("Choose").fontWeight(.semibold).foregroundStyle(Palette.ink)
+                            .padding(.horizontal, 12).frame(minHeight: 34)
+                            .background(Palette.field, in: Capsule())
+                    }
+                }
+                .accessibilityHint("Shows the date picker, starting from today")
+            }
+        } footer: {
+            if !draft.birthDateChosen {
+                Text("Their age decides what shows on Today.")
+            }
         }
         if draft.asksFeeding {
             Section {

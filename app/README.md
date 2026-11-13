@@ -2,7 +2,7 @@
 
 The first working version of Puggle, for our own family: two children on one screen, quick logging, a shared history, and sharing with a partner through iCloud. See `docs/baby-tracker-spec.md` §11 step 3.
 
-> **Status:** builds for the iOS simulator (first built on a Mac on 11 November 2026). Not yet installed on a phone, and CloudKit sync and sharing have not been tested between two Apple Accounts. There are no automated tests.
+> **Status (13 November 2026):** runs on Tom's iPhone with iCloud, push and the App Group (the "Puggle" scheme), and in the simulator without them ("Puggle Local"). 26 unit tests in `PuggleTests`. Sharing between two Apple Accounts has still not been tested: it needs a second iPhone. Sections below were written as each round was built, oldest first, so an early section may describe something a later one replaced.
 
 ## What's in v0.1
 
@@ -37,7 +37,7 @@ Also built on 11 November 2026, as thinner versions of journeys 1, 5, 7, 9, 12 a
 
 | Flow | In the app |
 |---|---|
-| First run (1) | Splash with the name, two skippable hello screens, add your first child, "Anyone else?", then Today. No character step or invite yet |
+| First run (1) | Splash with the name, two skippable hello screens, add your first child, "Anyone else?", then Today. Later rounds added "I've been invited", "Welcome back" and a sample family; there is still no character step |
 | Setup that fits the child (12) | "How do they feed?" for babies and "Potty training" for older children decide which tiles show. Children added before this keep every tile until the question is answered on their page |
 | Children (7) | Tap a child on the Family tab to change name, birth date, colour and setup answers. Delete asks twice and removes their entries |
 | History (5) | Filter by child and by activity. The filter stays set until cleared |
@@ -219,17 +219,25 @@ Nineteenth round, 12 November 2026 (`docs/next-steps.md`, then phase A of `docs/
 | Logged twice? | A second bottle for the same child within five minutes asks first, and says who logged the first |
 | Puggle's nod | A small nod each time something is saved |
 
-Not done in this round: Home Screen widgets and a Control Centre "Start sleep" control. Both need the app's data shared with an extension through an App Group, and the free Apple ID's profile does not include one (checking whether it can needs Tom signed in to Xcode). Siri, the Action button and Shortcuts still start a sleep. Units stay "coming soon".
+## Not built (as of 13 November 2026)
 
-Stars stand in for the quatrefoils and shiny sticker in the celebration. Not built in these journeys: milestone photos, suggested milestones by country, WHO percentile bands, units other than grams and millilitres, pumping and milk on hand.
+The paragraphs that used to be here listed things as missing that have since been built: widgets and the Control Centre control, pumping and milk on hand, reminders and regular medicines, the night look, units, Contact us in Help, "how much to see" in setup, twins' sleep together, and Puggle's reactions to a save.
 
-The stickers are system symbols standing in for the Puggle sticker art. Not built in these journeys: regular medicines with reminders and "due on Today", the potty reminder, the holographic sticker art, and birth weight at setup.
+Still not built:
 
-Not built: the character builder and photos, invitations in first run, import, Pro and tips, automatic night mode, units and reminders, a way to contact us from Help, and "how much to see" in setup. Whole journeys not started: helpers (13), pumping (14), large text and night (16), and widgets, Lock Screen and Siri (17).
+- People and roles: a list of who is in the family, and changing or ending access
+- A join screen, and plain words when joining fails
+- Leaving a family you were invited to ("Delete everything" leaves it alone)
+- Medicine rules shared across the family (they are kept on one phone)
+- Helper mode (journey 13)
+- Adding or fixing a night waking afterwards
+- Characters or a photo for each child; milestone photos; suggested milestones
+- Growth beyond weight, WHO percentile bands, birth weight
+- Import from another tracker
+- Pro and tips (no StoreKit code)
+- Swimmers for Puggle, and the friends drawn in the canvas style
 
-Left out of those two journeys: "how it went" for solids, a night waking inside a sleep, starting twins' sleep together, and Puggle's nod on save.
-
-Not yet: Live Activities, widgets, the custom Puggle icons (SF Symbols stand in), characters, potty sticker chart, growth, onboarding, import.
+The fuller comparison with the designed flows is `docs/app-vs-flows.md`.
 
 ## Build it on your Mac
 
@@ -291,10 +299,6 @@ app/
     Resources/                Info.plist, entitlements, assets
 ```
 
-## Next (v0.2)
+## Next
 
-1. Live Activity and Lock Screen timer for sleep
-2. Home Screen widgets: last feed, asleep for
-3. Custom Puggle activity icons as SF Symbols (from the icon sheet on the canvas)
-4. Potty sticker chart for the toddler
-5. Onboarding and the splash screen
+See `docs/HANDOFF.md` for the current list, and `docs/testflight.md` for sending a build to TestFlight.

@@ -530,7 +530,8 @@ struct TodaySoFar: View {
                 .padding(.bottom, 20)
             VStack(spacing: 0) {
                 if today.isEmpty {
-                    Text("Nothing logged yet today. Entries from everyone show up here.")
+                    // An empty day is just an empty day: say what will appear, nothing more.
+                    Text("Entries from everyone show up here.")
                         .font(.subheadline)
                         .foregroundStyle(Palette.muted)
                         .frame(maxWidth: .infinity, alignment: .leading)

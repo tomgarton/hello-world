@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// A sticker a child has earned. Stickers are for things that happened:
-/// finished cards, firsts, new foods tried, milestones and dry days in total.
+/// finished cards, firsts, new foods tried, milestones and potty days in total.
 /// There are no streaks, nothing expires, and nothing is earned for logging.
 struct EarnedSticker: Identifiable {
     let id: String
@@ -42,7 +42,8 @@ extension FamilyStore {
                 "The first poo on the potty.", on: poo.startedAt)
         }
 
-        // Days with a wee or a poo on the potty and no accident, in total (never in a row).
+        // Days with a wee or a poo on the potty, in total (never in a row). An accident
+        // on the same day changes nothing: an accident never takes anything away.
         var days: [Date: (success: Bool, accident: Bool)] = [:]
         for event in potty {
             guard let at = event.startedAt else { continue }
@@ -52,11 +53,11 @@ extension FamilyStore {
             if event.detail == "Wee" || event.detail == "Poo" { entry.success = true }
             days[day] = entry
         }
-        let dryDays = days.filter { $0.value.success && !$0.value.accident }.keys.sorted()
+        let dryDays = days.filter { $0.value.success }.keys.sorted()
         let sea = StickerStyle(shape: "shape-soft-square", foil: .sea, emblem: "sun")
-        if !dryDays.isEmpty { add("dry-1", "First dry day", sea, "A day on the potty with no accidents.", on: dryDays[0]) }
+        if !dryDays.isEmpty { add("dry-1", "First potty day", sea, "A day with a wee or a poo on the potty.", on: dryDays[0]) }
         for count in [3, 7, 14, 30] where dryDays.count >= count {
-            add("dry-\(count)", "\(count) dry days", sea, "\(count) days with no accidents, in total.", on: dryDays[count - 1])
+            add("dry-\(count)", "\(count) potty days", sea, "\(count) days on the potty, in total.", on: dryDays[count - 1])
         }
 
         // New foods tried, in the order they were first tried.

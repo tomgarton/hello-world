@@ -47,10 +47,19 @@ private func since(_ date: Date, now: Date) -> String {
     return h > 0 ? "\(h) hr \(m) min" : "\(m) min"
 }
 
+/// How long after a nappy the widget's button offers Undo.
+private let undoWindow: TimeInterval = 60
+
 /// Refreshes every 15 minutes so "ago" stays right; the app also refreshes it on every change.
 private func familyTimeline(_ snapshot: WidgetSnapshot?, chosen: String? = nil) -> Timeline<FamilyEntry> {
     let now = Date.now
-    let entries = (0..<8).map { FamilyEntry(date: now.addingTimeInterval(Double($0) * 15 * 60), snapshot: snapshot, chosenID: chosen) }
+    var times = (0..<8).map { now.addingTimeInterval(Double($0) * 15 * 60) }
+    // Straight after a nappy the button offers Undo; add a moment when it goes back.
+    for nappy in (snapshot?.children ?? []).compactMap(\.lastNappy) {
+        let over = nappy.addingTimeInterval(undoWindow + 1)
+        if over > now { times.append(over) }
+    }
+    let entries = times.sorted().map { FamilyEntry(date: $0, snapshot: snapshot, chosenID: chosen) }
     return Timeline(entries: entries, policy: .after(now.addingTimeInterval(2 * 3600)))
 }
 
@@ -189,7 +198,12 @@ private struct FamilyWidgetView: View {
             }
             Spacer(minLength: 4)
             if child.usesNappies && !compact {
-                button(Terms.nappy, symbol: "drop", action: TimerActions.nappyWet, child: child, filled: false)
+                // For a minute after a nappy, the button takes it back: a stray tap is easy on the Home Screen.
+                if let nappy = child.lastNappy, entry.date.timeIntervalSince(nappy) < undoWindow, entry.date >= nappy.addingTimeInterval(-5) {
+                    button("Undo", symbol: "arrow.uturn.backward", action: TimerActions.undoNappy, child: child, filled: false)
+                } else {
+                    button(Terms.nappy, symbol: "drop", action: TimerActions.nappyWet, child: child, filled: false)
+                }
             }
             if child.asleepSince != nil {
                 button("Woke", symbol: "sun.max", action: TimerActions.wokeUp, child: child, filled: true)
@@ -211,7 +225,8 @@ private struct FamilyWidgetView: View {
                 .background(filled ? WTone.ink : WTone.field, in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(action == TimerActions.nappyWet ? "Log a wet \(Terms.nappyLower) for \(child.name)"
+        .accessibilityLabel(action == TimerActions.undoNappy ? "Undo the \(Terms.nappyLower) just logged for \(child.name)"
+                            : action == TimerActions.nappyWet ? "Log a wet \(Terms.nappyLower) for \(child.name)"
                             : action == TimerActions.wokeUp ? "\(child.name) woke up" : "Start \(child.name)'s sleep")
     }
 }

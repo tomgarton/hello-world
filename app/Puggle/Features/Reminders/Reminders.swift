@@ -159,7 +159,8 @@ final class ReminderStore: ObservableObject {
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
-        content.sound = .default
+        // Quiet: a banner with no sound, so a reminder never wakes a sleeping baby.
+        content.sound = nil
         content.interruptionLevel = .active
         UNUserNotificationCenter.current().add(UNNotificationRequest(identifier: Self.prefix + id, content: content, trigger: trigger))
     }

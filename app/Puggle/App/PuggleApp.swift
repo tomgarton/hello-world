@@ -193,9 +193,9 @@ struct RootView: View {
             // For checking the scenes: launch with "-debugGallery 0" (to 3).
             SceneGalleryView(kind: SceneKind(rawValue: scene) ?? .hills)
         } else if UserDefaults.standard.string(forKey: "debugSticker") == "dry" {
-            StickerDetailView(sticker: EarnedSticker(id: "dry-1", title: "First dry day",
+            StickerDetailView(sticker: EarnedSticker(id: "dry-1", title: "First potty day",
                                                      style: StickerStyle(shape: "shape-soft-square", foil: .sea, emblem: "sun"),
-                                                     detail: "A day on the potty with no accidents.", child: "Bea", earnedOn: .now))
+                                                     detail: "A day with a wee or a poo on the potty.", child: "Bea", earnedOn: .now))
         } else if UserDefaults.standard.string(forKey: "debugSticker") == "food" {
             StickerDetailView(sticker: EarnedSticker(id: "food-1", title: "First food",
                                                      style: StickerStyle(shape: "shape-soft-hexagon", foil: .gold, emblem: "icon-solids"),

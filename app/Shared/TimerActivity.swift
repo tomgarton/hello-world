@@ -36,6 +36,8 @@ enum TimerActions {
     static let feedRight = "feedRight"
     /// From the family widget: a wet nappy, now.
     static let nappyWet = "nappyWet"
+    /// From the family widget: take back the nappy just logged.
+    static let undoNappy = "undoNappy"
 
     @MainActor static var perform: ((_ action: String, _ childID: String) -> Void)?
 }

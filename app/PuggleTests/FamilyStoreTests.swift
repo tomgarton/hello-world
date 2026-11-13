@@ -222,6 +222,22 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertEqual(nappy.listedAt, began)
     }
 
+    func testANewChildNeedsABirthDateChosen() {
+        var draft = ChildDraft()
+        draft.name = "Ollie"
+        XCTAssertFalse(draft.isComplete, "the date is never guessed")
+        draft.birthDateChosen = true
+        draft.birthDate = Date.now.addingTimeInterval(-900 * 86_400)
+        XCTAssertTrue(draft.isComplete)
+    }
+
+    func testDeleteEverythingRemovesWhatIsOwned() {
+        let ollie = store.addChild(name: "Ollie", birthDate: .now, colourIndex: 0)
+        store.log(.nappy, for: [ollie], at: .now, detail: "Wet")
+        XCTAssertTrue(store.deleteEverything(), "nothing is left on this phone")
+        XCTAssertFalse(store.hasJoinedFamily)
+    }
+
     // MARK: Stamps and stickers
 
     func testFiveStampsFillACardAndEarnItsSticker() {
@@ -239,7 +255,7 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertTrue(earned.contains("dry-1"))
     }
 
-    func testAnAccidentStopsThatDayCountingAsDry() {
+    func testAnAccidentNeverTakesAPottyDayAway() {
         let bea = store.addChild(name: "Bea", birthDate: Date.now.addingTimeInterval(-900 * 86_400),
                                  colourIndex: 1, pottyTraining: true)
         // Both on the same day whatever the time is now: just after midnight,
@@ -247,7 +263,7 @@ final class FamilyStoreTests: XCTestCase {
         let noon = Calendar.current.startOfDay(for: .now).addingTimeInterval(-12 * 3600)
         store.logEach(.potty, for: [bea], at: noon, detail: "Wee")
         store.logEach(.potty, for: [bea], at: noon.addingTimeInterval(600), detail: "Accident")
-        XCTAssertFalse(store.earnedStickers(for: bea).map(\.id).contains("dry-1"))
+        XCTAssertTrue(store.earnedStickers(for: bea).map(\.id).contains("dry-1"), "the wee still counts")
     }
 
     // MARK: Export

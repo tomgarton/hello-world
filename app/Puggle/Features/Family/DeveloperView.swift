@@ -21,8 +21,8 @@ struct DeveloperView: View {
     private static let stickers: [EarnedSticker] = [
         EarnedSticker(id: "card-1", title: "First card", style: .card(0),
                       detail: "Five stamps on a card, and the shiny one on the end.", child: "Bea", earnedOn: .now),
-        EarnedSticker(id: "dry-1", title: "First dry day", style: StickerStyle(shape: "shape-soft-square", foil: .sea, emblem: "sun"),
-                      detail: "A day on the potty with no accidents.", child: "Bea", earnedOn: .now),
+        EarnedSticker(id: "dry-1", title: "First potty day", style: StickerStyle(shape: "shape-soft-square", foil: .sea, emblem: "sun"),
+                      detail: "A day with a wee or a poo on the potty.", child: "Bea", earnedOn: .now),
         EarnedSticker(id: "food-1", title: "First food", style: StickerStyle(shape: "shape-soft-hexagon", foil: .gold, emblem: "icon-solids"),
                       detail: "A first taste of something new.", child: "Ollie", earnedOn: .now),
         EarnedSticker(id: "milestone", title: "First steps", style: StickerStyle(shape: "shape-blossom", foil: .sunset, emblem: "icon-milestone"),

@@ -433,14 +433,34 @@ final class FamilyStore: ObservableObject {
         persistence.save()
     }
 
-    /// "Delete everything": every entry, child and family this phone can see.
-    func deleteEverything() {
+    /// True when this phone has joined a family that someone else owns.
+    var hasJoinedFamily: Bool {
+        guard let shared = persistence.sharedStore else { return false }
+        let request = NSFetchRequest<NSManagedObject>(entityName: "Family")
+        return ((try? context.fetch(request)) ?? []).contains { $0.objectID.persistentStore == shared }
+    }
+
+    /// "Delete everything": every entry, child and family this person owns.
+    /// A family they were invited to belongs to someone else and is left alone:
+    /// deleting it here would delete it for its owner too.
+    /// Returns true if nothing is left on this phone afterwards.
+    @discardableResult
+    func deleteEverything() -> Bool {
         lastSaved = nil
+        let shared = persistence.sharedStore
+        var left = false
         for name in ["Event", "Child", "Family"] {
             let request = NSFetchRequest<NSManagedObject>(entityName: name)
-            ((try? context.fetch(request)) ?? []).forEach(context.delete)
+            for object in (try? context.fetch(request)) ?? [] {
+                if let shared, object.objectID.persistentStore == shared {
+                    left = true
+                } else {
+                    context.delete(object)
+                }
+            }
         }
         persistence.save()
+        return !left
     }
 
     /// Everything, as a plain CSV file the family can open anywhere.

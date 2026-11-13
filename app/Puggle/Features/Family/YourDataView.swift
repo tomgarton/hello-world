@@ -45,18 +45,22 @@ struct YourDataView: View {
                 Button("Delete everything", role: .destructive) { confirmingDelete = true }
                     .foregroundStyle(Palette.waratah)
                     .confirmationDialog("Delete everything?", isPresented: $confirmingDelete, titleVisibility: .visible) {
-                        Button("Delete every child and entry", role: .destructive) {
-                            store.deleteEverything()
-                            hasOnboarded = false
+                        Button(store.hasJoinedFamily ? "Delete what I own" : "Delete every child and entry", role: .destructive) {
+                            // Back to the start only if nothing is left to show.
+                            if store.deleteEverything() { hasOnboarded = false }
                         }
                         Button("Keep it", role: .cancel) {}
                     } message: {
-                        Text(Persistence.cloudSyncEnabled
+                        Text(store.hasJoinedFamily
+                             ? "This removes the children and entries you own, from this iPhone and from iCloud. It cannot be undone. The family you were invited to belongs to someone else, so it is not deleted."
+                             : Persistence.cloudSyncEnabled
                              ? "This removes every child and every entry from this iPhone and from iCloud, for everyone in the family. It cannot be undone. Export a copy first if you want one."
                              : "This removes every child and every entry from this iPhone. It cannot be undone. Export a copy first if you want one.")
                     }
             } footer: {
-                Text("The app goes back to the start afterwards.")
+                Text(store.hasJoinedFamily
+                     ? "A family you were invited to stays as it is."
+                     : "The app goes back to the start afterwards.")
             }
             .listRowBackground(Palette.paper)
             }

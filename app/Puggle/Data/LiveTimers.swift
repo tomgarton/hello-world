@@ -140,7 +140,13 @@ extension FamilyStore {
         let children = (try? context.fetch(request)) ?? []
         if let child = children.first(where: { $0.id?.uuidString == childID }) {
             switch action {
-            case TimerActions.wokeUp: endSleep(for: child)
+            case TimerActions.wokeUp:
+                // A sleep under a minute old was a stray tap: take it back and leave no entry.
+                if let sleep = activeSleep(for: child), let began = sleep.startedAt, Date.now.timeIntervalSince(began) < 60 {
+                    cancelSleep(for: child)
+                } else {
+                    endSleep(for: child)
+                }
             case TimerActions.startSleep: startSleep(for: child)
             case TimerActions.finishFeed: finishFeed(for: child)
             case TimerActions.feedLeft: tapFeedSide("Left", for: child)
@@ -148,6 +154,11 @@ extension FamilyStore {
             case TimerActions.nappyWet:
                 logEach(.nappy, for: [child], detail: "Wet")
                 Haptics.success()
+            case TimerActions.undoNappy:
+                // Only a nappy from the last two minutes, so an old one is never lost.
+                if let nappy = latest(.nappy, for: child), let at = nappy.startedAt, Date.now.timeIntervalSince(at) < 120 {
+                    delete(nappy)
+                }
             default: break
             }
         }
