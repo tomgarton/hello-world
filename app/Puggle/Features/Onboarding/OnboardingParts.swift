@@ -2,12 +2,20 @@ import SwiftUI
 
 /// The steps of first run, in order. The raw value gives the direction of travel.
 enum OnboardingStep: Int, CaseIterable {
-    case welcome, joining, found, logging, sharing, name, child, more, invite, amount, done
+    case welcome, joining, found, logging, together, lookingBack, you, child, more, invite, family
 
-    /// The steps a new family goes through, for the progress dots.
-    static let newFamily: [OnboardingStep] = [.logging, .sharing, .name, .child, .more, .invite, .amount, .done]
-    /// The steps for someone joining, or a family coming back from iCloud.
-    static let foundPath: [OnboardingStep] = [.found, .name, .done]
+    /// Three pages about the app, each with a dot.
+    static let pages: [OnboardingStep] = [.logging, .together, .lookingBack]
+    /// The setup screens, each with a dot. Adding another child returns to the second.
+    static var setup: [OnboardingStep] { Persistence.cloudSyncEnabled ? [.you, .child, .more, .invite] : [.you, .child, .more] }
+
+    /// The dots this step shows, if any.
+    var dots: (current: Int, count: Int)? {
+        if let index = Self.pages.firstIndex(of: self) { return (index, Self.pages.count) }
+        if let index = Self.setup.firstIndex(of: self) { return (index, Self.setup.count) }
+        if self == .child, !Self.setup.contains(.child) { return nil }
+        return nil
+    }
 }
 
 /// One first-run page: content that scrolls if the text is large, with the
@@ -62,122 +70,111 @@ struct OnboardingDots: View {
     }
 }
 
-/// A row of the tiles from Today, as a picture of what logging looks like.
-struct OnboardingTiles: View {
-    private let kinds: [EventKind] = [.bottle, .sleep, .nappy, .potty]
+/// The bottle stepper from the log sheet, to try. Nothing is saved.
+struct OnboardingTryBottle: View {
+    @State private var amount = 160
+    @State private var milk = "Formula"
 
     var body: some View {
-        HStack(spacing: 10) {
-            ForEach(kinds) { kind in
-                VStack(spacing: 8) {
-                    ActivityIcon(kind, size: 36)
-                    Text(kind.title)
-                        .font(.footnote.weight(.semibold))
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
+        VStack(spacing: 12) {
+            Text("Try it").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            HStack {
+                step("minus", "Less") { amount = max(10, amount - 10) }
+                Spacer()
+                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                    Text("\(amount)").displayFont(44).monospacedDigit().contentTransition(.numericText())
+                    Text("ml").foregroundStyle(Palette.muted)
                 }
-                .frame(maxWidth: .infinity, minHeight: 92)
-                .padding(.horizontal, 4)
-                .background(Palette.card, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .accessibilityElement(children: .combine)
+                Spacer()
+                step("plus", "More") { amount = min(400, amount + 10) }
             }
-        }
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Tiles for bottle, sleep, \(Terms.nappyLower) and potty")
-    }
-}
-
-/// A made-up child's row with two entries, as a picture of a shared day.
-struct OnboardingSampleDay: View {
-    /// Who added each entry. Left off when this build does not share.
-    let showsWho: Bool
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack(spacing: 12) {
-                Circle()
-                    .fill(Palette.childColours[0])
-                    .frame(width: 44, height: 44)
-                    .overlay(Text("O").font(.system(size: 18, weight: .bold, design: .rounded)))
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Ollie").font(.headline)
-                    Text("5 months").font(.subheadline).foregroundStyle(Palette.muted)
-                }
+            Picker("Milk", selection: $milk) {
+                ForEach(["Formula", "Breast milk", "Mixed"], id: \.self) { Text($0) }
             }
-            entry(.bottle, text: "Bottle, 150 ml", who: "Robin")
-            entry(.sleep, text: "Nap, 1 h 20 min", who: "Nan")
+            .pickerStyle(.segmented)
         }
         .padding(16)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        .accessibilityElement(children: .ignore)
-        .accessibilityLabel(showsWho
-            ? "An example day for Ollie: a bottle added by Dad and a nap added by Nan"
-            : "An example day for Ollie: a bottle and a nap")
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Try the bottle stepper. Nothing is saved.")
     }
 
-    private func entry(_ kind: EventKind, text: String, who: String) -> some View {
-        HStack(spacing: 10) {
-            ActivityIcon(kind, size: 28)
-            Text(text).font(.body)
-            Spacer(minLength: 8)
-            if showsWho {
-                Text(who)
-                    .font(.footnote.weight(.semibold))
-                    .padding(.horizontal, 10)
-                    .frame(minHeight: 26)
-                    .background(Palette.field, in: Capsule())
-            }
+    private func step(_ symbol: String, _ label: String, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.tap()
+            withAnimation(.snappy) { action() }
+        } label: {
+            Image(systemName: symbol)
+                .font(.title3.weight(.semibold))
+                .frame(width: 52, height: 52)
+                .background(Palette.field, in: Circle())
         }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
     }
 }
 
-/// One of the two large choices on "How much to see". Selection shows as a
-/// tick and a border, never colour alone.
-struct OnboardingChoice: View {
-    let title: String
-    let text: String
-    let isOn: Bool
-    let action: () -> Void
+/// Three people at the three levels, as in the Family tab.
+struct OnboardingLevels: View {
+    private let rows: [(String, String, Int)] = [("You", "Parent", 3), ("Nan", "Helper", 1), ("Pop", "Viewer", 6)]
 
     var body: some View {
-        Button(action: action) {
-            HStack(alignment: .top, spacing: 12) {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text(title).font(.title3.weight(.semibold))
-                    Text(text)
-                        .font(.body)
-                        .foregroundStyle(Palette.muted)
-                        .multilineTextAlignment(.leading)
+        VStack(spacing: 0) {
+            ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                if index > 0 { Divider().padding(.leading, 62) }
+                HStack(spacing: 12) {
+                    Circle()
+                        .fill(Palette.childColours[row.2])
+                        .frame(width: 36, height: 36)
+                        .overlay(Text(String(row.0.prefix(1))).font(.system(size: 16, weight: .bold, design: .rounded)).foregroundStyle(Palette.fixedInk))
+                    Text(row.0).font(.headline)
+                    Spacer()
+                    Text(row.1)
+                        .font(.footnote.weight(.semibold))
+                        .padding(.horizontal, 10)
+                        .frame(minHeight: 26)
+                        .background(Palette.field, in: Capsule())
                 }
-                Spacer(minLength: 8)
-                tick
+                .padding(.horizontal, 14)
+                .frame(minHeight: 56)
             }
-            .padding(18)
-            .frame(maxWidth: .infinity, minHeight: 88, alignment: .leading)
-            .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .stroke(Palette.ink, lineWidth: isOn ? 2.5 : 0)
-            )
-            .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
-        .buttonStyle(PressStyle(scale: 0.98))
-        .foregroundStyle(Palette.ink)
-        .accessibilityElement(children: .combine)
-        .accessibilityAddTraits(isOn ? .isSelected : [])
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("An example family: you as a parent, Nan as a helper, Pop as a viewer")
     }
+}
 
-    private var tick: some View {
-        ZStack {
-            Circle()
-                .fill(isOn ? Palette.ink : Palette.field)
-                .frame(width: 28, height: 28)
-            if isOn {
-                Image(systemName: "checkmark")
-                    .font(.footnote.weight(.bold))
-                    .foregroundStyle(Palette.paper)
+/// A made-up week of bottles, drawn like the chart in Insights.
+struct OnboardingWeek: View {
+    private let counts = [6, 5, 7, 6, 6, 5, 7]
+    private let days = ["M", "T", "W", "T", "F", "S", "S"]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Bottles this week").font(.headline)
+                Spacer()
+                Text("42 · 6 a day").font(.subheadline).foregroundStyle(Palette.muted).monospacedDigit()
+            }
+            HStack(alignment: .bottom, spacing: 8) {
+                ForEach(counts.indices, id: \.self) { index in
+                    VStack(spacing: 6) {
+                        RoundedRectangle(cornerRadius: 6, style: .continuous)
+                            .fill(Palette.childColours[0])
+                            .overlay(RoundedRectangle(cornerRadius: 6, style: .continuous).stroke(Palette.ink.opacity(0.25), lineWidth: 1))
+                            .frame(height: CGFloat(counts[index]) * 11)
+                        Text(days[index]).font(.footnote).foregroundStyle(Palette.muted)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
             }
         }
-        .accessibilityHidden(true)
+        .padding(16)
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("An example week: 42 bottles, about 6 a day")
     }
 }

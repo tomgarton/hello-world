@@ -1,28 +1,43 @@
+import CloudKit
 import SwiftUI
 
 /// First run: from install to Today in under a minute. No account, no email,
-/// no password. The only required step is adding a child.
+/// no password. Three pages about the app, four setup screens, then the family
+/// drops into place. Everything can be skipped; nothing is asked twice.
 struct OnboardingView: View {
     @EnvironmentObject private var store: FamilyStore
     @EnvironmentObject private var sample: SampleFamily
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var children: FetchedResults<Child>
+    @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var allChildren: FetchedResults<Child>
+    private var children: [Child] { store.onScreen(allChildren) }
     @AppStorage(Setting.yourName) private var yourName = ""
-    @AppStorage(Setting.justLog) private var justLog = false
+    /// The screen to come back to if first run is left half way.
+    @AppStorage("firstRunStep") private var savedStep = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var typeSize
+    @Environment(\.colorScheme) private var scheme
     let onFinish: () -> Void
 
     @State private var step: OnboardingStep = .welcome
     @State private var forward = true
     @State private var draft = ChildDraft()
     @State private var nameDraft = ""
+    @State private var familyDraft = ""
     @FocusState private var nameFocused: Bool
     /// True once a child is added on this phone; children arriving otherwise came from iCloud.
     @State private var addedHere = false
     /// Joining a family, or a family come back from iCloud: no children to add.
     @State private var foundFamily = false
+    @State private var showingPromise = false
+    @State private var inviting = false
+    @State private var pending: PendingInvite?
     @State private var sharing: SharingItem?
     @State private var shareError: String?
-    @State private var showingPromise = false
+    @State private var invited = 0
+    @State private var showName = false
+    @State private var heapRound = 0
+    @State private var heapLanded = false
+    @StateObject private var hatchling = HatchlingController()
+    @StateObject private var puggle = PuggleController()
     @ObservedObject private var cloud = CloudStatus.shared
 
     init(onFinish: @escaping () -> Void) {
@@ -33,9 +48,7 @@ struct OnboardingView: View {
         ZStack {
             Palette.sand.ignoresSafeArea()
             VStack(spacing: 0) {
-                if step != .welcome {
-                    topBar
-                }
+                if step != .welcome && step != .family { topBar }
                 ZStack {
                     stepView
                         .id(step)
@@ -47,7 +60,9 @@ struct OnboardingView: View {
         .foregroundStyle(Palette.ink)
         .onAppear {
             nameDraft = yourName
+            familyDraft = store.familyName
             cloud.refresh()
+            resume()
         }
         // Children arriving without being added here came from iCloud: an invite
         // accepted, or this family's own entries returning to a new phone.
@@ -57,10 +72,23 @@ struct OnboardingView: View {
             Haptics.success()
             go(.found)
         }
-        .sheet(item: $sharing) { item in
-            CloudSharingView(share: item.share, container: item.container).ignoresSafeArea()
-        }
         .sheet(isPresented: $showingPromise) { DataPromiseView() }
+        .sheet(isPresented: $inviting) {
+            InviteSheet { invite in
+                pending = invite
+                Task { await startSharing(invite) }
+            }
+        }
+        .sheet(item: $sharing, onDismiss: {
+            store.reconcilePeople(pending: pending)
+            pending = nil
+            invited += 1
+        }) { item in
+            CloudSharingView(share: item.share, container: item.container, lookOnly: item.lookOnly, title: item.title) {
+                Task { @MainActor in store.reconcilePeople(pending: pending) }
+            }
+            .ignoresSafeArea()
+        }
     }
 
     /// Whether any child here belongs to a family someone else shared.
@@ -84,48 +112,66 @@ struct OnboardingView: View {
         withAnimation(.easeInOut(duration: reduceMotion ? 0.2 : 0.3)) {
             step = next
         }
+        // Only the screens worth coming back to; joining and the finish start again.
+        if [.logging, .together, .lookingBack, .you, .child, .more, .invite].contains(next) { savedStep = next.rawValue }
+    }
+
+    /// Back where first run was left, with any child already added kept.
+    private func resume() {
+        guard let saved = OnboardingStep(rawValue: savedStep), saved != .welcome else { return }
+        if saved == .child, !children.isEmpty { step = .more } else { step = saved }
+    }
+
+    private func finish() {
+        savedStep = 0
+        Haptics.tap()
+        onFinish()
     }
 
     /// Where Back leads. Once a child exists, the form is only for adding another.
     private var previous: OnboardingStep {
         switch step {
-        case .welcome: return .welcome
-        case .joining: return .welcome
-        case .found: return .welcome
-        case .logging: return .welcome
-        case .sharing: return .logging
-        case .name: return foundFamily ? .found : .sharing
-        case .child: return children.isEmpty ? .name : .more
-        case .more: return .name
+        case .welcome, .joining, .found, .logging: return .welcome
+        case .together: return .logging
+        case .lookingBack: return .together
+        case .you: return foundFamily ? .found : .lookingBack
+        case .child: return children.isEmpty ? .you : .more
+        case .more: return .you
         case .invite: return .more
-        case .amount: return Persistence.cloudSyncEnabled ? .invite : .more
-        case .done: return foundFamily ? .name : .amount
+        case .family: return .welcome
         }
     }
 
-    /// The step after your name: the first child, the list once one exists, or
-    /// straight to the end for a family that came from iCloud.
-    private var afterName: OnboardingStep {
-        if foundFamily { return .done }
+    private var afterYou: OnboardingStep? {
+        if foundFamily { return joinedSomeone ? .family : nil }
         return children.isEmpty ? .child : .more
     }
 
     private var canSkip: Bool {
-        step == .logging || step == .sharing || step == .name || step == .invite
+        switch step {
+        case .logging, .together, .lookingBack, .you, .invite: true
+        case .child: children.isEmpty
+        default: false
+        }
     }
 
     private func skip() {
-        // Skipping always lands on the one required step (or past the invite).
-        go(step == .invite ? .amount : afterName)
+        switch step {
+        case .logging, .together, .lookingBack: go(.you)
+        case .you: saveYou()
+        // Skipping the first child leads to Today, which offers to add one.
+        case .child: finish()
+        case .invite: go(.family)
+        default: break
+        }
     }
 
     // MARK: Top bar
 
     private var topBar: some View {
         ZStack {
-            let path = foundFamily ? OnboardingStep.foundPath : OnboardingStep.newFamily
-            if let index = path.firstIndex(of: step) {
-                OnboardingDots(current: index, count: path.count)
+            if let dots = step.dots {
+                OnboardingDots(current: dots.current, count: dots.count)
             }
             HStack {
                 Button {
@@ -157,28 +203,59 @@ struct OnboardingView: View {
         case .welcome: welcome
         case .joining: joiningPage
         case .found: foundPage
-        case .invite: invitePage
         case .logging: loggingPage
-        case .sharing: sharingPage
-        case .name: namePage
+        case .together: togetherPage
+        case .lookingBack: lookingBackPage
+        case .you: youPage
         case .child: childPage
         case .more: morePage
-        case .amount: amountPage
-        case .done: donePage
+        case .invite: invitePage
+        case .family: familyPage
         }
+    }
+
+    private var large: Bool { typeSize.isAccessibilitySize }
+    private var dark: Bool { scheme == .dark }
+
+    /// A strip of scene above each page. The three pages run from dawn to dusk; after dark it is night throughout.
+    private func strip(hour: Int?) -> some View {
+        let now = Calendar.current.component(.hour, from: .now)
+        let night = dark || now >= 21 || now < 5
+        return ZStack(alignment: .bottom) {
+            PuggleScene(kind: .hills, dark: dark, hourOverride: night ? nil : hour)
+            if !large {
+                PuggleView(controller: puggle, frozen: true)
+                    .frame(height: 84)
+                    .padding(.bottom, 6)
+            }
+        }
+        .frame(height: large ? 70 : 170)
+        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+        .accessibilityHidden(true)
     }
 
     /// The only place in the app, with Help and the icon, where the name shows.
     private var welcome: some View {
         VStack(spacing: 12) {
-            Spacer()
-            PuggleMark()
-            Wordmark()
-            Text("A calm place for your family's day")
-                .font(.title3)
-                .foregroundStyle(Palette.muted)
-                .multilineTextAlignment(.center)
-            Spacer()
+            ZStack(alignment: .bottom) {
+                PuggleScene(kind: .hills, dark: dark)
+                HatchlingView(controller: hatchling)
+                    .frame(height: large ? 110 : 170)
+                    .padding(.bottom, 4)
+            }
+            .frame(height: large ? 200 : 330)
+            .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+            VStack(spacing: 6) {
+                Wordmark()
+                Text("Baby tracker for the whole family")
+                    .font(.title3)
+                    .foregroundStyle(Palette.muted)
+                    .multilineTextAlignment(.center)
+            }
+            .opacity(showName ? 1 : 0)
+            .offset(y: showName || reduceMotion ? 0 : 8)
+            .accessibilityHidden(!showName)
+            Spacer(minLength: 12)
             Button("Start a new family") { go(.logging) }
                 .buttonStyle(PillButtonStyle())
             if Persistence.cloudSyncEnabled {
@@ -193,56 +270,79 @@ struct OnboardingView: View {
             .foregroundStyle(Palette.ink)
             .frame(maxWidth: .infinity, minHeight: 44)
         }
-        .padding(24)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 12)
+        .onAppear {
+            guard !showName else { return }
+            hatchling.hatch()
+            if reduceMotion { showName = true; return }
+            Task {
+                try? await Task.sleep(for: .seconds(1.8))
+                withAnimation(.easeOut(duration: 0.4)) { showName = true }
+            }
+        }
     }
 
     private var loggingPage: some View {
         OnboardingPage {
-            OnboardingTiles()
-                .padding(.vertical, 20)
+            strip(hour: 7)
+            if !large { OnboardingTryBottle().padding(.top, 4) }
             Text("Log the day in a tap or two").displayFont(34)
             Text("Feeds, sleeps, \(Terms.nappiesLower) and the potty, for every child you have.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
         } actions: {
-            Button("Continue") { go(.sharing) }
+            Button("Next") { go(.together) }
                 .buttonStyle(PillButtonStyle())
         }
     }
 
-    private var sharingPage: some View {
+    private var togetherPage: some View {
         OnboardingPage {
-            OnboardingSampleDay(showsWho: Persistence.cloudSyncEnabled)
-                .padding(.vertical, 20)
+            strip(hour: 13)
+            if !large && Persistence.cloudSyncEnabled { OnboardingLevels().padding(.top, 4) }
             Text(Persistence.cloudSyncEnabled ? "Everyone sees the same day" : "The whole day in one place")
                 .displayFont(34)
             Text(Persistence.cloudSyncEnabled
-                 ? "Anyone who helps can log on their own iPhone. No account to make."
+                 ? "Invite anyone who helps. They log on their own iPhone, and you choose what each person can do."
                  : "This build keeps everything on this iPhone. No account, no email, no password.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
-            if Persistence.cloudSyncEnabled { CloudProblemCard() }
             Button("How your data is kept") { showingPromise = true }
                 .font(.subheadline.weight(.semibold))
                 .frame(minHeight: 44)
         } actions: {
-            Button("Continue") { go(.name) }
+            Button("Next") { go(.lookingBack) }
                 .buttonStyle(PillButtonStyle())
         }
     }
 
-    /// For a partner, Nan or the nanny: the invite does the work.
+    private var lookingBackPage: some View {
+        OnboardingPage {
+            strip(hour: 19)
+            if !large { OnboardingWeek().padding(.top, 4) }
+            Text("Look back when you want to").displayFont(34)
+            Text("The week as totals and counts.")
+                .font(.title3)
+                .foregroundStyle(Palette.muted)
+        } actions: {
+            Button("Set up your family") { go(.you) }
+                .buttonStyle(PillButtonStyle())
+        }
+    }
+
+    /// For anyone helping: the invite does the work.
     private var joiningPage: some View {
         OnboardingPage {
+            strip(hour: 13)
             Text("Join your family").displayFont(34)
-                .padding(.top, 20)
-            Text("No account to make. Your family's entries come to this iPhone through iCloud.")
+            Text("There's no account to make. The family's entries come to this iPhone through iCloud.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
             VStack(alignment: .leading, spacing: 14) {
-                numbered(1, "Ask them to tap Invite someone on the Family tab, and send it to you.")
+                numbered(1, "Ask them to tap Invite someone on the Family tab.")
                 numbered(2, "Open the invite on this iPhone, in Messages or Mail.")
-                numbered(3, "Their children appear here, and you can log straight away.")
+                numbered(3, "Their children appear here.")
             }
             .padding(16)
             .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
@@ -258,7 +358,7 @@ struct OnboardingView: View {
                 .accessibilityElement(children: .combine)
             }
         } actions: {
-            Button("Start a new family instead") { go(.logging) }
+            Button("Start a new family") { go(.logging) }
                 .buttonStyle(PillButtonStyle(primary: false))
         }
     }
@@ -277,91 +377,65 @@ struct OnboardingView: View {
     /// entries on a new or reset iPhone. Nothing to add.
     private var foundPage: some View {
         OnboardingPage {
-            PuggleStanding(height: 150)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 12)
+            strip(hour: 10)
             Text(joinedSomeone ? "You've joined the family" : "Welcome back").displayFont(34)
             Text(joinedSomeone
                  ? "You'll see and log the same day as everyone else."
-                 : "Your family's entries are coming back from iCloud.")
+                 : "This iPhone found your family in iCloud.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
-            childList
+            childList(ticks: true)
                 .padding(.top, 6)
         } actions: {
-            Button("Continue") { go(.name) }
+            Button("Continue") { go(.you) }
                 .buttonStyle(PillButtonStyle())
         }
     }
 
-    /// Log together: an invite now, or later from the Family tab.
-    private var invitePage: some View {
+    // MARK: Setting up
+
+    private var youPage: some View {
         OnboardingPage {
-            OnboardingSampleDay(showsWho: true)
-                .padding(.vertical, 12)
-            Text("Log together").displayFont(34)
-            Text("Invite anyone who helps. They see and log the same day on their own iPhone.")
+            Text(foundFamily ? "Your name" : "Set up your family").displayFont(34)
+                .padding(.top, 12)
+            Text(foundFamily ? "Optional. It shows beside what you log." : "Two names, both optional. Change them any time.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
-            CloudProblemCard()
-            if let shareError {
-                Text(shareError).font(.footnote).foregroundStyle(Palette.waratah)
-            }
-            Text("You can invite people any time from the Family tab.")
-                .font(.footnote)
-                .foregroundStyle(Palette.muted)
-        } actions: {
-            if cloud.isAvailable {
-                Button("Invite someone") { Task { await startSharing() } }
-                    .buttonStyle(PillButtonStyle())
-                Button("Not now") { go(.amount) }
-                    .buttonStyle(PillButtonStyle(primary: false))
-            } else {
-                Button("Continue") { go(.amount) }
-                    .buttonStyle(PillButtonStyle())
-            }
-        }
-    }
-
-    private func startSharing() async {
-        do {
-            let (share, container) = try await store.persistence.share(store.currentFamily())
-            sharing = SharingItem(share: share, container: container)
-            shareError = nil
-        } catch {
-            shareError = "The invite couldn't be made. Check this iPhone is signed in to iCloud, then try again."
-        }
-    }
-
-    private var namePage: some View {
-        OnboardingPage {
-            Text("Your name").displayFont(34)
-                .padding(.top, 20)
-            Text("Optional. It shows beside what you log. Use whatever you're called at home.")
-                .font(.title3)
-                .foregroundStyle(Palette.muted)
-            TextField("Your name", text: $nameDraft)
+            if Persistence.cloudSyncEnabled { CloudProblemCard() }
+            field("Your name", text: $nameDraft)
                 .textContentType(.givenName)
-                .submitLabel(.done)
                 .focused($nameFocused)
-                .onSubmit { saveName() }
-                .font(.title3)
-                .padding(.horizontal, 16)
-                .frame(minHeight: 56)
-                .background(Palette.input, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
-                .padding(.top, 8)
-            Text("You can change it any time in Settings.")
+                .padding(.top, 6)
+            if !foundFamily {
+                field("Family name", text: $familyDraft)
+            }
+            Text(foundFamily ? "You can change it any time in Settings."
+                 : Persistence.cloudSyncEnabled ? "Your name shows beside what you log. The family name shows on invites."
+                 : "Your name shows beside what you log.")
                 .font(.footnote)
                 .foregroundStyle(Palette.muted)
         } actions: {
-            Button("Continue") { saveName() }
+            Button("Continue") { saveYou() }
                 .buttonStyle(PillButtonStyle())
         }
     }
 
-    private func saveName() {
+    private func field(_ prompt: String, text: Binding<String>) -> some View {
+        TextField(prompt, text: text)
+            .submitLabel(.done)
+            .font(.title3)
+            .padding(.horizontal, 16)
+            .frame(minHeight: 56)
+            .background(Palette.input, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+    }
+
+    private func saveYou() {
         yourName = nameDraft.trimmingCharacters(in: .whitespacesAndNewlines)
-        go(afterName)
+        if !foundFamily {
+            _ = store.currentFamily()
+            store.setFamilyName(familyDraft)
+        }
+        if let next = afterYou { go(next) } else { finish() }
     }
 
     private var childPage: some View {
@@ -376,7 +450,7 @@ struct OnboardingView: View {
                 .background(Palette.sand)
         }
         .safeAreaInset(edge: .bottom) {
-            Button("Add") { addChild() }
+            Button(draft.trimmedName.isEmpty ? "Add" : "Add \(draft.trimmedName)") { addChild() }
                 .buttonStyle(PillButtonStyle())
                 .disabled(!draft.isComplete)
                 .opacity(draft.isComplete ? 1 : 0.5)
@@ -400,30 +474,41 @@ struct OnboardingView: View {
     private var morePage: some View {
         OnboardingPage {
             Text("Anyone else?").displayFont(34)
-                .padding(.top, 20)
-            Text("Twins and siblings share one Today. Add them now, or later from the Family tab.")
+                .padding(.top, 12)
+            Text("Twins and siblings share one Today.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
-            childList
+            childList(ticks: true)
                 .padding(.top, 6)
+            Button {
+                startAnotherChild()
+            } label: {
+                Label("Add another child", systemImage: "plus")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, minHeight: 56, alignment: .leading)
+                    .padding(.horizontal, 14)
+                    .background(Palette.paper.opacity(0.6), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            }
+            .buttonStyle(.plain)
         } actions: {
-            Button("Add another child") { startAnotherChild() }
-                .buttonStyle(PillButtonStyle(primary: false))
-            Button("Continue") { go(Persistence.cloudSyncEnabled ? .invite : .amount) }
+            Button("Continue") { go(Persistence.cloudSyncEnabled ? .invite : .family) }
                 .buttonStyle(PillButtonStyle())
         }
     }
 
-    private var childList: some View {
+    private func childList(ticks: Bool) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             ForEach(children) { child in
                 HStack(spacing: 12) {
                     ChildAvatar(child: child, size: 40)
-                    Text(child.displayName).font(.headline)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(child.displayName).font(.headline)
+                        Text(child.ageTextFull).font(.subheadline).foregroundStyle(Palette.muted)
+                    }
                     Spacer(minLength: 8)
-                    Text(child.ageTextFull)
-                        .font(.subheadline)
-                        .foregroundStyle(Palette.muted)
+                    if ticks {
+                        Image(systemName: "checkmark.circle.fill").foregroundStyle(Palette.gum).accessibilityHidden(true)
+                    }
                 }
                 .padding(.horizontal, 14)
                 .frame(maxWidth: .infinity, minHeight: 60, alignment: .leading)
@@ -440,55 +525,132 @@ struct OnboardingView: View {
         go(.child)
     }
 
-    /// Asked once in setup. Either choice logs the same things.
-    private var amountPage: some View {
+    /// Who else looks after them: an invite now, or later from the Family tab.
+    private var invitePage: some View {
         OnboardingPage {
-            Text("How much to see").displayFont(34)
-                .padding(.top, 20)
-            Text("Both log the same things.")
+            Text("Who else looks after them?").displayFont(34)
+                .padding(.top, 12)
+            Text("They use their own iPhone. You choose what each person can do.")
                 .font(.title3)
                 .foregroundStyle(Palette.muted)
-            OnboardingChoice(title: "Everything",
-                             text: "Time since the last feed, each child's day so far, and the week in Insights.",
-                             isOn: !justLog) {
-                choose(justLogging: false)
+            VStack(spacing: 0) {
+                level("Parent", "Can do everything you can")
+                Divider().padding(.leading, 16)
+                level("Helper", "Logs the day")
+                Divider().padding(.leading, 16)
+                level("Viewer", "Sees the day, can't log")
             }
+            .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
             .padding(.top, 6)
-            OnboardingChoice(title: "Just logging",
-                             text: "Names and tiles only. Nothing counts up and nothing is totalled.",
-                             isOn: justLog) {
-                choose(justLogging: true)
+            CloudProblemCard()
+            if let shareError {
+                Text(shareError).font(.footnote).foregroundStyle(Palette.waratah)
             }
-            Text("You can change this any time in Settings.")
+            Text(invited > 0 ? "Invite sent. Add someone else, or carry on." : "You can invite people any time from the Family tab.")
                 .font(.footnote)
                 .foregroundStyle(Palette.muted)
         } actions: {
-            Button("Continue") { go(.done) }
-                .buttonStyle(PillButtonStyle())
+            if cloud.isAvailable {
+                Button(invited > 0 ? "Invite someone else" : "Invite someone") { inviting = true }
+                    .buttonStyle(PillButtonStyle(primary: invited == 0))
+                if invited > 0 {
+                    Button("Continue") { go(.family) }
+                        .buttonStyle(PillButtonStyle())
+                }
+            } else {
+                Button("Continue") { go(.family) }
+                    .buttonStyle(PillButtonStyle())
+            }
         }
     }
 
-    @MainActor private func choose(justLogging: Bool) {
-        guard justLog != justLogging else { return }
-        Haptics.selection()
-        justLog = justLogging
+    private func level(_ title: String, _ text: String) -> some View {
+        HStack {
+            Text(title).font(.headline)
+            Spacer(minLength: 8)
+            Text(text).font(.subheadline).foregroundStyle(Palette.muted).multilineTextAlignment(.trailing)
+        }
+        .padding(.horizontal, 16)
+        .frame(minHeight: 54)
+        .accessibilityElement(children: .combine)
     }
 
-    private var donePage: some View {
-        OnboardingPage {
-            PuggleStanding(height: 180)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 20)
-            Text("You're set").displayFont(34)
-            Text("Tap a tile on Today to log something. You can change any of this later.")
-                .font(.title3)
-                .foregroundStyle(Palette.muted)
-        } actions: {
-            Button("Go to Today") {
-                Haptics.tap()
-                onFinish()
+    private func startSharing(_ invite: PendingInvite) async {
+        do {
+            let family = store.currentFamily()
+            if store.persistence.existingShare(for: family) == nil { store.backUpQuietly(.beforeInvite) }
+            let (share, container) = try await store.persistence.share(family)
+            let title = store.shareTitle
+            share[CKShare.SystemFieldKey.title] = title as CKRecordValue
+            sharing = SharingItem(share: share, container: container, lookOnly: invite.role == .viewer, title: title)
+            shareError = nil
+        } catch {
+            shareError = "The invite couldn't be made. Check this iPhone is signed in to iCloud, then try again."
+        }
+    }
+
+    // MARK: The finish
+
+    /// You and the children, and for someone who joined, everyone already in the family.
+    private var heapPeople: [(name: String, colour: Color)] {
+        var list: [(String, Color)] = []
+        let me = yourName.trimmingCharacters(in: .whitespaces)
+        if !me.isEmpty { list.append((me, Palette.wattle)) }
+        if foundFamily, let family = store.existingFamily() {
+            for person in (family.people ?? []).sorted(by: FamilyStore.listOrder)
+            where person.joinedAt != nil && !person.isDeleted && person.displayName != me && person.displayName != "Someone" {
+                list.append((person.displayName, Palette.harbour))
             }
-            .buttonStyle(PillButtonStyle())
+        }
+        for child in children { list.append((child.displayName, Palette.childColours[Int(child.colourIndex) % Palette.childColours.count])) }
+        return list
+    }
+
+    private var familyTitle: String {
+        if !store.familyName.isEmpty { return store.familyName }
+        let names = children.map(\.displayName)
+        guard !names.isEmpty else { return "Your family" }
+        return "\(ListFormatter.localizedString(byJoining: names))'s family"
+    }
+
+    private var familyPage: some View {
+        let people = heapPeople
+        let names = ListFormatter.localizedString(byJoining: people.map(\.name))
+        return VStack(spacing: 0) {
+            VStack(spacing: 6) {
+                Text(heapLanded || reduceMotion ? familyTitle : "Building your family")
+                    .displayFont(32)
+                    .multilineTextAlignment(.center)
+                    .contentTransition(.opacity)
+                if !names.isEmpty {
+                    Text(names).font(.title3).foregroundStyle(Palette.muted).multilineTextAlignment(.center)
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 24)
+            FamilyHeap(letters: people.map { .init(initial: String($0.name.prefix(1)).uppercased(), colour: $0.colour) },
+                       names: names.isEmpty ? "Shapes in a heap" : "A heap of shapes for \(names)",
+                       round: heapRound) {
+                withAnimation(.easeOut(duration: 0.3)) { heapLanded = true }
+                Haptics.success()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            VStack(spacing: 6) {
+                Button("Open Today") { finish() }
+                    .buttonStyle(PillButtonStyle())
+                HStack(spacing: 4) {
+                    Text("Tilt the phone, or throw a shape.").foregroundStyle(Palette.muted)
+                    Button("Drop again") {
+                        heapLanded = false
+                        heapRound += 1
+                    }
+                    .fontWeight(.semibold)
+                    .frame(minHeight: 44)
+                }
+                .font(.footnote)
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 8)
         }
     }
 }

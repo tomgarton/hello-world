@@ -13,23 +13,27 @@ Generated from `design/canvas/gen/flows.py`; the canvas page "Flows" shows each 
 
 ## 1. First run
 
-From install to the first log, in under a minute. No account, no email, no password.
+From install to Today in under a minute. No account, no email, no password. Nine screens on a new parent's path.
 
-1. **Splash.** The only place the name shows in the app. Puggle waves.
-2. **Hello.** One line on what it is. Skip is always there.
-3. **Everyone sees the same day.** The promise of sharing, before any setup.
-4. **Add your first child.** Name and birth date only. Colour is picked for them and can change.
-5. **Their character.** Pick a friend and an outfit, or use a photo. Can be changed any time.
-6. **Anyone else?.** Twins and siblings are first-class: add them now or later.
-7. **Invite your partner.** Optional. Uses Apple’s share sheet; no account to make.
-8. **Today, empty.** Lands on Today with one hint. No “nothing logged yet”: an empty day is just an empty day.
+1. **Welcome.** The egg hatches once, in the scene for the time of day, then the name and "Baby tracker for the whole family" appear. Start a new family, I've been invited, or look around a sample family.
+2. **Log the day in a tap or two.** A bottle stepper to try. Nothing is saved.
+3. **Everyone sees the same day.** Three people at the three levels.
+4. **Look back when you want to.** A week as totals and counts. The scene runs from dawn to dusk across these three pages; after dark it is night throughout.
+5. **Set up your family.** Your name and the family name, both optional.
+6. **Add your first child.** Name, birth date and how they feed.
+7. **Anyone else?** Each child added, with a tick. Add another returns to the form.
+8. **Who else looks after them?** Parent, Helper and Viewer explained, and Invite someone. Not shown in a build that can't share.
+9. **Your family.** Shapes drop in and pile up, lettered for you and the children. Tilt the phone or throw one. Puggle stands on top and cheers once when it lands. The title becomes the family's name. Open Today works from the start.
 
 Rules and edge cases:
 
-- Skip at any point lands on “Add your first child”, the only required step. Two setup questions per child follow it (see Setup that fits the child).
-- Coming from another app? Import is offered on the “Anyone else?” screen as well as in Settings.
+- Skip on the three pages goes to setup. Skip on a setup screen moves to the next. Skipping the first child goes to Today, which offers to add one.
+- Leaving half way reopens on the same screen. A child already added is kept.
+- "How much to see" is in Settings, not first run. Everyone starts with everything shown.
+- Someone joining by invite sees "You've joined the family", gives their name, then the heap with a letter for everyone already in it. A family coming back from iCloud on a new phone goes straight to Today.
 - Notifications are asked for later, the first time a reminder is switched on, never at launch.
-- If iCloud is signed out, setup still works; sharing explains what’s needed (see Edge states).
+- If iCloud is signed out, setup still works and says so; sharing explains what's needed (see Edge states).
+- Reduce Motion: still pictures, and the heap is shown already landed. VoiceOver reads the heap as the list of names.
 
 ## 2. Everyday logging
 
