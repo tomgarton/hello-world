@@ -422,13 +422,16 @@ struct PuggleHeader: View {
 
     /// The sky grows upwards as Today is pulled down, so Puggle stays on her hill.
     private var sceneContent: some View {
-        ZStack(alignment: .bottom) {
-            PuggleScene(kind: .today, dark: scheme == .dark || night, appeared: appeared, pull: pull)
+        let dim = scheme == .dark || night
+        // After tea time she is indoors: lamplight, no coat, and pyjamas at bedtime.
+        let room = PuggleScene.room(dark: dim)
+        return ZStack(alignment: .bottom) {
+            PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true)
             Button(action: react) {
                 PuggleView(controller: controller)
-                    .environment(\.moonlit, PuggleScene.isNight(dark: scheme == .dark || night))
-                    .environment(\.outfit, weather.outfit(night: PuggleScene.isNight(dark: scheme == .dark || night)))
-                    .environment(\.warmLight, PuggleScene.lamp(for: .today, night: PuggleScene.isNight(dark: scheme == .dark || night)))
+                    .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
+                    .environment(\.outfit, room?.outfit ?? weather.outfit(night: PuggleScene.isNight(dark: dim)))
+                    .environment(\.warmLight, room.map { dim ? $0.lamp : nil } ?? PuggleScene.lamp(for: .today, night: PuggleScene.isNight(dark: dim)))
                     .frame(height: 118)
                     .scaleEffect(x: 1, y: 1 - nod * 0.06, anchor: .bottom)
                     .offset(y: lift + nod * 3)
@@ -441,6 +444,8 @@ struct PuggleHeader: View {
             .padding(.bottom, 26)
             .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
             .accessibilityHint("Says hello")
+            // The tea table stands in front of her.
+            if let room { RoomFront(room: room, dark: dim).opacity(appeared ? 1 : 0) }
         }
         .overlay(alignment: .topTrailing) {
             YouButton(action: onYou)

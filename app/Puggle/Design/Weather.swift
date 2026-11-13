@@ -48,7 +48,7 @@ enum Weather: String, CaseIterable, Identifiable {
         }
     }
 
-    /// What Puggle wears: "rain" (boots and a coat), "warm" (scarf and beanie), "sun" (hat and zinc) or "none".
+    /// What Puggle wears: "rain" (boots, a coat and a rain hat), "warm" (scarf and beanie), "sun" (hat and zinc) or "none".
     var outfit: String {
         switch self {
         case .rain, .storm: "rain"

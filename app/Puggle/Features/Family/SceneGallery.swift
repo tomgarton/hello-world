@@ -41,6 +41,31 @@ struct SceneGalleryView: View {
         save(sheet, as: name)
     }
 
+    /// The four rooms, in the evening light and in the dark look, pulled down to show what hangs higher up.
+    @MainActor static func writeRooms(pull: CGFloat, name: String) {
+        let controller = PuggleController()
+        let sheet = VStack(spacing: 4) {
+            ForEach([false, true], id: \.self) { dark in
+                HStack(spacing: 4) {
+                    ForEach(Room.allCases, id: \.rawValue) { room in
+                        ZStack(alignment: .bottom) {
+                            RoomFrame(room: room, dark: dark, pull: pull, t: 3.2, hour: dark ? 22 : 19)
+                            PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                                .environment(\.outfit, room.outfit)
+                                .environment(\.warmLight, dark ? room.lamp : nil)
+                            RoomFront(room: room, dark: dark)
+                        }
+                        .frame(width: 402, height: PuggleHeader.sceneHeight + pull)
+                        .clipped()
+                        .environment(\.colorScheme, dark ? .dark : .light)
+                    }
+                }
+            }
+        }
+        .background(Color.gray)
+        save(sheet, as: name)
+    }
+
     /// The two line styles side by side: the characters large, then each scene by day and after dark.
     @MainActor static func writeLineStyles(name: String) {
         let controller = PuggleController()
@@ -50,11 +75,11 @@ struct SceneGalleryView: View {
                 VStack(spacing: 14) {
                     HStack(spacing: 14) {
                         Bird(dark: dark).frame(width: 46, height: 38).scaleEffect(2).frame(width: 92, height: 76)
-                        Crab(dark: dark).frame(width: 60, height: 40).scaleEffect(2).frame(width: 120, height: 80)
+                        Crab(dark: dark).frame(width: 76, height: 44).scaleEffect(2).frame(width: 152, height: 88)
                     }
                     HStack(spacing: 14) {
                         Snail(dark: dark).frame(width: 54, height: 38).scaleEffect(2).frame(width: 108, height: 76)
-                        Kookaburra(dark: dark).frame(width: 52, height: 54).scaleEffect(1.7).frame(width: 88, height: 92)
+                        Kookaburra(dark: dark).frame(width: 66, height: 54).scaleEffect(1.7).frame(width: 112, height: 92)
                     }
                 }
             }

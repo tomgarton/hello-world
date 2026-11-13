@@ -4,7 +4,7 @@
   240,
   300
  ],
- "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise. She has no mouth: her eyes, eyebrows, cheeks, the tilt of her head and her tail show the feeling. Borrowed from comics: marks on her cheeks when she is pleased, eyes squeezed shut (> <), and sparkles or Zs in the air. Her feet are webbed, each on its own ankle so it can lift and flap. What she wears follows the weather: boots and a coat for rain, a scarf and beanie for cold, a straw hat and zinc for heat.",
+ "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise. She has no mouth: her eyes, eyebrows, cheeks, the tilt of her head and her tail show the feeling. Borrowed from comics: marks on her cheeks when she is pleased, eyes squeezed shut (> <), and sparkles or Zs in the air. Her feet are webbed, each on its own ankle so it can lift and flap. What she wears follows the weather: boots, a coat and a rain hat for rain, a scarf and beanie for cold, a straw hat and zinc for heat. Indoors at bedtime she is in her pyjamas.",
  "parts": [
   {
    "id": "body",
@@ -382,6 +382,88 @@
    ]
   },
   {
+   "id": "pyjamas",
+   "parent": "upper",
+   "pivot": [
+    120,
+    252
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L180 244 Q182 254 170 254 L70 254 Q58 254 60 244 Z",
+     "fill": "#CDBFEA",
+     "stroke": "#3A2A20",
+     "width": 7,
+     "tint": "#7E6BB0"
+    },
+    {
+     "kind": "path",
+     "d": "M120 168 L120 204",
+     "stroke": "#7E6BB0",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 180,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 195,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 96,
+     "y": 222,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 144,
+     "y": 226,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 238,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 80,
+     "y": 244,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 246,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    }
+   ]
+  },
+  {
    "id": "arm-left",
    "parent": "upper",
    "pivot": [
@@ -472,6 +554,51 @@
    ]
   },
   {
+   "id": "pyjama-arm-left",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q71.8 198.9 56.5 209.5",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M88 178 Q71.8 198.9 50 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
    "id": "arm-right",
    "parent": "upper",
    "pivot": [
@@ -546,6 +673,51 @@
      "stroke": "#3A2A20",
      "width": 4,
      "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-right",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q168.2 198.9 183.5 209.5",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M152 178 Q168.2 198.9 190 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
      "cap": "round"
     },
     {
@@ -978,6 +1150,47 @@
      "d": "M76 66 Q120 76 164 66",
      "stroke": "#E5553B",
      "width": 6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "rainhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M26 80 Q30 62 120 60 Q210 62 214 80 Q216 92 198 90 Q120 80 42 90 Q24 92 26 80 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M70 74 Q70 26 120 26 Q170 26 170 74 Q120 84 70 74 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 66 Q120 76 166 66",
+     "stroke": "#B8892A",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M120 28 L120 68",
+     "stroke": "#B8892A",
+     "width": 2.5,
      "cap": "round"
     }
    ]
