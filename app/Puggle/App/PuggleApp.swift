@@ -104,6 +104,7 @@ struct PuggleApp: App {
                         store.reconcilePeople()
                         store.shareMyDetails()
                         store.syncMedicineRules()
+                        store.backUpIfDue()
                         refreshNight(with: active)
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()

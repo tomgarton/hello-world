@@ -397,4 +397,62 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertEqual(guide.gapHours, 6)
         XCTAssertEqual((store.currentFamily().guides ?? []).filter { $0.key == key }.count, 1)
     }
+
+    // MARK: Backups
+
+    private func shelf() -> BackupShelf {
+        BackupShelf(directory: FileManager.default.temporaryDirectory.appendingPathComponent("backups-\(UUID().uuidString)"))
+    }
+
+    func testBringingBackWhatIsMissingRemovesNothing() throws {
+        store.backups = shelf()
+        store.logEach(.bottle, for: [ollie], at: ago(minutes: 30), amountML: 120)
+        let lost = store.logEach(.nappy, for: [ollie], at: ago(minutes: 20), detail: "Wet")[0]
+        let entry = try XCTUnwrap(store.backUp(.manual))
+        XCTAssertEqual(entry.entries, 2)
+        store.delete(lost)
+        store.logEach(.note, for: [ollie], note: "Logged after the backup")
+        let copy = try XCTUnwrap(store.backups.load(entry))
+        let back = store.restoreMissing(from: copy)
+        XCTAssertEqual(back.entries, 1)
+        XCTAssertNotNil(store.latest(.nappy, for: ollie))
+        XCTAssertNotNil(store.latest(.note, for: ollie), "What was logged since is kept")
+        XCTAssertTrue(store.restoreMissing(from: copy).isNothing, "A second time adds nothing twice")
+    }
+
+    func testADeletedChildComesBackWithTheirEntries() throws {
+        store.backups = shelf()
+        store.logEach(.bottle, for: [ollie], amountML: 150)
+        let entry = try XCTUnwrap(store.backUp(.manual))
+        store.delete(ollie)
+        let back = store.restoreMissing(from: try XCTUnwrap(store.backups.load(entry)))
+        XCTAssertEqual(back.children, 1)
+        let children = store.currentFamily().children ?? []
+        XCTAssertEqual(children.first?.name, "Ollie")
+        XCTAssertEqual(children.first?.events?.count, 1)
+    }
+
+    func testGoingBackExactlyDropsWhatCameAfterAndCanBeTakenBack() throws {
+        store.backups = shelf()
+        store.logEach(.bottle, for: [ollie], at: ago(minutes: 30), amountML: 120)
+        let entry = try XCTUnwrap(store.backUp(.manual))
+        store.logEach(.nappy, for: [ollie], detail: "Wet")
+        XCTAssertTrue(store.restoreExactly(from: try XCTUnwrap(store.backups.load(entry))))
+        let family = store.currentFamily()
+        XCTAssertEqual(family.events?.count, 1)
+        XCTAssertEqual(family.children?.count, 1)
+        // The moment before going back was kept too.
+        let before = try XCTUnwrap(store.backups.entries.first { $0.reason == BackupReason.beforeRestore.rawValue })
+        XCTAssertEqual(before.entries, 2)
+    }
+
+    func testAHelperCannotGoBackToABackup() throws {
+        store.backups = shelf()
+        store.logEach(.bottle, for: [ollie], amountML: 120)
+        let copy = try XCTUnwrap(store.snapshot(reason: .manual))
+        store.roleOverride = .helper
+        store.refreshRole()
+        XCTAssertFalse(store.restoreExactly(from: copy))
+        XCTAssertTrue(store.restoreMissing(from: copy).isNothing)
+    }
 }

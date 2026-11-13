@@ -182,6 +182,8 @@ struct FamilyView: View {
     private func startSharing(_ invite: PendingInvite) async {
         do {
             let family = store.currentFamily()
+            // The first time, keep a copy of the family as it was before anyone else could change it.
+            if store.persistence.existingShare(for: family) == nil { store.backUpQuietly(.beforeInvite) }
             let (share, container) = try await store.persistence.share(family)
             let title = store.shareTitle
             share[CKShare.SystemFieldKey.title] = title as CKRecordValue

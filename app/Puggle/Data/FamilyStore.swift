@@ -43,6 +43,8 @@ final class FamilyStore: ObservableObject {
     @Published var role: Role = .parent
     /// For looking at the helper and viewer versions without a second iPhone.
     var roleOverride: Role?
+    /// Where copies of the family are kept on this phone.
+    var backups = BackupShelf.standard
     /// Set when a family this person had joined is no longer on the phone, and they didn't leave it themselves.
     @Published var removedNotice = false
 
@@ -459,6 +461,8 @@ final class FamilyStore: ObservableObject {
 
     /// Removes the child and the entries that were only theirs, for everyone.
     func delete(_ child: Child) {
+        // Kept first, so a child deleted by mistake can be brought back from Backups.
+        backUpQuietly(.beforeDeleteChild)
         for event in child.events ?? [] where (event.children ?? []).allSatisfy({ $0 == child }) {
             context.delete(event)
         }
@@ -480,6 +484,7 @@ final class FamilyStore: ObservableObject {
     /// Returns true if nothing is left on this phone afterwards.
     @discardableResult
     func deleteEverything() -> Bool {
+        backUpQuietly(.beforeDeleteEverything)
         lastSaved = nil
         let shared = persistence.sharedStore
         var left = false

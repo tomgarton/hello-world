@@ -37,8 +37,9 @@ struct YourDataView: View {
             if !store.isSample {
             Section {
                 NavigationLink("Recently deleted") { RecentlyDeletedView() }
+                NavigationLink("Backups") { BackupsView() }
             } footer: {
-                Text("Deleted entries can be brought back for \(RecentlyDeleted.keepDays) days.")
+                Text("Deleted entries can be brought back for \(RecentlyDeleted.keepDays) days. Backups hold the whole family as it was on a day.")
             }
             .listRowBackground(Palette.paper)
             Section {
@@ -104,6 +105,8 @@ struct HelpView: View {
                  "Tap a tile on Today. Feeding and \(Terms.nappy) are always there; everything else is in each child's panel, so tap their name."),
                 ("How do I fix a mistake?",
                  "Straight after saving, use Undo or Change on the bar at the bottom of Today. Later, tap the entry in History or Today so far, then Edit."),
+                ("Can I go back to how things were?",
+                 "Yes. You, Your data, Backups. A copy is kept each day the app is opened. Bring back what's missing adds things back; Go back to exactly this undoes everything since."),
                 ("I deleted something by mistake",
                  "Tap Undo on the Deleted bar straight away. Later, go to You, Your data, Recently deleted: entries stay there for 30 days."),
                 ("Can I log the same thing again?",
