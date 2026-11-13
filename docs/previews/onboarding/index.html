@@ -110,13 +110,31 @@ th { font-size: 12px; color: var(--muted); font-weight: 600; }
 .sky { position: absolute; left: 0; right: 0; top: 34px; text-align: center; display: flex; flex-direction: column; gap: 4px; align-items: center; }
 .night .word { color: #F3E9D2; }
 .sky .sub { background: rgba(251,246,233,.86); padding: 3px 10px; border-radius: 999px; color: var(--app-ink); }
+.piece { background: var(--paper); border-radius: 22px; box-shadow: 0 12px 26px rgba(58,42,32,.20); margin: -14px 14px 0; position: relative; z-index: 2; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.piece.img { padding: 0; overflow: hidden; }
+.piece.img img { width: 100%; height: 200px; object-fit: cover; object-position: top; display: block; }
+.step { display: flex; align-items: center; justify-content: space-between; }
+.step button { width: 40px; height: 40px; border-radius: 50%; border: 0; background: var(--field); color: var(--app-ink); font-size: 22px; font-weight: 600; cursor: pointer; }
+.step .ml { font-family: var(--display); font-weight: 700; font-size: 38px; line-height: 1; }
+.step .ml small { font-family: var(--body); font-size: 12px; font-weight: 400; color: var(--app-muted); margin-left: 3px; }
+.seg { display: flex; background: var(--field); border-radius: 999px; padding: 3px; font-size: 11.5px; font-weight: 600; text-align: center; }
+.seg span { flex: 1; padding: 5px 0; border-radius: 999px; }
+.seg span.on { background: var(--paper); }
+.chipc { align-self: flex-start; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--sky); border: 1.5px solid var(--app-ink); }
+.call { position: absolute; right: 12px; top: -34px; background: var(--app-ink); color: var(--paper); font-size: 11.5px; font-weight: 600; padding: 5px 10px; border-radius: 999px; z-index: 3; }
+.call::after { content: ""; position: absolute; left: 22px; bottom: -5px; width: 10px; height: 10px; background: var(--app-ink); transform: rotate(45deg); }
+.nav { display: flex; gap: 8px; align-items: center; }
+.nav .btn { flex: 1; }
+.nav .back { width: 46px; height: 46px; border-radius: 50%; background: var(--field); display: grid; place-items: center; font-weight: 700; flex: none; }
+.piece .item { min-height: 42px; padding: 7px 0; }
+.refs a { color: var(--accent); }
 .fade { position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(rgba(242,236,221,0), var(--sand)); }
 </style>
 </head>
 <body>
 <main>
 <header><h1>A more visual first run</h1>
-<p class="lede">Second pass. Puggle now waves, nods and celebrates inside her scenes, and she stays in view beside the device frames. Every scene, move and screen is a real picture from the app. Nothing is built.</p></header>
+<p class="lede">Third pass. Puggle waves, nods and celebrates inside her scenes, and the feature pages now show pieces of the app with no device frame. Every scene, move and screen is a real picture from the app. Nothing is built.</p></header>
 
 <section class="q"><div><div class="num">PART 1</div><h2>The welcome screen</h2>
 <p class="lede">The first pass had the scene (A) and her wave on a plain page (B) as separate options. These put the two together.</p></div>
@@ -127,13 +145,24 @@ th { font-size: 12px; color: var(--muted); font-weight: 600; }
 </div></section>
 
 <section class="q"><div><div class="num">PART 2</div><h2>A day with Puggle</h2>
-<p class="lede">Four pages to swipe, in place of today's two pages of text. The scene moves from dawn to night, one real screen sits in a device frame, and Puggle stands beside it where the first pass hid her behind it. Skip is on every page.</p></div>
+<p class="lede">Third pass. The device frames and their solid line are gone. Each page now lifts one piece out of the app and sets it under the scene, with Puggle standing on it. Three pages, not four: the night look is something the whole flow does after dark, so it no longer needs a page of its own.</p></div>
 <div class="row">
-<div class="opt"><div class="phone"><span class="skip">Skip</span><div class="sc " style="height:250px;background-image:url(img/t-hills-dawn.jpg)" role="img" aria-label="A scene from the app"><div class="pg " style="--h:120px;left:19%;bottom:17px"></div></div><div style="display:flex;justify-content:flex-end;padding-right:22px;margin-top:-170px;position:relative;z-index:2"><div class="mini" style="width:140px"><img src="img/log.jpg" alt="Logging a bottle" style="height:230px;object-position:bottom"></div></div><div class="pad" style="padding-top:12px"><div class="h">Log the day in a tap or two</div><div class="b">Feeds, sleeps, nappies and the potty. One thumb is enough.</div><div class="spacer"></div><div class="dots"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></div><div class="btn">Continue</div></div></div><h3>Dawn: logging</h3><p>She waves on the first page.</p></div>
-<div class="opt"><div class="phone"><span class="skip">Skip</span><div class="sc " style="height:250px;background-image:url(img/t-beach-day.jpg)" role="img" aria-label="A scene from the app"><div class="pg nod" style="--h:120px;left:19%;bottom:17px"></div></div><div style="display:flex;justify-content:flex-end;padding-right:22px;margin-top:-170px;position:relative;z-index:2"><div class="mini" style="width:140px"><img src="img/family.jpg" alt="The Family tab" style="height:230px;object-position:50% 62%"></div></div><div class="pad" style="padding-top:12px"><div class="h">Everyone sees the same day</div><div class="b">Invite a partner, Nan or a friend. Each on their own iPhone.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class="on"></i><i class=""></i><i class=""></i></div><div class="btn">Continue</div></div></div><h3>Day: together</h3><p>She nods beside the Family tab.</p></div>
-<div class="opt"><div class="phone"><span class="skip">Skip</span><div class="sc " style="height:250px;background-image:url(img/t-yard-dusk.jpg)" role="img" aria-label="A scene from the app"><div class="pg nod" style="--h:120px;left:19%;bottom:17px"></div></div><div style="display:flex;justify-content:flex-end;padding-right:22px;margin-top:-170px;position:relative;z-index:2"><div class="mini" style="width:140px"><img src="img/insights.jpg" alt="A week of sleep in Insights" style="height:230px;object-position:50% 38%"></div></div><div class="pad" style="padding-top:12px"><div class="h">Look back when you want to</div><div class="b">The week as totals and counts. Nothing to hit, nothing to miss.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class=""></i><i class="on"></i><i class=""></i></div><div class="btn">Continue</div></div></div><h3>Dusk: looking back</h3><p>A week of sleep in Insights.</p></div>
-<div class="opt"><div class="phone"><span class="skip">Skip</span><div class="sc " style="height:250px;background-image:url(img/t-yard-night.jpg)" role="img" aria-label="A scene from the app"><div class="pg nod" style="--h:120px;left:19%;bottom:17px"></div></div><div style="display:flex;justify-content:flex-end;padding-right:22px;margin-top:-170px;position:relative;z-index:2"><div class="mini" style="width:140px"><img src="img/today.jpg" alt="The Today screen" style="height:230px;object-position:top"></div></div><div class="pad" style="padding-top:12px"><div class="h">Gentle at three in the morning</div><div class="b">A dim night look, big buttons, and Puggle keeping you company.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class=""></i><i class=""></i><i class="on"></i></div><div class="btn">Set up your family</div></div></div><h3>Night: calm</h3><p>In the app this frame would show the night look itself.</p></div>
-</div></section>
+<div class="opt"><div class="phone"><span class="skip">Skip</span><div class="sc " style="height:214px;background-image:url(img/t-hills-dawn.jpg)" role="img" aria-label="A scene from the app"><div class="pg " style="--h:124px;left:18%;bottom:8px"></div></div><div class="piece"><div class="call">Try it</div><span class="chipc">&#10003; Ollie</span><div class="step"><button type="button" data-d="-10" aria-label="Less">&#8722;</button><div class="ml"><span data-ml>160</span><small>ml</small></div><button type="button" data-d="10" aria-label="More">+</button></div><div class="seg"><span class="on">Formula</span><span>Breast milk</span><span>Mixed</span></div></div><div class="pad" style="padding-top:14px"><div class="h">Log the day in a tap or two</div><div class="b">Feeds, sleeps, nappies and the potty. One thumb is enough.</div><div class="spacer"></div><div class="dots"><i class="on"></i><i class=""></i><i class=""></i></div><div class="nav"><div class="btn">Next</div></div></div></div><h3>Dawn: logging</h3><p>The bottle stepper lifted out of the log sheet, and it works: tap minus or plus here. She waves on this page.</p></div>
+<div class="opt"><div class="phone"><span class="skip">Skip</span><div class="sc " style="height:214px;background-image:url(img/t-beach-day.jpg)" role="img" aria-label="A scene from the app"><div class="pg nod" style="--h:124px;left:18%;bottom:8px"></div></div><div class="piece" style="gap:0"><div class="item"><div class="av" style="background:var(--mint)">Y</div><div class="t"><b>You</b><span>Parent</span></div></div><div class="item"><div class="av" style="background:var(--sun)">N</div><div class="t"><b>Nan</b><span>Helper</span></div></div><div class="item"><div class="av" style="background:var(--sky)">P</div><div class="t"><b>Pop</b><span>Viewer</span></div></div></div><div class="pad" style="padding-top:14px"><div class="h">Everyone sees the same day</div><div class="b">Invite a partner, Nan or a friend. Each on their own iPhone, each with their own level.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class="on"></i><i class=""></i></div><div class="nav"><div class="back" aria-label="Back">&#8249;</div><div class="btn">Next</div></div></div></div><h3>Day: together</h3><p>Three rows from Family and friends, showing the three levels.</p></div>
+<div class="opt"><div class="phone"><span class="skip">Skip</span><div class="sc " style="height:214px;background-image:url(img/t-yard-dusk.jpg)" role="img" aria-label="A scene from the app"><div class="pg nod" style="--h:124px;left:18%;bottom:8px"></div></div><div class="piece img"><img src="img/c-chart.jpg" alt="A week of sleep as bars, 89 hours in all"></div><div class="pad" style="padding-top:14px"><div class="h">Look back when you want to</div><div class="b">The week as totals and counts. Nothing to hit, nothing to miss.</div><div class="spacer"></div><div class="dots"><i class=""></i><i class=""></i><i class="on"></i></div><div class="nav"><div class="back" aria-label="Back">&#8249;</div><div class="btn">Add your first child</div></div></div></div><h3>Dusk: looking back</h3><p>The chart card from Insights. The last button leads straight to the first real step.</p></div>
+</div>
+<div class="note refs"><h3>What the references say, and how these pages follow it</h3>
+<ul>
+<li><strong>Let people try it.</strong> Apple's guidance on onboarding asks for an experience where people can "safely test an action". So the first piece is live: the stepper works, and nothing is saved.</li>
+<li><strong>One idea a page, and few pages.</strong> A review of tutorial carousels found three clear ideas work better than six small ones, and that each page should carry one claim. Hence three pages and one piece each.</li>
+<li><strong>The picture must explain the sentence.</strong> The same review calls unrelated device mockups polish without understanding. Each piece here is the thing its headline talks about.</li>
+<li><strong>Never swipe-only.</strong> Next, Back, Skip and the dots are all there, for VoiceOver, large text and one-handed use.</li>
+<li><strong>End on a real first step.</strong> The last button says "Add your first child" and goes there.</li>
+<li><strong>A small pointer where it helps.</strong> One gallery example floats callouts over a map before sign-in. Page 1 borrows that with a single "Try it" tag, and the others have none.</li>
+<li><strong>Quiet motion.</strong> Guidance on onboarding motion says to match the celebration to the moment and avoid loops. In the app her moves play once per page.</li>
+</ul>
+<p>Sources: <a href="https://developer.apple.com/design/human-interface-guidelines/onboarding">Apple, Human Interface Guidelines: Onboarding</a>. <a href="https://screensdesign.com/articles/mobile-app-tutorial-carousel-examples/">ScreensDesign: tutorial carousel examples</a>. <a href="https://screensdesign.com/articles/onboarding-microinteractions/">ScreensDesign: onboarding microinteractions</a>. <a href="https://screensdesign.com/explore/screens/onboarding/">ScreensDesign: onboarding screen gallery</a>.</p></div>
+</section>
 
 <section class="q"><div><div class="num">PART 3</div><h2>The questions, and the finish</h2>
 <p class="lede">The picture stays through setup, and the last page celebrates.</p></div>
@@ -163,8 +192,11 @@ th { font-size: 12px; color: var(--muted); font-weight: 600; }
 <li><strong>The scenes are stills.</strong> In the app the clouds, animals, kite and balloon move, and the weather can be real.</li>
 <li><strong>The screens in the frames would be drawn by the app itself,</strong> with the sample family, so they never go out of date and follow dark mode and text size.</li>
 <li><strong>Reduce Motion</strong> gets still pictures throughout.</li>
-<li><strong>Two more screens than today,</strong> all skippable. The questions do not change, so saving and sync are not touched.</li>
+<li><strong>One more screen than today,</strong> all skippable. The questions do not change, so saving and sync are not touched.</li>
 </ul></section>
 </main>
+<script>
+document.querySelectorAll('[data-d]').forEach(function(btn){btn.addEventListener('click',function(){var el=btn.closest('.piece').querySelector('[data-ml]');var v=Math.max(10,Math.min(300,parseInt(el.textContent,10)+parseInt(btn.dataset.d,10)));el.textContent=v;});});
+</script>
 </body>
 </html>
