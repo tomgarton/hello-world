@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reading a box or tin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: one row of phones walking through the flow, then notes. */
+  --page: #F2ECDD; --card: #FBF6E9; --ink: #3A2A20; --muted: #6B5E52; --line: #E0D6C2; --accent: #C2412A;
+  --display: "Bricolage Grotesque", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* The app's own day colours: the phones always use these. */
+  --sand: #F2ECDD; --paper: #FBF6E9; --field: #EAE2D2; --app-ink: #3A2A20; --app-muted: #6B5E52;
+  --wattle: #F4BE2C; --waratah: #C2412A; --moon: #1B2440;
+  --sky: #BFD9F5; --shell: #F3D5C9; --mint: #CFE5D2; --sun: #F6E2A8; --lilac: #E2D4F1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--body); line-height: 1.5; padding: 28px 16px 64px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+h1 { font-family: var(--display); font-size: 34px; line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 24px; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+p { margin: 0; max-width: 66ch; }
+.lede { color: var(--muted); }
+.q { display: flex; flex-direction: column; gap: 18px; }
+.num { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+.row { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start; }
+.opt { display: flex; flex-direction: column; gap: 10px; width: 300px; max-width: 100%; }
+.opt h3 { font-size: 16px; margin: 0; }
+.opt p { font-size: 14px; color: var(--muted); }
+.pick { font-size: 12px; font-weight: 700; color: var(--accent); }
+.note { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.note h3 { margin: 0; font-size: 16px; }
+.note ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 66ch; }
+
+/* The phone. Fixed day palette, whatever the page theme. */
+.phone { width: 300px; max-width: 100%; border-radius: 38px; background: var(--sand); color: var(--app-ink); border: 7px solid #2A211B; padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 560px; font-size: 14px; line-height: 1.3; position: relative; overflow: hidden; }
+.phone.sheet { background: #CFC6B6; padding-top: 44px; }
+.phone .inner { background: var(--sand); border-radius: 26px 26px 0 0; margin: 0 -14px -18px; padding: 14px 14px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.bar { display: flex; justify-content: space-between; align-items: center; }
+.pill { background: var(--paper); border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+.pill.dark { background: var(--app-ink); color: var(--paper); }
+.title { font-family: var(--display); font-size: 26px; font-weight: 700; margin-top: 6px; }
+.stitle { font-weight: 700; font-size: 15px; text-align: center; flex: 1; }
+.label { font-weight: 700; font-size: 13px; margin: 6px 4px 0; }
+.foot { font-size: 12px; color: var(--app-muted); margin: 0 4px; }
+.cardp { background: var(--paper); border-radius: 20px; padding: 2px 14px; display: flex; flex-direction: column; }
+.item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #E6DCC8; min-height: 48px; }
+.item:first-child { border-top: 0; }
+.item .t { flex: 1; min-width: 0; }
+.item .t b { display: block; font-size: 14px; }
+.item .t span { display: block; font-size: 12px; color: var(--app-muted); }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: none; }
+.av.lg { width: 50px; height: 50px; font-size: 18px; }
+.chev { color: #B5A894; font-weight: 700; }
+.tick { font-weight: 800; }
+.tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--field); white-space: nowrap; }
+.tag.wait { background: var(--sun); }
+.faces { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+.face { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; width: 54px; text-align: center; }
+.face small { font-weight: 400; color: var(--app-muted); font-size: 10.5px; }
+.plus { background: var(--field); border: 1.5px dashed #B5A894; }
+.btn { background: var(--app-ink); color: var(--paper); border-radius: 999px; text-align: center; padding: 13px; font-weight: 700; }
+.btn.soft { background: var(--field); color: var(--app-ink); }
+.btn.red { background: transparent; color: var(--waratah); }
+.center { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 18px 8px 6px; }
+.big { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.15; }
+.kids { display: flex; gap: -6px; }
+.kids .av { margin-left: -8px; border: 3px solid var(--sand); }
+.kids .av:first-child { margin-left: 0; }
+.spacer { flex: 1; }
+.tabs { display: flex; justify-content: space-around; background: var(--paper); border-radius: 999px; padding: 9px 6px; font-size: 10.5px; font-weight: 600; color: var(--app-muted); margin-top: auto; }
+.tabs b { color: var(--app-ink); background: var(--field); padding: 3px 10px; border-radius: 999px; }
+.warn { background: var(--sun); border-radius: 16px; padding: 12px 14px; font-size: 13px; }
+
+.phone { min-height: 590px; }
+.shot { border-radius: 14px; background: repeating-linear-gradient(135deg, #D9CDB6 0 10px, #E3D8C3 10px 20px); display: grid; place-items: center; color: #6B5E52; font-size: 12px; font-weight: 600; text-align: center; padding: 8px; }
+.tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tbl th { text-align: left; font-size: 11px; font-weight: 600; color: var(--app-muted); padding: 6px 4px; }
+.tbl td { padding: 9px 4px; border-top: 1px solid #E6DCC8; vertical-align: top; }
+.tbl td:last-child, .tbl th:last-child { text-align: right; }
+.tbl .ok { color: #3E8E5A; font-weight: 800; }
+.tbl .q { background: var(--sun); border-radius: 6px; padding: 1px 5px; }
+.chip2 { display: inline-block; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--sky); }
+.plain { max-width: 70ch; display: flex; flex-direction: column; gap: 10px; } .plain p { max-width: none; }
+.link { font-size: 13px; font-weight: 600; text-decoration: underline; }
+</style>
+</head>
+<body>
+<main>
+<header><h1>Reading a box or a tin</h1>
+<p class="lede">A photo becomes a clean table that is easy to read at night, and the photo stays one tap away. The medicine and formula here are made up, and so are the figures. Nothing is built.</p></header>
+<section class="q"><div><div class="num">THE FLOW</div><h2>Photograph, check, keep</h2></div>
+<div class="row">
+<div class="opt"><div class="phone sheet"><div class="inner"><div class="bar"><span class="pill">Cancel</span><span class="stitle">Read a box</span><span style="width:58px"></span></div><div class="foot">Two photos. It is read on this iPhone.</div><div class="cardp"><div class="item"><div class="shot" style="width:54px;height:54px">Front</div><div class="t"><b>1. The front</b><span>For the name and strength</span></div><span class="tick">&#10003;</span></div><div class="item"><div class="shot" style="width:54px;height:54px">Table</div><div class="t"><b>2. The directions</b><span>The table of ages and doses</span></div><span class="chev">&#8250;</span></div></div><div class="label">Name</div><div class="cardp"><div class="item"><div class="t"><b>Example syrup</b><span>120 mg in 5 ml. Read from the front. Tap to change.</span></div></div></div><div class="spacer"></div><div class="btn">Take the second photo</div></div></div><h3>1. Two photos</h3><p>The front first, which is where the name is. This is what your scan of the directions alone was missing. The name can always be typed or corrected.</p></div><div class="opt"><div class="phone sheet"><div class="inner"><div class="bar"><span class="pill">Back</span><span class="stitle">Check it</span><span style="width:58px"></span></div><div class="shot" style="height:120px">The photo of the directions<br>Pinch to zoom</div><div class="foot">Check each row against the photo, then tick it. Tap a number to correct it.</div><div class="cardp" style="padding:4px 10px"><table class="tbl"><tr><th>Age</th><th>Each dose</th><th></th></tr><tr><td>3 to 5 months</td><td>2.5 ml</td><td><span class="ok">&#10003;</span></td></tr><tr><td>6 to 23 months</td><td>5 ml</td><td><span class="ok">&#10003;</span></td></tr><tr><td>2 to 3 years</td><td><span class="q">7.5 ml</span></td><td><span style="color:var(--app-muted)">Check</span></td></tr><tr><td>4 to 5 years</td><td>10 ml</td><td><span style="color:var(--app-muted)">Check</span></td></tr></table></div><div class="warn">The reader wasn't sure about the highlighted number.</div><div class="spacer"></div><div class="btn" style="opacity:.4">Save, once every row is ticked</div></div></div><h3>2. Check it against the photo</h3><p>The photo sits above the typed-up table. Each row is ticked by a person before it can be saved, and anything the reader was unsure of is highlighted.</p></div><div class="opt"><div class="phone sheet"><div class="inner"><div class="bar"><span class="pill">Close</span><span class="stitle">Example syrup</span><span class="pill dark">Edit</span></div><div style="display:flex;gap:8px;align-items:center"><span class="chip2">Ollie is 5 months</span><span class="foot" style="margin:0">120 mg in 5 ml</span></div><div class="label">From the box</div><div class="cardp" style="padding:4px 10px"><table class="tbl"><tr><th>Age</th><th>Each dose</th><th>Most in 24 h</th></tr><tr><td>3 to 5 months</td><td>2.5 ml</td><td>4</td></tr><tr><td>6 to 23 months</td><td>5 ml</td><td>4</td></tr><tr><td>2 to 3 years</td><td>7.5 ml</td><td>4</td></tr><tr><td>4 to 5 years</td><td>10 ml</td><td>4</td></tr></table></div><div class="cardp"><div class="item"><div class="t"><b>Smallest gap</b></div><span style="color:var(--app-muted)">4 hours</span></div></div><div style="display:flex;gap:10px;align-items:center"><div class="shot" style="width:64px;height:48px">Photo</div><span class="link">See the photo of the box</span></div><div class="foot">Typed up from your photo on 13 November. The app never chooses a dose.</div><div class="spacer"></div><div class="btn">Log a dose</div></div></div><h3>3. The medicine, kept</h3><p>The table in the app's own type, the child's age beside it, and the photo behind a link. No row is picked out.</p></div><div class="opt"><div class="phone sheet"><div class="inner"><div class="bar"><span class="pill">Close</span><span class="stitle">Example formula</span><span class="pill dark">Edit</span></div><div style="display:flex;gap:8px;align-items:center"><span class="chip2">Ollie is 5 months</span></div><div class="label">From the tin</div><div class="cardp" style="padding:4px 10px"><table class="tbl"><tr><th>Age</th><th>Water</th><th>Scoops</th></tr><tr><td>Up to 2 weeks</td><td>60 ml</td><td>2</td></tr><tr><td>2 to 4 weeks</td><td>90 ml</td><td>3</td></tr><tr><td>1 to 2 months</td><td>120 ml</td><td>4</td></tr><tr><td>3 to 5 months</td><td>180 ml</td><td>6</td></tr></table></div><div style="display:flex;gap:10px;align-items:center"><div class="shot" style="width:64px;height:48px">Photo</div><span class="link">See the photo of the tin</span></div><div class="foot">Typed up from your photo. Opened from the bottle sheet, under the milk.</div><div class="spacer"></div><div class="btn soft">Read a new tin</div></div></div><h3>4. The same for formula</h3><p>Water and scoops by age from the tin, opened from the bottle sheet.</p></div>
+</div></section>
+<section class="q"><div><div class="num">WHY IT IS BUILT THIS WAY</div><h2>Typed up, but never trusted blind</h2></div>
+<div class="plain">
+<p><strong>A misread digit is the risk.</strong> A reader that turns 2.5 into 25 is worse than no reader. So nothing it reads is saved until a person has ticked each row against the photo, and the photo is kept so the check can be made again.</p>
+<p><strong>The table says what the box says.</strong> The app copies it out and does no sums: nothing by weight, nothing worked out for a child's age.</p>
+<p><strong>The child's age is shown, and no row is highlighted.</strong> Picking out "the row for Ollie" would be the app choosing a dose, and ages on a box often come with conditions the app can't read. Showing the age beside the table lets the parent read across. This is the one I would most like your view on.</p>
+<p><strong>Where a table can't be read,</strong> the photo is kept on its own with the name, and the rules can be typed by hand as now.</p>
+<p><strong>Boxes change.</strong> Each saved table carries the date it was read, and "Read a new box" replaces it.</p>
+</div></section>
+<section class="q"><div><div class="num">TO DECIDE</div><h2>Three things</h2></div>
+<div class="plain">
+<p><strong>On this phone, or shared with the family.</strong> Shared is more useful, because Nan sees the same table and gets the same "Too soon?" check. It is a change to what syncs, and it would fix the medicine rules staying on one phone at the same time.</p>
+<p><strong>The promise about photos.</strong> The app says today that the photo isn't kept. It would become a choice, "Keep this photo", on by default.</p>
+<p><strong>Highlighting a row by age.</strong> Left out here, for the reason above.</p>
+</div></section>
+</main>
+</body>
+</html>
