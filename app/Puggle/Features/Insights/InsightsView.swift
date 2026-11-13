@@ -424,18 +424,20 @@ struct ChildInsights: View {
             Slice(id: "other", title: "Everything else", kind: .note, colour: InsightColour.other,
                   count: days.reduce(0) { $0 + $1.other }, note: ""),
         ]
-        let slices = all.filter { $0.count > 0 }
+        // Largest first, so the ring reads from its biggest block round to its smallest.
+        let slices = all.filter { $0.count > 0 }.sorted { $0.count > $1.count }
         let total = slices.reduce(0) { $0 + $1.count }
         return VStack(alignment: .leading, spacing: 18) {
             Text("What was logged").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
             ZStack {
                 InsightRing(parts: slices.map { (Double($0.count), $0.colour) })
                 VStack(spacing: 0) {
-                    Text("\(total)").displayFont(34)
-                    Text(total == 1 ? "entry" : "entries").font(.footnote).foregroundStyle(Palette.muted)
+                    Text("\(total)").displayFont(40)
+                    Text("Logged this \(period.title.lowercased())").font(.footnote).foregroundStyle(Palette.muted)
                 }
             }
-            .frame(width: 190, height: 190)
+            .frame(width: 236, height: 236)
+            .padding(.vertical, 6)
             .frame(maxWidth: .infinity)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(total) entries in \(period.words)")
@@ -467,37 +469,36 @@ struct ChildInsights: View {
     }
 }
 
-/// A ring in separate rounded pieces, one for each kind of thing.
+/// A thick ring in separate blocks with softly rounded corners, one for each
+/// kind of thing: the largest first from the top, going round clockwise. A
+/// small share shows as a rounded square, never a dot.
 struct InsightRing: View {
     let parts: [(value: Double, colour: Color)]
-    var thickness: CGFloat = 26
+    var thickness: CGFloat = 38
+    /// The space between two blocks, in points.
+    var gap: CGFloat = 7
+    var corner: CGFloat = 9
 
     var body: some View {
         GeometryReader { geometry in
-            let radius = min(geometry.size.width, geometry.size.height) / 2 - thickness / 2
-            // A round end reaches half the thickness past the line's end; leave that, and a gap.
-            let cap = Double(thickness / 2 / (2 * .pi * max(radius, 1)))
-            let gap = parts.count > 1 ? 0.012 : 0
-            let pieces = shares
+            let outer = min(geometry.size.width, geometry.size.height) / 2
+            let pieces = shares(middle: outer - thickness / 2)
             ZStack {
                 ForEach(pieces.indices, id: \.self) { index in
-                    let piece = pieces[index]
-                    let from = piece.start + cap + gap / 2
-                    let to = max(from + 0.0005, piece.start + piece.share - cap - gap / 2)
-                    Circle()
-                        .trim(from: from, to: parts.count > 1 ? to : 1)
-                        .stroke(parts[index].colour, style: StrokeStyle(lineWidth: thickness, lineCap: parts.count > 1 ? .round : .butt))
-                        .rotationEffect(.degrees(-90))
-                        .padding(thickness / 2)
+                    let block = RingBlock(from: pieces[index].start, to: pieces[index].start + pieces[index].share,
+                                          thickness: thickness, gap: parts.count > 1 ? gap : 0, corner: corner)
+                    // Filling and then outlining the block in its own colour rounds its corners.
+                    block.fill(parts[index].colour)
+                    block.stroke(parts[index].colour, style: StrokeStyle(lineWidth: corner * 2, lineJoin: .round))
                 }
             }
         }
     }
 
-    /// Each part's share of the ring. Small ones are given enough to be seen.
-    private var shares: [(start: Double, share: Double)] {
+    /// Each part's share of the ring. A small one is given enough to be a square.
+    private func shares(middle: CGFloat) -> [(start: Double, share: Double)] {
         let total = max(parts.reduce(0) { $0 + $1.value }, 0.0001)
-        let least = 0.06
+        let least = Double((thickness + gap) / (2 * .pi * max(middle, 1)))
         var raw = parts.map { max($0.value / total, least) }
         let sum = raw.reduce(0, +)
         raw = raw.map { $0 / sum }
@@ -506,5 +507,35 @@ struct InsightRing: View {
             defer { start += share }
             return (start, share)
         }
+    }
+}
+
+/// One block of the ring, drawn smaller by its corner all round so that an outline of that width brings it back to size.
+struct RingBlock: Shape {
+    /// Where it starts and ends, as fractions of the way round from the top.
+    let from: Double
+    let to: Double
+    let thickness: CGFloat
+    let gap: CGFloat
+    let corner: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let centre = CGPoint(x: rect.midX, y: rect.midY)
+        let outer = min(rect.width, rect.height) / 2
+        let middle = outer - thickness / 2
+        // Pull each end in by half the gap and by the corner.
+        let pull = Double((gap / 2 + corner) / max(middle, 1))
+        var start = from * 2 * .pi - .pi / 2 + pull
+        var end = to * 2 * .pi - .pi / 2 - pull
+        if end < start {
+            let mid = (start + end) / 2
+            start = mid - 0.001
+            end = mid + 0.001
+        }
+        var path = Path()
+        path.addArc(center: centre, radius: outer - corner, startAngle: .radians(start), endAngle: .radians(end), clockwise: false)
+        path.addArc(center: centre, radius: outer - thickness + corner, startAngle: .radians(end), endAngle: .radians(start), clockwise: true)
+        path.closeSubpath()
+        return path
     }
 }
