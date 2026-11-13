@@ -23,6 +23,9 @@ struct PuggleApp: App {
         // Unselected tabs in warm muted ink, so nothing is near-white at night.
         UITabBar.appearance().unselectedItemTintColor = Palette.mutedUI
         // The Lock Screen buttons run here, even when the app is opened in the background for them.
+        MedicineRules.onSet = { name, gap, limit in
+            Task { @MainActor in FamilyStore.live.shareRule(name: name, gap: gap, limit: limit) }
+        }
         TimerActions.perform = { action, childID in
             FamilyStore.live.handleTimerAction(action, childID: childID)
         }
@@ -100,6 +103,7 @@ struct PuggleApp: App {
                         store.refreshRole()
                         store.reconcilePeople()
                         store.shareMyDetails()
+                        store.syncMedicineRules()
                         refreshNight(with: active)
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()

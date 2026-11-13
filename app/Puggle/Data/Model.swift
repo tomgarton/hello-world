@@ -14,6 +14,34 @@ final class Family: NSManagedObject, Identifiable {
     @NSManaged var events: Set<Event>?
     /// Everyone in the family: whoever holds it in their iCloud, and each person invited.
     @NSManaged var people: Set<Person>?
+    /// What the family has saved about each medicine and formula.
+    @NSManaged var guides: Set<Guide>?
+}
+
+/// What the family has saved about one medicine or formula, shared so every
+/// phone checks against the same thing: the smallest gap and most doses for a
+/// medicine now, and later the table read from its box or tin, and the photo.
+@objc(Guide)
+final class Guide: NSManagedObject, Identifiable {
+    @NSManaged var id: UUID?
+    /// "medicine" or "formula".
+    @NSManaged var kindRaw: String?
+    @NSManaged var name: String?
+    /// The name in lower case with no spaces at the ends, to find it by.
+    @NSManaged var key: String?
+    /// Hours. 0 means none set.
+    @NSManaged var gapHours: Double
+    /// Most doses in 24 hours. 0 means none set.
+    @NSManaged var doseLimit: Int16
+    /// As on the front of the box: "120 mg in 5 ml".
+    @NSManaged var strength: String?
+    /// The table from the box or tin, as JSON rows. Not used yet.
+    @NSManaged var rows: String?
+    /// The photo of the box or tin, if the family chose to keep it. Not used yet.
+    @NSManaged var photo: Data?
+    @NSManaged var readAt: Date?
+    @NSManaged var updatedAt: Date?
+    @NSManaged var family: Family?
 }
 
 /// One grown-up in the family, saved with the family so every phone sees the
@@ -471,6 +499,31 @@ enum PuggleModel {
             personFamily,
         ]
 
+        let guide = NSEntityDescription()
+        guide.name = "Guide"
+        guide.managedObjectClassName = NSStringFromClass(Guide.self)
+        let familyGuides = relationship("guides", to: guide, toMany: true)
+        let guideFamily = relationship("family", to: family, toMany: false)
+        familyGuides.deleteRule = .cascadeDeleteRule
+        familyGuides.inverseRelationship = guideFamily
+        guideFamily.inverseRelationship = familyGuides
+        let guidePhoto = attribute("photo", .binaryDataAttributeType)
+        guidePhoto.allowsExternalBinaryDataStorage = true
+        guide.properties = [
+            attribute("id", .UUIDAttributeType),
+            attribute("kindRaw", .stringAttributeType),
+            attribute("name", .stringAttributeType),
+            attribute("key", .stringAttributeType),
+            attribute("gapHours", .doubleAttributeType, optional: false, defaultValue: 0.0),
+            attribute("doseLimit", .integer16AttributeType, optional: false, defaultValue: 0),
+            attribute("strength", .stringAttributeType),
+            attribute("rows", .stringAttributeType),
+            guidePhoto,
+            attribute("readAt", .dateAttributeType),
+            attribute("updatedAt", .dateAttributeType),
+            guideFamily,
+        ]
+
         let familyChildren = relationship("children", to: child, toMany: true)
         let familyEvents = relationship("events", to: event, toMany: true)
         familyChildren.deleteRule = .cascadeDeleteRule
@@ -495,7 +548,7 @@ enum PuggleModel {
             attribute("id", .UUIDAttributeType),
             attribute("name", .stringAttributeType),
             attribute("createdAt", .dateAttributeType),
-            familyChildren, familyEvents, familyPeople,
+            familyChildren, familyEvents, familyPeople, familyGuides,
         ]
         child.properties = [
             attribute("id", .UUIDAttributeType),
@@ -531,7 +584,7 @@ enum PuggleModel {
         ]
 
         let model = NSManagedObjectModel()
-        model.entities = [family, child, event, person]
+        model.entities = [family, child, event, person, guide]
         return model
     }
 }

@@ -296,6 +296,8 @@ struct LogSheet: View {
     }
 
     private func rememberGap() {
+        // A helper logs against the family's rules and doesn't change them.
+        guard store.isParent else { return }
         MedicineRules.set(gap: gapHours, limit: limitCount, for: medicine)
     }
 
@@ -581,9 +583,13 @@ struct LogSheet: View {
                     }
                 }
                 field("Dose, as on the label or as prescribed", text: $doseText)
-                ruleField("Smallest gap, in hours", text: $gapText, keyboard: .decimalPad)
-                ruleField("Most doses in 24 hours", text: $limitText, keyboard: .numberPad)
-                Text("Checked on this iPhone only. Other phones in the family don't get this check yet.")
+                Group {
+                    ruleField("Smallest gap, in hours", text: $gapText, keyboard: .decimalPad)
+                    ruleField("Most doses in 24 hours", text: $limitText, keyboard: .numberPad)
+                }
+                .disabled(!store.isParent)
+                Text(store.isParent ? "Shared with your family, so every phone makes the same check."
+                                    : "Set by \(store.whoToAsk), and the same on every phone in the family.")
                     .font(.footnote)
                     .foregroundStyle(Palette.muted)
                     .fixedSize(horizontal: false, vertical: true)

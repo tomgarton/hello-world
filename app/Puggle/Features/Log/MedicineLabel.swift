@@ -3,10 +3,26 @@ import SwiftUI
 import UIKit
 import Vision
 
-/// What the parent set for a medicine, by name: the smallest gap between doses
-/// and the most doses in 24 hours. Kept on this phone. The app only checks
-/// against these; it never suggests them.
+/// What the family set for a medicine, by name: the smallest gap between doses
+/// and the most doses in 24 hours. The app only checks against these; it never
+/// suggests them. They are read from here, on this phone, so a check never
+/// waits on anything; `FamilyStore.syncMedicineRules()` keeps this copy in step
+/// with the family's shared one.
 enum MedicineRules {
+    /// Called when a rule is set on this phone, so it can be shared with the family.
+    static var onSet: ((_ name: String, _ gap: Double?, _ limit: Int?) -> Void)?
+
+    /// Takes the family's value for a medicine, without sharing it back.
+    static func adopt(gap: Double?, limit: Int?, forKey k: String) {
+        var gaps = UserDefaults.standard.dictionary(forKey: gapsKey) as? [String: Double] ?? [:]
+        var limits = UserDefaults.standard.dictionary(forKey: limitsKey) as? [String: Int] ?? [:]
+        guard gaps[k] != gap || limits[k] != limit else { return }
+        gaps[k] = gap
+        limits[k] = limit
+        UserDefaults.standard.set(gaps, forKey: gapsKey)
+        UserDefaults.standard.set(limits, forKey: limitsKey)
+    }
+
     private static let gapsKey = "medicineGaps"
     private static let limitsKey = "medicineLimits"
 
@@ -31,6 +47,7 @@ enum MedicineRules {
         var limits = UserDefaults.standard.dictionary(forKey: limitsKey) as? [String: Int] ?? [:]
         limits[k] = limit
         UserDefaults.standard.set(limits, forKey: limitsKey)
+        onSet?(name, gap, limit)
     }
 
     /// Every medicine name with a gap or a limit set.
@@ -375,5 +392,67 @@ struct CameraPicker: UIViewControllerRepresentable {
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) { parent.dismiss() }
+    }
+}
+
+// MARK: Shared with the family
+
+extension FamilyStore {
+    private func guides(in family: Family) -> [Guide] {
+        (family.guides ?? []).filter { !$0.isDeleted && $0.kindRaw == "medicine" }
+    }
+
+    /// Saves a medicine's rules where the whole family can see them. Parents only.
+    func shareRule(name: String, gap: Double?, limit: Int?) {
+        guard !isSample, isParent, let family = existingFamily() else { return }
+        let key = MedicineRules.key(name)
+        guard !key.isEmpty else { return }
+        let guide = guides(in: family).first { $0.key == key } ?? {
+            let new = Guide(context: context)
+            place(new, with: family)
+            new.id = UUID()
+            new.kindRaw = "medicine"
+            new.key = key
+            new.family = family
+            return new
+        }()
+        let gapValue = gap ?? 0, limitValue = Int16(clamping: limit ?? 0)
+        guard guide.isInserted || guide.gapHours != gapValue || guide.doseLimit != limitValue else { return }
+        guide.name = name.trimmingCharacters(in: .whitespaces)
+        guide.gapHours = gapValue
+        guide.doseLimit = limitValue
+        guide.updatedAt = .now
+        persistence.save()
+    }
+
+    /// Brings this phone's copy of the rules in step with the family's.
+    /// The family's value wins. Rules set here before sharing existed are sent up once, by a parent.
+    func syncMedicineRules() {
+        guard !isSample, let family = existingFamily() else { return }
+        var newest: [String: Guide] = [:]
+        var extras: [Guide] = []
+        for guide in guides(in: family) {
+            guard let key = guide.key, !key.isEmpty else { continue }
+            if let have = newest[key] {
+                let keep = (guide.updatedAt ?? .distantPast) > (have.updatedAt ?? .distantPast) ? guide : have
+                extras.append(keep == guide ? have : guide)
+                newest[key] = keep
+            } else {
+                newest[key] = guide
+            }
+        }
+        for (key, guide) in newest {
+            MedicineRules.adopt(gap: guide.gapHours > 0 ? guide.gapHours : nil,
+                                limit: guide.doseLimit > 0 ? Int(guide.doseLimit) : nil, forKey: key)
+        }
+        guard isParent else { return }
+        // Two phones saved the same medicine before they met: keep the newer.
+        if !extras.isEmpty {
+            extras.forEach(context.delete)
+            persistence.save()
+        }
+        for key in MedicineRules.names where newest[key] == nil {
+            shareRule(name: key, gap: MedicineRules.gap(for: key), limit: MedicineRules.limit(for: key))
+        }
     }
 }

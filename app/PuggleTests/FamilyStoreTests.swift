@@ -372,4 +372,29 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertEqual(Units.volumeStep(from: 30, down: false), 10)
         XCTAssertEqual(Units.volumeFloor, 5)
     }
+
+    func testAMedicineRuleSavedForTheFamilyReachesThisPhonesCopy() {
+        // As if another phone had saved it: a shared record, and nothing here yet.
+        let name = "Test syrup \(UUID().uuidString.prefix(6))"
+        let key = MedicineRules.key(name)
+        store.isSample = false
+        defer { MedicineRules.adopt(gap: nil, limit: nil, forKey: key); store.isSample = true }
+        let guide = Guide(context: store.context)
+        guide.id = UUID()
+        guide.kindRaw = "medicine"
+        guide.name = name
+        guide.key = key
+        guide.gapHours = 4
+        guide.doseLimit = 4
+        guide.updatedAt = .now
+        guide.family = store.currentFamily()
+        XCTAssertNil(MedicineRules.gap(for: name))
+        store.syncMedicineRules()
+        XCTAssertEqual(MedicineRules.gap(for: name), 4)
+        XCTAssertEqual(MedicineRules.limit(for: name), 4)
+        // A parent changing it here changes the shared record, not a second one.
+        store.shareRule(name: name, gap: 6, limit: 3)
+        XCTAssertEqual(guide.gapHours, 6)
+        XCTAssertEqual((store.currentFamily().guides ?? []).filter { $0.key == key }.count, 1)
+    }
 }

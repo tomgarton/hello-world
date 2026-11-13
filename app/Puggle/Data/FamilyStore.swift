@@ -67,6 +67,8 @@ final class FamilyStore: ObservableObject {
                 guard let self else { return }
                 self.objectWillChange.send()
                 self.refreshRole()
+                // A rule saved on another phone has just arrived, or one saved here needs none of this.
+                if !self.isSample, !self.context.hasChanges { self.syncMedicineRules() }
                 LiveTimers.shared.sync(with: self)
             }
         }
@@ -481,7 +483,7 @@ final class FamilyStore: ObservableObject {
         lastSaved = nil
         let shared = persistence.sharedStore
         var left = false
-        for name in ["Event", "Child", "Person", "Family"] {
+        for name in ["Event", "Child", "Person", "Guide", "Family"] {
             let request = NSFetchRequest<NSManagedObject>(entityName: name)
             for object in (try? context.fetch(request)) ?? [] {
                 if let shared, object.objectID.persistentStore == shared {
