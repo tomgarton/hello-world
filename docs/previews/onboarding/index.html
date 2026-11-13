@@ -151,6 +151,28 @@ table.when td:first-child { font-weight: 600; white-space: nowrap; width: 1%; }
 .pg.still { animation: none; }
 .sky .sub { background: none; padding: 0; }
 .night .sub { color: #F3E9D2; }
+
+.phone { min-height: 600px; }
+.flow { display: flex; flex-wrap: wrap; gap: 6px 4px; align-items: center; font-size: 13px; }
+.flow span { background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 5px 11px; white-space: nowrap; }
+.flow i { color: var(--muted); font-style: normal; }
+.flow .side { border-style: dashed; }
+.hstage { position: relative; width: 286px; height: 586px; overflow: hidden; touch-action: none; }
+.bit { position: absolute; left: 0; top: 0; will-change: transform; pointer-events: none; }
+.bit b { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--display); font-weight: 700; color: #3A2A20; }
+.hover { position: absolute; left: 0; right: 0; top: 50px; text-align: center; pointer-events: none; z-index: 5; display: flex; flex-direction: column; gap: 6px; align-items: center; padding: 0 22px; }
+.hover .go { background: var(--app-ink); color: var(--paper); border-radius: 999px; padding: 11px 26px; font-weight: 700; font-size: 14px; margin-top: 8px; transition: opacity .4s; }
+.pillb { font: inherit; font-weight: 600; font-size: 14px; background: var(--card); color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; align-self: flex-start; }
+.link { text-align: center; font-size: 13px; font-weight: 600; color: var(--app-muted); padding: 4px 0 0; }
+.ic { width: 34px; height: 34px; border-radius: 50%; background: var(--field); display: grid; place-items: center; flex: none; }
+table.when { border-collapse: collapse; font-size: 14px; width: 100%; }
+table.when td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.when td:first-child { font-weight: 600; white-space: nowrap; width: 1%; }
+.plain { max-width: 70ch; display: flex; flex-direction: column; gap: 10px; }
+.plain p { max-width: none; }
+.pg.still { animation: none; }
+.sky .sub { background: none; padding: 0; }
+.night .sub { color: #F3E9D2; }
 </style>
 </head>
 <body>
@@ -164,7 +186,8 @@ table.when td:first-child { font-weight: 600; white-space: nowrap; width: 1%; }
 <div class="plain"><p class="lede">The solid row is a new parent's path, ending on Today. The dashed ones are the other ways in, shown further down. Two pages of text become three with something to look at, "How much to see" moves to Settings, and the plain "You're set" becomes the family screen.</p></div>
 </section>
 
-<section class="q"><div><div class="num">SCREEN 1</div><h2>Welcome</h2></div>
+<section class="q"><div><div class="num">SCREEN 1</div><h2>Welcome</h2>
+<p class="lede">The line under the name is settled: "Baby tracker for the whole family". It replaces "A calm place for your family's day".</p></div>
 <div class="row">
 <div class="opt"><div class="phone "><div class="sc " style="height:410px;background-image:url(img/t-hills-dawn.jpg)" role="img" aria-label="A scene from the app"><div class="sky" style="top:178px"><div class="word">Puggle</div><div class="sub">Baby tracker for the whole family</div></div><div class="pg " style="--h:128px;bottom:21px;"></div><div class="fade"></div></div><div class="pad" style="padding-top:8px"><div class="spacer"></div><div class="btn">Start a new family</div><div class="btn soft">I&#39;ve been invited</div><div class="link">Look around a sample family first</div></div></div><h3>Welcome</h3><p>Her face, the name and a line under it, in the scene for the real time of day. She waves once, then stands. The three buttons are the ones the app has now.</p></div>
 <div class="opt"><div class="phone "><div class="sc night" style="height:410px;background-image:url(img/t-hills-night.jpg)" role="img" aria-label="A scene from the app"><div class="sky" style="top:178px"><div class="word">Puggle</div><div class="sub">Baby tracker for the whole family</div></div><div class="pg " style="--h:128px;bottom:21px;"></div><div class="fade"></div></div><div class="pad" style="padding-top:8px"><div class="spacer"></div><div class="btn">Start a new family</div><div class="btn soft">I&#39;ve been invited</div><div class="link">Look around a sample family first</div></div></div><h3>Welcome, after dark</h3><p>Opened at night, the same screen uses the night scene and the dark colours.</p></div>
@@ -229,9 +252,8 @@ table.when td:first-child { font-weight: 600; white-space: nowrap; width: 1%; }
 </table>
 </div></div></section>
 
-<section class="q"><div><div class="num">STILL OPEN</div><h2>Six things to decide</h2></div>
+<section class="q"><div><div class="num">STILL OPEN</div><h2>Five things to decide</h2></div>
 <div class="plain">
-<p><strong>The line under the name.</strong> The welcome screen says "A calm place for your family's day" today. I told you earlier it said "Baby and family tracker"; that was wrong, and came from an old build. This flow shows "Baby tracker for the whole family". That line helps a parent see what the app is, but it does nothing for App Store search, which reads only the store's own name and subtitle. Either line can stay.</p>
 <p><strong>The logo.</strong> The welcome screen uses the current lettering. The logo page has the candidates.</p>
 <p><strong>"How much to see".</strong> First run asks this today. This flow leaves it to Settings to keep the count down. It could go back in as a fifth setup screen.</p>
 <p><strong>Puggle on the last screen.</strong> The heap has no Puggle in it. She could stand at the top and cheer when it lands, at the cost of a busier screen.</p>
