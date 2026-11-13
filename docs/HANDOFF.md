@@ -16,6 +16,8 @@ Updated 11 November 2026. Work now happens in two places on the same branch: Cla
 | Rive contract (names, timings, order of work) | `design/rive/README.md` |
 | Puggle's parts for Rive (named groups) | `design/rive/puggle-parts.svg` |
 | App view that plays the Rive file | `app/Puggle/Design/PuggleView.swift` |
+| Puggle as the app draws her (parts, faces, moves) | `app/Puggle/Resources/Rigs/puggle.rig.json`; model sheet on the canvas, Characters page |
+| Line style, night and animation plan | `docs/animation-plan.md` |
 | Branch and pull request | `claude/baby-tracking-app-spec-fhtvex`, PR #2 |
 
 ## State of the app
@@ -80,5 +82,6 @@ Open decisions are listed at the top of the spec: Apple Developer account, Pebbl
 
 - The app name appears only on the splash screen, the app icon and Help.
 - Nothing Indigenous or with strong Indigenous meaning; no Sydney Opera House (trade mark); generic places only.
-- Puggle's bill never changes with emotion. No mouth, no brows.
+- Puggle's bill never changes with emotion. No mouth. Eyebrows only with a feeling, never at rest, never angry or sad (changed 12 November; see "As built in the app" in the spec).
+- Characters are outlined in a darker shade of each part's own colour (decided 12 November).
 - References are for study. Nothing is copied from Miffy, Bluey, Nintendo or anyone else.

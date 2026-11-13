@@ -21,6 +21,8 @@ Most scripts load earlier ones, so keep them together. The chain for the current
 
 `world.py`, `builder.py`, `platy.py` → `express.py` (Puggle's face, poses, small versions) → `lineup.py` (the cast) → `style.py` (activity icons) → `scenes.py`, `scenes2.py` → `night2.py` → `three.py` (app scenes) → `scenes3.py` (twelve scenes, kit) → `wallbooks.py`, `refs.py`. `puggle3.py` is the three proposed additions.
 
+`rig.py` draws Puggle from a copy of the app's rig file (`gen/puggle.rig.json`; copy it again from `app/Puggle/Resources/Rigs/` when the app's changes). `model2.py` builds the model sheet from it and replaces `model.py`. The scripts in the chain above still draw the 10 November Puggle.
+
 Things to know:
 
 - Scripts written early in the project reset a board's position and page in `canvas.json` when they run. Copy `canvas.json` first and restore the entry afterwards.

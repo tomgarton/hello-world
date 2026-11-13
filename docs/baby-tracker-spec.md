@@ -19,7 +19,7 @@ Claims marked **[verify]** come from third-party roundups or from memory, not fr
 | Platform | iOS first, SwiftUI, Core Data with CloudKit (private and shared databases) so a household can share without a server |
 | Name and brand | **Puggle** for the app, character, label and trademark; **Puggle and Friends** for stories; **Puggle & Co.** for the company. Logotype: Bricolage Grotesque ExtraBold, lowercase |
 | App look | Refined Puggle: calm, native controls (filled pills, soft fields, system toggles), line icons with one accent, character used sparingly. App name only on splash, icon and Help |
-| Characters | Puggle (platypus, 2½, potty training) and Pebble (baby platypus, Kewpie curl); friends Quill, Kip, Digby, Sunny; Mum, Dad, Nan, Pop. Flat colour, warm brown outline, dot eyes, blush with stitches, no mouth or brows; emotion through eyes, marks and body; hands always visible; quatrefoil clip |
+| Characters | Puggle (platypus, 2½, potty training) and Pebble (baby platypus, Kewpie curl); friends Quill, Kip, Digby, Sunny; Mum, Dad, Nan, Pop. Flat colour, each outline a darker shade of its own colour, dot eyes, soft oval cheeks, no mouth; eyebrows only with a feeling; emotion through eyes, eyebrows, cheeks, marks and body; hands always visible; quatrefoil clip |
 | World | Australian everyday places and objects; full-colour props for books, fabric and wallpapers; blob sign text; no Aboriginal motifs or trademarked landmarks |
 | Next | v0.1 code written in `app/` (Today, logging, history, family sharing on Core Data + CloudKit); build and fix on Tom's Mac (§11 step 3) |
 
@@ -452,10 +452,10 @@ Explorations toward Bluey (brows, eye glints, a mouth drawn on the bill, chubbie
 - **Cheeks:** bigger blush, and a third stitch when shy; puffed when cross.
 - **Floating marks:** "!", "z z z", sparkles, laugh lines, a tear, a sweat drop, hearts, flowers, gloom lines, a sleep bubble.
 - **Body:** poses (hello, hooray, shy, oh no, ta-da), and squash and stretch in animation: a jump for surprise, a bounce for laughter, a droop for sad.
-- Never brows, never a mouth, no dark patches on the face.
+- Never a mouth, no dark patches on the face. Eyebrows are off at rest and appear only with a feeling (changed 2026-11-12, below); never angry, sad or worried.
 - **Hands and feet (decided 2026-11-10):** round ball hands in fur brown (not slate), slightly larger; a thin cuff line where sleeve meets hand; feet stay slate and are a little larger and more paddle-like. Applied across the current canvas sheets (expressions, family, hands, builder, wallpapers, books); earlier exploration sheets are left as they were. Hands do things: wave (with motion arcs), clap (with clap marks), hands to cheeks for "oh!", peekaboo (the only time hands cover the face; arms tuck behind the head), and holding props. Next: a prop library (bottle, nappy, potty, toothbrush, book, wattle, balloon).
 - **Arms and hands always visible** (Tom, 2026-11-10). Arms sit in front of the garment and behind the head. Raised arms go up and out at about 45 degrees, hands clear of the head; never straight up behind it. Lowered hands stick out past the garment's edge. Hands held in front rest on the garment, never over the face or bill. Every pose is checked as a solid silhouette: if a hand disappears in the silhouette, redraw the pose.
-- Never brows, never a mouth, no dark patches on the face.
+- Never a mouth, no dark patches on the face. Eyebrows are off at rest and appear only with a feeling (changed 2026-11-12, below); never angry, sad or worried.
 
 Bluey's contribution is behaviour, not drawing style: family stories, humour for parents, everyday Australian settings.
 
@@ -481,6 +481,21 @@ Long-running characters are held on model by a style guide of model sheets. The 
 
 Puggle's style guide should contain:
 **Face and legs refresh (2026-11-10, adopted).** Bill smaller, flatter and a touch lower (94 x 38 at 240 wide, was 108 x 50), nostrils reduced to pin dots so they stop reading as eyes. Eyes lower and slightly larger, on the head's centre line, 54 apart (was 60); blush drops with them. Legs shorter-looking and thicker (28 wide, was 20). Dress shape, tail, colours, clip, stitched blush and the no-mouth rule unchanged. **Small version** for under about 100 pt tall: plain blush, no nostrils or pocket, line a quarter heavier. Applied across the live canvas: all character sheets, the character builder, logo variants, clothing mock-ups, books, wallpapers, brand architecture, splash, onboarding and the refined app screens. The friends (Quill, Kip, Digby, Sunny) share the thicker legs. Glasses moved with the eyes (eye level 108, resting on the bill 134). Archive boards keep the old face.
+
+**As built in the app (Tom, 2026-11-12, adopted).** Decided while the app's own drawing of her was made; the app's file of her parts (`app/Puggle/Resources/Rigs/puggle.rig.json`) is now the reference, and the model sheet on the canvas is drawn from it (`design/canvas/gen/model2.py`). These replace the matching points above:
+
+- **Coloured outlines.** Each line is a darker shade of the colour it goes round: fur `#5E3A24`, bill and feet `#465668`, dress `#1B4387`, clip `#B23A26`. Same weights as before. Cheeks and other inside shapes have no line. Dark brown `#3A2A20` is kept for eyes and nostrils. The single dark line stays available for the app icon and small marks if they need the contrast. Reasoning is in `docs/animation-plan.md`.
+- **Eyes** lower, wider apart and a little smaller: centres at (88, 117) and (152, 117), radius 6.8, at 240 wide (were 93 and 147 at 108, radius 7.6).
+- **Cheeks** are soft ovals with no marks (24 by 15 at (70, 132) and (170, 132), `#C27C66`). The stitch marks are no longer always there: three short marks appear on each cheek when she is pleased (a nod, proud). This replaces "blush with stitches" as her resting face.
+- **Eyebrows, only with a feeling.** Off at rest. Raised for delight, soft for content and sleepy. Never angry, sad or worried. This replaces "no brows". Still no mouth, and the bill never changes.
+- **Eyes squeezed shut** (> <) at the top of a hop and in a stretch.
+- **Pocket** light blue (`#8FB4E3`), quieter than the yellow that was tried.
+- **Clip** has a yellow centre and two small highlights.
+- **Feet** are webbed, with toes, each on its own ankle. **Tail** has markings.
+- **Dressed for the weather:** coat and boots for rain, scarf and beanie for cold, straw hat and zinc for heat.
+- **Night:** she keeps her colours, seen by moonlight (cooler, leaning violet).
+
+Applied so far: the app and the model sheet. Every other canvas board (expressions, family, cast line-up, scenes, wallpapers, books, logos, flows) still shows the 10 November face with the dark line and stitched cheeks.
 
 **Side view (2026-11-10).** In profile the bill is the same rounded ellipse as the front view (80 x 36, tilted up 4 degrees), overlapping the front of the face by about half, not a flat slab stuck on the side. Eye and blush sit just behind it. Applied to the model sheet and the walk poses.
 
@@ -568,7 +583,7 @@ Proposed assignments: **Puggle** wears a hair clip in the shape of the brand qua
 
 #### Motion and 3D
 
-- **Rive:** the characters are a handful of flat shapes, so they suit Rive well. Duolingo uses Rive for its characters, with state machines for idle, talking and reacting states and lip sync driven by speech. Puggle needs no lip sync (no mouth); her states are eyes, marks, poses and squash and stretch, which keeps the rig small. One rig per species, with garments and accessories as swappable parts, matches the character builder.
+- **Rive:** the characters are a handful of flat shapes, so they suit Rive well. Duolingo uses Rive for its characters, with state machines for idle, talking and reacting states and lip sync driven by speech. Puggle needs no lip sync (no mouth); her states are eyes, eyebrows, cheeks, marks, poses and squash and stretch, which keeps the rig small. One rig per species, with garments and accessories as swappable parts, matches the character builder.
 - **3D:** Miffy moved to CGI in *Miffy's Adventures Big and Small* (2015, 3 seasons of 26 seven-minute episodes), and a new CGI series has been announced. A 3D Puggle is a later option for animation, AR or toys; the flat 2D drawing stays the master. Simple rounded volumes (head, bill, jumper) would translate well, and plush and vinyl toys are effectively 3D already.
 
 #### Family and ages (Tom, 2026-11-10)

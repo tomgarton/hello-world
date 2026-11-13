@@ -1,5 +1,7 @@
 # Rive contract
 
+**Read first (12 November 2026).** The app now draws and moves Puggle itself, from `app/Puggle/Resources/Rigs/puggle.rig.json` played by `app/Puggle/Design/Rig.swift`. That file is the reference for how she looks and moves. This contract still holds for names and inputs: the app's rig answers the same ones, and a Rive file built to this contract later would take its place, with the rig as the fallback. Where the timings or drawings below differ from the rig file, the rig file is right. `puggle-parts.svg` in this folder is the 10 November drawing and is out of date (dark line, stitched cheeks, old eyes, no eyebrows).
+
 The agreement between the Rive file (built by Tom in the Rive editor) and the app code (`app/Puggle/Design/PuggleView.swift`). If the names here match on both sides, either side can change freely.
 
 Names are case-sensitive. Change one here first, then in the file and the code.
@@ -98,8 +100,10 @@ Timings come from the motion studies on the canvas ("Motion studies for Rive", C
 
 **Rules that hold in every state**
 
-- The bill never moves, opens, tilts or changes shape. No mouth, no brows.
-- Emotion is eyes (dots, happy arcs, sleepy arcs), floating marks and body.
+- The bill never moves, opens, tilts or changes shape. No mouth.
+- Eyebrows are off at rest and appear only with a feeling: raised for delight, soft for content and sleepy. Never angry, sad or worried (changed 12 November 2026; was "no brows").
+- Emotion is eyes (dots, happy arcs, closed arcs, squeezed shut), eyebrows, cheeks (a little bigger when happy, marks when pleased), floating marks, body and tail.
+- Outlines are a darker shade of each part's own colour.
 - The quatrefoil clip stays on her head, top right as we see her.
 
 ## Scenes file: `scenes.riv` (later)
