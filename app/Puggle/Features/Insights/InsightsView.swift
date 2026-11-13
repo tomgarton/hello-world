@@ -2,7 +2,10 @@ import SwiftUI
 
 /// Look back without scores. One child and one stretch of time at a once:
 /// a chart of one thing by day, last night, and a ring of what was logged.
-/// Totals and counts only: no averages, no targets, no comparing children.
+/// Week and Month are totals and counts. Patterns shows how a child's own days
+/// have changed with age. Never targets, normal ranges or comparing with other
+/// people's children; comparing siblings only when a parent switches it on.
+/// (Decided 13 November 2026: averages are allowed for a child's own history.)
 struct InsightsView: View {
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)],
                   predicate: NSPredicate(format: "archived != YES")) private var children: FetchedResults<Child>
@@ -17,7 +20,7 @@ struct InsightsView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     if children.count > 1 { childPicker }
                     if let child {
-                        ChildInsights(child: child, period: $period)
+                        ChildInsights(child: child, period: $period, others: children.filter { $0 != child })
                             .id(child.objectID)
                     } else {
                         Text("Insights appear once a child has been added.")
@@ -60,10 +63,16 @@ struct InsightsView: View {
 }
 
 enum InsightPeriod: String, CaseIterable, Identifiable {
-    case week, month
+    case week, month, patterns
     var id: String { rawValue }
-    var title: String { self == .week ? "Week" : "Month" }
-    var days: Int { self == .week ? 7 : 30 }
+    var title: String {
+        switch self {
+        case .week: "Week"
+        case .month: "Month"
+        case .patterns: "Patterns"
+        }
+    }
+    var days: Int { self == .month ? 30 : 7 }
     var words: String { self == .week ? "the last seven days" : "the last thirty days" }
 }
 
@@ -106,6 +115,7 @@ enum InsightColour {
 struct ChildInsights: View {
     @ObservedObject var child: Child
     @Binding var period: InsightPeriod
+    var others: [Child] = []
     @State private var metric = InsightMetric.sleep
     /// A bar that has been tapped, to read its day.
     @State private var picked: Date?
@@ -164,11 +174,19 @@ struct ChildInsights: View {
     }
 
     var body: some View {
-        let days = days
-        let metrics = InsightMetric.allCases.filter { metric in days.contains { $0.value(metric) > 0 } }
-        let showing = metrics.contains(metric) ? metric : (metrics.first ?? .sleep)
-        VStack(alignment: .leading, spacing: 16) {
-            // Week or month: a pill in the app's own colours.
+        if period == .patterns {
+            VStack(alignment: .leading, spacing: 16) {
+                periodPicker
+                PatternsView(child: child, others: others)
+            }
+            .foregroundStyle(Palette.ink)
+        } else {
+            periodBody
+        }
+    }
+
+    /// Week, Month or Patterns: a pill in the app's own colours.
+    private var periodPicker: some View {
             HStack(spacing: 4) {
                 ForEach(InsightPeriod.allCases) { one in
                     let on = one == period
@@ -176,7 +194,7 @@ struct ChildInsights: View {
                         withAnimation(.easeInOut(duration: 0.2)) { period = one; picked = nil }
                     }
                     .font(.subheadline.weight(.semibold))
-                    .frame(maxWidth: .infinity, minHeight: 40)
+                    .frame(maxWidth: .infinity, minHeight: 44)
                     .foregroundStyle(on ? Palette.ink : Palette.muted)
                     .background(on ? Palette.field : Color.clear, in: Capsule())
                     .contentShape(Capsule())
@@ -186,6 +204,14 @@ struct ChildInsights: View {
             }
             .padding(4)
             .background(Palette.paper, in: Capsule())
+    }
+
+    private var periodBody: some View {
+        let days = days
+        let metrics = InsightMetric.allCases.filter { metric in days.contains { $0.value(metric) > 0 } }
+        let showing = metrics.contains(metric) ? metric : (metrics.first ?? .sleep)
+        return VStack(alignment: .leading, spacing: 16) {
+            periodPicker
 
             if let first = days.first?.id, let last = days.last?.id {
                 Text(rangeTitle(first, last))

@@ -23,6 +23,20 @@ final class SampleFamily: ObservableObject {
             sample.isSample = true
             SampleData(store: sample).fill()
             sample.authorOverride = nil
+            #if DEBUG
+            // For checking Patterns with a real history: "-debugImportFile <path> -debugImportBirth 2024-04-29"
+            // adds a child to the sample family and imports the file for them. Nothing is saved: the sample is in memory.
+            if let path = UserDefaults.standard.string(forKey: "debugImportFile"),
+               let birthText = UserDefaults.standard.string(forKey: "debugImportBirth") {
+                let format = DateFormatter()
+                format.dateFormat = "yyyy-MM-dd"
+                if let birth = format.date(from: birthText) {
+                    let child = sample.addChild(name: "Ivy", birthDate: birth, colourIndex: 2, feeding: .both)
+                    let reading = Importer.read([URL(fileURLWithPath: path)])
+                    sample.importDrafts(reading.drafts, children: Dictionary(uniqueKeysWithValues: reading.babies.map { ($0, child) }))
+                }
+            }
+            #endif
             if let role, role != .parent {
                 sample.authorOverride = role == .helper ? "Nan" : "Pop"
                 sample.roleOverride = role

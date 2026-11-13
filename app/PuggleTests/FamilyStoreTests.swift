@@ -501,4 +501,58 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertTrue(logged.isLive, "What was logged here is not touched")
         XCTAssertEqual(store.currentFamily().events?.count, 1)
     }
+
+    // MARK: Patterns
+
+    /// Builds days of entries quickly, through the importer, for a child born `born` days ago.
+    private func days(_ build: (Int, Date) -> [Importer.Draft]) -> [Importer.Draft] {
+        let today = Calendar.current.startOfDay(for: .now)
+        return (1...300).flatMap { back in build(back, Calendar.current.date(byAdding: .day, value: -back, to: today)!) }
+    }
+
+    private func at(_ day: Date, _ hour: Int, _ minute: Int = 0) -> Date {
+        Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: day)!
+    }
+
+    func testPatternsFindASteadyBedtimeTheEndOfNightBottlesAndFewerNaps() {
+        store.backups = shelf()
+        let baby = store.addChild(name: "Ivy", birthDate: Date.now.addingTimeInterval(-300 * 86_400), colourIndex: 1, feeding: .bottle)
+        let drafts = days { back, day in
+            let young = back > 150
+            // Bedtime moves about while young, then settles around 19:40.
+            let bed = young ? at(day, 21, 0).addingTimeInterval(Double((back % 7) * 25) * 60) : at(day, 19, 35 + (back % 3) * 5)
+            var list = [Importer.Draft(baby: "Ivy", kind: .sleep, start: bed, end: bed.addingTimeInterval(10 * 3600))]
+            list.append(.init(baby: "Ivy", kind: .sleep, start: at(day, 13), end: at(day, 14, 30)))
+            if young { list.append(.init(baby: "Ivy", kind: .sleep, start: at(day, 9, 30), end: at(day, 10, 30))) }
+            for hour in [7, 12, 17] { list.append(.init(baby: "Ivy", kind: .bottle, start: at(day, hour), amountML: 150)) }
+            if young { list.append(.init(baby: "Ivy", kind: .bottle, start: at(day, 2), amountML: 120)) }
+            return list
+        }
+        store.importDrafts(drafts, children: ["Ivy": baby])
+        let p = Patterns.make(child: baby)
+        XCTAssertGreaterThan(p.months.count, 6)
+        let texts = p.changes.map(\.text)
+        XCTAssertTrue(texts.contains { $0.hasPrefix("Since ") && $0.contains("bedtime has usually been around") }, "\(texts)")
+        XCTAssertTrue(texts.contains { $0.hasPrefix("The last bottle logged between 22:00 and 05:00 was at") }, "\(texts)")
+        XCTAssertTrue(texts.contains { $0.contains("most days had 1 nap. Before that, most had 2.") }, "\(texts)")
+        XCTAssertNil(p.prompt)
+    }
+
+    func testABedtimeThatMovesLaterIsPointedOut() {
+        store.backups = shelf()
+        let baby = store.addChild(name: "Ivy", birthDate: Date.now.addingTimeInterval(-200 * 86_400), colourIndex: 1, feeding: .bottle)
+        let drafts = days { back, day in
+            guard back <= 28 else { return [] }
+            let bed = back <= 14 ? at(day, 20, 45) : at(day, 19, 40)
+            return [.init(baby: "Ivy", kind: .sleep, start: bed, end: bed.addingTimeInterval(9 * 3600))]
+        }
+        store.importDrafts(drafts, children: ["Ivy": baby])
+        let prompt = Patterns.make(child: baby).prompt
+        XCTAssertEqual(prompt, "Bedtimes in the last two weeks were about 1h 05m later than in the two weeks before.")
+    }
+
+    func testPatternsSayNothingWithTooLittleLogged() {
+        store.logEach(.bottle, for: [ollie], amountML: 120)
+        XCTAssertTrue(Patterns.make(child: ollie).months.isEmpty)
+    }
 }
