@@ -62,6 +62,8 @@ struct Rig: Codable {
         var spring: Double?
         /// Drawn only while her face is set this way: "eyes=happy", or any of several: "outfit=rain|sun".
         var when: String?
+        /// For something worn over the eyes (sunglasses): how far it slides up onto the forehead while she reacts.
+        var lift: Double?
         var shapes: [Shape]
     }
 
@@ -403,6 +405,8 @@ struct RigFeeling {
 final class RigRuntime {
     let rig: Rig
     private let springs: [String: Double]
+    /// Sunglasses, by part: how far each goes up out of the way.
+    private let lifts: [String: Double]
 
     /// Where a finger is, -1 to 1 each way; her eyes follow.
     var look = CGPoint.zero
@@ -456,6 +460,7 @@ final class RigRuntime {
     init(rig: Rig) {
         self.rig = rig
         springs = Dictionary(uniqueKeysWithValues: rig.parts.map { ($0.id, $0.spring ?? 260) })
+        lifts = rig.parts.reduce(into: [:]) { if let lift = $1.lift { $0[$1.id] = lift } }
     }
 
     /// Starts a move from the file. An unknown name does nothing.
@@ -556,6 +561,15 @@ final class RigRuntime {
                     if id == "tail" { tailMoved = true }
                 }
                 for (feature, shape) in key.face ?? [:] { showing[feature] = shape }
+            }
+        }
+        // Sunglasses go up onto her forehead whenever her eyes have something to say: a reaction, a feeling,
+        // looking at something, or sleep. A move that goes round (walking, reading, bubbles) leaves them down.
+        if !lifts.isEmpty {
+            let reacting = playing["body"].map { rig.moves?[$0.name]?.loops != true } ?? false
+            let feeling = felt.map { date < $0.until } ?? false
+            if asleep || reacting || feeling || abs(look.x) + abs(look.y) > 0.3 {
+                for (id, lift) in lifts { change(id) { $0.y -= lift } }
             }
         }
         // Ears, spines and hair take a position for what she is feeling: sleepy asleep, happy in a wave or a
@@ -667,6 +681,7 @@ struct RigView: View {
     @Environment(\.warmLight) private var warmLight
     @Environment(\.handDrawn) private var handDrawn
     @Environment(\.outfit) private var outfit
+    @Environment(\.shades) private var shades
 
     var body: some View {
         // Something held out to the side (a bubble wand) reaches past the drawing's edge. She keeps her size and
@@ -686,12 +701,12 @@ struct RigView: View {
             TimelineView(.animation) { timeline in
                 Canvas { context, size in
                     let states = runtime.advance(to: timeline.date)
-                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face.merging(["outfit": outfit]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
+                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face.merging(["outfit": outfit, "shades": shades]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
                 }
             }
         } else {
             Canvas { context, size in
-                RigRenderer.draw(runtime.rig, states: [:], face: (runtime.rig.face ?? [:]).merging(["outfit": outfit]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
+                RigRenderer.draw(runtime.rig, states: [:], face: (runtime.rig.face ?? [:]).merging(["outfit": outfit, "shades": shades]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
             }
         }
     }
@@ -706,10 +721,11 @@ struct RigFrame: View {
     @Environment(\.handDrawn) private var handDrawn
     @Environment(\.moonlit) private var moonlit
     @Environment(\.outfit) private var outfit
+    @Environment(\.shades) private var shades
 
     var body: some View {
         Canvas { context, size in
-            RigRenderer.draw(rig, states: states, face: (face ?? rig.face ?? [:]).merging(["outfit": outfit]) { _, new in new }, style: lineStyle, moonlit: moonlit, handDrawn: handDrawn, in: &context, size: size)
+            RigRenderer.draw(rig, states: states, face: (face ?? rig.face ?? [:]).merging(["outfit": outfit, "shades": shades]) { _, new in new }, style: lineStyle, moonlit: moonlit, handDrawn: handDrawn, in: &context, size: size)
         }
     }
 }

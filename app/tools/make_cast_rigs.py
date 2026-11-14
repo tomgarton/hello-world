@@ -13,7 +13,7 @@ Run it again whenever the canvas drawings change.
 import json, math, os, re, sys
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import bend_arms
+import bend_arms, sunglasses
 import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -1129,6 +1129,9 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
     if name != 'pebble': parts = bend_arms.hold(parts, bend_arms.book(parts))
     # A bubble wand for the children. Those under an umbrella put it down in the rain.
     if name in ('kip', 'quill', 'digby', 'sunny'): parts = bend_arms.hold_in_hand(parts, bend_arms.wand(parts))
+    # Sunglasses, every style, each a part of its own. Nan's and Pop's own glasses come off when a pair goes on.
+    parts = sunglasses.wear(parts, ACCENT[name])
+    if name in ('nan', 'pop'): next(p for p in parts if p['id'] == 'head-2')['when'] = 'shades=none'
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.
     borrowed = {}
@@ -1152,7 +1155,7 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
     borrowed['greet-left'] = mirror
     borrowed.update(bend_arms.arm_moves(parts, reads=name != 'pebble'))
     return {'name': name.capitalize(), 'size': [240, height], 'about': about + ' Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.',
-            'parts': parts, 'moves': borrowed, 'face': {'eyes': 'open'}}
+            'parts': parts, 'moves': borrowed, 'face': {'eyes': 'open', 'shades': 'none'}}
 
 
 def main():

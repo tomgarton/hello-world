@@ -965,3 +965,13 @@ Privacy and technical
 - **Sunglasses, drawn as options only:** round, aviator, soft square and hearts with dark or mirror lenses; tinted; pushed up; and the big two-tone pairs with a brow bar in five colourings (`docs/previews/sunglasses.png`, `sunglasses-styles.png`, `sunglasses-big.png`).
 - **Grey, drawn as options only:** streaks, locks, dashes, greyer fur in three steps, a pale muzzle (`greyHair`; `docs/previews/grey-*.png`).
 The options that are only on sheets live in debug code. Before a builder, each needs to become a part in the rig files with a `when` of its own.
+
+**Sunglasses (Tom, 2026-11-14, built for the whole cast).** Thirteen styles, each a part of its own in every rig, shown while the face has `shades=<style>` (`none` for no sunglasses). Made by `app/tools/sunglasses.py` (run it for Puggle; `make_cast_rigs.py` calls it for everyone else).
+- **Ordinary size**, a little bigger than a pair of spectacles (Tom: "slightly bigger, but not as big as page 3"): `round-dark` (the default), `aviator-mirror`, `aviator-dark`, `round-mirror`, `square-dark`, `hearts-dark`, `flowers-dark` (five petals in the frame's colour round a dark lens; added at Tom's request), `round-tinted` (amber, eyes showing through).
+- **Big**, after the reference Tom showed: `big-sunset`, `big-night`, `big-mirror`, `big-aviator`, `big-sea`. A heavy bar across the brow, no rim below, lenses in two flat bands.
+- **Colours:** frames in each character's accent colour unless the style has its own (metal, gold, wattle). Every colour is one step off the brand's so a garment's colour swap never repaints them.
+- **Eyes come first.** Dark and mirrored lenses hide the eyes, which sets aside "glasses never hide the eyes" for sunglasses only. So each pair has a `lift`: it slides up onto the forehead (38 for ordinary pairs, 43 for big ones) whenever her eyes have something to say: a reaction, a feeling (shy), following a finger, or sleep. A move that goes round (walking, reading, bubbles) leaves them down. They are drawn just after the eyes, so eyebrows and hats stay on top.
+- **When:** on Today, anyone dressed for the heat (`outfit == "sun"`) wears `round-dark`, Puggle and whoever is with her, along with their sun hat, zinc or parasol. `Shades.forOutfit` in `Weather.swift`; passed down as `\.shades`. Nan's and Pop's own glasses come off when a pair goes on.
+- **For checking:** `-debugShades big-sunset` puts any pair on whatever the weather; `-debugWeather hot` for a hot day.
+- Not built: choosing a pair (the Character Builder), and sunglasses in the books.
+- Sheets: `docs/previews/sunglasses-built.png` (every style on everyone, in the heat, and pushed up), `sunglasses-on-today.png`.

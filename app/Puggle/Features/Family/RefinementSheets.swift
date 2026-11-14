@@ -90,6 +90,62 @@ enum RefinementSheets {
         goingGrey()
         glassesOptions()
         glassesColours()
+        sunglassesBuilt()
+    }
+
+    /// The sunglasses as built into the rigs: every style on everyone, in the heat with hats, and pushed up in a reaction.
+    private static func sunglassesBuilt() {
+        let everyone = ["puggle", "pebble", "kip", "quill", "digby", "sunny", "mum", "dad", "nan", "pop"]
+        let styles = ["round-dark", "aviator-mirror", "aviator-dark", "round-mirror", "square-dark", "hearts-dark", "flowers-dark", "round-tinted",
+                      "big-sunset", "big-night", "big-mirror", "big-aviator", "big-sea"]
+        func still(_ name: String, width: CGFloat = 104) -> some View {
+            Group {
+                if let rig = Rig.load(name) {
+                    RigFrame(rig: rig, states: [:], face: nil)
+                        .frame(width: width * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: width * rig.size[1] / 240)
+                        .frame(height: width * 300 / 240 * 0.72, alignment: .top).clipped()
+                }
+            }
+        }
+        func caught(_ name: String, _ move: String?, at moment: Double, asleep: Bool = false) -> some View {
+            Group {
+                if let rig = Rig.load(name) {
+                    let runtime = RigRuntime(rig: rig)
+                    let start = Date.now
+                    let _ = { runtime.blinkAt = .distantPast; runtime.asleep = asleep; _ = runtime.advance(to: start); if let move { runtime.play(move, at: start) } }()
+                    let states: [String: PartState] = {
+                        var t = 0.0, states: [String: PartState] = [:]
+                        while t < moment { t += 0.016; states = runtime.advance(to: start.addingTimeInterval(t)) }
+                        return states
+                    }()
+                    RigFrame(rig: rig, states: states, face: runtime.face)
+                        .frame(width: 150 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 150 * rig.size[1] / 240)
+                }
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 8) {
+            ForEach(styles, id: \.self) { style in
+                row(style == "round-dark" ? "round-dark (the default)" : style) {
+                    HStack(alignment: .top, spacing: 0) { ForEach(everyone, id: \.self) { still($0) } }
+                        .environment(\.shades, style)
+                }
+            }
+            row("In the heat: the default pair with sun hats, zinc and parasols") {
+                HStack(alignment: .top, spacing: 0) { ForEach(everyone, id: \.self) { still($0) } }
+                    .environment(\.shades, "round-dark").environment(\.outfit, "sun")
+            }
+            row("Pushed up when her eyes have something to say: at rest, a nod, a wave, a hooray, asleep; and a big pair") {
+                HStack(alignment: .bottom, spacing: 6) {
+                    caught("puggle", nil, at: 0.3); caught("puggle", "nod", at: 0.25); caught("puggle", "greet", at: 0.6)
+                    caught("puggle", "celebrate", at: 0.5); caught("puggle", nil, at: 0.6, asleep: true)
+                    caught("kip", "greet", at: 0.6)
+                }
+                .environment(\.shades, "round-dark")
+                HStack(alignment: .bottom, spacing: 6) { caught("puggle", nil, at: 0.3); caught("puggle", "greet", at: 0.6) }
+                    .environment(\.shades, "big-sunset")
+            }
+        }
+        save(sheet, as: "sunglasses-built.png")
     }
 
     /// Which colour should Nan's and Pop's frames be? Shown against every colour their clothes come in.

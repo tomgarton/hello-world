@@ -85,6 +85,27 @@ enum Weather: String, CaseIterable, Identifiable {
     }
 }
 
+/// Which sunglasses a character has on: a style from app/tools/sunglasses.py, or "none".
+private struct ShadesKey: EnvironmentKey {
+    static let defaultValue = "none"
+}
+
+extension EnvironmentValues {
+    var shades: String {
+        get { self[ShadesKey.self] }
+        set { self[ShadesKey.self] = newValue }
+    }
+}
+
+/// The sunglasses worn on a hot day. "-debugShades big-sunset" puts any pair on, whatever the weather.
+enum Shades {
+    static let everyday = "round-dark"
+    static func forOutfit(_ outfit: String) -> String {
+        if let forced = UserDefaults.standard.string(forKey: "debugShades") { return forced }
+        return outfit == "sun" ? everyday : "none"
+    }
+}
+
 private struct OutfitKey: EnvironmentKey {
     static let defaultValue = "none"
 }
