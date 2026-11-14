@@ -1,0 +1,107 @@
+"""The app icon, from Puggle's rig (14 November 2026).
+
+Puggle's face on Wattle, as an Icon Composer document: Puggle/Resources/AppIcon.icon. The layers are taken
+from her rig (Puggle/Resources/Rigs/puggle.rig.json), so the icon has the face the app has: the lick of hair,
+the eyebrows, the oval cheeks, the smaller bill and the flower clip.
+
+Four groups, front to back, so each part still reads when iOS takes the colour away (the clear and tinted looks):
+
+    clip      the flower
+    features  eyes, eyebrows and cheeks. No glass: they stay crisp.
+    bill
+    head      the head and the lick of hair
+
+In dark, the ground goes deep brown and her outline lightens, so she does not sink into it.
+
+Run `python3 tools/make_app_icon.py` from app/. With `--render` it also asks Apple's ictool (inside Xcode's
+Icon Composer) to draw every look into docs/previews/app-icon/.
+"""
+import json, os, subprocess, sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+RIG = os.path.join(HERE, '..', 'Puggle', 'Resources', 'Rigs', 'puggle.rig.json')
+ICON = os.path.join(HERE, '..', 'Puggle', 'Resources', 'AppIcon.icon')
+OUT = os.path.join(HERE, '..', '..', 'docs', 'previews', 'app-icon')
+ICTOOL = '/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool'
+BOX = '25 7 190 190'   # the head, with room for the flower
+INK, DARK_LINE = '#3A2A20', '#1C1512'
+# The ground: its colour, and what it becomes in dark. `--ground sky` or `--ground blue` tries another.
+GROUNDS = {'wattle': ('#F4BE2C', '#3A2A20'), 'sky': ('#BFD9F5', '#1F3246'), 'blue': ('#2A62B8', '#16284A')}
+# Icon Composer cuts an outline off at the edge of the shape it belongs to. Two specks in the corners, too faint
+# to see, make each layer as big as the whole picture, so nothing is cut.
+SPECKS = ('<rect x="25" y="7" width="1" height="1" fill="#000000" fill-opacity="0.02"/>'
+          '<rect x="214" y="196" width="1" height="1" fill="#000000" fill-opacity="0.02"/>')
+
+GROUPS = [   # front to back: name, the rig's parts, glass
+    ('clip', ['clip'], True),
+    ('features', ['blush', 'eye-left', 'eye-right', 'brow-left', 'brow-right'], False),
+    ('bill', ['bill'], True),
+    ('head', ['head', 'lick'], True),
+]
+
+
+def draw(shape, line):
+    """One of the rig's shapes as SVG. The outline is drawn in `line`."""
+    stroke = shape.get('stroke')
+    if stroke == INK: stroke = line
+    paint = f'fill="{shape.get("fill", "none")}"'
+    if stroke:
+        paint += f' stroke="{stroke}" stroke-width="{shape.get("width", 1)}" stroke-linejoin="round"'
+        if shape.get('cap'): paint += f' stroke-linecap="{shape["cap"]}"'
+    if shape['kind'] == 'ellipse':
+        return f'<ellipse cx="{shape["x"]}" cy="{shape["y"]}" rx="{shape["rx"]}" ry="{shape["ry"]}" {paint}/>'
+    if shape['kind'] == 'path':
+        return f'<path d="{shape["d"]}" {paint}/>'
+    raise ValueError(shape['kind'])
+
+
+def layer(parts, ids, line=INK):
+    inner = ''.join(f'<g id="{pid}">' + ''.join(draw(s, line) for s in parts[pid]['shapes']) + '</g>' for pid in ids)
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{BOX}" width="1024" height="1024">{SPECKS}{inner}</svg>'
+
+
+def colour(hex_):
+    return 'srgb:' + ','.join(f'{int(hex_[i:i + 2], 16) / 255:.5f}' for i in (1, 3, 5)) + ',1.00000'
+
+
+def option(name, default):
+    return sys.argv[sys.argv.index(name) + 1] if name in sys.argv else default
+
+
+def main():
+    global ICON, OUT
+    ICON, OUT = option('--icon', ICON), option('--out', OUT)
+    light, dark = GROUNDS[option('--ground', 'wattle')]
+    flat = '--flat' in sys.argv
+    parts = {p['id']: p for p in json.load(open(RIG))['parts']}
+    assets = os.path.join(ICON, 'Assets')
+    os.makedirs(assets, exist_ok=True)
+    for old in os.listdir(assets): os.remove(os.path.join(assets, old))
+    groups = []
+    for name, ids, glass in GROUPS:
+        open(os.path.join(assets, f'{name}.svg'), 'w').write(layer(parts, ids))
+        open(os.path.join(assets, f'{name}-dark.svg'), 'w').write(layer(parts, ids, DARK_LINE))
+        glass = glass and not flat
+        # A property that changes with the look is a list: the plain value first, then one for each look.
+        groups.append({
+            'layers': [{'name': name, 'glass': glass,
+                        'image-name-specializations': [{'value': f'{name}.svg'}, {'appearance': 'dark', 'value': f'{name}-dark.svg'}]}],
+            'shadow': {'kind': 'neutral', 'opacity': 0.5 if glass else 0.0},
+            'translucency': {'enabled': False, 'value': 0.5},
+        })
+    doc = {'fill-specializations': [{'value': {'solid': colour(light)}}, {'appearance': 'dark', 'value': {'solid': colour(dark)}}],
+           'groups': groups, 'supported-platforms': {'squares': 'shared'}}
+    json.dump(doc, open(os.path.join(ICON, 'icon.json'), 'w'), indent=2)
+    print('wrote', ICON)
+    if '--render' in sys.argv:
+        os.makedirs(OUT, exist_ok=True)
+        for look in ('Default', 'Dark', 'ClearLight', 'ClearDark', 'TintedLight', 'TintedDark'):
+            target = os.path.join(OUT, f'{look}.png')
+            done = subprocess.run([ICTOOL, ICON, '--export-image', '--output-file', target, '--platform', 'iOS',
+                                   '--rendition', look, '--width', '512', '--height', '512', '--scale', '2'],
+                                  capture_output=True, text=True)
+            print(look, 'ok' if done.returncode == 0 else done.stderr.strip() or done.stdout.strip())
+
+
+if __name__ == '__main__':
+    main()

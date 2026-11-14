@@ -1137,3 +1137,13 @@ The last four carried down, and a second pass on two (14 November 2026).
 Close-up: `docs/previews/icons/second-pass-four-more.png`. 51 tests pass.
 
 Tummy time's eye (14 November 2026). Tom asked for one eye, as in the reference, then said the closed-eye arc looked like a mouth. It is now a dot, high under the fringe, in all three sizes. Close-up: `docs/previews/icons/tummy-time-eye.png`.
+
+### App icon: Puggle's current face (14 November 2026)
+
+The icon was still the old face. It is now made from her rig by `app/tools/make_app_icon.py`, so it has the lick of hair, eyebrows, oval cheeks, the smaller bill and the flower clip. It stays an Icon Composer document (`app/Puggle/Resources/AppIcon.icon`), in four layers front to back (clip, features, bill, head) so each part still reads in the clear and tinted looks.
+
+- Glass is on for the head, bill and clip, and off for the eyes, brows and cheeks.
+- Dark has its own ground (deep brown) and a darker outline.
+- Two things learned about Icon Composer: it cuts an outline off at the edge of its shape unless the layer is made as big as the picture (two near-invisible specks in the corners do this); and a property that changes with the look is a list with the plain value first (`fill-specializations`, `image-name-specializations`), not a plain key plus a list.
+- Rendered with Apple's `ictool` (Icon Composer 1.5, in Xcode 26.5), which draws iOS 26's glass. iOS 27's sharper rendering cannot be previewed here.
+- Tom asked whether the ground should be Puggle's blue. `docs/previews/app-icon/four-versions.png` shows yellow with glass, yellow flat, Sky and her dress blue, each in all six looks. The app has yellow with glass until he decides; `--ground sky` or `--ground blue` writes the others, and `--flat` turns the glass off.

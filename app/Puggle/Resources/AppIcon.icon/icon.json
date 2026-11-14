@@ -1,14 +1,32 @@
 {
-  "fill": {
-    "solid": "srgb:0.95686,0.74510,0.17255,1.00000"
-  },
+  "fill-specializations": [
+    {
+      "value": {
+        "solid": "srgb:0.95686,0.74510,0.17255,1.00000"
+      }
+    },
+    {
+      "appearance": "dark",
+      "value": {
+        "solid": "srgb:0.22745,0.16471,0.12549,1.00000"
+      }
+    }
+  ],
   "groups": [
     {
       "layers": [
         {
-          "image-name": "clip.svg",
           "name": "clip",
-          "glass": false
+          "glass": true,
+          "image-name-specializations": [
+            {
+              "value": "clip.svg"
+            },
+            {
+              "appearance": "dark",
+              "value": "clip-dark.svg"
+            }
+          ]
         }
       ],
       "shadow": {
@@ -23,9 +41,17 @@
     {
       "layers": [
         {
-          "image-name": "face.svg",
-          "name": "face",
-          "glass": false
+          "name": "features",
+          "glass": false,
+          "image-name-specializations": [
+            {
+              "value": "features.svg"
+            },
+            {
+              "appearance": "dark",
+              "value": "features-dark.svg"
+            }
+          ]
         }
       ],
       "shadow": {
@@ -40,9 +66,42 @@
     {
       "layers": [
         {
-          "image-name": "head.svg",
+          "name": "bill",
+          "glass": true,
+          "image-name-specializations": [
+            {
+              "value": "bill.svg"
+            },
+            {
+              "appearance": "dark",
+              "value": "bill-dark.svg"
+            }
+          ]
+        }
+      ],
+      "shadow": {
+        "kind": "neutral",
+        "opacity": 0.5
+      },
+      "translucency": {
+        "enabled": false,
+        "value": 0.5
+      }
+    },
+    {
+      "layers": [
+        {
           "name": "head",
-          "glass": false
+          "glass": true,
+          "image-name-specializations": [
+            {
+              "value": "head.svg"
+            },
+            {
+              "appearance": "dark",
+              "value": "head-dark.svg"
+            }
+          ]
         }
       ],
       "shadow": {
