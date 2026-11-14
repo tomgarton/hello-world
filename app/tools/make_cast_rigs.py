@@ -19,6 +19,62 @@ RIGS = os.path.normpath(os.path.join(HERE, '..', 'Puggle', 'Resources', 'Rigs'))
 INK = '#3A2A20'
 
 
+
+# ---------- Clothes for the grown-ups ----------
+# Each grown-up has three outfits, and each outfit has two colours: the garment's own, and a trim
+# that contrasts with it (a collar, a hem, a skirt, trousers, an apron), as their weather things
+# contrast with their clothes. Each outfit comes in four pairs of colours.
+TRIM = {'mum': '#F2BA30', 'dad': '#F1E1C2', 'nan': '#BBD6F4', 'pop': '#40A064'}      # as drawn; one off a brand colour, so a swap finds only the trim
+PAIRS = {   # the other three pairs: garment, trim
+    'mum': [('#E5553B', '#BFD9F5'), ('#F4BE2C', '#2A62B8'), ('#2A62B8', '#F3D9C9')],
+    'dad': [('#3C9A5F', '#F4E7B0'), ('#E5553B', '#2A62B8'), ('#F4BE2C', '#3C9A5F')],
+    'nan': [('#2A62B8', '#F4BE2C'), ('#3C9A5F', '#F3D9C9'), ('#B9A0EA', '#F4E7B0')],
+    'pop': [('#F3D9C9', '#2A62B8'), ('#F4E7B0', '#E5553B'), ('#CFE5D2', '#F4BE2C')],
+}
+
+def dressed(svg, kind, outfit, c):
+    """A grown-up's drawing with the garment swapped for another. The first shape is the one the body hangs from."""
+    t = TRIM[kind]
+    def P(d, fill, w=7): return f'<path d="{d}" fill="{fill}" stroke="{INK}" stroke-width="{w}" stroke-linejoin="round"></path>'
+    def flat(d, fill): return f'<path d="{d}" fill="{fill}"></path>'
+    def cord(d, col, w=6): return f'<path d="{d}" stroke="{INK}" stroke-width="{w + 6}" stroke-linecap="round"></path><path d="{d}" stroke="{col}" stroke-width="{w}" stroke-linecap="round"></path>'
+    collar = P('M97 169 Q99 187 117 181 L119 171 Z', t, 5) + P('M143 169 Q141 187 123 181 L121 171 Z', t, 5)
+    top = 'M86 168 Q120 158 154 168 L166 300 L74 300 Z'
+    trousers = 'M72 296 H168 L166 428 H126 L120 346 L114 428 H74 Z'
+    hem = 'M72 298 L168 298 L169 320 Q120 329 71 320 Z'
+    coat = 'M86 168 Q120 158 154 168 L180 380 Q182 390 170 390 L70 390 Q58 390 60 380 Z'
+    buttons = ''.join(f'<circle cx="128" cy="{y}" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle>' for y in (200, 250, 300, 350))
+    looks = {
+        # Mum: a dress with a collar and a band at the hem; a top and a skirt; a top tucked into trousers.
+        ('mum', ''): P('M86 168 Q120 158 154 168 L192 380 Q194 390 182 390 L58 390 Q46 390 48 380 Z', c)
+                     + P('M53 352 L187 352 L192 380 Q194 390 182 390 L58 390 Q46 390 48 380 Z', t) + collar,
+        ('mum', 'skirt'): P('M70 258 L170 258 L192 380 Q194 390 182 390 L58 390 Q46 390 48 380 Z', t)
+                          + P('M86 168 Q120 158 154 168 L172 270 Q120 279 68 270 Z', c) + collar,
+        ('mum', 'trousers'): P(top, c) + P(trousers, t) + P('M72 292 H168 V308 H72 Z', t, 5) + collar,
+        # Dad: a shirt and shorts; a jumper with a stripe, over trousers; a tee under overalls.
+        ('dad', ''): P('M84 168 Q120 158 156 168 L166 330 L74 330 Z', c) + P('M74 326 H166 L170 384 H126 L120 366 L114 384 H70 Z', t) + collar,
+        ('dad', 'jumper'): P('M84 168 Q120 158 156 168 L168 318 Q120 326 72 318 Z', c) + P(trousers, t) + P(hem, c)
+                           + flat('M84 222 L156 222 L158 246 L82 246 Z', t),
+        ('dad', 'overalls'): P(top, c) + P('M96 216 H144 V290 H170 L168 428 H126 L120 346 L114 428 H72 L70 290 H96 Z', t)
+                             + cord('M100 218 L93 176', t) + cord('M140 218 L147 176', t)
+                             + f'<circle cx="101" cy="222" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle><circle cx="139" cy="222" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle>',
+        # Nan: her cardigan, with a collar and pockets; a dress under an apron; a jumper and a skirt.
+        ('nan', ''): P(coat, c) + f'<path d="M120 166V388" stroke="{INK}" stroke-width="5"></path>' + buttons + collar
+                     + P('M76 304 H102 V324 Q102 332 94 332 H82 Q74 332 74 324 Z', t, 5) + P('M138 304 H164 L166 324 Q166 332 158 332 H146 Q138 332 138 324 Z', t, 5),
+        ('nan', 'apron'): P(coat, c) + P('M102 206 H138 V264 H160 L166 368 Q120 377 74 368 L80 264 H102 Z', t)
+                          + cord('M104 208 L98 176', t, 5) + cord('M136 208 L142 176', t, 5),
+        ('nan', 'skirt'): P('M72 262 L168 262 L180 380 Q182 390 170 390 L70 390 Q58 390 60 380 Z', t)
+                          + P('M86 168 Q120 158 154 168 L170 274 Q120 283 70 274 Z', c) + collar,
+        # Pop: his cardigan, with a collar and a breast pocket; a shirt under a waistcoat; a jumper with diamonds.
+        ('pop', ''): P(coat, c) + f'<path d="M120 166V388" stroke="{INK}" stroke-width="5"></path>' + buttons + collar + P('M84 222 H106 V242 Q106 248 100 248 H90 Q84 248 84 242 Z', t, 5),
+        ('pop', 'waistcoat'): P(top, c) + P(trousers, t) + P('M89 171 L113 176 L118 262 L110 300 L78 300 L81 214 Z', t) + P('M151 171 L127 176 L122 262 L130 300 L162 300 L159 214 Z', t)
+                              + collar,
+        ('pop', 'jumper'): P('M84 168 Q120 158 156 168 L168 318 Q120 326 72 318 Z', c) + P(trousers, t) + P(hem, c)
+                           + flat('M102 212 L114 236 L102 260 L90 236 Z', t) + flat('M138 212 L150 236 L138 260 L126 236 Z', t) + flat('M120 236 L130 256 L120 276 L110 256 Z', t),
+    }
+    start = min(i for i in (svg.find('<path d="M86 168Q'), svg.find('<path d="M84 168Q')) if i >= 0)
+    return svg[:start] + looks[(kind, outfit)] + svg[svg.index('<path d="M88 182Q'):]
+
 # ---------- The drawings ----------
 
 def drawings():
@@ -31,14 +87,15 @@ def drawings():
     kip = lambda garment: inner('koala', garment, '#F4BE2C') + A['bow'](150, 50, '#2A62B8')
     digby = lambda garment: inner('wombat', garment, '#2A62B8') + A['beanie']('#E5553B')
     quill = lambda garment: inner('echidna', garment, '#E5553B')
+    grown = lambda kind, colour, outfits: {o: dressed(adult(colour, kind), kind, o, colour) for o in outfits}
     # name: (what they wear, by variant, the first being the canvas's own; the drawing's height; the
     # garment's colour; the other colours it comes in; a line about them)
     return {
-        'nan': ({'': adult('#E5553B', 'nan')}, 456, '#E5553B', ['#2A62B8', '#3C9A5F', '#B9A0EA'],
+        'nan': (grown('nan', '#E5553B', ['', 'apron', 'skirt']), 456, '#E5553B', PAIRS['nan'],
                 "Nan: Puggle's grandmother. A fur bun, pale blue reading glasses on her bill, a cardigan."),
-        'mum': ({'': adult('#3C9A5F', 'mum')}, 456, '#3C9A5F', ['#E5553B', '#F4BE2C', '#2A62B8'], "Mum: a daisy on her head, a dress."),
-        'dad': ({'': adult('#2A62B8', 'dad')}, 456, '#2A62B8', ['#3C9A5F', '#E5553B', '#F4BE2C'], "Dad: a shirt and shorts."),
-        'pop': ({'': adult('#BFD9F5', 'pop')}, 456, '#BFD9F5', ['#F3D9C9', '#F4E7B0', '#CFE5D2'],
+        'mum': (grown('mum', '#3C9A5F', ['', 'skirt', 'trousers']), 456, '#3C9A5F', PAIRS['mum'], "Mum: a daisy on her head, a dress."),
+        'dad': (grown('dad', '#2A62B8', ['', 'jumper', 'overalls']), 456, '#2A62B8', PAIRS['dad'], "Dad: a shirt and shorts."),
+        'pop': (grown('pop', '#BFD9F5', ['', 'waistcoat', 'jumper']), 456, '#BFD9F5', PAIRS['pop'],
                 "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan."),
         'pebble': ({'': baby('neutral', '#F4BE2C')}, 270, '#F4BE2C', ['#BFD9F5', '#CFE5D2', '#F3D9C9'],
                    "Pebble: Puggle's baby brother, about six months, sitting with a bottle. A round curl."),
@@ -879,10 +936,15 @@ def main():
     puggle = json.load(open(RIGS + '/puggle.rig.json'))
     moves = puggle['moves']
     for name, (variants, height, colour, others, about) in drawings().items():
-        # The same garment in other colours: a swap of its colour, its outline and its pocket.
-        def swap(to, pocket=None): return {colour: to, shade(colour): shade(to), lighten(colour): pocket or lighten(to)}
+        # The same garment in other colours: a swap of its colour, its outline and its pocket. A grown-up's
+        # outfit is a pair, so the trim is swapped with it.
+        def swap(to, pocket=None, trim=None):
+            if isinstance(to, tuple): to, trim = to
+            swaps = {colour: to, shade(colour): shade(to), lighten(colour): pocket or lighten(to)}
+            if name in TRIM and trim: swaps.update({TRIM[name]: trim, shade(TRIM[name]): shade(trim)})
+            return swaps
         # In the rain the garment is a raincoat's yellow, unless they are under an umbrella.
-        wardrobe = {'looks': [{}] + [swap(c) for c in others], 'rain': {} if name in UMBRELLA else swap('#F4C95D', '#FBE7A6')}
+        wardrobe = {'looks': [{}] + [swap(c) for c in others], 'rain': {} if name in UMBRELLA else swap('#F4C95D', '#FBE7A6', '#F4C95D')}
         for variant, svg in variants.items():
             rig = build(name, svg, height, about, shade, moves, puggle)
             rig['wardrobe'] = wardrobe

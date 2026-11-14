@@ -44,6 +44,10 @@ enum CastMember: String, CaseIterable, Identifiable {
         case .quill: ["quill", "quill-jumper", "quill-tee"]
         case .kip: ["kip", "kip-dungarees", "kip-jumper"]
         case .digby: ["digby", "digby-dungarees"]
+        case .mum: ["mum", "mum-skirt", "mum-trousers"]
+        case .dad: ["dad", "dad-jumper", "dad-overalls"]
+        case .nan: ["nan", "nan-apron", "nan-skirt"]
+        case .pop: ["pop", "pop-waistcoat", "pop-jumper"]
         default: [rawValue]
         }
     }
