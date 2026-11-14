@@ -807,6 +807,33 @@ def finish_hats(name, parts):
         parts[at:at] = through
     return parts
 
+
+# The platypus tail (Tom, 14 November 2026). It was an oval lying beside the legs with a line down its
+# middle, which read as a leaf, and on the grown-ups it floated clear of the body. A platypus has a broad
+# flat paddle: narrow where it leaves the body, wide and round at the end. Its base is tucked well in
+# behind the body, so it always grows out of them, and it has two short ridges across it and no midline.
+def paddle(bx, by, angle=-28.0, long=66.0):
+    a = math.radians(angle)
+    ax, ay, nx, ny = math.cos(a), math.sin(a), -math.sin(a), math.cos(a)
+    def at(t, w): return f'{bx + t * ax + w * nx:.1f} {by + t * ay + w * ny:.1f}'
+    k = long / 66.0
+    outline = (f'M{at(0, -8)} Q{at(20 * k, -18)} {at(40 * k, -17)} Q{at(66 * k, -15)} {at(66 * k, 0)} '
+               f'Q{at(66 * k, 15)} {at(40 * k, 17)} Q{at(20 * k, 18)} {at(0, 8)} Z')
+    ridges = f'M{at(38 * k, -8)} Q{at(42 * k, 0)} {at(38 * k, 8)} M{at(51 * k, -7)} Q{at(55 * k, 0)} {at(51 * k, 7)}'
+    return outline, ridges
+
+def regrow_tail(parts, grown):
+    tail = next((p for p in parts if p['id'] == 'tail'), None)
+    if not tail: return parts
+    oval = tail['shapes'][0]
+    # Where the oval's near end was, and further in behind the body; a grown-up's sits higher, at the hip.
+    bx, by = oval['x'] - 28, oval['y'] + 14 - (16 if grown else 0)
+    outline, ridges = paddle(bx, by, long=72.0)
+    tail['shapes'] = [{'kind': 'path', 'd': outline, 'fill': oval['fill'], 'stroke': oval['stroke'], 'tint': oval.get('tint'), 'width': oval['width']},
+                      {'kind': 'path', 'd': ridges, 'stroke': oval.get('tint') or INK, 'width': 2.5, 'cap': 'round'}]
+    tail['pivot'] = [round(bx + 6, 1), round(by - 3, 1)]
+    return parts
+
 def build(name, svg, height, about, shade, moves, puggle):
     grown = height > 400
     if grown:
@@ -943,6 +970,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             x, y, r = eye['x'], eye['y'], eye['rx'] + 1.2
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
+    parts = regrow_tail(parts, grown)
     parts = join_to_head(name, parts)
     parts = grow_hair(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
