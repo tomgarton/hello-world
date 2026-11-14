@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "icon-solids-line.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-solids-line-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {

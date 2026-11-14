@@ -1166,3 +1166,5 @@ Tom found the lock screen still had Puggle's old face, and asked for a pass thro
 - The mark sits a little higher on the launch picture than on the app's own splash, so it moves slightly as one hands over to the other.
 - The icon and mark show Puggle with her eyebrows. In the app she only has them when she is feeling something; her resting face has none. Tom approved the icon with them, so they stay until he says otherwise.
 - The breastfeeding choices, poo and wee, and the large icon drawings are still outside the app.
+
+Icons in dark (14 November 2026). Tom, from the TestFlight build: the icon lines look too thick in dark mode. A pale line on a dark ground reads heavier than a dark line of the same width, and the breast's skin was nearly the line's colour, so it had no visible outline. Each tinted icon now has a second drawing for dark with the line a fifth thinner (`DARK_LINE` in `docs/tools/make_icons.py`), and fixed colours a fifth dimmer (`DARK_FIXED`). The catalogue picks the drawing by appearance. The one-colour list icons are unchanged. Comparison: `docs/previews/icons/in-app/dark-lines.png`.

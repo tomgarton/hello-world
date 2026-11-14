@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "icon-breastfeed-line.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-breastfeed-line-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {

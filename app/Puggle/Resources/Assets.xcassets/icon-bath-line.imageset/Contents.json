@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "icon-bath-line.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-bath-line-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {

@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "icon-photo-line.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-photo-line-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {

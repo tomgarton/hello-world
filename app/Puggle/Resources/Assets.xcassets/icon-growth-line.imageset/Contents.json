@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "icon-growth-line.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-growth-line-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {

@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "icon-note-reg-line.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-note-reg-line-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {

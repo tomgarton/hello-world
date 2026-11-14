@@ -3,6 +3,16 @@
     {
       "idiom": "universal",
       "filename": "icon-tummy-time-line.svg"
+    },
+    {
+      "idiom": "universal",
+      "filename": "icon-tummy-time-line-dark.svg",
+      "appearances": [
+        {
+          "appearance": "luminosity",
+          "value": "dark"
+        }
+      ]
     }
   ],
   "info": {

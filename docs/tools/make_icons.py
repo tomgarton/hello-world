@@ -165,7 +165,7 @@ for _name, _spec in ICONS.items():
 def svg(name, ink=INK, plain=False, size=24, spec=None, layer=None):
     """`layer` draws one part alone, in black, for the app to tint: 'line', 'fill' (the accent) or 'fixed' (in its own colours)."""
     spec = spec or ICONS[name]
-    if layer: return layered(spec, layer, size)
+    if layer: return layered(spec, layer, size, dark=ink == DARK)
     def fill(d, colour, solid=False):
         if plain: return f'<path d="{d}" fill="#000000"{"" if solid else " fill-opacity=" + chr(34) + "0.16" + chr(34)}/>'
         return f'<path d="{d}" fill="{colour}"/>'
@@ -182,14 +182,25 @@ def svg(name, ink=INK, plain=False, size=24, spec=None, layer=None):
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {box} {box}" width="{size}" height="{size}">{inner}</svg>'
 
 
-def layered(spec, layer, size):
+# In dark the line is pale on a dark ground, and a pale line looks heavier than a dark one of the same width.
+# So the dark drawing has a thinner line. A fixed colour is dimmed a little too, so the pale line still shows
+# against it (the breast's skin was nearly the line's own colour).
+DARK_LINE, DARK_FIXED = 0.8, 0.8
+
+
+def dimmed(colour, k):
+    return '#' + ''.join(f'{round(int(colour[i:i + 2], 16) * k):02X}' for i in (1, 3, 5))
+
+
+def layered(spec, layer, size, dark=False):
     path = lambda d, more: f'<path d="{d}" {more}/>'
+    thin = DARK_LINE if dark else 1
     if layer == 'fill': inner = ''.join(path(d, 'fill="#000000"') for d in spec['wattle'])
-    elif layer == 'fixed': inner = ''.join(path(t[0], f'fill="{t[1]}"') for t in spec['tint'])
+    elif layer == 'fixed': inner = ''.join(path(t[0], f'fill="{dimmed(t[1], DARK_FIXED) if dark else t[1]}"') for t in spec['tint'])
     else:
         stroke = 'fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width='
-        inner = ''.join(path(d, f'{stroke}"{spec.get("weight", W)}"') for d in spec['lines'])
-        inner += ''.join(path(d, f'{stroke}"{spec.get("fineweight", 1.2)}"') for d in spec.get('fine', []))
+        inner = ''.join(path(d, f'{stroke}"{round(spec.get("weight", W) * thin, 2)}"') for d in spec['lines'])
+        inner += ''.join(path(d, f'{stroke}"{round(spec.get("fineweight", 1.2) * thin, 2)}"') for d in spec.get('fine', []))
         inner += ''.join(path(d, 'fill="#000000"') for d in spec['ink'])
     if not inner: return ''
     box = spec.get('box', 24)
@@ -197,15 +208,19 @@ def layered(spec, layer, size):
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {box} {box}" width="{size}" height="{size}">{inner}</svg>'
 
 
-def imageset(name, text, template):
-    """One vector image in the app's catalogue."""
+def imageset(name, text, template, dark=None):
+    """One vector image in the app's catalogue, with a second drawing for dark if one is given."""
     import json
     folder = os.path.join(ASSETS, f'{name}.imageset')
     os.makedirs(folder, exist_ok=True)
     open(os.path.join(folder, f'{name}.svg'), 'w').write(text)
     props = {'preserves-vector-representation': True}
     if template: props['template-rendering-intent'] = 'template'
-    json.dump({'images': [{'idiom': 'universal', 'filename': f'{name}.svg'}], 'info': {'author': 'xcode', 'version': 1}, 'properties': props},
+    images = [{'idiom': 'universal', 'filename': f'{name}.svg'}]
+    if dark:
+        open(os.path.join(folder, f'{name}-dark.svg'), 'w').write(dark)
+        images.append({'idiom': 'universal', 'filename': f'{name}-dark.svg', 'appearances': [{'appearance': 'luminosity', 'value': 'dark'}]})
+    json.dump({'images': images, 'info': {'author': 'xcode', 'version': 1}, 'properties': props},
               open(os.path.join(folder, 'Contents.json'), 'w'), indent=2)
 
 
@@ -427,7 +442,8 @@ def main():
             for tag, spec in (('', ICONS[name]), ('-reg', regular(name))):
                 for layer in ('line', 'fill', 'fixed'):
                     text = svg(name, spec=spec, layer=layer)
-                    if text: imageset(f'icon-{name}{tag}-{layer}', text, template=layer != 'fixed')
+                    other = svg(name, spec=spec, layer=layer, ink=DARK) if layer != 'fill' else None
+                    if text: imageset(f'icon-{name}{tag}-{layer}', text, template=layer != 'fixed', dark=other)
         print('installed', len(ICONS) - len(NEW), 'icons')
     grid = ''.join(f'<path d="M{i} 0V24M0 {i}H24" stroke="#C9583F" stroke-width="0.03" opacity=".45"/>' for i in range(25))
     keys = ('<rect x="1" y="1" width="22" height="22" fill="none" stroke="#2A62B8" stroke-width="0.06" stroke-dasharray=".3 .3"/>'
