@@ -933,3 +933,5 @@ Privacy and technical
 - For checking: `-uitest 1 -debugScene 2 -debugHour 13 -debugWeather clear -debugBubbles 1` (bubbles after 2.5 seconds; wake Ollie first, as a sleeping child keeps her indoors).
 - Not built: a friend making bubbles on Today (they have the move; nothing plays it).
 - `docs/previews/puggle-making-bubbles.png`; poses on `docs/previews/bending-arms.png`.
+
+**Grey for Nan and Pop (2026-11-14, open).** Tom asked whether Nan's curls and Pop's tufts should have grey streaks. Four options on `docs/previews/grey-hair.png`: A as now, B a few streaks, C salt and pepper, D all grey. Nothing built.

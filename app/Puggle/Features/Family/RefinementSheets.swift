@@ -86,6 +86,68 @@ enum RefinementSheets {
         tailInMotion(puggle)
         looseEnds(puggle)
         bendingArms(puggle)
+        greyHair()
+    }
+
+    /// Should Nan and Pop be going grey? As now, a few streaks, more streaks, and all grey.
+    private static func greyHair() {
+        let silver = "#D6CDBE", silverLine = "#8F8778"
+        func mirrored(_ d: String) -> String {
+            var out = "", number = "", isX = true
+            func flush() { if !number.isEmpty { out += isX ? "\(240 - (Double(number) ?? 0))" : number; isX.toggle(); number = "" } }
+            for ch in d { if ch.isNumber || ch == "." || ch == "-" { number.append(ch) } else { flush(); out.append(ch) } }
+            flush()
+            return out
+        }
+        func streaked(_ rig: Rig, _ streaks: [String: [String]]) -> Rig {
+            var copy = rig
+            for (id, lines) in streaks {
+                guard let index = copy.parts.firstIndex(where: { $0.id == id }) else { continue }
+                copy.parts[index].shapes += lines.map { Rig.Shape(kind: "path", d: $0, stroke: silver, width: 4.5, cap: "round") }
+            }
+            return copy
+        }
+        func allGrey(_ rig: Rig, _ ids: [String]) -> Rig {
+            var copy = rig
+            for index in copy.parts.indices where ids.contains(where: { copy.parts[index].id == $0 || copy.parts[index].id == $0 + "-top" }) {
+                for shape in copy.parts[index].shapes.indices {
+                    copy.parts[index].shapes[shape].fill = silver
+                    if copy.parts[index].shapes[shape].tint != nil { copy.parts[index].shapes[shape].tint = silverLine }
+                }
+            }
+            return copy
+        }
+        guard let nan = Rig.load("nan"), let pop = Rig.load("pop") else { return }
+        let nanFew = ["curls-top": ["M86 104 Q95 97 104 101", "M138 100 Q148 96 156 104"], "curl-left-top": ["M45 191 Q46 184 54 183"], "curl-right-top": [mirrored("M45 191 Q46 184 54 183")]]
+        let nanMore = ["curls-top": ["M80 112 Q84 102 96 102", "M100 98 Q110 92 120 96", "M124 98 Q134 92 142 98", "M146 104 Q158 102 160 112", "M96 116 Q108 110 120 114", "M124 114 Q136 110 146 116"],
+                       "curl-left-top": ["M45 191 Q46 184 54 183", "M46 198 Q49 200 52 199"], "curl-right-top": [mirrored("M45 191 Q46 184 54 183"), mirrored("M46 198 Q49 200 52 199")]]
+        let popFew = ["tuft-left-top": ["M47 121 L56 124", "M46 141 L56 138"], "tuft-right-top": [mirrored("M47 121 L56 124"), mirrored("M46 141 L56 138")]]
+        let popMore = ["tuft-left-top": ["M46 120 L57 122", "M45 130 L56 130", "M47 141 L57 138"], "tuft-right-top": [mirrored("M46 120 L57 122"), mirrored("M45 130 L56 130"), mirrored("M47 141 L57 138")]]
+        func column(_ name: String, _ rig: Rig) -> some View {
+            VStack(spacing: 6) {
+                RigFrame(rig: rig, states: [:], face: nil)
+                    .frame(width: 210 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 210 * rig.size[1] / 240)
+                    .frame(width: 230, height: 250, alignment: .top).clipped()
+                RigFrame(rig: rig, states: [:], face: nil)
+                    .frame(width: 60 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 60 * rig.size[1] / 240)
+                Text(name).font(.system(size: 12, weight: .medium)).foregroundStyle(note)
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 16) {
+            row("Nan: close up, and at the size she is in the app") {
+                column("A. As now", nan)
+                column("B. A few streaks", streaked(nan, nanFew))
+                column("C. Salt and pepper", streaked(nan, nanMore))
+                column("D. All grey", allGrey(nan, ["curls", "curl-left", "curl-right"]))
+            }
+            row("Pop: his hat is on, so only the cheek tufts show") {
+                column("A. As now", pop)
+                column("B. A few streaks", streaked(pop, popFew))
+                column("C. Salt and pepper", streaked(pop, popMore))
+                column("D. All grey", allGrey(pop, ["tuft-left", "tuft-right"]))
+            }
+        }
+        save(sheet, as: "grey-hair.png")
     }
 
     /// Arms that bend at the elbow: Puggle's new poses, the same on everyone, and in her other clothes.
