@@ -97,6 +97,13 @@ THINGS = ['bottle', 'sleep', 'nappy', 'bath', 'solids', 'potty', 'play', 'milest
 INK = '#3A2A20'
 
 
+# Small changes for the line version only, so features stay legible. The characters themselves are untouched.
+# By character, then by part: 'solid' fills closed lenses, 'down' moves the part down, 'drop' leaves it out.
+OUTLINE = {
+    'nan': {'head-2': {'solid': True, 'down': 5}},     # her bill does not show through her glasses; eyes clear above them
+}
+
+
 def head(name, line, field):
     """A character's head as a line drawing, taken from the app's own rig (never redrawn): every outline in one
     colour, every fill in the field's colour so shapes still sit in front of one another, eyes and nostrils solid."""
@@ -119,7 +126,17 @@ def head(name, line, field):
     out = ''
     for part in rig['parts']:
         if not on_head(part) or not shown(part) or part['id'].startswith('sunnies'): continue
+        tweak = OUTLINE.get(name, {}).get(part['id'], {})
+        if tweak.get('drop'): continue
+        if tweak.get('down'): out += f'<g transform="translate(0 {tweak["down"]})">'
         for shape in part['shapes']:
+            shape = dict(shape)
+            # Legible in line: nostril dots are too small to keep, and eyes are a little larger.
+            if shape['kind'] == 'ellipse' and shape.get('rx', 9) < 2.5: continue
+            if part['id'].startswith('eye-') and shape['kind'] == 'ellipse':
+                shape['rx'], shape['ry'] = shape['rx'] * 1.2, shape.get('ry', shape['rx']) * 1.2
+            # A lens with nothing to see through it is filled, so what is behind does not show.
+            if tweak.get('solid') and not shape.get('fill') and shape.get('d', '').rstrip().endswith('Z'): shape['fill'] = '#FFFFFE'
             fill, stroke = shape.get('fill', '').upper(), shape.get('stroke', '').upper()
             if fill in ('#C27C66', '#EE9C88') and not stroke: continue           # cheeks: left out of a line drawing
             if stroke in ('#B79F8A', '#D6CDBE', '#FFFFFF'): continue             # grey in the hair, a shine: left out
@@ -137,6 +154,7 @@ def head(name, line, field):
                 out += f'<rect x="{shape["x"]}" y="{shape["y"]}" width="{shape["w"]}" height="{shape["h"]}" rx="{shape.get("r", 0)}" {paint}/>'
             else:
                 out += f'<path d="{shape["d"]}" {paint}/>'
+        if tweak.get('down'): out += '</g>'
     return out, parts['head']['pivot'][1] - 62      # and how far down the middle of the head is
 
 
