@@ -629,6 +629,9 @@ def dress_for_weather(name, parts, puggle, shade):
             fist,
             {'kind': 'path', 'd': moved('M26 30 Q32 -44 132 -48 Q232 -44 238 30 Q212 14 185 30 Q158 14 132 28 Q106 14 79 30 Q52 14 26 30 Z', hx - 132, 0),
              'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
+            # Its ribs: a line from the tip down to each point where two scallops meet, as her rain hat has seams.
+            {'kind': 'path', 'd': moved('M132 -45 Q98 -32 79 27 M132 -45 L132 25 M132 -45 Q166 -32 185 27', hx - 132, 0),
+             'stroke': shade(accent), 'width': 3, 'cap': 'round'},
             {'kind': 'path', 'd': f'M{hx:g} -48 L{hx:g} -56', 'stroke': INK, 'tint': shade(accent), 'width': 5, 'cap': 'round'}]})
     return parts
 
