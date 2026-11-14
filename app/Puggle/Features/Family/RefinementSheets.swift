@@ -103,10 +103,18 @@ enum RefinementSheets {
         let options: [(String, Rig)] = [
             ("A. Now", pebble),
             ("B. A soft peak", withHair(bare, ["M103 58 Q102 42 113 33 Q122 25 119 11 Q135 22 133 39 Q131 49 137 58 Z"])),
-            ("C. An open loop", looped("M120 52 Q116 38 124 29 Q135 20 144 29 Q149 40 138 44 Q129 43 131 34", "M121 62 L120 52 ")),
-            ("D. Two curls, parted", withHair(bare, ["M113 58 Q113 45 104 39 Q95 36 94 45 Q103 43 105 58 Z", "M127 58 Q127 45 136 39 Q145 36 146 45 Q137 43 135 58 Z"])),
-            ("E. A little quiff", withHair(bare, ["M99 58 Q96 42 109 37 Q126 32 137 41 Q142 50 133 53 Q134 46 126 45 Q116 46 116 58 Z"])),
             ("F. A sprout of three", withHair(bare, ["M104 58 Q99 45 105 37 Q112 42 113 56 Z", "M111 56 Q111 38 120 29 Q129 38 129 56 Z", "M127 56 Q128 42 135 37 Q141 45 136 58 Z"])),
+            // Three strands swept one way as a wave, each ending in a flick.
+            ("G. Three strands, a wave", withHair(bare, [
+                "M104 58 Q99 40 112 31 Q125 25 135 30 Q141 23 147 25 Q146 34 137 38 Q127 35 121 41 Q117 48 119 58 Z",
+                "M115 58 Q113 47 123 43 Q133 41 140 45 Q146 40 151 42 Q149 50 141 52 Q133 50 129 53 Q127 55 128 58 Z",
+                "M99 58 Q94 49 100 43 Q106 40 111 43 Q105 47 107 58 Z"])),
+            ("H. One wave, three flicks", withHair(bare, [
+                "M99 58 Q94 42 107 35 Q111 27 120 29 Q117 35 122 37 Q128 28 138 31 Q133 37 138 40 Q146 33 153 38 Q147 43 148 49 Q141 55 135 58 Z"])),
+            ("I. Three strands, taller", withHair(bare, [
+                "M106 58 Q98 36 112 24 Q124 16 134 22 Q140 14 147 16 Q147 27 137 31 Q127 27 121 35 Q117 45 120 58 Z",
+                "M116 58 Q113 44 124 39 Q134 36 141 41 Q147 35 153 38 Q151 47 142 49 Q134 46 130 50 Q128 54 129 58 Z",
+                "M100 58 Q93 46 100 38 Q107 34 112 39 Q105 43 108 58 Z"])),
         ]
         func column(_ name: String, _ rig: Rig) -> some View {
             VStack(spacing: 6) {
