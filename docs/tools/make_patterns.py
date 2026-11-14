@@ -138,8 +138,10 @@ def head(name, line, field):
         if tweak.get('down'): out += f'<g transform="translate(0 {tweak["down"]})">'
         for shape in part['shapes']:
             shape = dict(shape)
-            # Legible in line: nostril dots are too small to keep, and eyes are a little larger.
-            if shape['kind'] == 'ellipse' and shape.get('rx', 9) < 2.5: continue
+            # Legible in line: nostril dots are half as big again, so they read as dots and not specks, and eyes
+            # are a little larger.
+            if shape['kind'] == 'ellipse' and shape.get('rx', 9) < 2.5:
+                shape['rx'], shape['ry'] = shape['rx'] * 1.5, shape.get('ry', shape['rx']) * 1.5
             if part['id'].startswith('eye-') and shape['kind'] == 'ellipse':
                 shape['rx'], shape['ry'] = shape['rx'] * 1.2, shape.get('ry', shape['rx']) * 1.2
             # A lens with nothing to see through it is filled, so what is behind does not show.
