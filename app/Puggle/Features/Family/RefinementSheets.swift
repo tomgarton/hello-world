@@ -72,6 +72,126 @@ enum RefinementSheets {
         eyesLead(puggle)
         hop(puggle)
         pair(puggle)
+        tuftAndPoses(puggle)
+    }
+
+    // MARK: 8. A tuft of hair, and arms that bend
+
+    private static let dark = "#3A2A20", fur = "#8A5A3C", furLine = "#5E3A24", sleeve = "#2A62B8", sleeveLine = "#1B4387"
+
+    /// Three short locks on top of her head, drawn behind it so they grow out of the outline.
+    private static func withTuft(_ rig: Rig) -> Rig {
+        var copy = rig
+        guard let head = copy.parts.firstIndex(where: { $0.id == "head" }) else { return rig }
+        var locks: [Rig.Shape] = []
+        for d in ["M110 54 Q103 38 113 31", "M121 52 Q120 33 130 27", "M131 54 Q137 42 145 40"] {
+            locks.append(Rig.Shape(kind: "path", d: d, stroke: dark, tint: furLine, width: 12, cap: "round"))
+        }
+        for d in ["M110 54 Q103 38 113 31", "M121 52 Q120 33 130 27", "M131 54 Q137 42 145 40"] {
+            locks.append(Rig.Shape(kind: "path", d: d, stroke: fur, width: 5, cap: "round"))
+        }
+        copy.parts[head].shapes.insert(contentsOf: locks, at: 0)
+        return copy
+    }
+
+    /// An arm as one curve from the shoulder, through an elbow, to wherever the hand needs to be.
+    private static func arm(from shoulder: CGPoint, elbow: CGPoint, hand: CGPoint) -> [Rig.Shape] {
+        let dx = hand.x - elbow.x, dy = hand.y - elbow.y, length = max(hypot(dx, dy), 1)
+        let ux = dx / length, uy = dy / length
+        func point(_ p: CGPoint) -> String { "\(Double(p.x).formatted(.number.precision(.fractionLength(1)))) \(Double(p.y).formatted(.number.precision(.fractionLength(1))))" }
+        let start = "M\(point(shoulder)) Q\(point(elbow)) "
+        let short = CGPoint(x: hand.x - ux * 7, y: hand.y - uy * 7)
+        let cuff = CGPoint(x: hand.x - ux * 14, y: hand.y - uy * 14)
+        return [
+            Rig.Shape(kind: "path", d: start + point(short), stroke: dark, tint: sleeveLine, width: 34, cap: "round"),
+            Rig.Shape(kind: "path", d: start + point(hand), stroke: sleeve, width: 22, cap: "round"),
+            Rig.Shape(kind: "path", d: "M\(point(CGPoint(x: cuff.x - uy * 11, y: cuff.y + ux * 11))) L\(point(CGPoint(x: cuff.x + uy * 11, y: cuff.y - ux * 11)))",
+                      stroke: dark, tint: sleeveLine, width: 4, cap: "round"),
+            Rig.Shape(kind: "ellipse", x: hand.x, y: hand.y, rx: 12.5, ry: 12.5, fill: fur, stroke: dark, tint: furLine, width: 5),
+        ]
+    }
+
+    /// Puggle with her arms bent to these points, something held if given, and her arms in front of her head if they reach it.
+    private static func posed(_ rig: Rig, left: (CGPoint, CGPoint)?, right: (CGPoint, CGPoint)?, held: [Rig.Shape] = [], overHead: Bool = false) -> Rig {
+        var copy = rig
+        for (id, bend, shoulder) in [("arm-left", left, CGPoint(x: 88, y: 178)), ("arm-right", right, CGPoint(x: 152, y: 178))] {
+            guard let bend, let index = copy.parts.firstIndex(where: { $0.id == id }) else { continue }
+            copy.parts[index].shapes = arm(from: shoulder, elbow: bend.0, hand: bend.1)
+            copy.parts[index].spring = 0
+        }
+        if !held.isEmpty, let index = copy.parts.firstIndex(where: { $0.id == "arm-left" }) {
+            copy.parts.insert(Rig.Part(id: "held", parent: "upper", pivot: [120, 220], shapes: held), at: index)
+        }
+        if overHead {
+            for id in ["arm-left", "arm-right"] {
+                guard let index = copy.parts.firstIndex(where: { $0.id == id }) else { continue }
+                copy.parts.append(copy.parts.remove(at: index))
+            }
+        }
+        return copy
+    }
+
+    private static var rabbit: [Rig.Shape] {
+        let cloth = "#FBF3E2", line = "#B9AE98"
+        return [
+            Rig.Shape(kind: "ellipse", x: 112, y: 186, rx: 5, ry: 13, rotate: -8, fill: cloth, stroke: dark, tint: line, width: 4),
+            Rig.Shape(kind: "ellipse", x: 128, y: 186, rx: 5, ry: 13, rotate: 10, fill: cloth, stroke: dark, tint: line, width: 4),
+            Rig.Shape(kind: "ellipse", x: 120, y: 232, rx: 15, ry: 15, fill: cloth, stroke: dark, tint: line, width: 4),
+            Rig.Shape(kind: "ellipse", x: 120, y: 207, rx: 16, ry: 14, fill: cloth, stroke: dark, tint: line, width: 4),
+            Rig.Shape(kind: "ellipse", x: 114, y: 205, rx: 1.9, ry: 1.9, fill: dark),
+            Rig.Shape(kind: "ellipse", x: 126, y: 205, rx: 1.9, ry: 1.9, fill: dark),
+            Rig.Shape(kind: "ellipse", x: 120, y: 210, rx: 2, ry: 1.5, fill: "#F2A48E"),
+        ]
+    }
+
+    private static var book: [Rig.Shape] {
+        [
+            Rig.Shape(kind: "path", d: "M78 198 L120 205 L162 198 L162 240 L120 247 L78 240 Z", fill: "#E5553B", stroke: dark, tint: "#B23A26", width: 5),
+            Rig.Shape(kind: "path", d: "M120 205 L120 247", stroke: "#B23A26", width: 3, cap: "round"),
+            Rig.Shape(kind: "path", d: "M82 196 L120 202 L158 196", stroke: "#FBF6E9", width: 4, cap: "round"),
+            Rig.Shape(kind: "ellipse", x: 141, y: 222, rx: 8, ry: 8, fill: "#F4BE2C"),
+        ]
+    }
+
+    private static func tuftAndPoses(_ puggle: Rig) {
+        let tufted = withTuft(puggle)
+        func mark(_ text: String) -> some View {
+            Text(text).font(.system(size: 30, weight: .heavy, design: .rounded)).foregroundStyle(Color(hex: 0xF4BE2C))
+        }
+        func figure(_ rig: Rig, _ states: [String: PartState] = [:], face: [String: String]? = nil, _ caption: String, mark text: String? = nil) -> some View {
+            VStack(spacing: 6) {
+                ZStack(alignment: .topTrailing) {
+                    RigFrame(rig: rig, states: states, face: face).frame(width: 152, height: 190)
+                    if let text { mark(text).offset(x: 8, y: -4) }
+                }
+                Text(caption).font(.system(size: 12, weight: .medium)).foregroundStyle(note).multilineTextAlignment(.center).frame(width: 160)
+            }
+        }
+        func p(_ x: CGFloat, _ y: CGFloat) -> CGPoint { CGPoint(x: x, y: y) }
+        let wide = state(sx: 1.18, sy: 1.18)
+        let sheet = VStack(alignment: .leading, spacing: 20) {
+            row("A tuft of hair: does it help her stand apart from Mum and Dad?") {
+                figure(puggle, [:], "Now")
+                figure(tufted, [:], "With a tuft")
+                figure(silhouette(puggle), [:], "Now, as a shape")
+                figure(silhouette(tufted), [:], "With a tuft, as a shape")
+            }
+            row("Arms that bend: what she could do, in her own style. No mouth, always facing you") {
+                figure(posed(tufted, left: nil, right: (p(204, 206), p(163, 176)), overHead: true),
+                       ["head": state(r: 6), "eye-left": state(x: 3, y: -3), "eye-right": state(x: 3, y: -3), "clip": state(r: 5)],
+                       "Thinking: a hand to her chin", mark: "?")
+                figure(posed(tufted, left: (p(52, 228), p(100, 226)), right: (p(188, 228), p(140, 226)), held: rabbit),
+                       ["head": state(r: -5), "blush": state(sx: 1.14, sy: 1.14)], face: ["eyes": "happy", "cheeks": "shy"],
+                       "Hugging her rabbit")
+                figure(posed(tufted, left: (p(56, 206), p(80, 224)), right: (p(184, 206), p(160, 224)), held: book),
+                       ["head": state(y: 4), "eye-left": state(y: 3.5), "eye-right": state(y: 3.5)],
+                       "Reading: eyes down on the book")
+                figure(posed(tufted, left: (p(38, 196), p(62, 154)), right: (p(202, 196), p(178, 154)), overHead: true),
+                       ["eye-left": wide, "eye-right": wide, "brow-left": state(y: -4), "brow-right": state(y: -4), "upper": state(sy: 1.03)],
+                       face: ["eyes": "open", "brows": "on"], "Surprised: hands to her cheeks", mark: "!!")
+            }
+        }
+        save(sheet, as: "refine-8-tuft-and-arms.png")
     }
 
     // MARK: 1. The model sheet, as numbers
