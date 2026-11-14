@@ -944,6 +944,23 @@ def older(name, parts):
     return parts
 
 
+def spectacles(name, parts):
+    """Nan's glasses are red and Pop's are green, round, with no glass in them and a frame thick enough to read when small.
+    The colours are one step off the brand's red and green (#E5543B, #3C9B5F), so that swapping a garment's colour
+    for another never repaints the glasses with it."""
+    colour = {'nan': '#E5543B', 'pop': '#3C9B5F'}[name]
+    glasses = next(p for p in parts if p['id'] == 'head-2')
+    kept = []
+    for shape in glasses['shapes']:
+        if shape.get('stroke', '').upper() == '#FFFFFF': continue   # the shine on the glass
+        shape.pop('fill', None)
+        shape['tint'] = colour
+        shape['width'] = 6.5
+        kept.append(shape)
+    glasses['shapes'] = kept
+    return parts
+
+
 def build(name, svg, height, about, shade, moves, puggle, variant=''):
     grown = height > 400
     if grown:
@@ -1088,6 +1105,7 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
     parts = dress_for_weather(name, parts, puggle, shade)
     parts = finish_hats(name, parts)
     if name in ('nan', 'pop'): parts = older(name, parts)
+    if name in ('nan', 'pop'): parts = spectacles(name, parts)
     # Arms that bend at the elbow, and a book to hold. Pebble is too small to read, and has his bottle.
     parts = bend_arms.bend(parts)
     if name != 'pebble': parts = bend_arms.hold(parts, bend_arms.book(parts))

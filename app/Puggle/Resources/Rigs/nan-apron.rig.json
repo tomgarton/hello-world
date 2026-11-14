@@ -981,10 +981,9 @@
      "y": 196.0,
      "rx": 14.0,
      "ry": 14.0,
-     "fill": "#DCEEFB",
      "stroke": "#3A2A20",
-     "width": 5.0,
-     "tint": "#5E707E"
+     "width": 6.5,
+     "tint": "#E5543B"
     },
     {
      "kind": "ellipse",
@@ -992,40 +991,25 @@
      "y": 196.0,
      "rx": 14.0,
      "ry": 14.0,
-     "fill": "#DCEEFB",
      "stroke": "#3A2A20",
-     "width": 5.0,
-     "tint": "#5E707E"
-    },
-    {
-     "kind": "path",
-     "d": "M85 190 Q89 185 95 184",
-     "stroke": "#FFFFFF",
-     "width": 3.0,
-     "cap": "round"
-    },
-    {
-     "kind": "path",
-     "d": "M139 190 Q143 185 149 184",
-     "stroke": "#FFFFFF",
-     "width": 3.0,
-     "cap": "round"
+     "width": 6.5,
+     "tint": "#E5543B"
     },
     {
      "kind": "path",
      "d": "M107 204 Q120 198 133 204",
      "stroke": "#3A2A20",
-     "width": 5.0,
+     "width": 6.5,
      "cap": "round",
-     "tint": "#5E707E"
+     "tint": "#E5543B"
     },
     {
      "kind": "path",
      "d": "M79 202 L56 196 M161 202 L184 196",
      "stroke": "#3A2A20",
-     "width": 5.0,
+     "width": 6.5,
      "cap": "round",
-     "tint": "#5E707E"
+     "tint": "#E5543B"
     }
    ]
   },

@@ -103,6 +103,12 @@ enum RefinementSheets {
             case "cat":
                 let o = out
                 return Rig.Shape(kind: "path", d: "M\(n(x - o * 13)) \(n(y - 8)) L\(n(x + o * 8)) \(n(y - 10)) L\(n(x + o * 19)) \(n(y - 15)) Q\(n(x + o * 19)) \(n(y + 8)) \(n(x + o * 6)) \(n(y + 11)) L\(n(x - o * 6)) \(n(y + 11)) Q\(n(x - o * 15)) \(n(y + 9)) \(n(x - o * 13)) \(n(y - 8)) Z")
+            case "aviator":
+                // A teardrop: flat across the top, drooping towards the cheek.
+                let o = out
+                return Rig.Shape(kind: "path", d: "M\(n(x - o * 14)) \(n(y - 9)) Q\(n(x)) \(n(y - 12)) \(n(x + o * 16)) \(n(y - 9)) Q\(n(x + o * 19)) \(n(y + 6)) \(n(x + o * 5)) \(n(y + 14)) Q\(n(x - o * 11)) \(n(y + 15)) \(n(x - o * 14)) \(n(y - 9)) Z")
+            case "heart":
+                return Rig.Shape(kind: "path", d: "M\(n(x)) \(n(y + 13)) C\(n(x - 22)) \(n(y - 1)) \(n(x - 11)) \(n(y - 17)) \(n(x)) \(n(y - 6)) C\(n(x + 11)) \(n(y - 17)) \(n(x + 22)) \(n(y - 1)) \(n(x)) \(n(y + 13)) Z")
             default: return Rig.Shape(kind: "ellipse", x: x, y: y, rx: 14.5, ry: 14.5)
             }
         }
@@ -200,6 +206,53 @@ enum RefinementSheets {
             line("2 again, in the heat: with sun hats and zinc", 1, outfit: "sun")
         }
         save(sunnies, as: "sunglasses.png")
+
+        // Styles of sunglasses, all with lenses you cannot see through: dark, or a flat silver mirror with two glints.
+        let night = "#1B2440", mirror = "#C5D2DE", glint = "#F3F7FA", metal = "#8491A0"
+        struct Style { let name: String; let shape: String; let lens: String; let frame: String?; let wide: Double; let shine: Bool; let twin: Bool }
+        let styles = [
+            Style(name: "Round, dark", shape: "round", lens: night, frame: nil, wide: 5.5, shine: false, twin: false),
+            Style(name: "Aviator, mirror", shape: "aviator", lens: mirror, frame: metal, wide: 3.5, shine: true, twin: true),
+            Style(name: "Aviator, dark", shape: "aviator", lens: night, frame: "#D9A441", wide: 3.5, shine: false, twin: true),
+            Style(name: "Round, mirror", shape: "round", lens: mirror, frame: nil, wide: 5.5, shine: true, twin: false),
+            Style(name: "Soft square, dark", shape: "square", lens: night, frame: nil, wide: 5.5, shine: false, twin: false),
+            Style(name: "Hearts, dark", shape: "heart", lens: night, frame: nil, wide: 5, shine: false, twin: false),
+        ]
+        func styled(_ name: String, _ accent: String, _ style: Style) -> Rig? {
+            guard var rig = Rig.load(name), let eye = rig.parts.first(where: { $0.id == "eye-left" }) else { return nil }
+            let x = Double(eye.pivot[0]), y = Double(eye.pivot[1]) + (style.shape == "aviator" ? 2 : 0), other = 240 - x
+            var shapes = frames(style.shape, x: x, y: y, colour: style.frame ?? accent, glass: style.lens, wide: style.wide)
+            if style.twin {
+                // The second bar across the top of an aviator's bridge.
+                shapes.append(Rig.Shape(kind: "path", d: "M\(n(x + 13)) \(n(y - 8)) L\(n(other - 13)) \(n(y - 8))", stroke: dark, tint: style.frame ?? accent, width: style.wide, cap: "round"))
+            }
+            if style.shine {
+                for cx in [x, other] {
+                    shapes.append(Rig.Shape(kind: "path", d: "M\(n(cx - 8)) \(n(y + 2)) L\(n(cx)) \(n(y - 7))", stroke: glint, width: 3.2, cap: "round"))
+                    shapes.append(Rig.Shape(kind: "path", d: "M\(n(cx - 1)) \(n(y + 5)) L\(n(cx + 5)) \(n(y - 2))", stroke: glint, width: 2.2, cap: "round"))
+                }
+            }
+            let last = rig.parts.lastIndex(where: { $0.id.hasPrefix("eye") }) ?? 0
+            rig.parts.insert(Rig.Part(id: "sunnies", parent: "head", pivot: [120, CGFloat(y)], shapes: shapes), at: last + 1)
+            return rig
+        }
+        let wearers: [(String, String)] = [("puggle", "#E5553B"), ("kip", "#2A62B8"), ("digby", "#F4BE2C"), ("sunny", "#E5553B"), ("quill", "#3C9A5F"), ("mum", "#F4BE2C"), ("dad", "#3C9A5F"), ("pebble", "#F4BE2C")]
+        let looks = VStack(alignment: .leading, spacing: 10) {
+            ForEach(styles.indices, id: \.self) { i in
+                row(styles[i].name) {
+                    HStack(alignment: .bottom, spacing: 0) {
+                        ForEach(wearers, id: \.0) { who in
+                            if let rig = styled(who.0, who.1, styles[i]) {
+                                RigFrame(rig: rig, states: [:], face: nil)
+                                    .frame(width: 128 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 128 * rig.size[1] / 240)
+                                    .frame(height: 128 * 300 / 240 + 6, alignment: .top).clipped()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        save(looks, as: "sunglasses-styles.png")
     }
 
     /// Nan and Pop as built: warmer, lighter fur with a lighter line, and grey dashes scattered through their hair.

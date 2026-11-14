@@ -841,8 +841,8 @@
      "rx": 15.0,
      "ry": 15.0,
      "stroke": "#3A2A20",
-     "width": 5.0,
-     "tint": "#465668"
+     "width": 6.5,
+     "tint": "#3C9B5F"
     },
     {
      "kind": "ellipse",
@@ -851,24 +851,24 @@
      "rx": 15.0,
      "ry": 15.0,
      "stroke": "#3A2A20",
-     "width": 5.0,
-     "tint": "#465668"
+     "width": 6.5,
+     "tint": "#3C9B5F"
     },
     {
      "kind": "path",
      "d": "M103 117 Q120 110 137 117",
      "stroke": "#3A2A20",
-     "width": 5.0,
+     "width": 6.5,
      "cap": "round",
-     "tint": "#465668"
+     "tint": "#3C9B5F"
     },
     {
      "kind": "path",
      "d": "M73 115 L52 109 M167 115 L188 109",
      "stroke": "#3A2A20",
-     "width": 5.0,
+     "width": 6.5,
      "cap": "round",
-     "tint": "#465668"
+     "tint": "#3C9B5F"
     }
    ]
   },
