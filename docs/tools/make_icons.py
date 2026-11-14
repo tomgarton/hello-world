@@ -130,7 +130,7 @@ def svg(name, ink=INK, plain=False, size=24, spec=None):
     stroke = '#000000' if plain else ink
     inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{spec.get("weight", W)}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec['lines'])
     # Fine lines (1.5 points) are for a closed eye inside a small head, and nothing else.
-    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{spec.get("fineweight", 1.5)}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec.get('fine', []))
+    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{spec.get("fineweight", 1.2)}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec.get('fine', []))
     inner += ''.join(fill(d, ink, solid=True) for d in spec['ink'])
     if spec['turn']: inner = f'<g transform="rotate({spec["turn"]} 12 12)">{inner}</g>'
     box = spec.get('box', 24)
@@ -173,7 +173,9 @@ def head(cx, cy, r, toward):
 
 
 def eye(x, y, w=1.3):
-    return f'M{x - w} {y}Q{x} {y + w} {x + w} {y}'
+    # A half circle, a little wider than asked: any shorter and the round ends make it a bean.
+    w *= 1.25
+    return f'M{x - w} {y}A{w} {w} 0 0 0 {x + w} {y}'
 
 
 def ear(x, y, side=1):
@@ -284,7 +286,7 @@ DETAIL = {
     'vaccine': dict(fine=['M13 9.5H15M13 12H15M13 14.5H15'], note='Marks on the barrel.'),
     'teeth': dict(fine=['M6.5 8C6.5 6.8 7.2 6 8.3 6'], note='A highlight.'),
     'milestone': dict(ink=[sparkle(20, 17.5, 1.7)], note='A third sparkle.'),
-    'tummy-time': dict(fine=['M17.4 9.3Q18.2 10.1 19 9.3', 'M5.5 16H10'], note='A closed eye, and a fold in the blanket.'),
+    'tummy-time': dict(fine=['M16.9 9.1A1.3 1.3 0 0 0 19.5 9.1', 'M5.5 16H10'], note='A closed eye, and a fold in the blanket.'),
     'play': dict(fine=[circle(12, 6.5, 1.5), 'M4.8 17.8H7.8M6.3 16.3V19.3', 'M17.8 19.3L16 16.3H19.6Z'], note='A shape on each block.'),
     'walk': dict(fine=['M10 10.5L5.4 5.9', 'M6.5 15.5V18.5M13.5 15.5V18.5'], note='A rib in the hood, and legs to the wheels.'),
     'note': dict(fine=['M8.5 8.5H11'], note='A third line of writing.'),
