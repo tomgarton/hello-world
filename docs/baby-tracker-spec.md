@@ -1113,3 +1113,5 @@ Tom decided: yellow is the default; Settings can change it to a colour of your c
 - Not done: the breastfeeding choices still use blue for blankets and are not in the app; poo and wee are not in the app; the seven new large designs have not been carried down to the smaller sizes.
 
 Potty, all three sizes (14 November 2026). Tom pointed out the full sheets still showed the potty without its raised front. The small and regular drawings now have it too: the front of the seat swells up in the middle, in front of the opening. The large one's yellow seat no longer shows under the raised bit. Sheets re-rendered: `sizes.png`, `large.png`, `refined.png`. The app has the new small and regular potty.
+
+Tooth and poo, large (14 November 2026): Tom took the eyes and smile off both. The tooth is back to its highlight and yellow dot; the poo keeps its folds and shine marks. The only faces left in the library are closed eyes on babies and parents.

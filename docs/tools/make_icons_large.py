@@ -107,7 +107,7 @@ LARGE = {
     'temperature': (doubled('temperature'), False),
     'medicine': (doubled('medicine'), False),
     'vaccine': (doubled('vaccine'), False),
-    'teeth': (doubled('teeth', only_fine=[eye(18, 24, up=True), eye(29, 24, up=True)]), False),
+    'teeth': (doubled('teeth'), False),
     'milestone': (doubled('milestone'), False),
     'tummy-time': (drawn([circle(30, 17, 9), 'M21.6 13.8C27 15 33 13.5 36 10.3', BODY],
                          fine=[eye(31.5, 19.5), 'M24 18.5q-1.8 1.7 0 3.4', 'M27 36.5C27 33.2 29 31 31.5 30.4'],
@@ -123,7 +123,8 @@ LARGE = {
     'walk': (doubled('walk', fine=['M20 21L9 16.5']), False),
     'note': (doubled('note'), False),
     'photo': (doubled('photo'), False),
-    'poo': (drawn([POO2, 'M17 20H24'], fine=[eye(18, 34.5), eye(30, 34.5), 'M22 38.8A2 2 0 0 0 26 38.8', 'M33.5 9L35.5 5.5M36.5 12.5L40 10.5'],
+    # No face: Tom took the eyes and smile off the poo and the tooth.
+    'poo': (drawn([POO2, 'M17 20H24M12.4 31H22'], fine=['M33.5 9L35.5 5.5M36.5 12.5L40 10.5'],
                   tint=[(POO2, '#C99668')]), True),
     'wee': (doubled('wee'), False),
 }
