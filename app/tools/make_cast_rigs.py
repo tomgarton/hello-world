@@ -41,7 +41,7 @@ def drawings():
         'pop': ({'': adult('#BFD9F5', 'pop')}, 456, '#BFD9F5', ['#F3D9C9', '#F4E7B0', '#CFE5D2'],
                 "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan."),
         'pebble': ({'': baby('neutral', '#F4BE2C')}, 270, '#F4BE2C', ['#BFD9F5', '#CFE5D2', '#F3D9C9'],
-                   "Pebble: Puggle's baby sibling, about six months, sitting with a bottle. A Kewpie curl."),
+                   "Pebble: Puggle's baby brother, about six months, sitting with a bottle. A round curl."),
         'quill': ({'': quill('dungarees'), 'jumper': quill('jumper'), 'tee': quill('tee')}, 300, '#E5553B', ['#2A62B8', '#3C9A5F', '#F4BE2C'],
                   "Quill: an echidna, Puggle's friend. The spines are the signature."),
         'kip': ({'': kip('dress'), 'dungarees': kip('dungarees'), 'jumper': kip('jumper')}, 300, '#F4BE2C', ['#E5553B', '#3C9A5F', '#F3D9C9'],
@@ -577,7 +577,7 @@ def join_to_head(name, parts):
         pts = [(float(a), float(b)) for a, b in re.findall(r'(-?[\d.]+) (-?[\d.]+)', skull['d'])]
         centre = ((min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2)
     if name == 'pebble':
-        # Her curl was a wire: a dark line with a thread of fur in it. Drawn as a lock, like Puggle's lick,
+        # His curl was a wire: a dark line with a thread of fur in it. Drawn as a lock, like Puggle's lick,
         # it is fur with the head's line: a stem that rolls over into a round end, with fur over the seam.
         top = by_id['head-2']
         top.update(id='curl', pivot=[118, 54], spring=110)
