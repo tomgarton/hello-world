@@ -92,7 +92,7 @@ PATTERNS = {
 # ---------- Outline patterns: the cast's heads and the app's line icons, drawn in one line ----------
 RIGS = os.path.join(HERE, '..', '..', 'app', 'Puggle', 'Resources', 'Rigs')
 ICONS = os.path.join(HERE, '..', '..', 'app', 'Puggle', 'Resources', 'Assets.xcassets')
-CAST = ['puggle', 'kip', 'quill', 'digby', 'sunny', 'pebble', 'mum', 'pop']
+CAST = ['puggle', 'kip', 'quill', 'digby', 'sunny', 'dad', 'mum', 'pop']    # the eight that differ most in outline
 THINGS = ['bottle', 'sleep', 'nappy', 'bath', 'solids', 'potty', 'play', 'milestone']
 INK = '#3A2A20'
 
@@ -105,6 +105,7 @@ def head(name, line, field):
     parts = {p['id']: p for p in rig['parts']}
     face = dict(rig.get('face') or {}, outfit='none', shades='none')
     def on_head(part):
+        if part['id'] == 'head': return True    # Puggle's head shape is on the head part itself
         while part.get('parent'):
             if part['parent'] == 'head': return True
             part = parts[part['parent']]
@@ -123,7 +124,7 @@ def head(name, line, field):
             if fill == '#C27C66' and not stroke: continue                     # cheeks: left out of a line drawing
             if stroke and stroke != INK: continue                              # grey in the hair, a shine: left out
             paint = f'fill="{line if fill == INK else field if fill else "none"}"'
-            if stroke: paint += f' stroke="{line}" stroke-width="{shape.get("width", 1)}" stroke-linejoin="round" stroke-linecap="{shape.get("cap", "butt")}"'
+            if stroke: paint += f' stroke="{line}" stroke-width="{round(shape.get("width", 1) * 1.3, 1)}" stroke-linejoin="round" stroke-linecap="{shape.get("cap", "butt")}"'
             turn = f' transform="rotate({shape["rotate"]} {shape["x"]} {shape["y"]})"' if shape.get('rotate') else ''
             if shape['kind'] == 'ellipse':
                 out += f'<ellipse cx="{shape["x"]}" cy="{shape["y"]}" rx="{shape["rx"]}" ry="{shape.get("ry", shape["rx"])}" {paint}{turn}/>'
@@ -139,6 +140,7 @@ def icon(name, line):
     import re
     svg = open(os.path.join(ICONS, f'icon-{name}-plain.imageset', f'icon-{name}-plain.svg')).read()
     inner = svg[svg.index('>') + 1:svg.rindex('</svg>')]
+    inner = inner.replace('stroke-width="1.4"', 'stroke-width="1.7"')
     return re.sub(r'#000000|#000\b', line, inner)
 
 
@@ -152,7 +154,7 @@ def grid(cell, corners, middles, cols=4, rows=2):
     return cell * cols, cell * rows, [(kind, x, y, size, 0, tone) for (kind, size, tone, x, y) in marks]
 
 
-HEADS = [(f'face:{n}', 0.3, 'dd') for n in CAST]
+HEADS = [(f'face:{n}', 0.32, 'dd') for n in CAST]
 ITEMS = [(f'icon:{n}', 1.9, 'dd') for n in THINGS]
 PATTERNS.update({
     'faces': named(grid(104, HEADS[:4], HEADS[4:]), 'The cast\'s heads in one line, taken from the app\'s own drawings.', 'shell'),
@@ -182,7 +184,7 @@ def tile(name, field, dark=False):
             art = made.setdefault(shape, icon(what, colour))
             reach, at = 14 * size, f'scale({size}) translate(-12 -12)'
         elif kind == 'line':
-            art = f'<path d="{SHAPES[what]}" fill="none" stroke="{colour}" stroke-width="1.3" stroke-linejoin="round"/>'
+            art = f'<path d="{SHAPES[what]}" fill="none" stroke="{colour}" stroke-width="1.6" stroke-linejoin="round"/>'
             reach, at = 14 * size, f'scale({size}) translate(-12 -12)'
         else:
             art = f'<path d="{SHAPES[shape]}" fill="{colour}"/>'
@@ -197,11 +199,17 @@ def tile(name, field, dark=False):
     return f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}">{out}</svg>'
 
 
-def css(name, field, scale=1.0, dark=False):
+def css(name, field, scale=1.0, dark=False, drift=True):
     """The pattern as a CSS background, for mock-ups."""
-    w, h = PATTERNS[name][0], PATTERNS[name][1]
+    w, h = PATTERNS[name][0] * scale, PATTERNS[name][1] * scale
+    # The repeat drifts slowly down and to the right, one whole tile at a time so it never jumps: about 6 points
+    # a second. The page needs the DRIFT keyframes below.
+    move = f"--tx:{w:g}px;--ty:{h:g}px;animation:drift {(w * w + h * h) ** 0.5 / 6:.1f}s linear infinite;" if drift else ''
     return (f"background-color:{(DARK if dark else FIELDS)[field]['f']};background-image:url('data:image/svg+xml,{urllib.parse.quote(tile(name, field, dark))}');"
-            f"background-size:{w * scale:g}px {h * scale:g}px")
+            f"background-size:{w:g}px {h:g}px;{move}")
+
+
+DRIFT = '@keyframes drift{to{background-position:var(--tx) var(--ty)}}@media (prefers-reduced-motion: reduce){*{animation:none!important}}'
 
 
 def main():
@@ -223,7 +231,7 @@ h1{{font-size:32px;margin:0 0 4px;letter-spacing:-.02em}}.lede{{color:#6B5E52;fo
 .swatch{{height:250px;border-radius:22px}}.small{{height:84px;border-radius:16px;margin-top:10px}}
 .ways{{display:flex;gap:6px;margin-top:10px}}.chip{{flex:1;height:38px;border-radius:10px}}
 h3{{margin:12px 0 4px;font-size:17px}}p{{margin:0 0 4px}}.q{{color:#6B5E52;font-size:13.5px}}
-</style></head><body><h1>Repeat patterns, light and dark</h1>
+{DRIFT}</style></head><body><h1>Repeat patterns, light and dark</h1>
 <p class="lede">Twelve repeats on one rule: evenly spaced, everything large and all one size, tone on tone. Eight are made from the brand's soft shapes. Four are outlines: the cast's heads, the app's line icons, both together, and the shapes in line. For each: light, then dark, then all six colours in both. Nothing is dark in light mode.</p>
 <div class="grid">{cells}</div></body></html>'''
     with open(os.path.join(OUT, 'repeats.html'), 'w') as out: out.write(html)
