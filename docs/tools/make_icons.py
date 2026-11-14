@@ -146,7 +146,74 @@ def from_file(path):
 PLAIN_BREAST = icon([BREAST], wattle=[circle(16, 15, 2.5)], ink=[circle(16, 15, 1)])
 
 
+# Other ways to draw breastfeeding (14 November 2026). The app is meant for families anywhere, and a bare breast
+# is not welcome on every phone, nor is one skin tone everyone's. So the icon becomes a choice. Nothing here is
+# in the app yet.
+SIDE = 'M5.5 2.5C9 4 11.5 7 12.5 11.5C13 16 10.5 21.5 7 21.5C4 21.5 2 18.5 2 14.5C2 10 4.5 6.5 5.5 2.5Z'
+WRAP = 'M21 13.5C21.3 18 18.5 21.5 14.5 21.5C12.6 21.5 10.8 21.2 9.4 20.5'
+HOLD = 'M5.3 9C3.5 10.8 2.5 13.5 2.5 17V19A2.5 2.5 0 0 0 5 21.5H14.5C17 21.5 18.6 19.8 18.3 16.9'
+BIG_DROP = 'M12 2C16 7 20.5 10.5 20.5 15A8.5 8.5 0 0 1 3.5 15C3.5 10.5 8 7 12 2Z'
+HEART = 'M12 21C7 17.5 2 13.5 2 8.5A5 5 0 0 1 12 6.5A5 5 0 0 1 22 8.5C22 13.5 17 17.5 12 21Z'
+TONES = [('#F3D9C9', '#C27C66'), ('#E9C4A2', '#B0704F'), ('#CF9B6E', '#8E5637'), ('#A06D49', '#6B3F28'), ('#74492F', '#4A2A1B')]
+
+
+def breast(tone, areola):
+    return icon([BREAST], tint=[(BREAST, tone), (circle(16, 15, 2.5), areola)])
+
+
+def nursing(tone):
+    return icon([SIDE, circle(17.5, 12, 3.5), WRAP],
+                sky=[WRAP + 'C11.2 19 12.5 16.5 14.1 13A3.5 3.5 0 0 0 21 13.5Z'], tint=[(SIDE, tone), (circle(17.5, 12, 3.5), tone)])
+
+
+ALTERNATES = {
+    'breast': (ICONS['breastfeed'], 'Breast', 'As now. The plainest, and the one most likely to be unwelcome somewhere.'),
+    'nursing': (nursing('#F3D9C9'), 'Breast and baby', 'The baby is latched, so the nipple is covered. Still plainly a breast.'),
+    'held': (icon([circle(8.5, 6.5, 4), circle(14.5, 15.5, 4), HOLD, 'M11.6 9.1V12.7'],
+                  sky=[HOLD + 'A4 4 0 1 1 11.6 12.7V9.1A4 4 0 0 1 5.3 9Z'], wattle=[circle(14.5, 15.5, 4)]),
+             'Parent and baby', 'No breast and no skin colour: a parent holding a baby close. Suits any family, anywhere.'),
+    'drop': (icon([BIG_DROP, circle(13, 12.5, 3), 'M3.8 17C7 14.5 9.5 19.5 13.5 18.5C16.5 17.8 18 15.5 20.3 16.5'],
+                   sky=['M3.8 17C7 14.5 9.5 19.5 13.5 18.5C16.5 17.8 18 15.5 20.3 16.5A8.5 8.5 0 0 1 3.8 17Z'], wattle=[circle(13, 12.5, 3)]),
+             'Milk drop', 'A baby tucked up inside a drop of milk. No breast and no skin colour.'),
+    'heart': (icon([HEART, circle(12.5, 11, 3), 'M4 13.5C7 12 9.5 17 13 16.5C16 16 17.5 13.5 20 13.5'],
+                    sky=['M4 13.5C7 12 9.5 17 13 16.5C16 16 17.5 13.5 20 13.5C18 16.5 15 19 12 21C9 19 6 16.5 4 13.5Z'], wattle=[circle(12.5, 11, 3)]),
+              'Heart', 'The same, in a heart. Reads as love more than feeding.'),
+}
+
+
+def alternates():
+    folder = os.path.join(OUT, 'v2', 'breastfeeding')
+    os.makedirs(folder, exist_ok=True)
+    art = lambda spec, **k: svg('x', spec=spec, **k)
+    cells = ''
+    for key, (spec, title, text) in ALTERNATES.items():
+        open(os.path.join(folder, f'icon-breastfeed-{key}.svg'), 'w').write(art(spec))
+        row = ''.join(art(spec, size=s) for s in (32, 24, 17))
+        plain = art(spec, plain=True, size=22).replace('#000000', '#3A2A20')
+        cells += (f'<div class="c"><div class="big">{art(spec, size=190)}</div><div class="r">{row}'
+                  f'<span class="dk">{art(spec, ink=DARK, size=30)}</span><span class="pl">{plain}</span></div>'
+                  f'<div class="tile">{art(spec, size=34)}<b>Breastfeed</b><span>12:10</span></div>'
+                  f'<h3>{title}</h3><p>{text}</p></div>')
+    tones = ''.join(f'<div class="t">{art(breast(a, b), size=84)}{art(nursing(a), size=84)}</div>' for a, b in TONES)
+    html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Breastfeeding icon, the choices</title><style>
+body{{margin:0;padding:34px;background:#EFE7D4;font:15px/1.4 -apple-system,system-ui,sans-serif;color:#3A2A20;width:1180px}}
+h1{{margin:0 0 4px;font-size:30px;letter-spacing:-.02em}}.lede{{margin:0 0 22px;color:#6B5E52;font-size:17px;max-width:80ch}}
+h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{margin:0;color:#6B5E52}}
+.g{{display:flex;gap:20px}}.c{{width:220px}}.big{{background:#FBF6E9;border-radius:22px;height:220px;display:grid;place-items:center}}
+.r{{display:flex;align-items:center;gap:10px;margin:10px 0}}.dk{{background:#2A2420;border-radius:12px;width:44px;height:44px;display:grid;place-items:center}}
+.pl{{background:#EAE2D2;border-radius:50%;width:38px;height:38px;display:grid;place-items:center}}
+.tile{{width:104px;height:104px;border-radius:20px;background:#FBF6E9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}}
+.tile b{{font-size:14px;margin-top:4px}}.tile span{{color:#6B5E52;font-size:12px}}
+.tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
+</style></head><body><h1>Breastfeeding icon, the choices</h1>
+<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32, 24 and 17 points, in dark, in one colour for lists, and on a Today tile.</p>
+<div class="g">{cells}</div>
+<h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
+    open(os.path.join(OUT, 'breastfeeding.html'), 'w').write(html)
+
+
 def main():
+    alternates()
     os.makedirs(os.path.join(OUT, 'v2'), exist_ok=True)
     for name in ICONS:
         with open(os.path.join(OUT, 'v2', f'icon-{name}.svg'), 'w') as out: out.write(svg(name))
