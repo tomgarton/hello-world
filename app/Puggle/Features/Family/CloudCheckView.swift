@@ -90,6 +90,26 @@ struct CloudCheckView: View {
             say("Shared with you: \(zones.count) zones")
         } catch { say("Listing zones shared with you failed. \(code(error))") }
 
+        // How much of the family iCloud holds, counted record by record.
+        if let family, let record = persistence.container.record(for: family.objectID),
+           family.objectID.persistentStore != persistence.sharedStore {
+            do {
+                var counts: [String: Int] = [:]
+                var since: CKServerChangeToken?
+                var more = true
+                while more {
+                    let page = try await cloud.privateCloudDatabase.recordZoneChanges(inZoneWith: record.recordID.zoneID, since: since)
+                    for result in page.modificationResultsByID.values {
+                        if let found = try? result.get().record { counts[found.recordType, default: 0] += 1 }
+                    }
+                    since = page.changeToken
+                    more = page.moreComing
+                }
+                let total = counts.values.reduce(0, +)
+                say("In iCloud for this family: \(total) records. " + counts.sorted { $0.key < $1.key }.map { "\($0.key) \($0.value)" }.joined(separator: ", "))
+            } catch { say("Counting the family's records in iCloud failed. \(code(error))") }
+        }
+
         // The invite.
         guard let family else { return }
         guard let share = persistence.existingShare(for: family) else { say("Invite: none made on this phone"); return }

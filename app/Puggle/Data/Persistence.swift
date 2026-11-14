@@ -104,10 +104,33 @@ final class Persistence {
     /// Creates (or returns) the share for a family, ready for UICloudSharingController.
     func share(_ family: Family) async throws -> (CKShare, CKContainer) {
         let ckContainer = CKContainer(identifier: Self.cloudKitContainerID)
-        if let existing = existingShare(for: family) { return (existing, ckContainer) }
+        if let existing = existingShare(for: family) { return (try await confirmed(existing, in: ckContainer), ckContainer) }
         let (_, share, shareContainer) = try await container.share([family], to: nil)
         share[CKShare.SystemFieldKey.title] = (family.name ?? "Our family") as CKRecordValue
         return (share, shareContainer)
+    }
+
+    /// The invite this phone holds, checked against iCloud. It can be on the phone and not in iCloud: a phone that
+    /// moved from a build made in Xcode to one from TestFlight keeps its data, but the two use different sides of
+    /// iCloud, and the invite was only ever made on the first. Apple's sharing sheet then fails with "Couldn't
+    /// communicate with a helper application". When iCloud has no such invite, a new one is made for the same
+    /// zone, so the family's entries stay where they are and people are invited afresh.
+    private func confirmed(_ share: CKShare, in cloud: CKContainer) async throws -> CKShare {
+        guard let privateStore, share.recordID.zoneID.ownerName == CKCurrentUserDefaultName else { return share }
+        let database = cloud.privateCloudDatabase
+        do {
+            return (try await database.record(for: share.recordID) as? CKShare) ?? share
+        } catch let error as CKError where error.code == .unknownItem {
+            let fresh = CKShare(recordZoneID: share.recordID.zoneID)
+            fresh[CKShare.SystemFieldKey.title] = share[CKShare.SystemFieldKey.title]
+            fresh.publicPermission = .none
+            let made = (try await database.save(fresh) as? CKShare) ?? fresh
+            try await container.persistUpdatedShare(made, in: privateStore)
+            return made
+        } catch {
+            // Offline, or iCloud is busy: carry on with what the phone has, as before.
+            return share
+        }
     }
 
     /// Sends a change to the share (who is in it, what they can do) to iCloud,
