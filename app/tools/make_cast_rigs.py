@@ -894,6 +894,56 @@ def trouser_legs(name, parts, shade):
     parts[upper + 1:upper + 1] = over
     return parts
 
+OLDER = {'#8A5A3C': '#946E56', '#5E3A24': '#73523E'}
+GREY, SILVER = '#B79F8A', '#D6CDBE'
+
+
+def older(name, parts):
+    """Nan and Pop are going grey. Their fur is the family's brown a little lighter and softer, still warm, with its
+    line lightened to match; and short grey dashes run through their hair, in two tones, thinning as they go down.
+    The dashes are evenly spaced; on Nan each leans its own way (a fixed seed, so she is the same every time)."""
+    import random
+    for part in parts:
+        for shape in part['shapes']:
+            for key in ('fill', 'stroke', 'tint'):
+                if shape.get(key, '').upper() in OLDER: shape[key] = OLDER[shape[key].upper()]
+    def dash(x, y, long, lean, colour):
+        angle = math.radians(lean)
+        dx, dy = math.sin(angle) * long / 2, math.cos(angle) * long / 2
+        return {'kind': 'path', 'd': f'M{x - dx:.1f} {y + dy:.1f} L{x + dx:.1f} {y - dy:.1f}', 'stroke': colour, 'width': 3, 'cap': 'round'}
+    def onto(part_id, marks):
+        next(p for p in parts if p['id'] == part_id)['shapes'].extend(marks)
+    def flipped(marks):
+        out = []
+        for mark in marks:
+            n = [float(v) for v in re.findall(r'-?\d+\.?\d*', mark['d'])]
+            out.append(dict(mark, d=f'M{240 - n[0]:.1f} {n[1]:.1f} L{240 - n[2]:.1f} {n[3]:.1f}'))
+        return out
+    if name == 'nan':
+        # Evenly spaced, in staggered rows, all much the same length; only the way each one leans is left to chance.
+        chance, marks, count = random.Random(3), [], 0
+        rows = [(39, 90, 150, 15, 6.5), (49, 80, 160, 16, 6.5), (59, 74, 166, 15.4, 6.5), (70, 84, 156, 24, 5.5), (80, 98, 142, 44, 4.5)]
+        for y, left, right, gap, long in rows:
+            x = left
+            while x <= right + 0.01:
+                lean = (x - 120) / 120 * 32 + chance.uniform(-38, 38)
+                marks.append(dash(x, y, long, lean, SILVER if count % 3 == 1 else GREY))
+                count += 1
+                x += gap
+        onto('curls-top', marks)
+        side = [dash(46, 125, 5, -50, GREY), dash(50.5, 135.5, 3.6, -74, SILVER)]
+        onto('curl-left-top', side)
+        onto('curl-right-top', flipped([dash(45, 127, 4.2, -44, SILVER), dash(50, 134, 5, -68, GREY)]))
+    else:
+        left = [dash(50, 120.5, 5.5, -82, GREY), dash(46.5, 130, 6.5, -92, SILVER), dash(51, 140, 4.6, -100, GREY),
+                dash(63, 100, 5, -28, GREY), dash(58, 109, 5.6, -42, SILVER), dash(66, 112, 4, -30, GREY)]
+        right = [dash(49.5, 121, 6, -80, SILVER), dash(47, 130.5, 5, -88, GREY), dash(51.5, 139.5, 5.4, -102, GREY),
+                 dash(62, 101, 4.4, -32, GREY), dash(59, 110, 5.2, -38, GREY), dash(65.5, 113, 4.6, -26, SILVER)]
+        onto('tuft-left-top', left)
+        onto('tuft-right-top', flipped(right))
+    return parts
+
+
 def build(name, svg, height, about, shade, moves, puggle, variant=''):
     grown = height > 400
     if grown:
@@ -1037,6 +1087,7 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
     parts = grow_hair(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
     parts = finish_hats(name, parts)
+    if name in ('nan', 'pop'): parts = older(name, parts)
     # Arms that bend at the elbow, and a book to hold. Pebble is too small to read, and has his bottle.
     parts = bend_arms.bend(parts)
     if name != 'pebble': parts = bend_arms.hold(parts, bend_arms.book(parts))

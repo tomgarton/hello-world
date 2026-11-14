@@ -86,7 +86,40 @@ enum RefinementSheets {
         tailInMotion(puggle)
         looseEnds(puggle)
         bendingArms(puggle)
-        greyHair()
+        // greyHair() drew the options for Nan's and Pop's grey on the rigs as they were before it was built in.
+        goingGrey()
+    }
+
+    /// Nan and Pop as built: warmer, lighter fur with a lighter line, and grey dashes scattered through their hair.
+    private static func goingGrey() {
+        func big(_ name: String) -> some View {
+            Group {
+                if let rig = Rig.load(name) {
+                    RigFrame(rig: rig, states: [:], face: nil)
+                        .frame(width: 300 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 300 * rig.size[1] / 240)
+                        .frame(width: 320, height: 330, alignment: .top).clipped()
+                }
+            }
+        }
+        func small(_ name: String, outfit: String = "none") -> some View {
+            Group {
+                if let rig = Rig.load(name) {
+                    RigFrame(rig: rig, states: [:], face: nil)
+                        .frame(width: 110 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 110 * rig.size[1] / 240)
+                        .environment(\.outfit, outfit)
+                }
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 16) {
+            row("Nan and Pop, going grey") { big("nan"); big("pop") }
+            row("With the family, at app size") {
+                HStack(alignment: .bottom, spacing: 0) { small("mum"); small("nan"); small("dad"); small("pop"); small("nan-apron"); small("pop-jumper") }
+            }
+            row("Hats off, in the cold, in the rain") {
+                HStack(alignment: .bottom, spacing: 0) { small("pop", outfit: "bare"); small("nan", outfit: "warm"); small("pop", outfit: "warm"); small("nan", outfit: "rain"); small("pop", outfit: "rain") }
+            }
+        }
+        save(sheet, as: "going-grey.png")
     }
 
     /// Should Nan and Pop be going grey? As now, a few streaks, more streaks, and all grey.
