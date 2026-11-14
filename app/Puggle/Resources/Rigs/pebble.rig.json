@@ -207,15 +207,62 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M88 182 Q102.2 195.1 106 214",
+     "d": "M88 182 Q95.1 188.6 99.6 196.6",
      "stroke": "#3A2A20",
      "width": 34.0,
      "cap": "round",
      "tint": "#5A725D"
-    },
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "forearm-left",
+   "parent": "arm-left",
+   "pivot": [
+    99.6,
+    196.6
+   ],
+   "spring": 170,
+   "shapes": [
     {
      "kind": "path",
-     "d": "M88 182 Q102.2 195.1 106 214",
+     "d": "M99.6 196.6 Q104.1 204.6 106 214",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#5A725D"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-top",
+   "parent": "arm-left",
+   "pivot": [
+    88.0,
+    182.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 182 Q95.1 188.6 99.6 196.6",
+     "stroke": "#CFE5D2",
+     "width": 22.0,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-top",
+   "parent": "forearm-left",
+   "pivot": [
+    99.6,
+    196.6
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M99.6 196.6 Q104.1 204.6 106 214",
      "stroke": "#CFE5D2",
      "width": 22.0,
      "cap": "round"
@@ -239,12 +286,11 @@
      "width": 5.0,
      "tint": "#5E3A24"
     }
-   ],
-   "spring": 150
+   ]
   },
   {
    "id": "mitten-left",
-   "parent": "arm-left",
+   "parent": "forearm-left",
    "pivot": [
     106.0,
     214.0
@@ -274,15 +320,62 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M152 182 Q137.8 195.1 134 214",
+     "d": "M152 182 Q144.9 188.6 140.4 196.6",
      "stroke": "#3A2A20",
      "width": 34.0,
      "cap": "round",
      "tint": "#5A725D"
-    },
+    }
+   ],
+   "spring": 150
+  },
+  {
+   "id": "forearm-right",
+   "parent": "arm-right",
+   "pivot": [
+    140.4,
+    196.6
+   ],
+   "spring": 170,
+   "shapes": [
     {
      "kind": "path",
-     "d": "M152 182 Q137.8 195.1 134 214",
+     "d": "M140.4 196.6 Q135.9 204.6 134 214",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#5A725D"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-top",
+   "parent": "arm-right",
+   "pivot": [
+    152.0,
+    182.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 182 Q144.9 188.6 140.4 196.6",
+     "stroke": "#CFE5D2",
+     "width": 22.0,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-top",
+   "parent": "forearm-right",
+   "pivot": [
+    140.4,
+    196.6
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M140.4 196.6 Q135.9 204.6 134 214",
      "stroke": "#CFE5D2",
      "width": 22.0,
      "cap": "round"
@@ -306,12 +399,11 @@
      "width": 5.0,
      "tint": "#5E3A24"
     }
-   ],
-   "spring": 150
+   ]
   },
   {
    "id": "mitten-right",
-   "parent": "arm-right",
+   "parent": "forearm-right",
    "pivot": [
     134.0,
     214.0
@@ -653,6 +745,198 @@
      "cap": "round"
     }
    ]
+  },
+  {
+   "id": "forearm-left-front",
+   "parent": "forearm-left",
+   "pivot": [
+    99.6,
+    196.6
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M99.6 196.6 Q104.1 204.6 106 214",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#5A725D"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-front-top",
+   "parent": "arm-left",
+   "pivot": [
+    88.0,
+    182.0
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M95.6 190.4 Q97.8 193.3 99.6 196.6",
+     "stroke": "#CFE5D2",
+     "width": 22.0,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-front-top",
+   "parent": "forearm-left",
+   "pivot": [
+    99.6,
+    196.6
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M99.6 196.6 Q104.1 204.6 106 214",
+     "stroke": "#CFE5D2",
+     "width": 22.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M92.9 204.4 L114.4 200.1",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "cap": "round",
+     "tint": "#5A725D"
+    },
+    {
+     "kind": "ellipse",
+     "x": 106.0,
+     "y": 214.0,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#5E3A24"
+    }
+   ]
+  },
+  {
+   "id": "mitten-left-front",
+   "parent": "forearm-left",
+   "pivot": [
+    106.0,
+    214.0
+   ],
+   "when": "outfit=warm&arms=front",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 106.0,
+     "y": 214.0,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front",
+   "parent": "forearm-right",
+   "pivot": [
+    140.4,
+    196.6
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M140.4 196.6 Q135.9 204.6 134 214",
+     "stroke": "#3A2A20",
+     "width": 34.0,
+     "cap": "round",
+     "tint": "#5A725D"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-front-top",
+   "parent": "arm-right",
+   "pivot": [
+    152.0,
+    182.0
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M144.4 190.4 Q142.2 193.3 140.4 196.6",
+     "stroke": "#CFE5D2",
+     "width": 22.0,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front-top",
+   "parent": "forearm-right",
+   "pivot": [
+    140.4,
+    196.6
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M140.4 196.6 Q135.9 204.6 134 214",
+     "stroke": "#CFE5D2",
+     "width": 22.0,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M125.6 200.1 L147.1 204.4",
+     "stroke": "#3A2A20",
+     "width": 4.0,
+     "cap": "round",
+     "tint": "#5A725D"
+    },
+    {
+     "kind": "ellipse",
+     "x": 134.0,
+     "y": 214.0,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#5E3A24"
+    }
+   ]
+  },
+  {
+   "id": "mitten-right-front",
+   "parent": "forearm-right",
+   "pivot": [
+    134.0,
+    214.0
+   ],
+   "when": "outfit=warm&arms=front",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 134.0,
+     "y": 214.0,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
   }
  ],
  "moves": {
@@ -717,13 +1001,16 @@
      "t": 0.12,
      "pose": {
       "arm-right": {
-       "r": -80
+       "r": -143.5
       },
       "head": {
        "r": -5
       },
       "body": {
        "y": -2
+      },
+      "forearm-right": {
+       "r": -23.7
       }
      }
     },
@@ -731,10 +1018,13 @@
      "t": 0.34,
      "pose": {
       "arm-right": {
-       "r": -60
+       "r": -143.5
       },
       "head": {
        "r": -5
+      },
+      "forearm-right": {
+       "r": 10.3
       }
      }
     },
@@ -742,10 +1032,13 @@
      "t": 0.52,
      "pose": {
       "arm-right": {
-       "r": -80
+       "r": -143.5
       },
       "head": {
        "r": -5
+      },
+      "forearm-right": {
+       "r": -23.7
       }
      }
     },
@@ -753,10 +1046,13 @@
      "t": 0.7,
      "pose": {
       "arm-right": {
-       "r": -60
+       "r": -143.5
       },
       "head": {
        "r": -5
+      },
+      "forearm-right": {
+       "r": 10.3
       }
      }
     },
@@ -764,10 +1060,13 @@
      "t": 0.88,
      "pose": {
       "arm-right": {
-       "r": -80
+       "r": -143.5
       },
       "head": {
        "r": -5
+      },
+      "forearm-right": {
+       "r": -23.7
       }
      }
     },
@@ -1079,13 +1378,16 @@
      "t": 0.12,
      "pose": {
       "arm-left": {
-       "r": 80
+       "r": 143.5
       },
       "head": {
        "r": 5
       },
       "body": {
        "y": -2
+      },
+      "forearm-left": {
+       "r": 23.7
       }
      }
     },
@@ -1093,10 +1395,13 @@
      "t": 0.34,
      "pose": {
       "arm-left": {
-       "r": 60
+       "r": 143.5
       },
       "head": {
        "r": 5
+      },
+      "forearm-left": {
+       "r": -10.3
       }
      }
     },
@@ -1104,10 +1409,13 @@
      "t": 0.52,
      "pose": {
       "arm-left": {
-       "r": 80
+       "r": 143.5
       },
       "head": {
        "r": 5
+      },
+      "forearm-left": {
+       "r": 23.7
       }
      }
     },
@@ -1115,10 +1423,13 @@
      "t": 0.7,
      "pose": {
       "arm-left": {
-       "r": 60
+       "r": 143.5
       },
       "head": {
        "r": 5
+      },
+      "forearm-left": {
+       "r": -10.3
       }
      }
     },
@@ -1126,10 +1437,13 @@
      "t": 0.88,
      "pose": {
       "arm-left": {
-       "r": 80
+       "r": 143.5
       },
       "head": {
        "r": 5
+      },
+      "forearm-left": {
+       "r": 23.7
       }
      }
     },
@@ -1143,6 +1457,95 @@
     }
    ],
    "length": 1.75
+  },
+  "oh": {
+   "about": "Oh! A small start, hands to her cheeks and clear of her bill, eyes wide. The one time her hands are in front of her head.",
+   "exact": true,
+   "length": 1.4,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      }
+     }
+    },
+    {
+     "t": 0.1,
+     "pose": {
+      "arm-left": {
+       "r": 171.0
+      },
+      "forearm-left": {
+       "r": 0.5
+      },
+      "arm-right": {
+       "r": -171.0
+      },
+      "forearm-right": {
+       "r": -0.5
+      },
+      "body": {
+       "y": -7
+      },
+      "upper": {
+       "sy": 1.04
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.26,
+     "pose": {
+      "arm-left": {
+       "r": 171.0
+      },
+      "forearm-left": {
+       "r": 0.5
+      },
+      "arm-right": {
+       "r": -171.0
+      },
+      "forearm-right": {
+       "r": -0.5
+      },
+      "upper": {
+       "sy": 1.02
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.05,
+     "pose": {},
+     "face": {
+      "arms": "front"
+     }
+    }
+   ]
   }
  },
  "face": {

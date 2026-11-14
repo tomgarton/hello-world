@@ -127,6 +127,15 @@ struct AnimationTestView: View {
             }
             close = false
             cast = true
+            show("Arms that bend", "Everyone has an elbow now.\nA wave from the elbow, hands to cheeks, a book, a hug.")
+            await wait(1.6)
+            for (move, name, hold) in [("greet", "A wave, from the elbow", 2.4), ("oh", "Oh! Hands to cheeks", 2.2), ("read", "Reading, and turning a page", 6.0), ("hug", "A hug for her rabbit", 3.4)] {
+                show(name, "Arms that bend")
+                proposed.each { $0.play(move) }
+                await wait(hold)
+                proposed.each { $0.stop(move) }
+                await wait(0.8)
+            }
             show("Ears, spines and hair", "Today none of these move.\nProposed: each takes a position for the feeling.")
             await wait(1.6)
             for feeling in Self.feelings {

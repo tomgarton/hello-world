@@ -11,6 +11,9 @@ they can borrow her moves (a nod, a wave, a hop).
 Run it again whenever the canvas drawings change.
 """
 import json, math, os, re, sys
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import bend_arms
 import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -1034,6 +1037,9 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
     parts = grow_hair(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
     parts = finish_hats(name, parts)
+    # Arms that bend at the elbow, and a book to hold. Pebble is too small to read, and has his bottle.
+    parts = bend_arms.bend(parts)
+    if name != 'pebble': parts = bend_arms.hold(parts, bend_arms.book(parts))
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.
     borrowed = {}
@@ -1044,6 +1050,7 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
             pose = key.get('pose', {})
             key['pose'] = {k: v for k, v in pose.items() if k in ids}
         borrowed[move_name] = move
+    borrowed['greet'] = bend_arms.bend_wave(borrowed['greet'], parts)
     # The shoulders move with the body.
     # A wave with the other arm, for answering someone who stands on their left.
     mirror = json.loads(json.dumps(borrowed['greet']))
@@ -1054,6 +1061,7 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
             flipped[other] = {k: (-v if k in ('r', 'x') else v) for k, v in pose.items()}
         key['pose'] = flipped
     borrowed['greet-left'] = mirror
+    borrowed.update(bend_arms.arm_moves(parts, reads=name != 'pebble'))
     return {'name': name.capitalize(), 'size': [240, height], 'about': about + ' Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.',
             'parts': parts, 'moves': borrowed, 'face': {'eyes': 'open'}}
 

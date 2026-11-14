@@ -437,6 +437,128 @@
    ]
   },
   {
+   "id": "rabbit",
+   "parent": "upper",
+   "pivot": [
+    120,
+    220
+   ],
+   "when": "holding=rabbit",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 112,
+     "y": 186,
+     "rx": 5,
+     "ry": 13,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4,
+     "rotate": -8
+    },
+    {
+     "kind": "ellipse",
+     "x": 128,
+     "y": 186,
+     "rx": 5,
+     "ry": 13,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4,
+     "rotate": 10
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 232,
+     "rx": 15,
+     "ry": 15,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 207,
+     "rx": 16,
+     "ry": 14,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 114,
+     "y": 205,
+     "rx": 1.9,
+     "ry": 1.9,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 126,
+     "y": 205,
+     "rx": 1.9,
+     "ry": 1.9,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 210,
+     "rx": 2,
+     "ry": 1.5,
+     "fill": "#F2A48E"
+    }
+   ]
+  },
+  {
+   "id": "book",
+   "parent": "upper",
+   "pivot": [
+    120,
+    222
+   ],
+   "when": "holding=book",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M78 198 L120 205 L162 198 L162 240 L120 247 L78 240 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M120 205 L120 247",
+     "stroke": "#B23A26",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M82 196 L120 202 L158 196",
+     "stroke": "#FBF6E9",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 141,
+     "y": 222,
+     "rx": 8,
+     "ry": 8,
+     "fill": "#F4BE2C"
+    }
+   ]
+  },
+  {
    "id": "arm-left",
    "parent": "upper",
    "pivot": [
@@ -447,15 +569,61 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M88 178 Q71.8 198.9 56.5 209.5",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
      "stroke": "#3A2A20",
      "width": 34,
      "tint": "#1B4387",
      "cap": "round"
-    },
+    }
+   ]
+  },
+  {
+   "id": "forearm-left",
+   "parent": "arm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "spring": 170,
+   "shapes": [
     {
      "kind": "path",
-     "d": "M88 178 Q71.8 198.9 50 214",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-top",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-top",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
      "stroke": "#2A62B8",
      "width": 22,
      "cap": "round"
@@ -492,15 +660,63 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M88 178 Q71.8 198.9 56.5 209.5",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
      "stroke": "#3A2A20",
      "width": 34,
      "tint": "#B8892A",
      "cap": "round"
-    },
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
     {
      "kind": "path",
-     "d": "M88 178 Q71.8 198.9 50 214",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-left-top",
+   "parent": "coat-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left-top",
+   "parent": "coat-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
      "stroke": "#F4C95D",
      "width": 22,
      "cap": "round"
@@ -537,15 +753,63 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M88 178 Q71.8 198.9 56.5 209.5",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
      "stroke": "#3A2A20",
      "width": 34,
      "tint": "#7E6BB0",
      "cap": "round"
-    },
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
     {
      "kind": "path",
-     "d": "M88 178 Q71.8 198.9 50 214",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-left-top",
+   "parent": "pyjama-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left-top",
+   "parent": "pyjama-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
      "stroke": "#CDBFEA",
      "width": 22,
      "cap": "round"
@@ -582,15 +846,61 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M152 178 Q168.2 198.9 183.5 209.5",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
      "stroke": "#3A2A20",
      "width": 34,
      "tint": "#1B4387",
      "cap": "round"
-    },
+    }
+   ]
+  },
+  {
+   "id": "forearm-right",
+   "parent": "arm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "spring": 170,
+   "shapes": [
     {
      "kind": "path",
-     "d": "M152 178 Q168.2 198.9 190 214",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-top",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-top",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
      "stroke": "#2A62B8",
      "width": 22,
      "cap": "round"
@@ -627,15 +937,63 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M152 178 Q168.2 198.9 183.5 209.5",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
      "stroke": "#3A2A20",
      "width": 34,
      "tint": "#B8892A",
      "cap": "round"
-    },
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
     {
      "kind": "path",
-     "d": "M152 178 Q168.2 198.9 190 214",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-right-top",
+   "parent": "coat-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right-top",
+   "parent": "coat-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
      "stroke": "#F4C95D",
      "width": 22,
      "cap": "round"
@@ -672,15 +1030,63 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M152 178 Q168.2 198.9 183.5 209.5",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
      "stroke": "#3A2A20",
      "width": 34,
      "tint": "#7E6BB0",
      "cap": "round"
-    },
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
     {
      "kind": "path",
-     "d": "M152 178 Q168.2 198.9 190 214",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-right-top",
+   "parent": "pyjama-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right-top",
+   "parent": "pyjama-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
      "stroke": "#CDBFEA",
      "width": 22,
      "cap": "round"
@@ -1312,6 +1718,450 @@
    ]
   },
   {
+   "id": "forearm-left-front",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-front-top",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M77.8 190 Q74.2 193.8 70.4 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-front-top",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left-front",
+   "parent": "coat-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-left-front-top",
+   "parent": "coat-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M77.8 190 Q74.2 193.8 70.4 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left-front-top",
+   "parent": "coat-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left-front",
+   "parent": "pyjama-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-left-front-top",
+   "parent": "pyjama-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M77.8 190 Q74.2 193.8 70.4 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left-front-top",
+   "parent": "pyjama-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-front-top",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M162.2 190 Q165.8 193.8 169.6 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front-top",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right-front",
+   "parent": "coat-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-right-front-top",
+   "parent": "coat-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M162.2 190 Q165.8 193.8 169.6 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right-front-top",
+   "parent": "coat-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right-front",
+   "parent": "pyjama-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-right-front-top",
+   "parent": "pyjama-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M162.2 190 Q165.8 193.8 169.6 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right-front-top",
+   "parent": "pyjama-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
    "id": "sparkle-a",
    "parent": "body",
    "pivot": [
@@ -1595,7 +2445,7 @@
      "t": 0.12,
      "pose": {
       "arm-right": {
-       "r": -80
+       "r": -58
       },
       "head": {
        "r": -5
@@ -1610,6 +2460,9 @@
       "brow-right": {
        "y": -4,
        "r": 6
+      },
+      "forearm-right": {
+       "r": -42
       }
      },
      "face": {
@@ -1620,7 +2473,7 @@
      "t": 0.34,
      "pose": {
       "arm-right": {
-       "r": -60
+       "r": -58
       },
       "head": {
        "r": -5
@@ -1632,6 +2485,9 @@
       "brow-right": {
        "y": -4,
        "r": 6
+      },
+      "forearm-right": {
+       "r": -8
       }
      },
      "face": {
@@ -1642,7 +2498,7 @@
      "t": 0.52,
      "pose": {
       "arm-right": {
-       "r": -80
+       "r": -58
       },
       "head": {
        "r": -5
@@ -1658,6 +2514,9 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "forearm-right": {
+       "r": -42
       }
      },
      "face": {
@@ -1669,7 +2528,7 @@
      "t": 0.7,
      "pose": {
       "arm-right": {
-       "r": -60
+       "r": -58
       },
       "head": {
        "r": -5
@@ -1685,6 +2544,9 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "forearm-right": {
+       "r": -8
       }
      },
      "face": {
@@ -1696,7 +2558,7 @@
      "t": 0.88,
      "pose": {
       "arm-right": {
-       "r": -80
+       "r": -58
       },
       "head": {
        "r": -5
@@ -1712,6 +2574,9 @@
       "blush": {
        "sx": 1.14,
        "sy": 1.14
+      },
+      "forearm-right": {
+       "r": -42
       }
      },
      "face": {
@@ -3153,6 +4018,366 @@
     {
      "t": 2.2,
      "pose": {}
+    }
+   ]
+  },
+  "oh": {
+   "about": "Oh! A small start, hands to her cheeks and clear of her bill, eyes wide. The one time her hands are in front of her head.",
+   "exact": true,
+   "length": 1.4,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      }
+     }
+    },
+    {
+     "t": 0.1,
+     "pose": {
+      "arm-left": {
+       "r": 63.2
+      },
+      "forearm-left": {
+       "r": 57.7
+      },
+      "arm-right": {
+       "r": -63.2
+      },
+      "forearm-right": {
+       "r": -57.7
+      },
+      "body": {
+       "y": -7
+      },
+      "upper": {
+       "sy": 1.04
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.26,
+     "pose": {
+      "arm-left": {
+       "r": 63.2
+      },
+      "forearm-left": {
+       "r": 57.7
+      },
+      "arm-right": {
+       "r": -63.2
+      },
+      "forearm-right": {
+       "r": -57.7
+      },
+      "upper": {
+       "sy": 1.02
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.05,
+     "pose": {},
+     "face": {
+      "arms": "front"
+     }
+    }
+   ]
+  },
+  "read": {
+   "about": "Reading: a book held open at her chest, eyes down on it, a page turned now and then. Goes round until stopped.",
+   "exact": true,
+   "loops": true,
+   "length": 7,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 63.0
+      },
+      "head": {
+       "y": 4
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    },
+    {
+     "t": 4.6,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 85.0
+      },
+      "head": {
+       "y": 4,
+       "r": 3
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    },
+    {
+     "t": 4.9,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 63.0
+      },
+      "head": {
+       "y": 4
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    }
+   ]
+  },
+  "hug": {
+   "about": "A hug for her rabbit: both arms round it, a squeeze, and a sway from side to side.",
+   "exact": true,
+   "length": 2.8,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": -5
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.5,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": -7
+      },
+      "upper": {
+       "sx": 0.97,
+       "sy": 1.02
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.2,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": 5
+      },
+      "upper": {
+       "r": 2
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.9,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": -5
+      },
+      "upper": {
+       "r": -2
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 2.5,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
     }
    ]
   }

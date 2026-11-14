@@ -85,6 +85,77 @@ enum RefinementSheets {
         curlOptions()
         tailInMotion(puggle)
         looseEnds(puggle)
+        bendingArms(puggle)
+    }
+
+    /// Arms that bend at the elbow: Puggle's new poses, the same on everyone, and in her other clothes.
+    private static func bendingArms(_ puggle: Rig) {
+        /// A move played from the start and caught at one moment, with the face it has then.
+        func caught(_ rig: Rig, _ move: String?, at moment: Double, width: CGFloat = 104) -> some View {
+            let runtime = RigRuntime(rig: rig)
+            runtime.blinkAt = .distantPast
+            let start = Date.now
+            _ = runtime.advance(to: start)
+            if let move { runtime.play(move, at: start) }
+            var t = 0.0, states: [String: PartState] = [:]
+            while t < moment { t += 0.016; states = runtime.advance(to: start.addingTimeInterval(t)) }
+            return RigFrame(rig: rig, states: states, face: runtime.face)
+                .frame(width: width * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: width * rig.size[1] / 240)
+        }
+        func named(_ text: String, @ViewBuilder _ content: () -> some View) -> some View {
+            VStack(spacing: 4) {
+                content()
+                Text(text).font(.system(size: 12, weight: .medium)).foregroundStyle(note)
+            }
+        }
+        func set(_ rig: Rig, _ name: String) -> some View {
+            VStack(spacing: 4) {
+                HStack(alignment: .bottom, spacing: 2) {
+                    caught(rig, "greet", at: 0.3, width: 84)
+                    caught(rig, "oh", at: 0.7, width: 84)
+                    if rig.moves?["read"] != nil { caught(rig, "read", at: 1.0, width: 84) }
+                }
+                Text(name).font(.system(size: 12, weight: .medium)).foregroundStyle(note)
+            }
+        }
+        let cast: [[String]] = [["pebble", "kip", "quill"], ["digby", "sunny", "mum"], ["dad", "nan", "pop"]]
+        let sheet = VStack(alignment: .leading, spacing: 16) {
+            row("Puggle: arms that bend at the elbow") {
+                named("At rest, as before") { caught(puggle, nil, at: 0.3) }
+                named("Wave, from the elbow") { caught(puggle, "greet", at: 0.3) }
+                named("Wave, the other way") { caught(puggle, "greet", at: 0.48) }
+                named("Oh! Hands to cheeks") { caught(puggle, "oh", at: 0.7) }
+                named("Reading") { caught(puggle, "read", at: 1.0) }
+                named("Turning a page") { caught(puggle, "read", at: 4.85) }
+                named("Hugging her rabbit") { caught(puggle, "hug", at: 0.9) }
+            }
+            row("In her other clothes: raincoat, pyjamas, scarf and beanie") {
+                ForEach(["rain", "night", "warm"], id: \.self) { outfit in
+                    HStack(alignment: .bottom, spacing: 2) {
+                        caught(puggle, "oh", at: 0.7)
+                        caught(puggle, "read", at: 1.0)
+                        caught(puggle, "hug", at: 0.9)
+                    }
+                    .environment(\.outfit, outfit)
+                }
+            }
+            ForEach(cast.indices, id: \.self) { line in
+                row(line == 0 ? "Everyone else: wave, oh, reading" : "") {
+                    ForEach(cast[line], id: \.self) { who in
+                        if let rig = Rig.load(who) { set(rig, who.capitalized) }
+                    }
+                }
+            }
+            row("Mittens stay on the hands; a grown-up in the cold") {
+                if let kip = Rig.load("kip"), let nan = Rig.load("nan") {
+                    HStack(alignment: .bottom, spacing: 2) {
+                        caught(kip, "oh", at: 0.7); caught(kip, "read", at: 1.0); caught(nan, "oh", at: 0.7); caught(nan, "greet", at: 0.3)
+                    }
+                    .environment(\.outfit, "warm")
+                }
+            }
+        }
+        save(sheet, as: "bending-arms.png")
     }
 
     /// The tail for each feeling, shy on Puggle, and trousers in a walk.

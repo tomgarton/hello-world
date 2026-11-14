@@ -92,6 +92,8 @@ struct Rig: Codable {
         var length: Double
         /// Goes round again from the start until it is stopped (walking).
         var loops: Bool?
+        /// Her hands have somewhere exact to be (her cheeks, a book), so the poses are not made smaller at night.
+        var exact: Bool?
 
         struct Key: Codable {
             var t: Double
@@ -240,8 +242,12 @@ enum RigRenderer {
             guard !part.shapes.isEmpty else { continue }
             // A face shape shows only while the face is set to it.
             // "outfit=rain|sun" shows for either.
-            if let when = part.when?.split(separator: "="), when.count == 2,
-               !when[1].split(separator: "|").contains(where: { face[String(when[0])] == String($0) }) { continue }
+            // "outfit=rain&arms=front" needs both.
+            let hidden = (part.when ?? "").split(separator: "&").contains { condition in
+                let when = condition.split(separator: "=")
+                return when.count == 2 && !when[1].split(separator: "|").contains(where: { face[String(when[0])] == String($0) })
+            }
+            if hidden { continue }
             var layer = context
             layer.concatenate(transform)
             for (index, shape) in part.shapes.enumerated() {
@@ -460,6 +466,11 @@ final class RigRuntime {
         playing[move.track ?? "body"] = (name, date)
     }
 
+    /// Ends a move that goes round (reading), or cuts any other short. Her parts ease back on their springs.
+    func stop(_ name: String) {
+        for (track, now) in playing where now.name == name { playing[track] = nil }
+    }
+
     /// The pose to head for: ambient, plus her look, plus the move's current pose.
     func target(at date: Date) -> [String: PartState] {
         let t = date.timeIntervalSince(born)
@@ -541,7 +552,7 @@ final class RigRuntime {
                 playing[track] = nil
             } else if let key = script.keys.last(where: { $0.t <= into }) {
                 for (id, pose) in key.pose {
-                    change(id) { $0.add(pose, amount: energy) }
+                    change(id) { $0.add(pose, amount: script.exact == true ? 1 : energy) }
                     if id == "tail" { tailMoved = true }
                 }
                 for (feature, shape) in key.face ?? [:] { showing[feature] = shape }
@@ -554,7 +565,8 @@ final class RigRuntime {
             if asleep { mood = (.sleepy, 1) }
             else if let felt, date < felt.until { mood = (felt.feeling, 1) }
             else if let move = playing["body"]?.name {
-                if move.hasPrefix("wake") { mood = (.surprised, 1) }
+                if move.hasPrefix("wake") || move.hasPrefix("oh") { mood = (.surprised, 1) }
+                else if move.hasPrefix("read") { mood = (.curious, 0.6) }
                 else if move.hasPrefix("proud") { mood = (.proud, 1) }
                 else if move.hasPrefix("nod") { mood = (.happy, 0.6) }
                 else if !move.hasPrefix("walk") { mood = (.happy, 1) }
