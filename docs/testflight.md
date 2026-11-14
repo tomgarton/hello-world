@@ -42,3 +42,10 @@ then the build shows in TestFlight on the phone.
   left out of release builds.
 - Nothing has been uploaded from this check. Whether an earlier build reached App Store Connect is
   not something the project can show: look under TestFlight in App Store Connect.
+
+## First build sent, 14 November 2026
+
+- Version 0.1.0 was uploaded to App Store Connect with `xcodebuild -exportArchive` and accepted for processing.
+- Tom deployed the iCloud schema from Development to Production in the CloudKit Console the same day.
+- A TestFlight build uses iCloud's Production side; a build installed from Xcode uses Development. The two do not
+  share synced data. Make a backup in the app (Settings, Your data) before moving a phone from one to the other.
