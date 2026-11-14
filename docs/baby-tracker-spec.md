@@ -1151,3 +1151,18 @@ The icon was still the old face. It is now made from her rig by `app/tools/make_
 App icon, softer lines (14 November 2026). Tom: keep yellow, but the lines look too dark. The icon was using the rig's ink outline; the app itself draws Puggle with the coloured outline (each shape edged in a darker shade of itself, about three-quarters as heavy). The icon now does the same, in light and dark, so it matches her in the app. `--line ink` in `app/tools/make_app_icon.py` gives the old outline. Comparison, with glass and flat, in all six looks: `docs/previews/app-icon/softer-lines.png`. The app has the glass version; flat (`--flat`) is not chosen yet.
 
 App icon, settled (14 November 2026): Tom chose yellow and flat. No glass on Puggle: it washed her outline out and gave the bill a raised rim. The app has this icon; `docs/previews/app-icon/` holds its six looks as Apple's tool draws them. The glass version is kept behind `--glass` in `app/tools/make_app_icon.py`, and the blue grounds behind `--ground sky` and `--ground blue`.
+
+### A sweep for old artwork (14 November 2026)
+
+Tom found the lock screen still had Puggle's old face, and asked for a pass through the whole app for anything else like it.
+
+**Fixed.** `PuggleMark` (lock screen, splash, launch screen, Help), `PuggleFace` (on stamps) and `PuggleStill` (her standing: the empty Today, milestones, the play pad) were all the old drawing. `app/tools/make_app_icon.py` now writes all three from her rig, with the app icon, so they cannot drift again. Two stale lines in `app/README.md` are corrected.
+
+**Found, not changed:**
+- Widgets, the Live Activity and the Dynamic Island use Apple's symbols (a moon, a heart, a clock), not Puggle's icons. The widget target has no artwork of its own.
+- Two menus use Apple's symbols for activities: the choice on a Today tile with more than one kind (Feeding), and the kind filter in History.
+- Stamps that carry an activity icon (first food, first steps, the potty) use the flat yellow drawing, so they ignore the icon colour setting.
+- The launch picture iOS shows before the app starts is cached by the system. In the simulator it kept the old face after a reinstall. A phone may need a restart to pick up the new one.
+- The mark sits a little higher on the launch picture than on the app's own splash, so it moves slightly as one hands over to the other.
+- The icon and mark show Puggle with her eyebrows. In the app she only has them when she is feeling something; her resting face has none. Tom approved the icon with them, so they stay until he says otherwise.
+- The breastfeeding choices, poo and wee, and the large icon drawings are still outside the app.

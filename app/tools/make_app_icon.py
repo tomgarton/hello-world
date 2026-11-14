@@ -14,6 +14,9 @@ Four groups, front to back, so each part still reads when iOS takes the colour a
 Her outline is the coloured one the app uses: each shape edged in a darker shade of itself, not in ink.
 In dark, the ground goes deep brown.
 
+It also writes the still pictures of her in the asset catalogue (PuggleMark, PuggleFace, PuggleStill), so the
+lock screen, the splash, Help and the stamps show the same face.
+
 Run `python3 tools/make_app_icon.py` from app/. With `--render` it also asks Apple's ictool (inside Xcode's
 Icon Composer) to draw every look into docs/previews/app-icon/.
 """
@@ -50,8 +53,12 @@ def draw(shape, line):
     if stroke:
         paint += f' stroke="{stroke}" stroke-width="{width}" stroke-linejoin="round"'
         if shape.get('cap'): paint += f' stroke-linecap="{shape["cap"]}"'
+    if shape.get('rotate'):
+        paint += f' transform="rotate({shape["rotate"]} {shape["x"]} {shape["y"]})"'
     if shape['kind'] == 'ellipse':
         return f'<ellipse cx="{shape["x"]}" cy="{shape["y"]}" rx="{shape["rx"]}" ry="{shape["ry"]}" {paint}/>'
+    if shape['kind'] == 'rect':
+        return f'<rect x="{shape["x"]}" y="{shape["y"]}" width="{shape["w"]}" height="{shape["h"]}" rx="{shape.get("r", 0)}" {paint}/>'
     if shape['kind'] == 'path':
         return f'<path d="{shape["d"]}" {paint}/>'
     raise ValueError(shape['kind'])
@@ -66,6 +73,35 @@ def colour(hex_):
     return 'srgb:' + ','.join(f'{int(hex_[i:i + 2], 16) / 255:.5f}' for i in (1, 3, 5)) + ',1.00000'
 
 
+def showing(part, face):
+    """Whether a part is drawn with this face, by the rig's own rule: every condition in `when` must hold."""
+    for condition in (part.get('when') or '').split('&'):
+        if '=' in condition:
+            key, values = condition.split('=')
+            if face.get(key) not in values.split('|'): return False
+    return True
+
+
+def stills(rig):
+    """The still pictures of Puggle in the asset catalogue, from the same rig: her mark (the face on a Wattle
+    tile, on the lock screen, the splash and in Help), her face alone (on stamps) and her standing."""
+    catalogue = os.path.join(HERE, '..', 'Puggle', 'Resources', 'Assets.xcassets')
+    def save(name, text):
+        open(os.path.join(catalogue, f'{name}.imageset', f'{name}.svg'), 'w').write(text)
+    def drawn(face, only=None):
+        return ''.join(''.join(draw(s, 'tint') for s in p['shapes']) for p in rig['parts']
+                       if showing(p, face) and (only is None or p['id'] in only))
+    # The mark and the face match the app icon: her resting face, with her eyebrows.
+    head = {pid for _, ids, _ in GROUPS for pid in ids}
+    face = drawn(dict(rig['face'], brows='on'), head)
+    save('PuggleFace', f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{BOX}" width="190" height="190">{face}</svg>')
+    save('PuggleMark', '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 132 132" width="132" height="132"><rect width="132" height="132" rx="30" fill="#F4BE2C"/>'
+                       f'<g transform="translate(-9.6 1.7) scale(0.63)">{face}</g></svg>')
+    width, height = rig['size']
+    save('PuggleStill', f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width * 2}" height="{height * 2}">{drawn(rig["face"])}</svg>')
+    print('wrote PuggleMark, PuggleFace and PuggleStill')
+
+
 def option(name, default):
     return sys.argv[sys.argv.index(name) + 1] if name in sys.argv else default
 
@@ -76,7 +112,9 @@ def main():
     light, dark = GROUNDS[option('--ground', 'wattle')]
     # Flat is Tom's choice: glass washed her outline out. `--glass` puts it back on the head, bill and clip.
     flat = '--glass' not in sys.argv
-    parts = {p['id']: p for p in json.load(open(RIG))['parts']}
+    rig = json.load(open(RIG))
+    parts = {p['id']: p for p in rig['parts']}
+    if '--icon' not in sys.argv: stills(rig)
     assets = os.path.join(ICON, 'Assets')
     os.makedirs(assets, exist_ok=True)
     for old in os.listdir(assets): os.remove(os.path.join(assets, old))

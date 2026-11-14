@@ -72,7 +72,7 @@ Fifth round, 11 November 2026:
 
 | Flow | In the app |
 |---|---|
-| App icon | `Puggle/Resources/AppIcon.icon`, an Icon Composer document: Puggle's face on Wattle in three layers (head, face, clip), made from `design/rive/puggle-parts.svg`. Open it in Icon Composer to adjust. Light, dark and tinted versions come from the one file |
+| App icon | `Puggle/Resources/AppIcon.icon`, an Icon Composer document: Puggle's face on Wattle in four flat layers (clip, features, bill, head), made from her rig by `tools/make_app_icon.py`. The same tool writes her still pictures in the asset catalogue (the mark on the lock screen, splash and Help; her face on stamps; her standing). Dark has its own ground; clear and tinted come from the one file |
 | Settings (9) | Family tab, top row. Your name, appearance, how much to see, potty stickers, the sample family, Your data, Help |
 | Who logged it (6) | The name in Settings is saved on each new entry and shown in History and the export |
 | Appearance | Same as iPhone, Light or Dark. The palette has a dark twin for every colour |
@@ -95,7 +95,7 @@ Seventh round, 11 November 2026:
 | Feed from the Lock Screen | Left, Right and Finish on the card. Tapping the running side pauses it |
 | The glance | For babies: "Fed … ago" and "Awake …", counting up, for up to eight hours after the last feed or wake. Never "due", nothing turns red. On by default; a switch in Settings; hidden in "Just logging" |
 | Splash | Puggle's mark and the wordmark for about a second on each cold start, matching the launch screen |
-| Illustrations | The 12 Puggle line icons replace SF Symbols on the Today tiles, History and milestones (light and dark versions, from `design/canvas/gen/iconsys3.py`). Puggle stands on the first-run pages, the empty Today and the celebration; her mark is on the splash and in Help |
+| Illustrations | Puggle's own icons replace SF Symbols on the Today tiles, History and milestones. Each has a small drawing for lists and a regular one for tiles, written as parts the app tints (`docs/tools/make_icons.py --install`): yellow by default, or a colour chosen in Settings, or each child's colour. Puggle stands on the empty Today and the celebration; her mark is on the splash, the lock screen and in Help |
 
 The pictures are in `Assets.xcassets` as SVGs. Still to come from the canvas: the scenes (Morning, Bedtime, Celebration), the friends, the sticker art and the animated Puggle (Rive).
 
