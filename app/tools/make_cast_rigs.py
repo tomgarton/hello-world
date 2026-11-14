@@ -836,6 +836,31 @@ def regrow_tail(parts, grown, sitting=False):
     tail['pivot'] = [round(bx + 6, 1), round(by - 3, 1)]
     return parts
 
+
+# Pebble's babygro (Tom, 14 November 2026). The canvas drew a flared triangle, which read as a dress. A
+# babygro is close to the body: a rounded suit with a leg each side, poppers round the inside of the legs,
+# a seam down the front and a neckband. His feet come out of the ends of the legs.
+def babygro(parts):
+    upper = next(p for p in parts if p['id'] == 'upper')
+    suit = upper['shapes'][0]
+    def piece(d, w=None): return {'kind': 'path', 'd': d, 'fill': suit['fill'], 'stroke': suit['stroke'], 'tint': suit.get('tint'), 'width': w or suit['width']}
+    def seam(d, w=3): return {'kind': 'path', 'd': d, 'stroke': suit.get('tint') or INK, 'width': w, 'cap': 'round'}
+    leg = 'M86 224 Q106 230 102 249 Q98 264 77 262 Q58 259 60 244 Q64 227 86 224 Z'
+    cuff = 'M63 240 Q59 250 66 259'
+    body = 'M92 166 Q120 158 148 166 Q168 194 168 222 Q168 247 146 248 L94 248 Q72 247 72 222 Q72 194 92 166 Z'
+    poppers = [{'kind': 'ellipse', 'x': x, 'y': y, 'rx': 2.8, 'ry': 2.8, 'fill': '#FBF6E9', 'stroke': INK, 'tint': suit.get('tint'), 'width': 1.8}
+               for x, y in ((99, 238), (109, 243), (120, 245), (131, 243), (141, 238))]
+    upper['shapes'] = ([piece(leg), piece(mirrored(leg)), seam(cuff, 3.5), seam(mirrored(cuff), 3.5), piece(body),
+                        seam('M120 172 L120 240'), seam('M102 169 Q120 181 138 169', 3.5)] + poppers + upper['shapes'][1:])
+    # His feet, out at the ends of the legs.
+    for side, dx in (('left', -20), ('right', 20)):
+        foot = next(p for p in parts if p['id'] == f'foot-{side}')
+        for shp in foot['shapes']:
+            if 'd' in shp: shp['d'] = moved(shp['d'], dx, 1)
+            if 'x' in shp: shp['x'] += dx; shp['y'] += 1
+        foot['pivot'] = [foot['pivot'][0] + dx, foot['pivot'][1] + 1]
+    return parts
+
 def build(name, svg, height, about, shade, moves, puggle):
     grown = height > 400
     if grown:
@@ -973,6 +998,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
     parts = regrow_tail(parts, grown, sitting=name == 'pebble')
+    if name == 'pebble': parts = babygro(parts)
     parts = join_to_head(name, parts)
     parts = grow_hair(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
