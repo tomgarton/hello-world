@@ -1017,3 +1017,13 @@ Welcome: "It takes about a minute." with "Join with an invite" and "Look around 
 4. Look back: the bars grow from Monday to Sunday and the total counts up to 91h.
 5. Private: the two ticks draw themselves. Nothing else moves.
 Prototype: `docs/previews/onboarding/animated.html` (open with `#2.5` to freeze it 2.5 seconds in; it loops every 7 seconds only so it can be watched). Clip: `first-run-animated.mp4`. Made by `animated()` in `docs/tools/make_first_run_mockup.py`.
+
+**Gaia: more reference screens (Tom, 2026-11-14).** Fifteen screenshots of Gaia in its dark look: Activity (home), History, Trends, Routine, Food, Account, Family and Settings. Not saved in the repo, as they show real names. What they show:
+- **Home:** one wide Feed card, then a two-column grid of cards (Sleep, Diaper, Pump, Tummy time, Growth, Health, Baby firsts, Play, Bath), each a line icon with one yellow accent, a title, the last entry and a plus button. A dismissible news card at the top. A small dog peeking over a card. One line at the foot: "Everything here is shared with your family the moment it is logged."
+- **Tab bar:** a floating pill with five tabs (Activity, History, Trends, Routine, Food); the chosen tab is ringed with a hand-drawn yellow scribble.
+- **History:** a week strip of dates, Today or Last 24 h, filter chips, an empty state. **Trends:** Activity or Growth, a range menu, "Not enough logged yet".
+- **Routine:** a shared plan for the day, with "Help me build a routine". **Food (beta):** meal plans and recipes, with a repeat of line-drawn foods behind the set-up card.
+- **Account:** a striped, scalloped awning over the list. Import from Nara, Huckleberry or any CSV; export as CSV or a PDF for the doctor; "Connect your AI"; delete account.
+- **Settings:** units as two-way pills (ml or oz), switches of their own design, and a paragraph under most settings saying why. Apple Health: the parent's own nursing and pumping go to their Health record; nothing about the baby does.
+- **Worth taking:** a line pattern behind a card (it supports our outline repeats); the one-line sharing promise on Today; import from other trackers and a PDF for the doctor (check against ours); Apple Health for the parent's own feeding, which is a real use of Health that needs nothing from a monitor.
+- **Not for us:** faces on objects (moon, star, bowl), which our brand rules out; an account and sign-in; em dashes and long paragraphs of explanation (one runs off the screen); nine cards and five tabs on the home screen.
