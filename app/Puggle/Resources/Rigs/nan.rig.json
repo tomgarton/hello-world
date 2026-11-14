@@ -4,7 +4,7 @@
   240,
   447
  ],
- "about": "Nan: Puggle's grandmother. A fur bun, pale blue reading glasses on her bill, a cardigan. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "about": "Nan: Puggle's grandmother. A fur bun, yellow half-moon reading glasses on her bill, a cardigan. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
  "parts": [
   {
    "id": "body",
@@ -1024,7 +1024,7 @@
      "kind": "path",
      "d": "M78 189 L108 189 C108 211 78 211 78 189 Z",
      "stroke": "#3A2A20",
-     "tint": "#E5543B",
+     "tint": "#F4BD2C",
      "width": 6.5,
      "cap": "round"
     },
@@ -1032,7 +1032,7 @@
      "kind": "path",
      "d": "M132 189 L162 189 C162 211 132 211 132 189 Z",
      "stroke": "#3A2A20",
-     "tint": "#E5543B",
+     "tint": "#F4BD2C",
      "width": 6.5,
      "cap": "round"
     },
@@ -1040,7 +1040,7 @@
      "kind": "path",
      "d": "M108 190 Q120 184 132 190",
      "stroke": "#3A2A20",
-     "tint": "#E5543B",
+     "tint": "#F4BD2C",
      "width": 6.5,
      "cap": "round"
     },
@@ -1048,7 +1048,7 @@
      "kind": "path",
      "d": "M78 189 L56 184 M162 189 L184 184",
      "stroke": "#3A2A20",
-     "tint": "#E5543B",
+     "tint": "#F4BD2C",
      "width": 6.5,
      "cap": "round"
     }

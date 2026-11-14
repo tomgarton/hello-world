@@ -4,7 +4,7 @@
   240,
   385
  ],
- "about": "Pop: Puggle's grandfather. Round green glasses, a green bucket hat, a button-up shirt and chinos. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "about": "Pop: Puggle's grandfather. Round red glasses, a green bucket hat, a button-up shirt and chinos. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
  "parts": [
   {
    "id": "body",
@@ -893,7 +893,7 @@
      "ry": 15.0,
      "stroke": "#3A2A20",
      "width": 6.5,
-     "tint": "#3C9B5F"
+     "tint": "#E5543B"
     },
     {
      "kind": "ellipse",
@@ -903,7 +903,7 @@
      "ry": 15.0,
      "stroke": "#3A2A20",
      "width": 6.5,
-     "tint": "#3C9B5F"
+     "tint": "#E5543B"
     },
     {
      "kind": "path",
@@ -911,7 +911,7 @@
      "stroke": "#3A2A20",
      "width": 6.5,
      "cap": "round",
-     "tint": "#3C9B5F"
+     "tint": "#E5543B"
     },
     {
      "kind": "path",
@@ -919,7 +919,7 @@
      "stroke": "#3A2A20",
      "width": 6.5,
      "cap": "round",
-     "tint": "#3C9B5F"
+     "tint": "#E5543B"
     }
    ]
   },

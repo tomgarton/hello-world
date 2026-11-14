@@ -103,11 +103,11 @@ def drawings():
     # garment's colour; the other colours it comes in; a line about them)
     return {
         'nan': (grown('nan', '#E5553B', ['', 'apron', 'skirt']), 456, '#E5553B', PAIRS['nan'],
-                "Nan: Puggle's grandmother. A fur bun, pale blue reading glasses on her bill, a cardigan."),
+                "Nan: Puggle's grandmother. A fur bun, yellow half-moon reading glasses on her bill, a cardigan."),
         'mum': (grown('mum', '#3C9A5F', ['', 'skirt', 'trousers']), 456, '#3C9A5F', PAIRS['mum'], "Mum: a daisy on her head, a dress."),
         'dad': (grown('dad', '#2A62B8', ['', 'jumper', 'overalls']), 456, '#2A62B8', PAIRS['dad'], "Dad: a shirt and shorts."),
         'pop': (grown('pop', '#BFD9F5', ['', 'waistcoat', 'jumper']), 456, '#BFD9F5', PAIRS['pop'],
-                "Pop: Puggle's grandfather. Round green glasses, a green bucket hat, a button-up shirt and chinos."),
+                "Pop: Puggle's grandfather. Round red glasses, a green bucket hat, a button-up shirt and chinos."),
         'pebble': ({'': baby('neutral', '#CFE5D2')}, 270, '#CFE5D2', ['#BFD9F5', '#F3D9C9', '#3C9A5F', '#E5553B'],
                    "Pebble: Puggle's baby brother, about six months, sitting in a mint babygro with a bottle, or a dummy when he sleeps. A round curl."),
         'quill': ({'': quill('dungarees'), 'jumper': quill('jumper'), 'tee': quill('tee')}, 300, '#E5553B', ['#2A62B8', '#3C9A5F', '#F4BE2C'],
@@ -953,11 +953,12 @@ def older(name, parts):
 
 
 def spectacles(name, parts):
-    """Nan's glasses are red half-moons, resting on her bill so her eyes look over them; Pop's are green and round,
-    round his eyes. Neither has glass in it, and the frame is thick enough to read when small.
-    The colours are one step off the brand's red and green (#E5543B, #3C9B5F), so that swapping a garment's colour
+    """Nan's glasses are wattle-yellow half-moons, resting on her bill so her eyes look over them; Pop's are red and
+    round, round his eyes. Neither has glass in it, and the frame is thick enough to read when small.
+    Yellow is the colour that reads best on brown fur and is none of her coat colours; red is the opposite of his
+    green hat. The colours are one step off the brand's (#F4BD2C, #E5543B), so that swapping a garment's colour
     for another never repaints the glasses with it."""
-    colour = {'nan': '#E5543B', 'pop': '#3C9B5F'}[name]
+    colour = {'nan': '#F4BD2C', 'pop': '#E5543B'}[name]
     glasses = next(p for p in parts if p['id'] == 'head-2')
     def frame(d): return {'kind': 'path', 'd': d, 'stroke': INK, 'tint': colour, 'width': 6.5, 'cap': 'round'}
     if name == 'nan':
