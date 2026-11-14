@@ -130,7 +130,7 @@ def svg(name, ink=INK, plain=False, size=24, spec=None):
     stroke = '#000000' if plain else ink
     inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{spec.get("weight", W)}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec['lines'])
     # Fine lines (1.5 points) are for a closed eye inside a small head, and nothing else.
-    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec.get('fine', []))
+    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{spec.get("fineweight", 1.5)}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec.get('fine', []))
     inner += ''.join(fill(d, ink, solid=True) for d in spec['ink'])
     if spec['turn']: inner = f'<g transform="rotate({spec["turn"]} 12 12)">{inner}</g>'
     box = spec.get('box', 24)
@@ -241,8 +241,7 @@ def alternates():
         plain = art(small(spec), plain=True, size=22).replace('#000000', '#3A2A20')
         cells += (f'<div class="c"><div class="big">{art(spec, size=190)}</div><div class="r">{row}'
                   f'<span class="dk">{art(spec, ink=DARK, size=30)}</span><span class="pl">{plain}</span></div>'
-                  f'<div class="tiles"><div class="tile">{art(spec, size=34)}<b>Breastfeed</b><span>12:10</span></div>'
-                  f'<div class="tile">{art(spec, size=40)}<b>Breastfeed</b><span>12:10</span></div></div>'
+                  f'<div class="tiles"><div class="tile">{art(spec, size=40)}<b>Breastfeed</b><span>12:10</span></div></div>'
                   f'<h3>{title}</h3><p>{text}</p></div>')
     tones = ''.join(f'<div class="t">{art(breast(a, b), size=84)}{art(nursing(a, b), size=84)}</div>' for a, b in TONES)
     html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Breastfeeding icon, the choices</title><style>
@@ -257,14 +256,86 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 .tiles{{display:flex;gap:8px}}
 .tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
-<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 34 points (as now) and at 40.</p>
+<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
 <div class="g">{cells}</div>
 <h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
     open(os.path.join(OUT, 'breastfeeding.html'), 'w').write(html)
 
 
+# Three drawings of every icon (14 November 2026), as SF Symbols and Fluent have:
+#   small    the drawings above: a 24 canvas and a 2 point line. For lists and anything under 24 points.
+#   regular  the same shapes at the proportions of a 32 canvas (a 2.2 line there, which is 1.65 here), plus
+#            details in a fine line (1.5 there, 1.125 here). For tiles.
+#   large    a 48 canvas, for where an icon stands alone. Not drawn yet.
+# DETAIL holds what the regular drawing adds to the small one. `drop` removes small-drawing lines it replaces.
+MILK = 'M5.9 14.5H18.1C18.4 15.3 18.5 16.1 18.5 17V19A3 3 0 0 1 15.5 22H8.5A3 3 0 0 1 5.5 19V17C5.5 16.1 5.6 15.3 5.9 14.5Z'
+DETAIL = {
+    'bottle': dict(drop=[3], sky=[MILK], fine=['M5.9 14.5H18.1', 'M8.5 16.5H10.5M8.5 18.5H11.5M8.5 20.3H10.5'], note='Milk in the bottle, and three measure marks.'),
+    'pump': dict(fine=['M10 17.5H20', 'M17.8 15.5H20'], note='The milk has a surface, and the bottle a mark.'),
+    'solids': dict(fine=['M5.5 15.5C9 17.2 15 17.2 18.5 15.5'], note='A stripe round the bowl.'),
+    'sleep': dict(ink=[sparkle(15, 10, 1.5), sparkle(21, 10.5, 1.2)], note='Two more stars.'),
+    'nappy': dict(fine=['M8.5 7.3H15.5', 'M12 12.5V16.5'], note='A waistband seam and a centre fold.'),
+    'potty': dict(fine=['M6 19.3H9.5'], note='A highlight on the base.'),
+    'bath': dict(fine=[circle(19.5, 3.8, 1.2), 'M6 14.5Q8 13.2 10 14.5Q12 15.8 14 14.5'], note='A third bubble and a ripple.'),
+    'growth': dict(fine=['M7.5 4.5H9.5M7.5 8.5H9.5M7.5 12.5H9.5M7.5 16.5H9.5'], note='Half marks between the marks.'),
+    'weight': dict(fine=['M9 15.5H15'], note='A readout under the dial.'),
+    'temperature': dict(fine=['M17.5 5.5H19.5M17.5 8.5H19.5M17.5 11.5H19.5'], note='A scale beside the tube.'),
+    'medicine': dict(fine=['M14.5 10.5H17'], note='A highlight on the capsule.'),
+    'vaccine': dict(fine=['M13 9.5H15M13 12H15M13 14.5H15'], note='Marks on the barrel.'),
+    'teeth': dict(fine=['M6.5 8C6.5 6.8 7.2 6 8.3 6'], note='A highlight.'),
+    'milestone': dict(ink=[sparkle(20, 17.5, 1.7)], note='A third sparkle.'),
+    'tummy-time': dict(fine=['M17.4 9.3Q18.2 10.1 19 9.3', 'M5.5 16H10'], note='A closed eye, and a fold in the blanket.'),
+    'play': dict(fine=[circle(12, 6.5, 1.5), 'M4.8 17.8H7.8M6.3 16.3V19.3', 'M17.8 19.3L16 16.3H19.6Z'], note='A shape on each block.'),
+    'walk': dict(fine=['M10 10.5L5.4 5.9', 'M6.5 15.5V18.5M13.5 15.5V18.5'], note='A rib in the hood, and legs to the wheels.'),
+    'note': dict(fine=['M8.5 8.5H11'], note='A third line of writing.'),
+    'photo': dict(fine=['M10.6 13.2A1.6 1.6 0 0 1 12 11.9'], ink=[circle(18, 10, .9)], note='A flash, and a glint on the lens.'),
+    'wee': dict(fine=['M9 14.5C9 16.5 10 17.8 11.5 18.3'], note='A highlight.'),
+    'poo': dict(fine=['M14 17.5H17'], note='One more fold.'),
+}
+
+
+def regular(name):
+    spec, more = ICONS[name], DETAIL.get(name, {})
+    out = dict(spec, weight=1.65, fineweight=1.125, fine=list(more.get('fine', [])))
+    out['lines'] = [d for i, d in enumerate(spec['lines']) if i not in more.get('drop', [])]
+    for key in ('sky', 'wattle', 'ink'):
+        out[key] = list(spec[key]) + list(more.get(key, []))
+    return out
+
+
+def size_sheet():
+    """The sheet for the three sizes: every icon small in a list, and regular on a tile and close up."""
+    folder = os.path.join(OUT, 'v2', 'regular')
+    os.makedirs(folder, exist_ok=True)
+    cells = ''
+    for name in ICONS:
+        reg = regular(name)
+        open(os.path.join(folder, f'icon-{name}.svg'), 'w').write(svg(name, spec=reg))
+        plain = lambda s: svg(name, plain=True, size=s).replace('#000000', '#3A2A20')
+        label = name.replace('-', ' ').capitalize()
+        cells += (f'<div class="c"><div class="pair"><div class="big">{svg(name, size=96)}<i>small</i></div><div class="big">{svg(name, spec=reg, size=96)}<i>regular</i></div></div>'
+                  f'<div class="use"><span class="pl">{plain(20)}</span><span class="pl sm">{plain(17)}</span>'
+                  f'<div class="tile">{svg(name, spec=reg, size=40)}<b>{label}</b></div>'
+                  f'<span class="dk">{svg(name, spec=reg, ink=DARK, size=40)}</span></div>'
+                  f'<h3>{label}</h3><p>{DETAIL.get(name, {}).get("note", "No change yet.")}</p></div>')
+    html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Puggle icons, three sizes</title><style>
+body{{margin:0;padding:34px;background:#EFE7D4;font:15px/1.4 -apple-system,system-ui,sans-serif;color:#3A2A20;width:1180px}}
+h1{{margin:0 0 4px;font-size:30px;letter-spacing:-.02em}}.lede{{margin:0 0 22px;color:#6B5E52;font-size:17px;max-width:84ch}}
+h3{{margin:10px 0 2px;font-size:17px}}p{{margin:0;color:#6B5E52}}i{{display:block;font-style:normal;font-size:12px;color:#6B5E52;text-align:center}}
+.g{{display:flex;flex-wrap:wrap;gap:30px 20px}}.c{{width:220px}}.pair{{display:flex;gap:8px}}
+.big{{background:#FBF6E9;border-radius:18px;width:106px;padding:6px 0 4px;display:grid;place-items:center}}
+.use{{display:flex;align-items:center;gap:8px;margin-top:8px}}.pl{{background:#EAE2D2;border-radius:50%;width:36px;height:36px;display:grid;place-items:center}}.pl.sm{{width:30px;height:30px}}
+.tile{{width:76px;height:76px;border-radius:18px;background:#FBF6E9;display:flex;flex-direction:column;align-items:center;justify-content:center}}
+.tile b{{font-size:11px;margin-top:2px}}.dk{{background:#2A2420;border-radius:16px;width:60px;height:60px;display:grid;place-items:center}}
+</style></head><body><h1>Puggle icons, three sizes</h1>
+<p class="lede">Small is for lists: the drawing as it was. Regular is for tiles: the same shapes with a finer line and a little more detail, shown at 40 points. Large, for where an icon stands alone, is not drawn yet. Under each pair: the small drawing in a list at 20 and 17 points, then the regular one on a tile and in dark.</p>
+<div class="g">{cells}</div></body></html>'''
+    open(os.path.join(OUT, 'sizes.html'), 'w').write(html)
+
+
 def main():
     alternates()
+    size_sheet()
     os.makedirs(os.path.join(OUT, 'v2'), exist_ok=True)
     for name in ICONS:
         with open(os.path.join(OUT, 'v2', f'icon-{name}.svg'), 'w') as out: out.write(svg(name))
@@ -294,7 +365,7 @@ def main():
     dark = ''.join(chip(svg(n, ink=DARK, size=30), '#2A2420') for n in ICONS)
     mono = ''.join(chip(f'<span style="color:#3A2A20">{svg(n, plain=True, size=22).replace("#000000", "#3A2A20")}</span>', '#EAE2D2') for n in ICONS)
     tiny = ''.join(svg(n, size=17) for n in ICONS)
-    tile = lambda n, label, sub: (f'<div class="tile">{svg(n, size=34)}<b>{label}</b><span>{sub}</span></div>')
+    tile = lambda n, label, sub: (f'<div class="tile">{svg(n, spec=regular(n), size=40)}<b>{label}</b><span>{sub}</span></div>')
     listrow = lambda n, what, when: (f'<div class="lr"><span class="ic">{svg(n, plain=True, size=20).replace("#000000", "#3A2A20")}</span><b>{what}</b><span>{when}</span></div>')
     context = (f'<div class="ctx"><div class="tiles">{tile("bottle", "Feeding", "14:52")}{tile("nappy", "Nappy", "Ollie 16:00")}{tile("potty", "Potty", "14:40")}'
                f'{tile("breastfeed", "Breastfeed", "12:10")}{tile("sleep", "Sleep", "1h 59m")}</div>'
