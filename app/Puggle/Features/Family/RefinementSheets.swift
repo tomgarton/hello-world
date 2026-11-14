@@ -73,25 +73,63 @@ enum RefinementSheets {
         hop(puggle)
         pair(puggle)
         tuftAndPoses(puggle)
+        tuftOptions(puggle)
     }
 
     // MARK: 8. A tuft of hair, and arms that bend
 
     private static let dark = "#3A2A20", fur = "#8A5A3C", furLine = "#5E3A24", sleeve = "#2A62B8", sleeveLine = "#1B4387"
 
-    /// Three locks that are part of her head: the same fur and the same line, joined to it, so the top of her
-    /// head is no longer a plain curve. They sit left of centre, clear of her clip.
-    private static func withTuft(_ rig: Rig) -> Rig {
+    /// Ways to draw a tuft that is part of her head: the same fur and the same line, joined to it.
+    /// Each sits left of centre, clear of her clip. `join` is where the fur covers the seam.
+    private static let tufts: [(name: String, locks: [String], join: (CGFloat, CGFloat))] = [
+        ("A. As it was: tall", ["M85 62 Q78 44 84 34 Q91 25 98 34 Q104 44 104 60 Z", "M100 58 Q98 36 106 25 Q114 16 120 26 Q125 38 121 56 Z",
+                                "M117 58 Q121 42 128 35 Q137 29 140 38 Q141 48 133 60 Z"], (86, 131)),
+        ("B. Shorter", ["M89 62 Q84 49 89 43 Q94 38 99 44 Q103 51 104 60 Z", "M101 58 Q100 44 107 37 Q114 32 119 39 Q123 46 121 56 Z",
+                        "M118 58 Q121 49 127 45 Q134 42 136 47 Q137 53 132 60 Z"], (90, 130)),
+        ("C. Two locks", ["M97 60 Q94 46 100 40 Q106 35 111 42 Q114 50 113 58 Z", "M110 58 Q112 47 119 42 Q126 39 128 45 Q129 52 124 58 Z"], (98, 123)),
+        ("D. One lick, leaning", ["M103 58 Q99 44 107 37 Q118 31 124 39 Q117 40 116 47 Q116 53 120 57 Z"], (104, 119)),
+        ("E. Low fluff", ["M91 60 Q89 49 97 47 Q106 47 106 58 Z", "M103 58 Q103 44 112 43 Q122 44 121 57 Z", "M118 58 Q119 48 127 48 Q135 50 134 60 Z"], (92, 132)),
+    ]
+
+    private static func withTuft(_ rig: Rig, _ style: Int = 0) -> Rig {
         var copy = rig
         guard let head = copy.parts.firstIndex(where: { $0.id == "head" }) else { return rig }
-        var locks: [Rig.Shape] = []
-        for d in ["M85 62 Q78 44 84 34 Q91 25 98 34 Q104 44 104 60 Z", "M100 58 Q98 36 106 25 Q114 16 120 26 Q125 38 121 56 Z", "M117 58 Q121 42 128 35 Q137 29 140 38 Q141 48 133 60 Z"] {
-            locks.append(Rig.Shape(kind: "path", d: d, fill: fur, stroke: dark, tint: furLine, width: 7))
-        }
+        let tuft = tufts[style]
+        var locks = tuft.locks.map { Rig.Shape(kind: "path", d: $0, fill: fur, stroke: dark, tint: furLine, width: 7) }
         // Fur over the join, so the locks and the head read as one shape with one outline.
-        locks.append(Rig.Shape(kind: "path", d: "M86 58 Q108 50 131 57 L133 74 L84 74 Z", fill: fur))
+        let l = tuft.join.0, r = tuft.join.1
+        locks.append(Rig.Shape(kind: "path", d: "M\(Int(l)) 58 Q\(Int((l + r) / 2)) 50 \(Int(r)) 57 L\(Int(r) + 2) 74 L\(Int(l) - 2) 74 Z", fill: fur))
         copy.parts[head].shapes.append(contentsOf: locks)
         return copy
+    }
+
+    /// Each tuft three ways: close up, as a solid shape, and at the sizes she appears in the app.
+    private static func tuftOptions(_ puggle: Rig) {
+        func column(_ title: String, _ rig: Rig) -> some View {
+            VStack(spacing: 10) {
+                Text(title).font(.system(size: 14, weight: .bold)).foregroundStyle(ink).frame(width: 190)
+                RigFrame(rig: rig, states: [:]).frame(width: 260, height: 325)
+                    .frame(width: 200, height: 200, alignment: .top).clipped()
+                RigFrame(rig: silhouette(rig), states: [:]).frame(width: 260, height: 325)
+                    .frame(width: 200, height: 150, alignment: .top).clipped()
+                HStack(alignment: .bottom, spacing: 16) {
+                    RigFrame(rig: rig, states: [:]).frame(width: 94, height: 118)
+                    RigFrame(rig: rig, states: [:]).frame(width: 60, height: 75).frame(width: 44, height: 44, alignment: .top)
+                        .background(Color(hex: 0xBFD9F5)).clipShape(Circle())
+                }
+                .frame(height: 122, alignment: .bottom)
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 14) {
+            Text("Tuft options. Top: close up. Middle: as a solid shape. Bottom: at the size she is on Today, and as a small round picture")
+                .font(.system(size: 14, weight: .bold)).foregroundStyle(ink)
+            HStack(alignment: .top, spacing: 12) {
+                column("Now: no tuft", puggle)
+                ForEach(tufts.indices, id: \.self) { index in column(tufts[index].name, withTuft(puggle, index)) }
+            }
+        }
+        save(sheet, as: "refine-9-tuft-options.png")
     }
 
     /// An arm as one curve from the shoulder, through an elbow, to wherever the hand needs to be.
