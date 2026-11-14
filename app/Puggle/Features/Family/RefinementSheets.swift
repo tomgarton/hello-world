@@ -96,6 +96,13 @@ enum RefinementSheets {
             Text("Under the hats").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
             pair("Digby", digby)
             pair("Sunny", sunny)
+            HStack(alignment: .bottom, spacing: 12) {
+                if let puggle = Rig.load("puggle"), let mum = Rig.load("mum") {
+                    cell(puggle, height: 150, caption: "Puggle's beanie", headOnly: true).environment(\.outfit, "warm")
+                    cell(mum, height: 150, caption: "Mum's beanie", headOnly: true).environment(\.outfit, "warm")
+                    cell(sunny, height: 150, caption: "Sunny's beanie", headOnly: true).environment(\.outfit, "warm")
+                }
+            }
         }
         save(sheet, as: "hats-off.png")
     }

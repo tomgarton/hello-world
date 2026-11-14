@@ -666,6 +666,50 @@ def grow_hair(name, parts):
     parts[at:at] = behind
     return parts
 
+
+# Hats (Tom, 14 November 2026): a pompom is wool, so its edge is tufted, not a smooth ball; and
+# Sunny's ears come up through the brim of her sun hat.
+def fuzzy(x, y, r, tufts=14):
+    """A pompom: many short soft points of uneven length all the way round (the line's round joins blunt them)."""
+    pts = []
+    for k in range(tufts * 2):
+        a = math.pi * k / tufts - math.pi / 2
+        rad = (r + (3.6, 2.2, 3.0)[(k // 2) % 3]) if k % 2 == 0 else r - 0.4
+        pts.append(f'{x + rad * math.cos(a):.1f} {y + rad * math.sin(a):.1f}')
+    return 'M' + ' L'.join(pts) + ' Z'
+
+def lower_half(x, y, rx, ry):
+    """The front half of a brim, as curves."""
+    d, steps = f'M{x - rx:g} {y:g}', 4
+    for k in range(steps):
+        a0, a1 = math.pi - math.pi * k / steps, math.pi - math.pi * (k + 1) / steps
+        m, h = (a0 + a1) / 2, (a0 - a1) / 2
+        d += f' Q{x + rx * math.cos(m) / math.cos(h):.1f} {y + ry * math.sin(m) / math.cos(h):.1f} {x + rx * math.cos(a1):.1f} {y + ry * math.sin(a1):.1f}'
+    return d
+
+def finish_hats(name, parts):
+    by_id = {p['id']: p for p in parts}
+    if name == 'digby':
+        hat = by_id['head-2']
+        ball = next(s for s in hat['shapes'] if s['kind'] == 'ellipse')
+        hat['shapes'][hat['shapes'].index(ball)] = {'kind': 'path', 'd': fuzzy(ball['x'], ball['y'], ball['rx']), 'fill': ball['fill'],
+                                                    'stroke': ball['stroke'], 'tint': ball.get('tint'), 'width': 3.5}
+    if name == 'sunny':
+        hat = by_id['head-2']
+        brim = hat['shapes'][0]
+        through = []
+        for side in ('left', 'right'):
+            ear = by_id[f'ear-{side}']
+            through.append({'id': f'ear-{side}-through', 'parent': ear['id'], 'pivot': ear['pivot'], 'when': hat['when'], 'shapes': json.loads(json.dumps(ear['shapes']))})
+        # The front of the brim goes back over the ears, so they come up through it and not over it.
+        front = lower_half(brim['x'], brim['y'], brim['rx'], brim['ry'])
+        through.append({'id': 'brim-front', 'parent': 'head', 'pivot': hat['pivot'], 'when': hat['when'], 'shapes': [
+            {'kind': 'path', 'd': front + ' Z', 'fill': brim['fill']},
+            {'kind': 'path', 'd': front, 'stroke': brim['stroke'], 'tint': brim.get('tint'), 'width': brim['width'], 'cap': 'round'}]})
+        at = parts.index(hat) + 1
+        parts[at:at] = through
+    return parts
+
 def build(name, svg, height, about, shade, moves, puggle):
     grown = height > 400
     if grown:
@@ -805,6 +849,7 @@ def build(name, svg, height, about, shade, moves, puggle):
     parts = join_to_head(name, parts)
     parts = grow_hair(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
+    parts = finish_hats(name, parts)
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.
     borrowed = {}
