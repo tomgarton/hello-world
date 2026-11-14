@@ -69,7 +69,7 @@ private struct ProtectedCover<Item: Identifiable, Cover: View>: ViewModifier {
             .environment(\.puggleNight, night)
             .environment(\.closeCover) { binding.wrappedValue = nil }
             .tint(Palette.ink)
-            .toggleStyle(PuggleToggleStyle())
+            .toggleStyle(SwitchToggleStyle(tint: Color(.systemGreen)))
             .foregroundStyle(Palette.ink)
         let controller = ProtectedHostingController(rootView: AnyView(screen))
         controller.view.backgroundColor = UIColor(Palette.sand)

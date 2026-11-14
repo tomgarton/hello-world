@@ -919,3 +919,5 @@ Privacy and technical
 - These three have `exact: true`, so the night's half-size movement does not leave hands short of the cheeks or the book.
 - **Not yet wired in:** nothing in the app plays `oh`, `read` or `hug` yet. Only the new wave is live. To decide: when each happens (reading in the living room or at bedtime, the rabbit at bedtime, "oh" for a surprise).
 - Sheet: `docs/previews/bending-arms.png`. In motion: `docs/previews/refinements/bending-arms.mp4` (the first part of "-debugAnimTest 1").
+
+**Switches: back to the standard iOS one (Tom, 2026-11-14).** The app's own switch (ink track, paper knob with a tick) is removed. Every switch is now the system one in its usual green; the green is set explicitly because the app's ink tint would otherwise turn it brown. Known cost: in the night look the green track and white knob are brighter than everything else on the screen.

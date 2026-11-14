@@ -123,8 +123,8 @@ struct PuggleApp: App {
                     if !locked, scenePhase == .active { PrivacyShield.shared.hide() }
                 }
                 .tint(Palette.ink)
-                // Switches with clear contrast in day, dark and night.
-                .toggleStyle(PuggleToggleStyle())
+                // The standard iOS switch, in its usual green; the app's ink tint would turn it brown.
+                .toggleStyle(SwitchToggleStyle(tint: Color(.systemGreen)))
                 // Warm ink everywhere by default, so nothing falls back to white in dark.
                 .foregroundStyle(Palette.ink)
         }

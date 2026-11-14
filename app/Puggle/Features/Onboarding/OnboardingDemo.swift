@@ -48,7 +48,7 @@ struct OnboardingDemoView: View {
                 .background(Palette.wattle)
             }
             .tint(Palette.ink)
-            .toggleStyle(PuggleToggleStyle())
+            .toggleStyle(SwitchToggleStyle(tint: Color(.systemGreen)))
             .foregroundStyle(Palette.ink)
     }
 }
