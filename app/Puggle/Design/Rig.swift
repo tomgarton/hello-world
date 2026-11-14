@@ -362,6 +362,11 @@ final class RigRuntime {
     /// For tests: a blink or a head tilt asked for now, in place of waiting for one.
     var blinkAt: Date?
     var tiltAt: (start: Date, side: Double)?
+    /// Poses held on top of everything else, by part: how ears, spines and hair show a feeling.
+    var held: [String: PartState] = [:]
+    /// Eyes in the middle of a quick move, drawn stretched along the way for a moment.
+    private var smears: [String: (from: [Double], start: Date)] = [:]
+    private var eyesWere: [String: [Double]] = [:]
 
     /// How far open the eyes are, `since` seconds into a blink: 1 open, about 0.1 shut. Nil when not blinking.
     private func blink(_ since: Double) -> Double? {
@@ -446,7 +451,7 @@ final class RigRuntime {
                 let side = tilt.side, since = tilt.since
                 if since < 1.5 { for eye in ["eye-left", "eye-right"] { change(eye) { $0.x += 4.5 * side } } }
                 if since >= 0.16, since < 1.62 { change("head") { $0.r += 7 * side } }
-                if since >= 0.3, since < 1.76 { change("clip") { $0.r += 5 * side } }
+                if since >= 0.3, since < 1.76 { for late in ["clip", "lick", "curl"] { change(late) { $0.r += 5 * side } } }
                 open = blink(since - 0.1) ?? blink(since - 1.46) ?? open
             } else if let tilt, tilt.since < 1.5 {
                 change("head") { $0.r += 6 * tilt.side }
@@ -487,6 +492,9 @@ final class RigRuntime {
                 for (feature, shape) in key.face ?? [:] { showing[feature] = shape }
             }
         }
+        for (id, pose) in held {
+            change(id) { $0.r += pose.r; $0.x += pose.x; $0.y += pose.y; $0.sx *= pose.sx; $0.sy *= pose.sy }
+        }
         face = showing
         return states
     }
@@ -512,8 +520,24 @@ final class RigRuntime {
             let aim = (goal[part.id] ?? .rest).values
             let stiffness = springs[part.id] ?? 260
             guard stiffness > 0 else {
+                var drawn = aim
+                if refined, part.id.hasPrefix("eye-") {
+                    // A quick eye move is one stretched frame or two, then round again at the new place.
+                    let was = eyesWere[part.id] ?? aim
+                    if hypot(aim[1] - was[1], aim[2] - was[2]) >= 3 { smears[part.id] = (was, date) }
+                    eyesWere[part.id] = aim
+                    if let smear = smears[part.id], date.timeIntervalSince(smear.start) < 0.065 {
+                        let dx = aim[1] - smear.from[1], dy = aim[2] - smear.from[2]
+                        let radius = part.shapes.first?.rx ?? 6.5
+                        drawn[1] = smear.from[1] + dx / 2
+                        drawn[2] = smear.from[2] + dy / 2
+                        drawn[0] += atan2(dy, dx) * 180 / .pi
+                        drawn[3] *= 1 + hypot(dx, dy) / (2 * radius)
+                        drawn[4] *= 0.86
+                    }
+                }
                 shown[part.id] = aim
-                result[part.id] = PartState(aim)
+                result[part.id] = PartState(drawn)
                 continue
             }
             var value = shown[part.id] ?? aim

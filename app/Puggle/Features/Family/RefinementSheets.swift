@@ -76,6 +76,88 @@ enum RefinementSheets {
         tuftOptions(puggle)
         heroes(puggle)
         headParts(puggle)
+        feelings(puggle)
+        parentHair()
+    }
+
+    // MARK: Hair for Mum and Dad
+
+    /// Hair drawn the way the ears are: the outlined shape behind the head, its fur over the seam in front.
+    private static func withHair(_ rig: Rig, _ locks: [String]) -> Rig {
+        var copy = rig
+        guard let face = copy.parts.firstIndex(where: { $0.id == "face" }) else { return rig }
+        let behind = locks.map { Rig.Shape(kind: "path", d: $0, fill: fur, stroke: dark, tint: furLine, width: 14) }
+        let over = locks.map { Rig.Shape(kind: "path", d: $0, fill: fur) }
+        copy.parts.insert(Rig.Part(id: "hair-top", parent: "hair", pivot: [120, 60], spring: nil, when: nil, shapes: over), at: face + 1)
+        copy.parts.insert(Rig.Part(id: "hair", parent: "head", pivot: [120, 60], spring: 120, when: nil, shapes: behind), at: face)
+        return copy
+    }
+
+    private static let mumHair: [(String, [String])] = [
+        ("A. A side sweep", ["M88 64 Q80 44 96 35 Q114 28 130 38 Q139 45 137 55 Q128 46 117 48 Q107 52 110 64 Z"]),
+        ("B. Two soft curls", ["M92 62 Q82 46 93 37 Q106 31 112 42 Q103 45 106 60 Z", "M106 60 Q108 42 121 37 Q135 36 138 48 Q127 45 123 60 Z"]),
+        ("C. A bob that flicks out", ["M58 124 Q36 132 30 114 Q42 122 56 108 Z", "M182 124 Q204 132 210 114 Q198 122 184 108 Z"]),
+        ("D. Sweep and flicks", ["M88 64 Q80 44 96 35 Q114 28 130 38 Q139 45 137 55 Q128 46 117 48 Q107 52 110 64 Z",
+                                 "M58 124 Q36 132 30 114 Q42 122 56 108 Z", "M182 124 Q204 132 210 114 Q198 122 184 108 Z"]),
+    ]
+    private static let dadHair: [(String, [String])] = [
+        ("A. A scruffy crest", ["M98 62 Q93 46 101 37 Q109 44 112 60 Z", "M109 60 Q111 40 120 30 Q129 40 129 60 Z", "M126 60 Q130 45 139 39 Q144 48 139 62 Z"]),
+        ("B. A flat brush", ["M86 64 Q85 48 94 43 L101 49 L109 39 L118 47 L126 38 L134 47 L142 42 Q154 49 152 64 Z"]),
+        ("C. Cheek tufts", ["M58 116 L34 122 L52 130 L36 142 L60 142 Z", "M182 116 L206 122 L188 130 L204 142 L180 142 Z"]),
+        ("D. Crest and cheek tufts", ["M109 60 Q111 40 120 30 Q129 40 129 60 Z", "M98 62 Q93 46 101 37 Q109 44 112 60 Z", "M126 60 Q130 45 139 39 Q144 48 139 62 Z",
+                                      "M58 116 L34 122 L52 130 L36 142 L60 142 Z", "M182 116 L206 122 L188 130 L204 142 L180 142 Z"]),
+    ]
+
+    private static func parentHair() {
+        guard let mum = Rig.load("mum"), let dad = Rig.load("dad") else { return }
+        func column(_ name: String, _ rig: Rig) -> some View {
+            VStack(spacing: 6) {
+                cell(rig, height: 150, headOnly: true)
+                HStack(spacing: 8) {
+                    RigFrame(rig: rig, states: [:], face: nil).frame(width: 70 * rig.size[0] / rig.size[1], height: 70)
+                    RigFrame(rig: silhouette(rig), states: [:], face: nil).frame(width: 70 * rig.size[0] / rig.size[1], height: 70)
+                }
+                Text(name).font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 18) {
+            Text("Hair for Mum and Dad: the head close up, then small, in colour and as a solid shape").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            row("Mum") {
+                column("Now", mum)
+                ForEach(mumHair.indices, id: \.self) { i in column(mumHair[i].0, withHair(mum, mumHair[i].1)) }
+            }
+            row("Dad") {
+                column("Now", dad)
+                ForEach(dadHair.indices, id: \.self) { i in column(dadHair[i].0, withHair(dad, dadHair[i].1)) }
+            }
+        }
+        save(sheet, as: "parent-hair.png")
+    }
+
+    /// What ears, spines and hair do for each feeling: the poses the animation test plays.
+    private static func feelings(_ puggle: Rig) {
+        let cast = [puggle, Rig.load("pebble"), Rig.load("kip"), Rig.load("quill"), Rig.load("sunny")].compactMap { $0 }
+        func line(_ name: String, _ held: [String: PartState]) -> some View {
+            HStack(spacing: 6) {
+                Text(name).font(.system(size: 15, weight: .bold)).frame(width: 96, alignment: .leading)
+                ForEach(cast.indices, id: \.self) { i in
+                    var states = held
+                    if cast[i].name == "Sunny" { states["head-2"] = state(y: -400) }   // hat off, to see her ears
+                    return RigFrame(rig: cast[i], states: states, face: nil).frame(width: 132, height: 132 * cast[i].size[1] / 300)
+                        .frame(height: 150, alignment: .bottom)
+                }
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 8) {
+            Text("Ears, spines and hair for each feeling (proposed)").font(.system(size: 17, weight: .bold))
+            line("At rest", [:])
+            ForEach(AnimationTestView.feelings.indices, id: \.self) { i in
+                line(AnimationTestView.feelings[i].name, AnimationTestView.feelings[i].held)
+            }
+        }
+        .padding(24).background(Color(red: 0.95, green: 0.93, blue: 0.87)).foregroundStyle(Color(red: 0.23, green: 0.16, blue: 0.13))
+        .environment(\.lineStyle, .chosen)
+        save(sheet, as: "feelings.png")
     }
 
     /// Ears, spines, bun, curl and lick are parts of their own: at rest, and each one posed by itself.
