@@ -156,7 +156,7 @@ TONES = [('#F3D9C9', '#C27C66'), ('#E9C4A2', '#B0704F'), ('#CF9B6E', '#8E5637'),
 
 
 def breast(tone, areola):
-    return icon([BREAST], tint=[(BREAST, tone), (circle(16, 15, 2.5), areola, True)])
+    return icon([BREAST32], box=32, weight=2.2, tint=[(BREAST32, tone), (circle(21.5, 20, 3.3), areola, True)])
 
 
 # The four with a baby in them are drawn on a 32 canvas, not 24. That is the room a closed eye, an ear, hair and
@@ -195,28 +195,32 @@ def nursing(tone, areola):
 MUM, BUB = head(12.5, 9.5, 6, 40), head(21.5, 21, 5, 205)
 TORSO = 'M8 13.5C5.2 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H21C24.5 28.5 27 26.5 26.3 22.4'
 FRINGE = 'M6.7 11C11 11 15 9 17 5.5'
-BUN = 'M8.9 4.7A3 3 0 1 0 6.6 8.4'
+BUN = 'M9.1 4.6A2.4 2.4 0 1 0 6.8 7.7'
+ARM = 'M8.5 20.5C10 24 14.5 26.5 20 26.2C22.5 26 24.8 25.2 26.2 23.8'
+BREAST32 = 'M10 3.5C17.5 7 27.5 11.5 27.5 18.5A10.5 10.5 0 0 1 17 29.5C10 29.5 4.5 24.5 4.5 18C4.5 12.5 7.5 8 10 3.5Z'
+LAP = 'M4.58 17.3C8.5 16 12.5 22 18.5 22C22 22 24.5 18 27.42 17.3'
 DROP32 = 'M16 2.5C21.5 9 26.5 14 26.5 19.5A10.5 10.5 0 0 1 5.5 19.5C5.5 14 10.5 9 16 2.5Z'
 HEART32 = 'M16 28C9.5 23.5 3 18.5 3 11.5A6.5 6.5 0 0 1 16 9A6.5 6.5 0 0 1 29 11.5C29 18.5 22.5 23.5 16 28Z'
 # A swaddled body: it leaves the head and tapers away to a rounded end.
 POD_DROP = 'M21.6 19.6C21.8 23.5 17.5 26.5 13.2 25.8C10.5 25.3 9.6 22.8 11 21C12 19.7 13.5 18.3 14.6 16.3'
 POD_HEART = 'M22.6 17.6C22.7 20.8 19 23.2 15.4 22.6C13.1 22.2 12.3 20.1 13.5 18.5C14.3 17.4 14.9 16 15.6 14.3'
 
+# One colour rule for all five: skin where there is a breast, and otherwise the baby's head is Wattle.
 ALTERNATES = {
-    'breast': (ICONS['breastfeed'], 'Breast', 'As now. The plainest, and the one most likely to be unwelcome somewhere.'),
+    'breast': (breast(*TONES[0]), 'Breast', 'The plainest, and the one most likely to be unwelcome somewhere. Now on the same canvas as the others.'),
     'nursing': (nursing(*TONES[0]), 'Breast and baby', 'The baby is tucked against the breast, eye closed, wrapped in a blanket. A little of the areola shows.'),
-    'held': (icon([MUM, BUN, BUB, TORSO, FRINGE, 'M14 15.3C15.5 16.5 17.5 16.8 19 16.7', 'M17.2 23.6C14.5 24.3 13 26 12.5 28.5'],
+    'held': (icon([MUM, BUN, BUB, TORSO, FRINGE, 'M14 15.3C15.5 16.5 17.5 16.8 19 16.7', 'M17.2 23.6C16 23.9 15 24.4 14.1 25.1', ARM],
                   fine=[eye(14.4, 10.8), eye(20.6, 20.2, 1.2)], box=32, weight=BIG,
-                  sky=['M8 13.5C5.2 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H12.5C13 26 14.5 24.3 17.2 23.6A5 5 0 0 1 19 16.7C17.5 16.8 15.5 16.5 14 15.3A6 6 0 0 1 8 13.5Z'],
-                  wattle=[FRINGE + 'A6 6 0 0 0 6.7 11Z', BUN + 'A6 6 0 0 1 8.9 4.7Z',
-                          'M12.5 28.5C13 26 14.5 24.3 17.2 23.6A5 5 0 0 0 26.3 22.4C27 26.5 24.5 28.5 21 28.5Z']),
-             'Parent and baby', 'The parent looks down at the baby, and the baby turns in to the parent. No breast and no skin colour.'),
+                  sky=['M8 13.5C5.2 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H21C24.5 28.5 27 26.5 26.3 22.4L26.2 23.8C24.8 25.2 22.5 26 20 26.2'
+                       'C18 26.4 16 26.2 14.1 25.1C15 24.4 16 23.9 17.2 23.6A5 5 0 0 1 19 16.7C17.5 16.8 15.5 16.5 14 15.3A6 6 0 0 1 8 13.5Z'],
+                  wattle=[FRINGE + 'A6 6 0 0 0 6.7 11Z', BUN + 'A6 6 0 0 1 9.1 4.6Z', BUB]),
+             'Parent and baby', 'The parent has an arm around the baby. No breast and no skin colour.'),
     'drop': (icon([DROP32, head(18.5, 17, 4, 195), POD_DROP], fine=[eye(17.6, 16.6, 1.1), 'M13.5 23C15.3 23.3 17.3 22.5 18.4 21.2'], box=32, weight=BIG,
                   sky=[POD_DROP + 'A4 4 0 0 0 21.6 19.6Z'], wattle=[head(18.5, 17, 4, 195)]),
              'Milk drop', 'A swaddled, sleeping baby inside a drop of milk. No breast and no skin colour.'),
-    'heart': (icon([HEART32, head(19.5, 15, 4, 195), POD_HEART], fine=[eye(18.6, 14.6, 1.1)], box=32, weight=BIG,
-                   sky=[POD_HEART + 'A4 4 0 0 0 22.6 17.6Z'], wattle=[head(19.5, 15, 4, 195)]),
-              'Heart', 'The same baby, in a heart. Reads as love more than feeding.'),
+    'heart': (icon([HEART32, circle(19, 14.5, 3.8), LAP], fine=[eye(18.2, 14.3, 1.1)], box=32, weight=BIG,
+                   sky=[LAP + 'C25.1 21.46 20.55 24.85 16 28C11.45 24.85 6.9 21.46 4.58 17.3Z'], wattle=[circle(19, 14.5, 3.8)]),
+              'Heart', 'Reworked: a sleeping baby resting in a cupped hand, inside a heart.'),
 }
 
 
@@ -237,7 +241,8 @@ def alternates():
         plain = art(small(spec), plain=True, size=22).replace('#000000', '#3A2A20')
         cells += (f'<div class="c"><div class="big">{art(spec, size=190)}</div><div class="r">{row}'
                   f'<span class="dk">{art(spec, ink=DARK, size=30)}</span><span class="pl">{plain}</span></div>'
-                  f'<div class="tile">{art(spec, size=34)}<b>Breastfeed</b><span>12:10</span></div>'
+                  f'<div class="tiles"><div class="tile">{art(spec, size=34)}<b>Breastfeed</b><span>12:10</span></div>'
+                  f'<div class="tile">{art(spec, size=40)}<b>Breastfeed</b><span>12:10</span></div></div>'
                   f'<h3>{title}</h3><p>{text}</p></div>')
     tones = ''.join(f'<div class="t">{art(breast(a, b), size=84)}{art(nursing(a, b), size=84)}</div>' for a, b in TONES)
     html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Breastfeeding icon, the choices</title><style>
@@ -249,9 +254,10 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 .pl{{background:#EAE2D2;border-radius:50%;width:38px;height:38px;display:grid;place-items:center}}
 .tile{{width:104px;height:104px;border-radius:20px;background:#FBF6E9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}}
 .tile b{{font-size:14px;margin-top:4px}}.tile span{{color:#6B5E52;font-size:12px}}
+.tiles{{display:flex;gap:8px}}
 .tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
-<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile.</p>
+<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 34 points (as now) and at 40.</p>
 <div class="g">{cells}</div>
 <h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
     open(os.path.join(OUT, 'breastfeeding.html'), 'w').write(html)
