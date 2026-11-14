@@ -49,3 +49,7 @@ then the build shows in TestFlight on the phone.
 - Tom deployed the iCloud schema from Development to Production in the CloudKit Console the same day.
 - A TestFlight build uses iCloud's Production side; a build installed from Xcode uses Development. The two do not
   share synced data. Make a backup in the app (Settings, Your data) before moving a phone from one to the other.
+
+## Second build sent, 14 November 2026
+
+Uploaded with `zsh tools/testflight.sh`, the first run of that script. It carries: Settings, iCloud check (test builds only), invite errors that say what iCloud reported, Puggle's current face on the lock screen, splash, stamps and standing picture, thinner icon lines in dark, and Puggle's own icons on stamps, menus and widgets. Sent to track down the sharing failure on the first build.
