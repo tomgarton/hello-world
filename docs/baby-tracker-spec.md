@@ -907,3 +907,5 @@ Official content
 Privacy and technical
 - [FTC Health Breach Notification Rule](https://www.ftc.gov/system/files/ftc_gov/pdf/p205405healthbreachnotificationrule.pdf) · [Premom settlement summary](https://www.clym.io/regulations/ftc-settles-charges-for-misuse-of-health-information)
 - [PowerSync and Supabase](https://supabase.com/partners/powersync)
+
+**Family heap: Puggle stays put (2026-11-14).** On the last first-run screen she used to follow whichever shape was highest, including one being dragged or thrown, so she was flicked about the screen. Now she stands only on a shape at rest, the shape she is on cannot be picked up, she keeps her shape unless another is clearly higher, and a change of shape is a soft step across. Her feet sit on the shape's real top edge, so she no longer hovers over a pill or a scallop.

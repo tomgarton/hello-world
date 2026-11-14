@@ -31,6 +31,8 @@ struct FamilyHeap: View {
                     PuggleView(controller: puggle)
                         .frame(height: 112)
                         .position(x: point.x, y: max(point.y - 50, 56))
+                        // A move to another shape is a soft step across, not a jump cut.
+                        .animation(reduceMotion ? nil : .spring(response: 0.4, dampingFraction: 0.85), value: point)
                         .allowsHitTesting(false)
                         .accessibilityHidden(true)
                 }
@@ -81,6 +83,8 @@ final class HeapScene: SKScene {
     private let motion = CMMotionManager()
     private var shapes: [SKSpriteNode] = []
     private var dragged: SKSpriteNode?
+    /// The shape Puggle is standing on.
+    private var perch: SKSpriteNode?
     private var lastTouch: (point: CGPoint, time: TimeInterval)?
     private var throwVelocity = CGVector.zero
     private var startedAt: TimeInterval?
@@ -173,8 +177,35 @@ final class HeapScene: SKScene {
         // The shapes are round-ish and fill most of their square, so the top is near half the side above the centre,
         // however the shape has turned. A rotated bounding box would stand her in mid-air.
         func crown(_ node: SKSpriteNode) -> CGFloat { node.position.y + node.size.height * 0.42 }
-        guard let highest = (middle.isEmpty ? shapes : middle).max(by: { crown($0) < crown($1) }) else { return }
-        let point = CGPoint(x: highest.position.x, y: size.height - crown(highest))
+        // She only stands on something at rest: never on the shape in a hand, or one flying through the air.
+        func resting(_ node: SKSpriteNode) -> Bool {
+            guard node !== dragged, let body = node.physicsBody else { return false }
+            return hypot(body.velocity.dx, body.velocity.dy) < 60
+        }
+        let settled = (middle.isEmpty ? shapes : middle).filter(resting)
+        // With everything moving she holds where she is until something settles.
+        guard let highest = settled.max(by: { crown($0) < crown($1) }) else { return }
+        // She stays on her own shape unless another is clearly higher, so she does not hop back and forth.
+        if let perch, settled.contains(perch), crown(highest) - crown(perch) < 10 {
+            // Stay put.
+        } else {
+            perch = highest
+        }
+        guard let perch else { return }
+        // Her feet go on the shape's real top edge, found by looking straight down onto it,
+        // so she does not hover over a thin shape such as a pill or a scallop.
+        var surface = crown(perch)
+        var found = false
+        let x = perch.position.x
+        physicsWorld.enumerateBodies(alongRayStart: CGPoint(x: x, y: perch.position.y + perch.size.height),
+                                     end: CGPoint(x: x, y: perch.position.y)) { body, hit, _, stop in
+            guard body.node === perch else { return }
+            surface = hit.y
+            found = true
+            stop.pointee = true
+        }
+        if !found { surface = crown(perch) }
+        let point = CGPoint(x: x, y: size.height - surface)
         Task { @MainActor [weak top] in top?.update(point) }
     }
 
@@ -183,7 +214,8 @@ final class HeapScene: SKScene {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let point = touch.location(in: self)
-        guard let node = nodes(at: point).compactMap({ $0 as? SKSpriteNode }).first(where: shapes.contains) else { return }
+        // The shape she is standing on cannot be picked up, so she is never thrown with it.
+        guard let node = nodes(at: point).compactMap({ $0 as? SKSpriteNode }).first(where: { shapes.contains($0) && $0 !== perch }) else { return }
         dragged = node
         node.physicsBody?.affectedByGravity = false
         node.physicsBody?.velocity = .zero
