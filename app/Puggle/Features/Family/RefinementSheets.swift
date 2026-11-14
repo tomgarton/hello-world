@@ -302,6 +302,42 @@ enum RefinementSheets {
             }
         }
         save(others, as: "grey-others.png")
+
+        // Fifth sheet: the same idea kept warm, so they look older and not unwell, with the line lightened to match.
+        // A is a small step from the family's brown; B is a little further. Both keep its warmth.
+        let stepA = ["#8A5A3C": "#8F644A", "#5E3A24": "#6B4833"], stepB = ["#8A5A3C": "#946E56", "#5E3A24": "#73523E"]
+        let warm = VStack(alignment: .leading, spacing: 16) {
+            row("Nan: warmer and less pale, with a lighter line") {
+                column("As now", nan)
+                column("A. A small step", nan.wearing(stepA))
+                column("A, with dashes", nanDashed.wearing(stepA))
+                column("B. A little further", nan.wearing(stepB))
+                column("B, with dashes", nanDashed.wearing(stepB))
+                column("Last sheet's 9, too pale", nanDashed.wearing(greyer))
+            }
+            row("Pop") {
+                column("As now", pop)
+                column("A. A small step", pop.wearing(stepA))
+                column("A, with dashes", popDashed.wearing(stepA))
+                column("B. A little further", pop.wearing(stepB))
+                column("B, with dashes", popDashed.wearing(stepB))
+                column("Last sheet's 9, too pale", popDashed.wearing(greyer))
+            }
+            row("Beside Mum and Dad, at app size: as now, A with dashes, B with dashes") {
+                if let mum = Rig.load("mum"), let dad = Rig.load("dad") {
+                    ForEach(0..<3, id: \.self) { i in
+                        HStack(alignment: .bottom, spacing: 0) {
+                            ForEach(Array([mum, [nan, nanDashed.wearing(stepA), nanDashed.wearing(stepB)][i], dad, [pop, popDashed.wearing(stepA), popDashed.wearing(stepB)][i]].enumerated()), id: \.offset) { _, rig in
+                                RigFrame(rig: rig, states: [:], face: nil)
+                                    .frame(width: 110 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 110 * rig.size[1] / 240)
+                            }
+                        }
+                        .padding(.trailing, 30)
+                    }
+                }
+            }
+        }
+        save(warm, as: "grey-warm.png")
     }
 
     /// Arms that bend at the elbow: Puggle's new poses, the same on everyone, and in her other clothes.
