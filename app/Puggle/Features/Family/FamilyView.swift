@@ -180,6 +180,10 @@ struct FamilyView: View {
             }) { item in
                 CloudSharingView(share: item.share, container: item.container, lookOnly: item.lookOnly, title: item.title) {
                     Task { @MainActor in store.reconcilePeople(pending: pending) }
+                } onFailed: { error in
+                    Task { @MainActor in
+                        shareError = "iCloud couldn't save the invite. Try again in a minute." + TesterDetail.of(error)
+                    }
                 }
                 .ignoresSafeArea()
             }
@@ -212,7 +216,7 @@ struct FamilyView: View {
             share[CKShare.SystemFieldKey.title] = title as CKRecordValue
             sharing = SharingItem(share: share, container: container, lookOnly: invite.role == .viewer, title: title)
         } catch {
-            shareError = "Couldn't start the invite. Check this iPhone is signed in to iCloud, then try again."
+            shareError = "Couldn't start the invite. Check this iPhone is signed in to iCloud, then try again." + TesterDetail.of(error)
             print("Sharing failed: \(error)")
         }
     }

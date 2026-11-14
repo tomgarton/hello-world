@@ -551,7 +551,7 @@ struct OnboardingView: View {
             sharing = SharingItem(share: share, container: container, lookOnly: invite.role == .viewer, title: title)
             shareError = nil
         } catch {
-            shareError = "The invite couldn't be made. Check this iPhone is signed in to iCloud, then try again."
+            shareError = "The invite couldn't be made. Check this iPhone is signed in to iCloud, then try again." + TesterDetail.of(error)
         }
     }
 

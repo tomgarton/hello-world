@@ -428,6 +428,27 @@ struct InviteSheet: View {
     }
 }
 
+/// What iCloud said went wrong, for test builds. It is left off App Store builds: it means nothing to a parent,
+/// but it tells whoever is testing which of a dozen causes this was.
+enum TesterDetail {
+    /// True in builds from Xcode and from TestFlight.
+    static var on: Bool {
+        #if DEBUG
+        return true
+        #else
+        return Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt"
+        #endif
+    }
+
+    static func of(_ error: Error) -> String {
+        guard on else { return "" }
+        let detail = error as NSError
+        let partial = (detail.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: NSError])?.values.first
+        let inner = partial.map { " Inside: \($0.domain) \($0.code)." } ?? ""
+        return "\n\nFor testing: \(detail.domain) \(detail.code). \(detail.localizedDescription)\(inner)"
+    }
+}
+
 struct SharingItem: Identifiable {
     let id = UUID()
     let share: CKShare
@@ -445,6 +466,8 @@ struct CloudSharingView: UIViewControllerRepresentable {
     var title = "Our family"
     /// Called when the sheet has saved a change to who is in the family.
     var onSaved: () -> Void = {}
+    /// Called when iCloud would not save the invite, with what it said.
+    var onFailed: (Error) -> Void = { _ in }
 
     func makeUIViewController(context: Context) -> UICloudSharingController {
         let controller = UICloudSharingController(share: share, container: container)
@@ -466,6 +489,7 @@ struct CloudSharingView: UIViewControllerRepresentable {
 
         func cloudSharingController(_ csc: UICloudSharingController, failedToSaveShareWithError error: Error) {
             print("Saving the share failed: \(error)")
+            parent.onFailed(error)
         }
 
         func cloudSharingControllerDidSaveShare(_ csc: UICloudSharingController) { parent.onSaved() }
