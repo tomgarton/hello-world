@@ -1040,6 +1040,8 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
     # Arms that bend at the elbow, and a book to hold. Pebble is too small to read, and has his bottle.
     parts = bend_arms.bend(parts)
     if name != 'pebble': parts = bend_arms.hold(parts, bend_arms.book(parts))
+    # A bubble wand for the children. Those under an umbrella put it down in the rain.
+    if name in ('kip', 'quill', 'digby', 'sunny'): parts = bend_arms.hold_in_hand(parts, bend_arms.wand(parts))
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.
     borrowed = {}
@@ -1085,6 +1087,7 @@ def main():
             rig['wardrobe'] = wardrobe
             if name in UMBRELLA: rig = lowered(rig, HEADROOM)
             if name in UMBRELLA: rig['sideroom'] = SIDEROOM
+            elif any(p['id'] == 'wand' for p in rig['parts']): rig['sideroom'] = 30
             with open(f'{RIGS}/{name}{"-" + variant if variant else ""}.rig.json', 'w') as out:
                 json.dump(rig, out, indent=1, ensure_ascii=False)
             print(name, variant or '(as drawn)', len(rig['parts']), 'parts')

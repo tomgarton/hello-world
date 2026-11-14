@@ -142,9 +142,18 @@ def arms(parts, left, right):
     return pose
 
 
+def book_drop(parts):
+    """How far below Puggle's the book is held. Hands rest at about four fifths of the arm's reach below the shoulder,
+    so a grown-up's long arms hold it at the tummy with the elbows in, not at the chest with the elbows out wide."""
+    shoulder, elbow, hand = joints(parts, 'left')
+    length = math.dist(shoulder, elbow) + math.dist(elbow, hand)
+    if length <= 70: return shoulder[1] - 178
+    return round(shoulder[1] + 0.84 * length - 224, 1)
+
+
 def book(parts):
-    """A book held open at the chest, seen from its covers. It sits behind the arms, so her hands are on its edges."""
-    drop = joints(parts, 'left')[0][1] - 178
+    """A book held open in front of her, seen from its covers. It sits behind the arms, so her hands are on its edges."""
+    drop = book_drop(parts)
     y = lambda v: fmt(v + drop)
     return {'id': 'book', 'parent': 'upper', 'pivot': [120, 222 + drop], 'when': 'holding=book', 'shapes': [
         {'kind': 'path', 'd': f'M78 {y(198)} L120 {y(205)} L162 {y(198)} L162 {y(240)} L120 {y(247)} L78 {y(240)} Z',
@@ -153,6 +162,44 @@ def book(parts):
         {'kind': 'path', 'd': f'M82 {y(196)} L120 {y(202)} L158 {y(196)}', 'stroke': '#FBF6E9', 'width': 4, 'cap': 'round'},
         {'kind': 'ellipse', 'x': 141, 'y': 222 + drop, 'rx': 8, 'ry': 8, 'fill': '#F4BE2C'},
     ]}
+
+
+def wand(parts):
+    """A bubble wand in her right hand: a stick with a ring on the end. It goes with the forearm, under the hand."""
+    _, elbow, hand = joints(parts, 'right')
+    far = math.dist(elbow, hand)
+    ux, uy = (hand[0] - elbow[0]) / far, (hand[1] - elbow[1]) / far
+    tip = [hand[0] + ux * 24, hand[1] + uy * 24]
+    ring = [round(hand[0] + ux * 34, 1), round(hand[1] + uy * 34, 1)]
+    stick = f'M{fmt(hand[0])} {fmt(hand[1])} L{fmt(tip[0])} {fmt(tip[1])}'
+    return {'id': 'wand', 'parent': 'forearm-right', 'pivot': hand, 'when': 'holding=wand', 'shapes': [
+        {'kind': 'path', 'd': stick, 'stroke': '#3A2A20', 'tint': '#B8892A', 'width': 8, 'cap': 'round'},
+        {'kind': 'ellipse', 'x': ring[0], 'y': ring[1], 'rx': 10, 'ry': 10, 'stroke': '#3A2A20', 'tint': '#B8892A', 'width': 8},
+        {'kind': 'path', 'd': stick, 'stroke': '#F4BE2C', 'width': 4, 'cap': 'round'},
+        {'kind': 'ellipse', 'x': ring[0], 'y': ring[1], 'rx': 10, 'ry': 10, 'stroke': '#F4BE2C', 'width': 4},
+    ]}
+
+
+def hold_in_hand(parts, prop):
+    """Puts something in the right hand: drawn just under it, so the hand closes over it."""
+    parts = [p for p in parts if p['id'] != prop['id']]
+    first = next(i for i, p in enumerate(parts) if p['id'] == 'forearm-right-top')
+    return parts[:first] + [prop] + parts[first:]
+
+
+def raised(parts, lower=0):
+    """The right arm held up and out, as for a wave: where the upper arm points, and the forearm at its highest and
+    lowest, in degrees from straight out to the side (minus is up). A long arm is held lower, so the hand stays in the picture."""
+    shoulder, elbow, hand = joints(parts, 'right')
+    rest1 = math.degrees(math.atan2(elbow[1] - shoulder[1], elbow[0] - shoulder[0]))
+    rest2 = math.degrees(math.atan2(hand[1] - elbow[1], hand[0] - elbow[0]))
+    long = math.dist(shoulder, elbow) + math.dist(elbow, hand) > 70
+    upper, high, low = (0, -60, -28) if long else (-15, -57, -23)
+    # With something in the hand (a wand) the forearm stops lower, so it stays clear of the head.
+    high, low = high + lower, low + lower
+    def turns(fore):
+        return {'arm-right': {'r': round(upper - rest1, 1)}, 'forearm-right': {'r': round((fore - upper) - (rest2 - rest1), 1)}}
+    return turns(high), turns(low)
 
 
 def rabbit():
@@ -202,7 +249,8 @@ def arm_moves(parts, reads=True, hugs=False):
             {'t': 1.05, 'pose': {}, 'face': {'arms': 'front'}},
         ]}}
     if reads:
-        on_book = arms(parts, [80, 224 + drop], [160, 224 + drop])
+        held = 224 + book_drop(parts)
+        on_book = arms(parts, [80, held], [160, held])
         down = {'head': {'y': 4}, 'eye-left': {'y': 3.5}, 'eye-right': {'y': 3.5}}
         # Turning a page: the right hand lifts off the edge and comes back.
         turning = json.loads(json.dumps(on_book))
@@ -213,6 +261,18 @@ def arm_moves(parts, reads=True, hugs=False):
                 {'t': 0, 'pose': only({**on_book, **down}), 'face': {'holding': 'book'}},
                 {'t': 4.6, 'pose': only({**turning, **down, 'head': {'y': 4, 'r': 3}}), 'face': {'holding': 'book'}},
                 {'t': 4.9, 'pose': only({**on_book, **down}), 'face': {'holding': 'book'}},
+            ]}
+    if 'wand' in ids:
+        high, low = raised(parts, lower=16)
+        watching = {'head': {'r': 4}, 'eye-left': {'x': 3, 'y': -2.5}, 'eye-right': {'x': 3, 'y': -2.5}, **up}
+        face = {'holding': 'wand', 'brows': 'on'}
+        moves['bubbles'] = {
+            'about': 'Making bubbles: a wand held up in her right hand and swept slowly through the air, her eyes on it. No blowing: '
+                     'the bubbles come off the wand as it moves. Goes round until stopped.',
+            'exact': True, 'loops': True, 'length': 3.4, 'keys': [
+                {'t': 0, 'pose': only({**low, **watching}), 'face': face},
+                {'t': 0.9, 'pose': only({**high, **watching, 'head': {'r': 6}}), 'face': face},
+                {'t': 2.3, 'pose': only({**low, **watching}), 'face': face},
             ]}
     if hugs:
         round_it = arms(parts, [100, 226], [140, 226])
@@ -238,16 +298,7 @@ def bend_wave(move, parts=None):
     and not out past the edge of the drawing.
     """
     up, back = {'arm-right': {'r': -58}, 'forearm-right': {'r': -42}}, {'arm-right': {'r': -58}, 'forearm-right': {'r': -8}}
-    if parts is not None:
-        shoulder, elbow, hand = joints(parts, 'right')
-        rest1 = math.degrees(math.atan2(elbow[1] - shoulder[1], elbow[0] - shoulder[0]))
-        rest2 = math.degrees(math.atan2(hand[1] - elbow[1], hand[0] - elbow[0]))
-        long = math.dist(shoulder, elbow) + math.dist(elbow, hand) > 70
-        # Where the upper arm and the forearm point, in degrees from straight out to the side; minus is up.
-        raised, high, low = (0, -60, -28) if long else (-15, -57, -23)
-        def turns(fore):
-            return {'arm-right': {'r': round(raised - rest1, 1)}, 'forearm-right': {'r': round((fore - raised) - (rest2 - rest1), 1)}}
-        new_up, new_back = turns(high), turns(low)
+    if parts is not None: new_up, new_back = raised(parts)
     for key in move['keys']:
         pose = key['pose']
         turn, fore = pose.get('arm-right', {}).get('r'), pose.get('forearm-right', {}).get('r')
@@ -261,7 +312,10 @@ def main():
     rig = json.load(open(path))
     parts = bend(rig['parts'])
     parts = hold(hold(parts, rabbit()), book(parts))
+    parts = hold_in_hand(parts, wand(parts))
     rig['parts'] = parts
+    # Room at her sides for the wand, which reaches past the edge of her drawing.
+    rig['sideroom'] = 30
     rig['moves']['greet'] = bend_wave(rig['moves']['greet'])
     rig['moves'].update(arm_moves(parts, hugs=True))
     with open(path, 'w') as out:

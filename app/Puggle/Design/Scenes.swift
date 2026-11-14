@@ -1721,13 +1721,15 @@ struct Fireworks: View {
 /// Soap bubbles rising. Not in the sky by themselves: they belong to whoever is blowing them.
 struct Bubbles: View {
     var t = 0.0
+    /// Kept clear at each side, so a bubble near the edge is not cut off.
+    var margin: CGFloat = 0
     var body: some View {
         Canvas { context, size in
             for i in 0..<7 {
                 var random = SeededRandom(UInt64(i) &* 613 &+ 5)
                 let radius = CGFloat(random.range(5, 12)), speed = random.range(0.1, 0.17), start = random.unit(), x0 = random.range(0.12, 0.88)
                 let rise = (t * speed + start).truncatingRemainder(dividingBy: 1)
-                let centre = CGPoint(x: size.width * x0 + CGFloat(sin(rise * 7 + Double(i))) * 6, y: size.height * (1 - rise))
+                let centre = CGPoint(x: margin + (size.width - margin * 2) * x0 + CGFloat(sin(rise * 7 + Double(i))) * 6, y: size.height * (1 - rise))
                 let round = Path(ellipseIn: CGRect(x: centre.x - radius, y: centre.y - radius, width: radius * 2, height: radius * 2))
                 let fade = rise > 0.88 ? (1 - rise) / 0.12 : min(1, rise / 0.08)
                 context.fill(round, with: .color(Color.white.opacity(0.22 * fade)))

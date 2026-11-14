@@ -923,3 +923,13 @@ Privacy and technical
 **Switches: back to the standard iOS one (Tom, 2026-11-14).** The app's own switch (ink track, paper knob with a tick) is removed. Every switch is now the system one in its usual green; the green is set explicitly because the app's ink tint would otherwise turn it brown. Known cost: in the night look the green track and white knob are brighter than everything else on the screen.
 
 **Bubbles are not for the sky (Tom, 2026-11-14).** The bubbles in the pulled-down backyard sky are removed: loose bubbles with nobody making them looked random, and the set that rose off the top moved oddly as the page scrolled. Bubbles are kept for when Puggle or a friend is making them (not built). In their place in the backyard sky: a red balloon that got away, drifting with its string. `docs/previews/backyard-sky.png`.
+
+**Grown-ups hold a book lower (Tom, 2026-11-14).** With the book at the chest a grown-up's long arms stuck out wide at the elbows. The book is now held where the hands rest at about four fifths of the arm's reach below the shoulder: at the tummy for Mum, Dad, Nan and Pop, elbows in; unchanged for the children (`book_drop` in `app/tools/bend_arms.py`).
+
+**Puggle makes bubbles (2026-11-14, built).** A bubble wand in her right hand (part `wand`, on the forearm, under the hand), swept slowly up and down with her eyes on it; move `bubbles`, round until stopped. No blowing, so no mouth is needed: the bubbles come off the wand as it moves. Kip, Quill, Digby and Sunny have the wand and the move too; the grown-ups and Pebble do not.
+- **When:** on Today, in the backyard, outdoors by day, in fine weather (no coat or scarf), with no child asleep and Reduce Motion off. She starts 7 seconds after the scene appears, makes bubbles for 10 seconds, then again every 35 to 60 seconds. A tap, a log, a walk or falling asleep puts the wand away at once.
+- **The bubbles** rise from above the wand only while she is making them (`controller.makingBubbles`), and fade in and out.
+- A rig with something held out to the side has `sideroom`, and `RigView` now draws it on a wider surface so the wand is not cut off at her edge. Whether a companion has an umbrella up is now read from the `umbrella` part, not from `sideroom`.
+- For checking: `-uitest 1 -debugScene 2 -debugHour 13 -debugWeather clear -debugBubbles 1` (bubbles after 2.5 seconds; wake Ollie first, as a sleeping child keeps her indoors).
+- Not built: a friend making bubbles on Today (they have the move; nothing plays it).
+- `docs/previews/puggle-making-bubbles.png`; poses on `docs/previews/bending-arms.png`.

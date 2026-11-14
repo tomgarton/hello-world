@@ -146,6 +146,13 @@ enum RefinementSheets {
                     }
                 }
             }
+            row("Making bubbles: a wand swept through the air, low then high") {
+                named("Puggle, low") { caught(puggle, "bubbles", at: 0.5) }
+                named("Puggle, high") { caught(puggle, "bubbles", at: 1.6) }
+                ForEach(["kip", "quill", "digby", "sunny"], id: \.self) { who in
+                    if let rig = Rig.load(who) { named(who.capitalized) { caught(rig, "bubbles", at: 1.6, width: 84) } }
+                }
+            }
             row("Mittens stay on the hands; a grown-up in the cold") {
                 if let kip = Rig.load("kip"), let nan = Rig.load("nan") {
                     HStack(alignment: .bottom, spacing: 2) {

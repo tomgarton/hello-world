@@ -34,6 +34,14 @@ final class PuggleController: ObservableObject {
     /// Her rig, drawn and moved by the app itself (Design/Rig.swift). Used whenever there is no Rive file.
     let rig: RigRuntime? = Rig.load("puggle").map(RigRuntime.init)
     @Published var walking = false { didSet { push() } }
+    /// She has her bubble wand out. Anything else she is asked to do puts it away.
+    @Published private(set) var makingBubbles = false
+
+    func bubbles(_ on: Bool) {
+        guard on != makingBubbles, rig?.rig.moves?["bubbles"] != nil else { return }
+        makingBubbles = on
+        if on { rig?.play("bubbles") } else { rig?.stop("bubbles") }
+    }
 
     #if canImport(RiveRuntime)
     let rive: RiveViewModel?
@@ -93,6 +101,7 @@ final class PuggleController: ObservableObject {
     }
 
     private func fire(_ name: String) {
+        bubbles(false)
         rig?.play(name)
         // Her tail shows the feeling: happy things come with a wag.
         if name == PuggleRive.Input.greet || name == PuggleRive.Input.nod { rig?.play("wag") }
@@ -102,6 +111,7 @@ final class PuggleController: ObservableObject {
     }
 
     private func push() {
+        if asleep || walking { bubbles(false) }
         rig?.asleep = asleep
         rig?.walking = walking
         #if canImport(RiveRuntime)

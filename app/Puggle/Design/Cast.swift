@@ -221,7 +221,7 @@ struct CompanyView: View {
 
     /// They are holding an umbrella: in the rain, or Nan's as a parasol in the heat.
     private var umbrellaUp: Bool {
-        controller.rig?.rig.sideroom != nil && (outfit == "rain" || (outfit == "sun" && company.member == .nan))
+        controller.rig?.rig.parts.contains { $0.id == "umbrella" } == true && (outfit == "rain" || (outfit == "sun" && company.member == .nan))
     }
 
     var body: some View {

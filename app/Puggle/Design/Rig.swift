@@ -669,6 +669,19 @@ struct RigView: View {
     @Environment(\.outfit) private var outfit
 
     var body: some View {
+        // Something held out to the side (a bubble wand) reaches past the drawing's edge. She keeps her size and
+        // place; the surface she is drawn on is only made wider, so it is not cut off.
+        if let room = runtime.rig.sideroom {
+            GeometryReader { box in
+                let extra = box.size.height / runtime.rig.size[1] * room
+                drawing.frame(width: box.size.width + extra * 2, height: box.size.height).offset(x: -extra)
+            }
+        } else {
+            drawing
+        }
+    }
+
+    @ViewBuilder private var drawing: some View {
         if moving {
             TimelineView(.animation) { timeline in
                 Canvas { context, size in

@@ -350,6 +350,8 @@ struct PuggleHeader: View {
     /// True for a moment after a walk, so letting go of her is not taken for a tap.
     @State private var justWalked = false
     @State private var lastTap: Date?
+    /// How long after Today opens before her first bubbles. "-debugBubbles 1" brings them on at once, for checking.
+    private var bubblesFirst: Double { UserDefaults.standard.string(forKey: "debugBubbles") == "1" ? 2.5 : 7 }
     /// Counts her reactions to a tap, so whoever is with her can answer.
     @State private var reactions = 0
 
@@ -438,6 +440,9 @@ struct PuggleHeader: View {
         let reach = max(width / 2 - 58, 0)
         let home = room == nil ? PuggleScene.stand(for: .today) * width : 0
         let x = canWalk ? min(max(walkedTo ?? home, -reach), reach) : 0
+        // In the backyard on a fine day she gets her bubble wand out now and then.
+        let fine = ["none", "sun"].contains(weather.outfit(night: false))
+        let canBubble = room == nil && SceneKind.today == .backyard && !PuggleScene.isNight(dark: dim) && fine && !quiet && !reduceMotion && appeared
         return ZStack(alignment: .bottom) {
             PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x)
             // Whoever is with her today stands behind her, on the same ground.
@@ -496,6 +501,27 @@ struct PuggleHeader: View {
             .accessibilityHint("Says hello")
             .accessibilityAction(named: "Walk left") { if canWalk { walkedTo = max(x - 60, -reach) } }
             .accessibilityAction(named: "Walk right") { if canWalk { walkedTo = min(x + 60, reach) } }
+            // Her bubbles, rising from the wand in her right hand. Only while she is making them.
+            TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !controller.makingBubbles)) { timeline in
+                Bubbles(t: timeline.date.timeIntervalSince(SceneClock.start), margin: 20)
+            }
+            .frame(width: 98, height: 104)
+            .opacity(controller.makingBubbles ? 1 : 0)
+            .animation(.easeInOut(duration: 0.7), value: controller.makingBubbles)
+            .offset(x: x + 62)
+            .padding(.bottom, 26 + 62)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+            .task(id: canBubble) {
+                guard canBubble else { controller.bubbles(false); return }
+                try? await Task.sleep(for: .seconds(bubblesFirst))
+                while !Task.isCancelled {
+                    controller.bubbles(true)
+                    try? await Task.sleep(for: .seconds(10))
+                    controller.bubbles(false)
+                    try? await Task.sleep(for: .seconds(Double.random(in: 35...60)))
+                }
+            }
             // The tea table stands in front of her.
             if let room { RoomFront(room: room, dark: dim).opacity(appeared ? 1 : 0) }
         }

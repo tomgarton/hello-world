@@ -435,6 +435,51 @@
    ]
   },
   {
+   "id": "wand",
+   "parent": "forearm-right",
+   "pivot": [
+    190,
+    276
+   ],
+   "when": "holding=wand",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M190 276 L208.6 291.1",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 216.4,
+     "y": 297.5,
+     "rx": 10,
+     "ry": 10,
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 8
+    },
+    {
+     "kind": "path",
+     "d": "M190 276 L208.6 291.1",
+     "stroke": "#F4BE2C",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 216.4,
+     "y": 297.5,
+     "rx": 10,
+     "ry": 10,
+     "stroke": "#F4BE2C",
+     "width": 4
+    }
+   ]
+  },
+  {
    "id": "forearm-right-top",
    "parent": "forearm-right",
    "pivot": [
@@ -1861,6 +1906,92 @@
      },
      "face": {
       "holding": "book"
+     }
+    }
+   ]
+  },
+  "bubbles": {
+   "about": "Making bubbles: a wand held up in her right hand and swept slowly through the air, her eyes on it. No blowing: the bubbles come off the wand as it moves. Goes round until stopped.",
+   "exact": true,
+   "loops": true,
+   "length": 3.4,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": 16.6
+      },
+      "head": {
+       "r": 4
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.9,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": -17.4
+      },
+      "head": {
+       "r": 6
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 2.3,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": 16.6
+      },
+      "head": {
+       "r": 4
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
      }
     }
    ]
