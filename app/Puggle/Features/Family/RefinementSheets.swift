@@ -79,6 +79,48 @@ enum RefinementSheets {
         feelings(puggle)
         parentHair()
         hatsOff()
+        nanHair()
+    }
+
+    /// Other things than a bun for Nan.
+    private static func nanHair() {
+        guard let nan = Rig.load("nan") else { return }
+        var bare = nan
+        bare.parts.removeAll { $0.id == "bun" || $0.id == "bun-top" }
+        // Her head sits lower in her drawing, to leave room for her umbrella.
+        let down = nan.headroom ?? 0
+        func placed(_ d: String) -> String {
+            var out = "", number = "", isY = false
+            func flush() { if !number.isEmpty { out += isY ? "\((Double(number) ?? 0) + down)" : number; isY.toggle(); number = "" } }
+            for ch in d { if ch.isNumber || ch == "." || ch == "-" { number.append(ch) } else { flush(); out.append(ch) } }
+            flush()
+            return out
+        }
+        let options: [(String, [String])] = [
+            ("B. A set of curls", ["M70 70 Q58 52 74 44 Q76 30 94 34 Q102 22 120 28 Q138 22 146 34 Q164 30 166 44 Q182 52 170 70 Z"]),
+            ("C. A soft roll", ["M72 70 Q62 40 92 34 Q120 26 148 34 Q178 40 168 70 Q150 52 120 52 Q90 52 72 70 Z"]),
+            ("D. A wave to one side", ["M78 68 Q66 44 90 34 Q118 24 144 36 Q160 46 156 60 Q144 48 126 50 Q108 54 104 68 Z"]),
+            ("E. A plait round her head", ["M64 78 Q62 50 84 44 Q88 34 104 38 Q112 30 124 36 Q138 30 144 40 Q160 40 162 54 Q176 60 174 78 Q160 62 120 60 Q80 62 64 78 Z"]),
+        ]
+        func column(_ name: String, _ rig: Rig) -> some View {
+            VStack(spacing: 6) {
+                RigFrame(rig: rig, states: [:], face: nil).frame(width: 225, height: 225 * rig.size[1] / rig.size[0])
+                    .frame(width: 225, height: 215, alignment: .top).clipped()
+                HStack(spacing: 8) {
+                    RigFrame(rig: rig, states: [:], face: nil).frame(width: 84 * rig.size[0] / rig.size[1], height: 84)
+                    RigFrame(rig: silhouette(rig), states: [:], face: nil).frame(width: 84 * rig.size[0] / rig.size[1], height: 84)
+                }
+                Text(name).font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 14) {
+            Text("Hair for Nan").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            HStack(alignment: .bottom, spacing: 14) {
+                column("A. Now: a bun", nan)
+                ForEach(options.indices, id: \.self) { i in column(options[i].0, withHair(bare, options[i].1.map(placed))) }
+            }
+        }
+        save(sheet, as: "nan-hair.png")
     }
 
     /// Digby and Sunny with their hats on, and off: what is under them.

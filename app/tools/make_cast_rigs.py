@@ -581,16 +581,28 @@ def dress_for_weather(name, parts, puggle, shade):
                       'shapes': [{'kind': 'path', 'd': 'M113 132 L127 132', 'stroke': '#FBF6E9', 'width': 7, 'cap': 'round'}]})
 
     # Wet: her rain hat with a raincoat, or an umbrella in their colour. Nan's is a parasol too when it is hot.
-    if name in ('mum', 'dad', 'digby'):
+    if name == 'pop':
+        # His bucket hat comes out of the part that also holds his glasses, so it can come off for the rain hat.
+        specs = parts[at('head-2')]
+        hat = [shp for shp in specs['shapes'] if shp.get('fill') == '#3C9A5F']
+        specs['shapes'] = [shp for shp in specs['shapes'] if shp not in hat]
+        parts.insert(at('head-2') + 1, {'id': 'hat', 'parent': 'head', 'pivot': [120, 66], 'when': 'outfit=none|warm|sun', 'shapes': hat})
+        top = at('hat') + 1
+    if name in ('mum', 'dad', 'digby', 'pop'):
+        # Everyone in a raincoat wears the same yellow rain hat: yellow is what says "rain" at a glance.
         parts.insert(top, copy('rainhat', parent='head'))
     if name in UMBRELLA:
         hx, hy = hand['right']['x'], hand['right']['y']
-        parts.insert(at('head'), {'id': 'umbrella', 'parent': 'upper', 'pivot': [hx, hy], 'spring': 120, 'when': 'outfit=rain|sun' if name == 'nan' else 'outfit=rain', 'shapes': [
-            # The stick up from their hand, then a wide canopy over their head, with scalloped edges and a point on top.
-            # It stands above the drawing's own top, so these four have headroom added (see HEADROOM).
+        when = 'outfit=rain|sun' if name == 'nan' else 'outfit=rain'
+        # The stick comes up from their hand behind their head. It stands above the drawing's own top, so
+        # these four have headroom added (see HEADROOM).
+        parts.insert(at('head'), {'id': 'umbrella', 'parent': 'upper', 'pivot': [hx, hy], 'spring': 120, 'when': when, 'shapes': [
             {'kind': 'path', 'd': f'M{hx:g} {hy - 4:g} L138 -30', 'stroke': INK, 'width': 8, 'cap': 'round'},
-            {'kind': 'path', 'd': f'M{hx:g} {hy - 4:g} L138 -30', 'stroke': '#D9B48A', 'width': 3.5, 'cap': 'round'},
-            {'kind': 'path', 'd': 'M26 30 Q32 -44 132 -48 Q232 -44 238 30 Q212 14 185 30 Q158 14 132 28 Q106 14 79 30 Q52 14 26 30 Z',
+            {'kind': 'path', 'd': f'M{hx:g} {hy - 4:g} L138 -30', 'stroke': '#D9B48A', 'width': 3.5, 'cap': 'round'}]})
+        # The canopy is the last thing drawn, over hair, ears, spines, bows and hats, and its edge is kept
+        # above the tallest of them. It is the umbrella's child, so it sways with the stick.
+        parts.append({'id': 'umbrella-top', 'parent': 'umbrella', 'pivot': [hx, hy], 'when': when, 'shapes': [
+            {'kind': 'path', 'd': 'M26 8 Q32 -46 132 -48 Q232 -46 238 8 Q212 -6 185 8 Q158 -6 132 6 Q106 -6 79 8 Q52 -6 26 8 Z',
              'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
             {'kind': 'path', 'd': 'M132 -48 L132 -56', 'stroke': INK, 'tint': shade(accent), 'width': 5, 'cap': 'round'}]})
     return parts
