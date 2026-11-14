@@ -674,17 +674,8 @@ def join_to_head(name, parts):
         pts = [(float(a), float(b)) for a, b in re.findall(r'(-?[\d.]+) (-?[\d.]+)', skull['d'])]
         centre = ((min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2)
     if name == 'pebble':
-        # His curl was a wire: a dark line with a thread of fur in it. Drawn as a lock, like Puggle's lick,
-        # it is fur with the head's line: a stem that rolls over into a round end, with fur over the seam.
-        top = by_id['head-2']
-        top.update(id='curl', pivot=[118, 54], spring=110)
-        top['shapes'][:2] = [
-            # A slim stem that narrows at the neck and rolls into a round end set off to one side, with a
-            # spiral of a turn and a quarter inside it: a curl, not a knob.
-            {'kind': 'path', 'd': 'M111 56 Q109 45 115 37 Q111 24 122 15 Q135 8 144 18 Q151 29 143 38 Q135 45 126 41 Q124 48 127 56 Z',
-             'fill': fur, 'stroke': INK, 'tint': line, 'width': skull['width']},
-            {'kind': 'path', 'd': 'M113 46 L123 46 L125 53 L132 55 L132 70 L106 70 L106 55 L112 53 Z', 'fill': fur},
-            {'kind': 'path', 'd': 'M124 31 Q123 22 131 20 Q139 21 139 28 Q138 34 132 34 Q127 33 129 28', 'stroke': line, 'width': 3, 'cap': 'round'}]
+        # His canvas curl was a wire. He has a wave of hair now (see HAIR), so the old curl goes.
+        parts.remove(by_id['head-2'])
         return parts
     back = by_id.get('head-back')
     shapes, extras = (back['shapes'] if back else []), {}
@@ -741,6 +732,8 @@ HAIR = {   # part, pivot, when it shows (None: always), shapes
     'nan': [('curls', [120, 66], None, ['M70 70 Q58 52 74 44 Q76 30 94 34 Q102 22 120 28 Q138 22 146 34 Q164 30 166 44 Q182 52 170 70 Z']),
             ('curl-left', [58, 126], None, [CURL]), ('curl-right', [182, 126], None, [mirrored(CURL)])],
     'pop': [('tuft-left', [59, 130], None, [BUSHY]), ('tuft-right', [181, 130], None, [mirrored(BUSHY)])],
+    # Pebble: one wave swept to the side with three little flicks along its top (Tom chose it over a round curl).
+    'pebble': [('curl', [118, 56], None, ['M99 58 Q94 42 107 35 Q111 27 120 29 Q117 35 122 37 Q128 28 138 31 Q133 37 138 40 Q146 33 153 38 Q147 43 148 49 Q141 55 135 58 Z'])],
     # Under their hats, for when the hats come off: Digby a coarse, stubby tuft between his ears, Sunny two small
     # pointed wisps: small and pointed, so they are not read as a third ear beside her round ones.
     'digby': [('tuft', [122, 54], HATLESS, ['M103 55 Q100 41 109 35 Q116 41 118 53 Z', 'M115 53 Q117 37 126 31 Q134 39 133 53 Z', 'M130 55 Q134 43 141 39 Q146 47 142 57 Z'])],

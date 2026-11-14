@@ -425,6 +425,25 @@
    "shapes": []
   },
   {
+   "id": "curl",
+   "parent": "head",
+   "pivot": [
+    118,
+    56
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M99 58 Q94 42 107 35 Q111 27 120 29 Q117 35 122 37 Q128 28 138 31 Q133 37 138 40 Q146 33 153 38 Q147 43 148 49 Q141 55 135 58 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    }
+   ]
+  },
+  {
    "id": "face",
    "parent": "head",
    "pivot": [
@@ -489,6 +508,21 @@
    ]
   },
   {
+   "id": "curl-top",
+   "parent": "curl",
+   "pivot": [
+    118,
+    56
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M99 58 Q94 42 107 35 Q111 27 120 29 Q117 35 122 37 Q128 28 138 31 Q133 37 138 40 Q146 33 153 38 Q147 43 148 49 Q141 55 135 58 Z",
+     "fill": "#8A5A3C"
+    }
+   ]
+  },
+  {
    "id": "eye-left",
    "parent": "head",
    "pivot": [
@@ -527,37 +561,6 @@
    ],
    "spring": 0,
    "when": "eyes=open"
-  },
-  {
-   "id": "curl",
-   "parent": "head",
-   "pivot": [
-    118,
-    54
-   ],
-   "shapes": [
-    {
-     "kind": "path",
-     "d": "M111 56 Q109 45 115 37 Q111 24 122 15 Q135 8 144 18 Q151 29 143 38 Q135 45 126 41 Q124 48 127 56 Z",
-     "fill": "#8A5A3C",
-     "stroke": "#3A2A20",
-     "tint": "#5E3A24",
-     "width": 7.0
-    },
-    {
-     "kind": "path",
-     "d": "M113 46 L123 46 L125 53 L132 55 L132 70 L106 70 L106 55 L112 53 Z",
-     "fill": "#8A5A3C"
-    },
-    {
-     "kind": "path",
-     "d": "M124 31 Q123 22 131 20 Q139 21 139 28 Q138 34 132 34 Q127 33 129 28",
-     "stroke": "#5E3A24",
-     "width": 3,
-     "cap": "round"
-    }
-   ],
-   "spring": 110
   },
   {
    "id": "eyes-closed",
