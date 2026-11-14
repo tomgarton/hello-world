@@ -7,7 +7,7 @@ Patterns are tone on tone: a soft field, with shapes a little darker (d), darker
 Run `python3 docs/tools/make_patterns.py` from the repo. It writes one SVG tile per pattern and colourway to
 docs/previews/patterns/tiles/, and the sheet docs/previews/patterns/repeats.html.
 """
-import os, urllib.parse
+import os, re, urllib.parse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'previews', 'patterns')
@@ -100,7 +100,14 @@ INK = '#3A2A20'
 # Small changes for the line version only, so features stay legible. The characters themselves are untouched.
 # By character, then by part: 'solid' fills closed lenses, 'down' moves the part down, 'drop' leaves it out.
 OUTLINE = {
-    'nan': {'head-2': {'solid': True, 'down': 5}},     # her bill does not show through her glasses; eyes clear above them
+    # By part: 'solid' fills closed lenses, 'down' moves the part down, 'drop' leaves it out, 'thin' lightens its line.
+    # For the whole head: '_size' makes it smaller or larger, '_mouth' lengthens the short line under the nose.
+    'nan': {'head-2': {'solid': True, 'down': 5}},      # her bill does not show through her glasses; eyes clear above them
+    'pop': {'head-2': {'thin': 0.55}},                  # a fine frame, so his eyes inside it do not read as double circles
+    'dad': {'tuft-left': {'drop': True}, 'tuft-left-top': {'drop': True},      # his small cheek tufts read as scratches
+            'tuft-right': {'drop': True}, 'tuft-right-top': {'drop': True}},
+    'quill': {'_size': 0.84},                           # her spines made her far bigger than everyone else
+    'digby': {'_mouth': 9}, 'sunny': {'_mouth': 9},     # a longer mouth, so it is seen at this size
 }
 
 
@@ -137,6 +144,10 @@ def head(name, line, field):
                 shape['rx'], shape['ry'] = shape['rx'] * 1.2, shape.get('ry', shape['rx']) * 1.2
             # A lens with nothing to see through it is filled, so what is behind does not show.
             if tweak.get('solid') and not shape.get('fill') and shape.get('d', '').rstrip().endswith('Z'): shape['fill'] = '#FFFFFE'
+            if tweak.get('thin') and shape.get('width'): shape['width'] = shape['width'] * tweak['thin']
+            longer = OUTLINE.get(name, {}).get('_mouth')
+            mouth = re.fullmatch(r'M120 ([\d.]+) L120 ([\d.]+)', shape.get('d', '')) if longer else None
+            if mouth: shape['d'], shape['width'] = f'M120 {mouth.group(1)} L120 {float(mouth.group(2)) + longer:g}', shape.get('width', 3) * 1.25
             fill, stroke = shape.get('fill', '').upper(), shape.get('stroke', '').upper()
             if fill in ('#C27C66', '#EE9C88') and not stroke: continue           # cheeks: left out of a line drawing
             if stroke in ('#B79F8A', '#D6CDBE', '#FFFFFF'): continue             # grey in the hair, a shine: left out
@@ -155,7 +166,10 @@ def head(name, line, field):
             else:
                 out += f'<path d="{shape["d"]}" {paint}/>'
         if tweak.get('down'): out += '</g>'
-    return out, parts['head']['pivot'][1] - 62      # and how far down the middle of the head is
+    middle = parts['head']['pivot'][1] - 62          # how far down the middle of the head is
+    size = OUTLINE.get(name, {}).get('_size')
+    if size: out = f'<g transform="translate(120 {middle}) scale({size}) translate(-120 {-middle})">{out}</g>'
+    return out, middle
 
 
 def icon(name, line):
