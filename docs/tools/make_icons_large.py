@@ -118,9 +118,10 @@ LARGE = {
     'vaccine': (doubled('vaccine'), False),
     'teeth': (doubled('teeth'), False),
     'milestone': (doubled('milestone'), False),
+    # The eye is a dot, high under the fringe: a closed-eye arc lower on the face read as a mouth.
     'tummy-time': (drawn([circle(30, 17, 9), HAIR, BODY],
-                         fine=[eye(33.5, 16.8, 2), 'M27 36.5C27 33.2 29 31 31.5 30.4', 'M12.8 26.2C14 27.4 14.8 29 14.8 30.8'],
-                         wattle=[HAIR + 'A9 9 0 0 0 21.6 13.8Z']), True),
+                         fine=['M27 36.5C27 33.2 29 31 31.5 30.4', 'M12.8 26.2C14 27.4 14.8 29 14.8 30.8'],
+                         wattle=[HAIR + 'A9 9 0 0 0 21.6 13.8Z'], ink=[circle(33.6, 17, 1.4)]), True),
     'play': (drawn(BLOCKS48 + [sparkle(20, 16, 4.6), 'M12 30.8L16 37.5H8Z', circle(28, 34, 3.6)], wattle=[rr(12, 8, 16, 16, 3)]), True),
     'walk': (doubled('walk', fine=['M20 21L9 16.5']), False),
     'note': (doubled('note'), False),

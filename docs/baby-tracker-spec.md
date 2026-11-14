@@ -1135,3 +1135,5 @@ The last four carried down, and a second pass on two (14 November 2026).
 - **Pump, second pass.** The lever is a handle with its own thickness, arcing over and hanging down, and the bottle has three marks.
 
 Close-up: `docs/previews/icons/second-pass-four-more.png`. 51 tests pass.
+
+Tummy time's eye (14 November 2026). Tom asked for one eye, as in the reference, then said the closed-eye arc looked like a mouth. It is now a dot, high under the fringe, in all three sizes. Close-up: `docs/previews/icons/tummy-time-eye.png`.

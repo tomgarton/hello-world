@@ -141,7 +141,7 @@ ICONS = {
     'milestone': icon([BIG_SPARKLE], wattle=[BIG_SPARKLE], ink=[sparkle(19, 5.5, 3)],
                       note='Sparkles, not a five-point star: the brand\'s own star is the four-point one.'),
     # Only the hair is filled: a whole yellow head read as a ball.
-    'tummy-time': icon([circle(15, 8.5, 4.5), FRINGE24, TUMMY], wattle=[FRINGE24 + 'A4.5 4.5 0 0 0 10.8 6.9Z'], note='A baby on its front, head up, with its back and bottom behind.'),
+    'tummy-time': icon([circle(15, 8.5, 4.5), FRINGE24, TUMMY], wattle=[FRINGE24 + 'A4.5 4.5 0 0 0 10.8 6.9Z'], ink=[circle(16.8, 8.6, .9)], note='A baby on its front, head up, with its back and bottom behind.'),
     'play': icon([rr(7.5, 3, 9, 9, 2.5), rr(3, 12, 9, 9, 2.5), rr(12, 12, 9, 9, 2.5)], wattle=[rr(7.5, 3, 9, 9, 2.5)], note='Three blocks, stacked.'),
     'walk': icon(['M3.5 10.5A6.5 6.5 0 0 1 10 4V10.5Z', 'M3.5 10.5H16.5C16.5 13.5 13.6 15.5 10 15.5C6.4 15.5 3.5 13.5 3.5 10.5Z', 'M16.5 10.5L18.5 5H21.5', circle(6.5, 20, 1.5), circle(13.5, 20, 1.5)],
                  wattle=['M3.5 10.5A6.5 6.5 0 0 1 10 4V10.5Z'], sky=['M3.5 10.5H16.5C16.5 13.5 13.6 15.5 10 15.5C6.4 15.5 3.5 13.5 3.5 10.5Z'], note='A pram with a hood.'),
@@ -358,7 +358,7 @@ DETAIL = {
     'vaccine': dict(fine=['M13 9.5H15M13 12H15M13 14.5H15'], note='Marks on the barrel.'),
     'teeth': dict(fine=['M6.5 8C6.5 6.8 7.2 6 8.3 6'], note='A highlight and a sparkle.'),
     'milestone': dict(ink=[sparkle(20, 17.5, 1.7)], note='A third sparkle.'),
-    'tummy-time': dict(fine=['M15.6 8.4A1.1 1.1 0 0 0 17.8 8.4', 'M13.5 18.25C13.5 16.6 14.5 15.5 15.75 15.2', 'M6.4 13.1C7 13.7 7.4 14.5 7.4 15.4'], note='A closed eye, an elbow and a crease.'),
+    'tummy-time': dict(fine=['M13.5 18.25C13.5 16.6 14.5 15.5 15.75 15.2', 'M6.4 13.1C7 13.7 7.4 14.5 7.4 15.4'], note='An elbow and a crease.'),
     'play': dict(fine=[scale(sparkle(20, 16, 4.6), .5), 'M6 15.6L7.8 18.6H4.2Z', circle(14, 17, 1.7)],
                  spec=dict(lines=[scale(d, .5) for d in BLOCKS48],
                            wattle=[rr(6, 4, 8, 8, 1.5)], sky=[], ink=[], tint=[], turn=0), note='The blocks have depth, and a shape on each.'),
