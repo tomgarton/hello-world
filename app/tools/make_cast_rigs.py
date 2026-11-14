@@ -486,7 +486,7 @@ def dress_for_weather(name, parts, puggle, shade):
         if parent: part['parent'] = parent
         return part
     hand = {side: next(shp for shp in reversed(parts[at(f'arm-{side}')]['shapes']) if shp['kind'] == 'ellipse') for side in ('left', 'right')}
-    own_hat = {'digby': 'outfit=none|warm|night', 'sunny': 'outfit=none|sun|rain|night'}
+    own_hat = {'digby': 'outfit=none|warm', 'sunny': 'outfit=none|sun|rain'}     # off in pyjamas, and when asked ("bare")
     if name in own_hat:
         # Their own hat comes off when the weather calls for another.
         parts[at('head-2')]['when'] = own_hat[name]
@@ -633,13 +633,18 @@ FLICK = 'M58 124 Q36 132 30 114 Q42 122 56 108 Z'
 TUFT = 'M58 120 L44 124 L54 130 L45 139 L60 140 Z'
 CURL = 'M58 116 Q39 115 38 130 Q39 142 51 142 Q46 134 59 134 Z'
 BUSHY = 'M58 116 L42 119 L52 125 L40 130 L52 135 L43 143 L60 142 Z'
-HAIR = {   # part, pivot, shown only bare-headed, shapes
-    'mum': [('sweep', [100, 62], True, ['M88 64 Q80 44 96 35 Q114 28 130 38 Q139 45 137 55 Q128 46 117 48 Q107 52 110 64 Z']),
-            ('flick-left', [57, 118], False, [FLICK]), ('flick-right', [183, 118], False, [mirrored(FLICK)])],
-    'dad': [('crest', [120, 60], True, ['M109 60 Q111 40 120 30 Q129 40 129 60 Z', 'M98 62 Q93 46 101 37 Q109 44 112 60 Z', 'M126 60 Q130 45 139 39 Q144 48 139 62 Z']),
-            ('tuft-left', [59, 130], False, [TUFT]), ('tuft-right', [181, 130], False, [mirrored(TUFT)])],
-    'nan': [('curl-left', [58, 126], False, [CURL]), ('curl-right', [182, 126], False, [mirrored(CURL)])],
-    'pop': [('tuft-left', [59, 130], False, [BUSHY]), ('tuft-right', [181, 130], False, [mirrored(BUSHY)])],
+BARE = 'outfit=none|night|bare'      # no hat on: "bare" is hats off, for indoors or a close-up
+HATLESS = 'outfit=night|bare'         # for those whose own hat is on by day
+HAIR = {   # part, pivot, when it shows (None: always), shapes
+    'mum': [('sweep', [100, 62], BARE, ['M88 64 Q80 44 96 35 Q114 28 130 38 Q139 45 137 55 Q128 46 117 48 Q107 52 110 64 Z']),
+            ('flick-left', [57, 118], None, [FLICK]), ('flick-right', [183, 118], None, [mirrored(FLICK)])],
+    'dad': [('crest', [120, 60], BARE, ['M109 60 Q111 40 120 30 Q129 40 129 60 Z', 'M98 62 Q93 46 101 37 Q109 44 112 60 Z', 'M126 60 Q130 45 139 39 Q144 48 139 62 Z']),
+            ('tuft-left', [59, 130], None, [TUFT]), ('tuft-right', [181, 130], None, [mirrored(TUFT)])],
+    'nan': [('curl-left', [58, 126], None, [CURL]), ('curl-right', [182, 126], None, [mirrored(CURL)])],
+    'pop': [('tuft-left', [59, 130], None, [BUSHY]), ('tuft-right', [181, 130], None, [mirrored(BUSHY)])],
+    # Under their hats, for when the hats come off: Digby a coarse, stubby tuft between his ears, Sunny a soft fluff.
+    'digby': [('tuft', [122, 54], HATLESS, ['M103 55 Q100 41 109 35 Q116 41 118 53 Z', 'M115 53 Q117 37 126 31 Q134 39 133 53 Z', 'M130 55 Q134 43 141 39 Q146 47 142 57 Z'])],
+    'sunny': [('tuft', [120, 54], HATLESS, ['M104 56 Q98 39 109 33 Q119 30 121 42 Q124 32 134 34 Q144 40 136 56 Z'])],
 }
 
 def grow_hair(name, parts):
@@ -653,7 +658,7 @@ def grow_hair(name, parts):
         back = {'id': pid, 'parent': 'head', 'pivot': pivot, 'spring': 130,
                 'shapes': [{'kind': 'path', 'd': d, 'fill': fur, 'stroke': INK, 'tint': line, 'width': skull['width'] * 2} for d in locks]}
         top = {'id': pid + '-top', 'parent': pid, 'pivot': pivot, 'shapes': [{'kind': 'path', 'd': d, 'fill': fur} for d in locks]}
-        if bare: back['when'] = top['when'] = 'outfit=none|night'
+        if bare: back['when'] = top['when'] = bare
         behind.append(back); over.append(top)
     at = parts.index(face)
     parts[at + 1:at + 1] = over

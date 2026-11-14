@@ -78,6 +78,26 @@ enum RefinementSheets {
         headParts(puggle)
         feelings(puggle)
         parentHair()
+        hatsOff()
+    }
+
+    /// Digby and Sunny with their hats on, and off: what is under them.
+    private static func hatsOff() {
+        guard let digby = Rig.load("digby"), let sunny = Rig.load("sunny") else { return }
+        func pair(_ name: String, _ rig: Rig) -> some View {
+            HStack(alignment: .bottom, spacing: 12) {
+                cell(rig, height: 150, caption: "\(name), hat on", headOnly: true)
+                cell(rig, height: 150, caption: "Hat off", headOnly: true).environment(\.outfit, "bare")
+                RigFrame(rig: rig, states: [:], face: nil).frame(width: 90 * rig.size[0] / rig.size[1], height: 90).environment(\.outfit, "bare")
+                RigFrame(rig: silhouette(rig), states: [:], face: nil).frame(width: 90 * rig.size[0] / rig.size[1], height: 90).environment(\.outfit, "bare")
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 18) {
+            Text("Under the hats").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            pair("Digby", digby)
+            pair("Sunny", sunny)
+        }
+        save(sheet, as: "hats-off.png")
     }
 
     // MARK: Hair for Mum and Dad

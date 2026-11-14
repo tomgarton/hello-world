@@ -802,7 +802,7 @@
     111,
     58
    ],
-   "when": "outfit=none|night",
+   "when": "outfit=none|night|bare",
    "shapes": [
     {
      "kind": "path",

@@ -469,6 +469,42 @@
    ]
   },
   {
+   "id": "tuft",
+   "parent": "head",
+   "pivot": [
+    122,
+    54
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M103 55 Q100 41 109 35 Q116 41 118 53 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 14.0
+    },
+    {
+     "kind": "path",
+     "d": "M115 53 Q117 37 126 31 Q134 39 133 53 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 14.0
+    },
+    {
+     "kind": "path",
+     "d": "M130 55 Q134 43 141 39 Q146 47 142 57 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 14.0
+    }
+   ],
+   "when": "outfit=night|bare"
+  },
+  {
    "id": "face",
    "parent": "head",
    "pivot": [
@@ -532,6 +568,32 @@
      "cap": "round"
     }
    ]
+  },
+  {
+   "id": "tuft-top",
+   "parent": "tuft",
+   "pivot": [
+    122,
+    54
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M103 55 Q100 41 109 35 Q116 41 118 53 Z",
+     "fill": "#8C7B6E"
+    },
+    {
+     "kind": "path",
+     "d": "M115 53 Q117 37 126 31 Q134 39 133 53 Z",
+     "fill": "#8C7B6E"
+    },
+    {
+     "kind": "path",
+     "d": "M130 55 Q134 43 141 39 Q146 47 142 57 Z",
+     "fill": "#8C7B6E"
+    }
+   ],
+   "when": "outfit=night|bare"
   },
   {
    "id": "ear-left-top",
@@ -645,7 +707,7 @@
      "tint": "#7E7766"
     }
    ],
-   "when": "outfit=none|warm|night"
+   "when": "outfit=none|warm"
   },
   {
    "id": "eyes-closed",

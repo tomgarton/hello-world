@@ -408,7 +408,7 @@
      "width": 14.0
     }
    ],
-   "when": "outfit=none|night"
+   "when": "outfit=none|night|bare"
   },
   {
    "id": "tuft-left",
@@ -536,7 +536,7 @@
      "fill": "#8A5A3C"
     }
    ],
-   "when": "outfit=none|night"
+   "when": "outfit=none|night|bare"
   },
   {
    "id": "tuft-left-top",

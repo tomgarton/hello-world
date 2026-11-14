@@ -485,6 +485,26 @@
    ]
   },
   {
+   "id": "tuft",
+   "parent": "head",
+   "pivot": [
+    120,
+    116
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M104 118 Q98 101 109 95 Q119 92 121 104 Q124 94 134 96 Q144 102 136 118 Z",
+     "fill": "#C2925F",
+     "stroke": "#3A2A20",
+     "tint": "#784F23",
+     "width": 14.0
+    }
+   ],
+   "when": "outfit=night|bare"
+  },
+  {
    "id": "face",
    "parent": "head",
    "pivot": [
@@ -543,6 +563,22 @@
      "cap": "round"
     }
    ]
+  },
+  {
+   "id": "tuft-top",
+   "parent": "tuft",
+   "pivot": [
+    120,
+    116
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M104 118 Q98 101 109 95 Q119 92 121 104 Q124 94 134 96 Q144 102 136 118 Z",
+     "fill": "#C2925F"
+    }
+   ],
+   "when": "outfit=night|bare"
   },
   {
    "id": "ear-left-top",
@@ -654,7 +690,7 @@
      "width": 8.0
     }
    ],
-   "when": "outfit=none|sun|rain|night"
+   "when": "outfit=none|sun|rain"
   },
   {
    "id": "eyes-closed",
