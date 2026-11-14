@@ -822,12 +822,14 @@ def paddle(bx, by, angle=-28.0, long=66.0):
     ridges = f'M{at(38 * k, -8)} Q{at(42 * k, 0)} {at(38 * k, 8)} M{at(51 * k, -7)} Q{at(55 * k, 0)} {at(51 * k, 7)}'
     return outline, ridges
 
-def regrow_tail(parts, grown):
+def regrow_tail(parts, grown, sitting=False):
     tail = next((p for p in parts if p['id'] == 'tail'), None)
     if not tail: return parts
     oval = tail['shapes'][0]
     # Where the oval's near end was, and further in behind the body; a grown-up's sits higher, at the hip.
-    bx, by = oval['x'] - 28, oval['y'] + 14 - (16 if grown else 0)
+    # Up at the hip, where a tail leaves the body: not down by the knees. A sitting baby's stays near the ground.
+    lift = 50 if grown else 6 if sitting else 18
+    bx, by = oval['x'] - 28, oval['y'] + 14 - lift
     outline, ridges = paddle(bx, by, long=72.0)
     tail['shapes'] = [{'kind': 'path', 'd': outline, 'fill': oval['fill'], 'stroke': oval['stroke'], 'tint': oval.get('tint'), 'width': oval['width']},
                       {'kind': 'path', 'd': ridges, 'stroke': oval.get('tint') or INK, 'width': 2.5, 'cap': 'round'}]
@@ -970,7 +972,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             x, y, r = eye['x'], eye['y'], eye['rx'] + 1.2
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
-    parts = regrow_tail(parts, grown)
+    parts = regrow_tail(parts, grown, sitting=name == 'pebble')
     parts = join_to_head(name, parts)
     parts = grow_hair(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
