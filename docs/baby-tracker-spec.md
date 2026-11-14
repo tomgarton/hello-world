@@ -912,4 +912,4 @@ Privacy and technical
 
 **Backyard sky: bubbles and leaves (2026-11-14).** Pulled down, the bubbles used to fade out at the top of a small box, so they stopped part-way up the sky. A second set now carries on from there at a steady pace and leaves by the top of the screen, about one for every 60 points of sky. Dandelion seeds are for spring and summer only; in autumn and winter the third surprise is leaves on the wind, flat and in the brand's warm colours.
 
-**Start sleep for both: placement (2026-11-14, open).** Tom finds the right-aligned pill oddly placed. Five options mocked up in `docs/previews/sleep-for-both/`: A as now, B one shared card with the button as its foot (suggested), C full width under the cards, D a quiet link above, E offered only after one sleep starts. Nothing built.
+**Start sleep for both: removed (2026-11-14).** Tom: both children sleeping at the same time is rare, and pressing two Start sleep buttons is not hard. The pill under the child cards, and its "Both woke up" twin, are gone from Today. Five placements were mocked up first (`docs/previews/sleep-for-both/`) and none was taken up.

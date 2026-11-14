@@ -101,7 +101,6 @@ struct TodayView: View {
                         ForEach(children) { child in
                             ChildStatusRow(child: child) { dayOf = child }
                         }
-                        if store.canLog { togetherButton }
                         let layout = tileLayout
                         if !store.canLog {
                             Text("You're a viewer, so you can look but not log. \(store.holderName) can change that.")
@@ -295,38 +294,6 @@ struct TodayView: View {
         } else if let feed = store.staleFeed(among: Array(children)), !askedAbout.contains(feed.objectID) {
             askedAbout.insert(feed.objectID)
             staleFeed = feed
-        }
-    }
-
-    /// With two or more children, one tap starts or ends everyone's sleep.
-    @ViewBuilder private var togetherButton: some View {
-        if children.count >= 2 {
-            let awake = children.filter { store.activeSleep(for: $0) == nil }
-            let asleep = children.filter { store.activeSleep(for: $0).map { Date.now.timeIntervalSince($0.startedAt ?? .now) >= 60 } ?? false }
-            let everyone = children.count == 2 ? "both" : "everyone"
-            if awake.count >= 2 || asleep.count >= 2 {
-                HStack {
-                    Spacer()
-                    Button {
-                        if awake.count >= 2 {
-                            store.startSleep(for: awake)
-                        } else {
-                            asleep.forEach { store.endSleep(for: $0) }
-                        }
-                    } label: {
-                        Label(awake.count >= 2
-                              ? (awake.count == children.count ? "Start sleep for \(everyone)" : "Start sleep for \(ListFormatter.localizedString(byJoining: awake.map(\.displayName)))")
-                              : (asleep.count == children.count ? (children.count == 2 ? "Both woke up" : "Everyone woke up") : "\(ListFormatter.localizedString(byJoining: asleep.map(\.displayName))) woke up"),
-                              systemImage: awake.count >= 2 ? "moon" : "sun.max")
-                            .font(.subheadline.weight(.semibold))
-                            .padding(.horizontal, 14)
-                            .frame(minHeight: 44)
-                            .foregroundStyle(Palette.ink)
-                            .background(Palette.paper, in: Capsule())
-                    }
-                    .buttonStyle(PressStyle())
-                }
-            }
         }
     }
 
