@@ -135,9 +135,9 @@ def divider(number, title, colour, on, line, contents):
     decor = {
         1: shape('quatrefoil', WATTLE, 96, -40, 190, 12) + shape('pill', PAPER, -40, 196, 150, -24, 0.9) + shape('pebble', NIGHT, 128, 206, 110, 10, 0.25),
         2: shape('blossom', WARATAH, 100, -52, 200, 0) + shape('half', HARBOUR, -46, 190, 150, 18) + shape('square', PAPER, 130, 214, 96, 14, 0.9),
-        3: shape('scallop', WATTLE, 88, -64, 210, 8) + shape('pebble', SKY, -50, 188, 160, -10) + shape('quatrefoil', WARATAH, 136, 206, 104, 0),
+        3: shape('scallop', WATTLE, 88, -64, 210, 8) + shape('pebble', SKY, -50, 236, 150, -10) + shape('quatrefoil', WARATAH, 136, 206, 104, 0),
         4: shape('square', WATTLE, 108, -50, 180, 16) + shape('blossom', MINT, -54, 184, 170, 0) + shape('pill', WARATAH, 110, 222, 130, -14),
-        5: shape('pebble', HARBOUR, 96, -46, 196, 0) + shape('quatrefoil', MOON, -44, 198, 140, 10) + shape('half', WARATAH, 132, 210, 104, -20),
+        5: shape('pebble', WATTLE, 96, -46, 196, 0) + shape('quatrefoil', SKY, -44, 246, 130, 10) + shape('half', WARATAH, 132, 210, 104, -20),
         6: shape('blossom', WATTLE, 100, -50, 196, 0) + shape('scallop', HARBOUR, -52, 186, 160, -8) + shape('pebble', WARATAH, 132, 210, 100, 0),
     }[number]
     items = ''.join(f'<li><a href="#{a}">{html.escape(c)}<span>{page_of(a)}</span></a></li>' for c, a in contents)
