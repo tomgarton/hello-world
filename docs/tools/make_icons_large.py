@@ -55,10 +55,11 @@ def eye(x, y, w=2.3, up=False):
     return f'M{x - w} {y}A{w} {w} 0 0 {1 if up else 0} {x + w} {y}'
 
 
-# Potty: a backrest, a seat ring with its opening, and a base with two feet.
+# Potty: a backrest, a seat ring with its opening and a splash guard, and a base with two feet.
 POTTY = ('M8 40C7 34 9 24 11 21C12 19 14 18 17 17.5C17 10 20 5.5 25.5 5.5C31 5.5 34 10 34.5 18C37.5 18.5 39.5 20 40.5 22'
          'C42.5 26 43.5 34 43 40C43 42 42 43 40 43H34C33 43 32.5 42 32 41H19C18.5 42 18 43 17 43H11C9 43 8 42 8 40Z')
 SEAT = 'M13.5 24A12 5 0 1 0 37.5 24A12 5 0 1 0 13.5 24Z'
+GUARD = 'M20 31V28C20 24.8 22.3 22.4 25.5 22.4C28.7 22.4 31 24.8 31 28V31'
 # Weight: a baby scale, with a curved tray on a base and a dial.
 TRAY = 'M5 13C5 10 8 9 12 9.5C17 10.2 20 10.5 24 10.5C28 10.5 31 10.2 36 9.5C40 9 43 10 43 13C43 16.5 39 19 35 19H13C9 19 5 16.5 5 13Z'
 BASE = 'M12 23H36C38 23 39.3 24.2 39.8 26L42.5 37C43.2 40 41.5 42.5 38.5 42.5H9.5C6.5 42.5 4.8 40 5.5 37L8.2 26C8.7 24.2 10 23 12 23Z'
@@ -91,7 +92,9 @@ LARGE = {
                      sky=[BOWL], wattle=[MOUND + 'Z']), True),
     'sleep': (doubled('sleep'), False),
     'nappy': (doubled('nappy', only_fine=[scale('M8.5 7.3H15.5'), 'M21 23.5H27M21.5 27H26.5M22 30.5H26']), False),
-    'potty': (drawn([POTTY, SEAT], fine=['M12 36.5H18'], sky=[POTTY], wattle=[SEAT], ink=['M18 24A7.5 2.8 0 1 0 33 24A7.5 2.8 0 1 0 18 24Z']), True),
+    # The splash guard is the raised lip at the front: part of the body, coming up in front of the seat and its opening.
+    'potty': (drawn([POTTY, 'M31 28.44A12 5 0 1 0 20 28.44', GUARD], fine=['M12 36.5H18'], sky=[POTTY], wattle=[SEAT], tint=[(GUARD + 'Z', '#BFD9F5')],
+                    ink=['M18 24A7.5 2.8 0 0 1 33 24C33 24.8 32 25.6 30.6 26C29.8 23.8 27.9 22.4 25.5 22.4C23.1 22.4 21.2 23.8 20.4 26C19 25.6 18 24.8 18 24Z']), True),
     'bath': (drawn([rr(4, 19, 40, 5, 2.5), TUB, 'M14 38.5V41M34 38.5V41', FOAM, circle(32.5, 11, 4.2), DUCK, circle(13, 8.5, 2.5)],
                    fine=[circle(20, 5.5, 1.6), 'M36.5 10L39.8 11.3L36.3 12.8', 'M13 29Q16 27 19 29Q22 31 25 29'],
                    sky=[rr(4, 19, 40, 5, 2.5), TUB + 'Z'], wattle=[circle(32.5, 11, 4.2), 'M27.5 19C26.5 16.5 27.5 14.5 29.5 14L36.5 13.5C38.8 14.8 39.8 17 39 19Z'],
