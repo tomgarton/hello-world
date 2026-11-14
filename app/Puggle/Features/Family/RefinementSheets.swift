@@ -259,6 +259,49 @@ enum RefinementSheets {
             }
         }
         save(dashes, as: "grey-dashes.png")
+
+        // Fourth sheet: other ways shows draw a grandparent. Bluey's Nana is her son's colours made paler and greyer
+        // all over, with the same marks; an old dog goes pale round the muzzle first.
+        let greyer = ["#8A5A3C": "#93745E", "#5E3A24": "#5F4737"]
+        func muzzled(_ rig: Rig) -> Rig {
+            var copy = rig
+            guard let index = copy.parts.firstIndex(where: { $0.id == "face" }),
+                  let bill = copy.parts[index].shapes.first(where: { $0.fill == "#6E7F8D" }), let x = bill.x, let y = bill.y else { return rig }
+            copy.parts[index].shapes.insert(Rig.Shape(kind: "ellipse", x: x, y: y + 1, rx: 60, ry: 29, fill: "#A5846A"), at: 1)
+            return copy
+        }
+        let nanDashed = dashed(nan, nanMarks(thinning), colour: mid, second: silver)
+        let popDashed = dashed(pop, popMarks(popTemple), colour: mid, second: silver)
+        let others = VStack(alignment: .leading, spacing: 16) {
+            row("Nan: other ways to show her age") {
+                column("7. Dashes, from the last sheet", nanDashed)
+                column("8. Greyer fur all over", nan.wearing(greyer))
+                column("9. Greyer fur, with dashes", nanDashed.wearing(greyer))
+                column("10. Pale round the bill", muzzled(nan))
+                column("11. Pale round the bill, dashes", muzzled(nanDashed))
+            }
+            row("Pop") {
+                column("7. Dashes, from the last sheet", popDashed)
+                column("8. Greyer fur all over", pop.wearing(greyer))
+                column("9. Greyer fur, with dashes", popDashed.wearing(greyer))
+                column("10. Pale round the bill", muzzled(pop))
+                column("11. Pale round the bill, dashes", muzzled(popDashed))
+            }
+            row("Beside Mum and Dad, at app size: as now, 9, and 11") {
+                if let mum = Rig.load("mum"), let dad = Rig.load("dad") {
+                    ForEach(0..<3, id: \.self) { i in
+                        HStack(alignment: .bottom, spacing: 0) {
+                            ForEach(Array([mum, [nan, nanDashed.wearing(greyer), muzzled(nanDashed)][i], dad, [pop, popDashed.wearing(greyer), muzzled(popDashed)][i]].enumerated()), id: \.offset) { _, rig in
+                                RigFrame(rig: rig, states: [:], face: nil)
+                                    .frame(width: 96 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 96 * rig.size[1] / 240)
+                            }
+                        }
+                        .padding(.trailing, 30)
+                    }
+                }
+            }
+        }
+        save(others, as: "grey-others.png")
     }
 
     /// Arms that bend at the elbow: Puggle's new poses, the same on everyone, and in her other clothes.
