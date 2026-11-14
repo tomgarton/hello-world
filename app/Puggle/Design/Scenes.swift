@@ -433,6 +433,12 @@ struct SceneFrame: View {
                     if starry { Fireflies(t: t).frame(width: 90, height: 64) }
                     else { Bubbles(t: t).frame(width: 96, height: 84) }
                 }
+                // By day the bubbles keep rising, right up and off the top of the sky.
+                if !starry, first {
+                    let tall = pull + 40
+                    Bubbles(t: t, rising: true).frame(width: 110, height: tall)
+                        .position(x: w * 0.3, y: pull - 98 - tall / 2)
+                }
                 turnsUp(second, x: w * 0.68 + CGFloat(sin(t * 0.8)) * (starry ? 4 : 14), y: pull - 124 + CGFloat(sin(t * 1.6)) * (starry ? 3 : 6), from: starry ? .zero : CGSize(width: -w * 0.8, height: 30)) {
                     if starry { SkyLantern(t: t).frame(width: 44, height: 64) }
                     else { PaperPlane().frame(width: 46, height: 30).rotationEffect(.degrees(-8 + 10 * sin(t * 1.6))) }
@@ -447,7 +453,13 @@ struct SceneFrame: View {
                                     .offset(y: (i == 1 ? -14 : 6) + CGFloat(sin(t * 0.7 + Double(i))) * 4)
                             }
                         }
-                    } else { DandelionSeeds(t: t).frame(width: w * 0.7, height: 70) }
+                    } else if season == .spring || season == .summer {
+                        // Dandelion clocks belong to the warm months.
+                        DandelionSeeds(t: t).frame(width: w * 0.7, height: 70)
+                    } else {
+                        // Autumn and winter: leaves on the wind.
+                        DriftingLeaves(t: t).frame(width: w * 0.7, height: 76)
+                    }
                 }
             case .bush:
                 // Gum leaves on the wind, cockatoos, and a sugar glider. After dark: flying foxes, and the glider again.
@@ -1713,15 +1725,22 @@ struct Fireworks: View {
 
 struct Bubbles: View {
     var t = 0.0
+    /// The ones that got away: fewer, climbing a tall column of sky at a steady pace and leaving by the top.
+    var rising = false
     var body: some View {
         Canvas { context, size in
-            for i in 0..<7 {
-                var random = SeededRandom(UInt64(i) &* 613 &+ 5)
-                let radius = CGFloat(random.range(5, 12)), speed = random.range(0.1, 0.17), start = random.unit(), x0 = random.range(0.12, 0.88)
+            // About one bubble for every 60 points of sky, so a long pull is not empty.
+            let count = rising ? min(14, max(3, Int(size.height / 60))) : 7
+            for i in 0..<count {
+                var random = SeededRandom(UInt64(i) &* 613 &+ (rising ? 41 : 5))
+                let radius = CGFloat(random.range(5, 12)), pace = random.range(0.1, 0.17), start = random.unit(), x0 = random.range(0.12, 0.88)
+                // The same points a second whatever the height.
+                let speed = rising ? pace * 150 / Double(max(size.height, 1)) : pace
                 let rise = (t * speed + start).truncatingRemainder(dividingBy: 1)
-                let centre = CGPoint(x: size.width * x0 + CGFloat(sin(rise * 7 + Double(i))) * 6, y: size.height * (1 - rise))
+                let centre = CGPoint(x: size.width * x0 + CGFloat(sin(rise * (rising ? 7 * Double(size.height) / 84 : 7) + Double(i))) * 6, y: size.height * (1 - rise))
                 let round = Path(ellipseIn: CGRect(x: centre.x - radius, y: centre.y - radius, width: radius * 2, height: radius * 2))
-                let fade = rise > 0.88 ? (1 - rise) / 0.12 : min(1, rise / 0.08)
+                // The column ends above the screen, so nothing needs to fade at its top.
+                let fade = rising ? min(1, rise * Double(size.height) / 16) : (rise > 0.88 ? (1 - rise) / 0.12 : min(1, rise / 0.08))
                 context.fill(round, with: .color(Color.white.opacity(0.22 * fade)))
                 context.stroke(round, with: .color(Color.white.opacity(0.85 * fade)), lineWidth: 1.4)
                 dot(&context, centre.x - radius * 0.35, centre.y - radius * 0.4, radius * 0.2, Color.white.opacity(0.9 * fade))
@@ -1765,6 +1784,30 @@ struct DandelionSeeds: View {
                 }
                 context.stroke(seed, with: .color(Color.white.opacity(0.9 * fade)), style: StrokeStyle(lineWidth: 1.1, lineCap: .round))
                 dot(&context, base.x, base.y + 1, 1.3, Color(hex: 0xB89A78).opacity(fade))
+            }
+        }
+    }
+}
+
+/// Autumn leaves blown across the sky, turning as they go. Flat, no outline, in the brand's warm colours.
+struct DriftingLeaves: View {
+    var t = 0.0
+    private static let colours: [UInt32] = [0xF4BE2C, 0xE5553B, 0xD98A3A, 0xB5652F]
+    var body: some View {
+        Canvas { context, size in
+            for i in 0..<7 {
+                var random = SeededRandom(UInt64(i) &* 467 &+ 23)
+                let speed = random.range(0.05, 0.09), start = random.unit(), y0 = random.range(0.1, 0.7), long = CGFloat(random.range(9, 13))
+                let drift = (t * speed + start).truncatingRemainder(dividingBy: 1)
+                // Across on the wind, sinking a little, with a flutter.
+                let centre = CGPoint(x: size.width * drift, y: size.height * (y0 + drift * 0.2) + CGFloat(sin(drift * 9 + Double(i))) * 7)
+                let fade = min(1, drift / 0.1, (1 - drift) / 0.1)
+                var leaf = Path()
+                leaf.move(to: CGPoint(x: -long, y: 0))
+                leaf.addQuadCurve(to: CGPoint(x: long, y: 0), control: CGPoint(x: 0, y: -long * 0.9))
+                leaf.addQuadCurve(to: CGPoint(x: -long, y: 0), control: CGPoint(x: 0, y: long * 0.9))
+                let turn = CGAffineTransform(translationX: centre.x, y: centre.y).rotated(by: CGFloat(t * (0.8 + Double(i) * 0.13) + Double(i) * 1.3))
+                context.fill(leaf.applying(turn), with: .color(Color(hex: Self.colours[i % Self.colours.count]).opacity(0.95 * fade)))
             }
         }
     }

@@ -909,3 +909,7 @@ Privacy and technical
 - [PowerSync and Supabase](https://supabase.com/partners/powersync)
 
 **Family heap: Puggle stays put (2026-11-14).** On the last first-run screen she used to follow whichever shape was highest, including one being dragged or thrown, so she was flicked about the screen. Now she stands only on a shape at rest, the shape she is on cannot be picked up, she keeps her shape unless another is clearly higher, and a change of shape is a soft step across. Her feet sit on the shape's real top edge, so she no longer hovers over a pill or a scallop.
+
+**Backyard sky: bubbles and leaves (2026-11-14).** Pulled down, the bubbles used to fade out at the top of a small box, so they stopped part-way up the sky. A second set now carries on from there at a steady pace and leaves by the top of the screen, about one for every 60 points of sky. Dandelion seeds are for spring and summer only; in autumn and winter the third surprise is leaves on the wind, flat and in the brand's warm colours.
+
+**Start sleep for both: placement (2026-11-14, open).** Tom finds the right-aligned pill oddly placed. Five options mocked up in `docs/previews/sleep-for-both/`: A as now, B one shared card with the button as its foot (suggested), C full width under the cards, D a quiet link above, E offered only after one sleep starts. Nothing built.
