@@ -55,12 +55,13 @@ def icon(lines, wattle=(), sky=(), ink=(), tint=(), turn=0, note=''):
     return {'lines': list(lines), 'wattle': list(wattle), 'sky': list(sky), 'ink': list(ink), 'tint': list(tint), 'turn': turn, 'note': note}
 
 
-TEAT = 'M9 8C9 6.5 10.5 6 10.5 4.5A1.5 1.5 0 0 1 13.5 4.5C13.5 6 15 6.5 15 8'
+TEAT = 'M9 8C9 6.5 10 6 10 4.5A2 2 0 0 1 14 4.5C14 6 15 6.5 15 8'
 NAPPY = 'M6 4.5H18A4 4 0 0 1 22 8.5V12C22 17 18.5 20.5 14 20.5H10C5.5 20.5 2 17 2 12V8.5A4 4 0 0 1 6 4.5Z'
 BREAST = 'M7.5 2.5C13 5 20.5 8.5 20.5 14A8 8 0 0 1 12.5 22C7.5 22 3.5 18.5 3.5 13.5C3.5 9.5 5.5 6 7.5 2.5Z'
 POTTY = ('M12 4C9 4 7.5 6.5 7 10C5 10.8 3.6 12.5 3 14.5C2.3 17 2 18.5 2 19.5A2.5 2.5 0 0 0 4.5 22H19.5A2.5 2.5 0 0 0 22 19.5'
          'C22 18.5 21.7 17 21 14.5C20.4 12.5 19 10.8 17 10C16.5 6.5 15 4 12 4Z')
-MOON = 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5A7.5 7.5 0 0 0 20.5 14.5Z'
+# A shallow inner curve (radius 9.5), so the crescent is thick through the middle.
+MOON = 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5A9.5 9.5 0 0 0 20.5 14.5Z'
 TOOTH = ('M7 3C8.5 3 10 4 12 4C14 4 15.5 3 17 3C19.5 3 21 5 21 7.5C21 10 20 11.5 19.5 14L18.5 19C18.2 20.5 17.5 21.5 16.3 21.5'
          'C15 21.5 14.5 20.5 14.3 19L14 16.5C13.8 15.3 13.1 14.5 12 14.5C10.9 14.5 10.2 15.3 10 16.5L9.7 19C9.5 20.5 9 21.5 7.7 21.5'
          'C6.5 21.5 5.8 20.5 5.5 19L4.5 14C4 11.5 3 10 3 7.5C3 5 4.5 3 7 3Z')
@@ -81,7 +82,7 @@ ICONS = {
                  note='A cupped funnel, tilted up, sitting on its bottle.'),
     'solids': icon(['M7 11A5 5 0 0 1 17 11', 'M2.5 11H21.5A9.5 9.5 0 0 1 2.5 11Z', 'M15.5 7.5L20.5 2.5'],
                    wattle=['M7 11A5 5 0 0 1 17 11Z'], sky=['M2.5 11H21.5A9.5 9.5 0 0 1 2.5 11Z'], note='A filled bowl.'),
-    'sleep': icon([MOON], wattle=[MOON], ink=[sparkle(18, 5.5, 3)], note='A filled moon.'),
+    'sleep': icon([MOON], wattle=[MOON], ink=[sparkle(18.5, 5, 3)], note='A filled moon, thick through the middle.'),
     # The tabs are flat and wide and sit right above the leg openings, so each side reads as one band of the
     # garment and the four patches are not two eyes and a mouth. The leg openings are big, which narrows the crotch.
     'nappy': icon([NAPPY, rr(2, 7.5, 5.5, 3.5, 1.75), rr(16.5, 7.5, 5.5, 3.5, 1.75), 'M14 20.5C14 16 18 12 22 12', 'M10 20.5C10 16 6 12 2 12'],
@@ -95,8 +96,9 @@ ICONS = {
                  sky=['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z'], note='A filled tub and two bubbles.'),
     'growth': icon([rr(7.5, 2, 9, 20, 2.5), 'M7.5 6.5H10.5M7.5 10.5H12M7.5 14.5H10.5M7.5 18.5H12'], wattle=[rr(7.5, 2, 9, 20, 2.5)],
                    note='A height chart by itself. The arrow is gone.'),
-    'weight': icon(['M3 6H21C21 10.5 17.5 13.5 12 13.5C6.5 13.5 3 10.5 3 6Z', 'M12 13.5V16', rr(5, 16, 14, 6, 2.5)],
-                   sky=['M3 6H21C21 10.5 17.5 13.5 12 13.5C6.5 13.5 3 10.5 3 6Z'], wattle=[rr(9.5, 18.25, 5, 1.5, .75)], note='A baby scale: tray, base and readout.'),
+    'weight': icon([rr(3, 3.5, 18, 18, 4.5), 'M7.5 11.5A4.5 4.5 0 0 1 16.5 11.5Z', 'M12 11.5L13.5 9'],
+                   sky=[rr(3, 3.5, 18, 18, 4.5)], wattle=['M7.5 11.5A4.5 4.5 0 0 1 16.5 11.5Z'],
+                   note='A scale seen from above, with its dial. The tray on a stand read as an hourglass.'),
     'temperature': icon(['M9 13V5A3 3 0 0 1 15 5V13A5 5 0 1 1 9 13Z'], wattle=[circle(12, 17, 2.5), rr(11, 7.5, 2, 9, 1)],
                         note='The reading is a filled column, not a second line.'),
     'medicine': icon([rr(2.5, 8, 19, 8, 4), 'M12 8V16'], wattle=['M6.5 8H12V16H6.5A4 4 0 0 1 6.5 8Z'], turn=-45, note='A capsule.'),
