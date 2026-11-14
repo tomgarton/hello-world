@@ -33,9 +33,15 @@ h2{font-size:20px;margin:26px 0 12px}h2 b{color:#B23A26}
 .row{display:flex;gap:26px;align-items:flex-start}.col{width:306px}
 .cap{font-weight:700;margin:0 0 8px}.cap span{color:#B23A26;margin-right:6px}.note{color:#6B5E52;font-size:14px;margin:10px 2px 0;min-height:38px}
 .phone{width:306px;height:664px;background:var(--sand);color:var(--ink);border-radius:38px;overflow:hidden;position:relative;border:1px solid var(--line)}
-.panel{position:absolute;left:0;right:0;top:0;height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:74px 18px 22px}
+.panel{position:absolute;left:0;right:0;top:0;height:300px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:88px 18px 14px}
 .panel.low{height:128px}
-.skip{position:absolute;top:38px;right:12px;height:36px;padding:0 15px;border-radius:18px;background:var(--paper);display:grid;place-items:center;font-weight:650;font-size:15px;box-shadow:0 2px 6px var(--shadow)}
+.skip{position:absolute;top:47px;right:12px;height:36px;padding:0 15px;border-radius:18px;background:var(--paper);display:grid;place-items:center;font-weight:650;font-size:15px;box-shadow:0 2px 6px var(--shadow)}
+/* The status bar, to scale: the clock, the Dynamic Island and the battery. Nothing of the app's can sit in it. */
+.sb{position:absolute;left:0;right:0;top:0;height:46px;font-weight:650;font-size:13.5px;color:var(--ink)}
+.sb b{position:absolute;left:40px;top:15px}.sb i{position:absolute;left:105px;top:9px;width:96px;height:28px;border-radius:14px;background:#000}
+.sb u{position:absolute;right:28px;top:18px;width:21px;height:10.5px;border-radius:3.5px;border:1.2px solid var(--ink);opacity:.9}
+.sb u::after{content:'';position:absolute;left:1.5px;top:1.5px;bottom:1.5px;width:12px;border-radius:1.5px;background:var(--ink)}
+.sb s{position:absolute;right:56px;top:18px;width:14px;height:10.5px;background:linear-gradient(90deg,var(--ink) 0 2.5px,transparent 2.5px 3.8px,var(--ink) 3.8px 6.3px,transparent 6.3px 7.6px,var(--ink) 7.6px 10.1px,transparent 10.1px 11.4px,var(--ink) 11.4px 14px);clip-path:polygon(0 60%,100% 0,100% 100%,0 100%)}
 .bar{position:absolute;left:18px;right:18px;display:flex;gap:6px}.bar i{flex:1;height:5px;border-radius:3px;background:var(--track)}.bar i.on{background:var(--ink)}
 .text{position:absolute;left:18px;right:18px}
 .big{font-family:'SF Rounded',ui-rounded,system-ui;font-size:26px;line-height:1.12;font-weight:800;letter-spacing:-.01em;margin:0;height:60px}
@@ -75,13 +81,13 @@ def bar(top, n, total):
 
 def feature(num, cap, pattern, field, dark, piece, n, big, sub, note, cta='Continue'):
     return f'''<div class="col"><p class="cap"><span>{num}</span>{cap}</p><div class="phone">
- <div class="panel" style="{mp.css(pattern, field, 0.75, dark)}">{piece}</div><div class="skip">Skip</div>{bar(322, n, 5)}
+ <div class="panel" style="{mp.css(pattern, field, 0.75, dark)}">{piece}</div><div class="sb"><b>9:41</b><i></i><s></s><u></u></div><div class="skip">Skip</div>{bar(322, n, 5)}
  <div class="text" style="top:346px"><div class="big">{big}</div><p class="sub">{sub}</p></div><div class="cta">{cta}</div></div><p class="note">{note}</p></div>'''
 
 
 def setup(num, cap, pattern, field, n, big, sub, fields, cta, note):
     return f'''<div class="col"><p class="cap"><span>{num}</span>{cap}</p><div class="phone">
- <div class="panel low" style="{mp.css(pattern, field, 0.75)}"></div><div class="skip">Skip</div>{bar(150, n, 3)}
+ <div class="panel low" style="{mp.css(pattern, field, 0.75)}"></div><div class="sb"><b>9:41</b><i></i><s></s><u></u></div><div class="skip">Skip</div>{bar(150, n, 3)}
  <div class="text" style="top:174px"><div class="big">{big}</div><p class="sub">{sub}</p></div>
  <div class="text" style="top:316px">{fields}</div><div class="cta">{cta}</div></div><p class="note">{note}</p></div>'''
 
