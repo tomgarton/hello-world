@@ -84,35 +84,47 @@ enum RefinementSheets {
         smear(puggle)
     }
 
-    /// Pebble with a dummy: an object resting on the front of his closed bill. His bill does not change.
+    /// Pebble in other onesies, each with a dummy in a colour that stands out against it and against his bill.
+    /// The dummy is an object resting on the front of his closed bill. His bill does not change.
     private static func dummy() {
         guard let pebble = Rig.load("pebble") else { return }
-        func with(_ shield: String, _ ring: String) -> Rig {
-            var copy = pebble
-            guard let face = copy.parts.firstIndex(where: { $0.id == "face" }) else { return pebble }
+        func with(_ rig: Rig, _ shield: String, _ line: String) -> Rig {
+            var copy = rig
+            guard let face = copy.parts.firstIndex(where: { $0.id == "face" }) else { return rig }
             copy.parts[face].shapes += [
-                Rig.Shape(kind: "path", d: "M97 150 Q97 139 110 141 Q120 145 130 141 Q143 139 143 150 Q143 162 130 160 Q120 157 110 160 Q97 162 97 150 Z",
-                          fill: shield, stroke: dark, tint: ring, width: 5),
-                Rig.Shape(kind: "ellipse", x: 120, y: 153, rx: 9, ry: 9, fill: nil, stroke: dark, tint: ring, width: 5),
-                Rig.Shape(kind: "ellipse", x: 120, y: 150, rx: 4, ry: 4, fill: ring),
+                Rig.Shape(kind: "path", d: "M90 151 Q90 136 106 139 Q120 144 134 139 Q150 136 150 151 Q150 167 134 164 Q120 160 106 164 Q90 167 90 151 Z",
+                          fill: shield, stroke: dark, tint: line, width: 5),
+                Rig.Shape(kind: "ellipse", x: 120, y: 160, rx: 12, ry: 12, fill: nil, stroke: dark, tint: line, width: 9),
+                Rig.Shape(kind: "ellipse", x: 120, y: 160, rx: 12, ry: 12, fill: nil, stroke: "#FBF6E9", tint: nil, width: 4),
+                Rig.Shape(kind: "ellipse", x: 120, y: 150, rx: 5.5, ry: 5.5, fill: "#FBF6E9", stroke: dark, tint: line, width: 3),
             ]
             return copy
         }
-        let sky = with("#BFD9F5", "#5E84B8"), wattle = with("#F4BE2C", "#B8892A")
-        func column(_ name: String, _ rig: Rig, asleep: Bool = false) -> some View {
+        let looks = pebble.wardrobe?.looks ?? []
+        func dressed(_ look: Int) -> Rig { look < looks.count ? pebble.wearing(looks[look]) : pebble }
+        // onesie (a look), then the dummy's colour and its line
+        let options: [(String, Int, String, String)] = [
+            ("Wattle, as now", 0, "#E5553B", "#B23A26"),
+            ("Sky", 1, "#F4BE2C", "#B8892A"),
+            ("Mint", 2, "#E5553B", "#B23A26"),
+            ("Waratah", 4, "#BFD9F5", "#5E84B8"),
+            ("Gum", 5, "#F4BE2C", "#B8892A"),
+        ]
+        func column(_ name: String, _ plain: Rig, _ rig: Rig) -> some View {
             VStack(spacing: 6) {
-                RigFrame(rig: rig, states: [:], face: asleep ? ["eyes": "closed"] : nil).frame(width: 190, height: 190 * rig.size[1] / rig.size[0])
-                RigFrame(rig: rig, states: [:], face: asleep ? ["eyes": "closed"] : nil).frame(width: 60, height: 60 * rig.size[1] / rig.size[0])
+                RigFrame(rig: plain, states: [:], face: nil).frame(width: 150, height: 150 * rig.size[1] / rig.size[0])
+                RigFrame(rig: rig, states: [:], face: nil).frame(width: 150, height: 150 * rig.size[1] / rig.size[0])
+                RigFrame(rig: rig, states: [:], face: nil).frame(width: 56, height: 56 * rig.size[1] / rig.size[0])
                 Text(name).font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
             }
         }
         let sheet = VStack(alignment: .leading, spacing: 14) {
-            Text("Pebble with a dummy: a mock-up, as an occasional prop").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
-            HStack(alignment: .bottom, spacing: 14) {
-                column("Now", pebble)
-                column("Sky dummy", sky)
-                column("Wattle dummy", wattle)
-                column("Asleep with it", sky, asleep: true)
+            Text("Pebble's onesie, and a dummy that shows. Top: the onesie. Middle: with the dummy. Bottom: at scene size")
+                .font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            HStack(alignment: .bottom, spacing: 12) {
+                ForEach(options.indices, id: \.self) { i in
+                    column(options[i].0, dressed(options[i].1), with(dressed(options[i].1), options[i].2, options[i].3))
+                }
             }
         }
         save(sheet, as: "pebble-dummy.png")
