@@ -477,11 +477,11 @@
    "when": "eyes=open"
   },
   {
-   "id": "head-2",
+   "id": "curl",
    "parent": "head",
    "pivot": [
     120,
-    166
+    52
    ],
    "shapes": [
     {
@@ -499,7 +499,8 @@
      "width": 12,
      "cap": "round"
     }
-   ]
+   ],
+   "spring": 110
   },
   {
    "id": "eyes-closed",

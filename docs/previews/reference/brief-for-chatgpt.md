@@ -42,7 +42,7 @@ Puggle is the character in an iPhone baby and family tracker. She is a platypus,
 - A blue A-line dress with a light blue pocket, and a red four-petal flower clip, top right.
 - Her fur, bill, dress and clip are never recoloured. No black line.
 - **A lick of hair (newer than the brand book, which says "No hair").** One small leaning lick, left of centre, clear of her clip. It is hidden under a hat.
-- **One head, one outline (applies to the whole cast).** Whatever grows from a head is part of it: the same fur, the same line, joined with no line between, so it changes the head's outline. Hair, ears and spines all follow this. Kip's, Digby's and Sunny's ears run into their heads. Quill's spines are the brown of her head, not cream. Nan's bun is joined to her head. Pebble's curl is round and central; Puggle's lick is pointed and leans, so the two are not confused.
+- **One head, one outline (applies to the whole cast).** Whatever grows from a head is part of it: the same fur, the same line, joined with no line between, so it changes the head's outline. Hair, ears and spines all follow this. Kip's, Digby's and Sunny's ears run into their heads. Quill's spines are the brown of her head, not cream. Nan's bun is joined to her head. Pebble's curl is round and central; Puggle's lick is pointed and leans, so the two are not confused. Each lick, curl, ear, spine and bun stays a separate piece that can move by itself (an ear flick, spines bristling), drawn so its fur runs into the head.
 
 **Drawing**
 - Flat colour. No texture, shading, gradients or highlights in the eyes.

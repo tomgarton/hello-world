@@ -429,12 +429,13 @@
    "shapes": []
   },
   {
-   "id": "head-back",
+   "id": "spine-1",
    "parent": "head",
    "pivot": [
-    120,
-    228
+    66.7,
+    156.0
    ],
+   "spring": 200,
    "shapes": [
     {
      "kind": "path",
@@ -443,7 +444,18 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#603715"
-    },
+    }
+   ]
+  },
+  {
+   "id": "spine-2",
+   "parent": "head",
+   "pivot": [
+    76.2,
+    139.8
+   ],
+   "spring": 200,
+   "shapes": [
     {
      "kind": "path",
      "d": "M66.9 150.5 L38.7 112.3 L85.5 129.1 Z",
@@ -451,7 +463,18 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#603715"
-    },
+    }
+   ]
+  },
+  {
+   "id": "spine-3",
+   "parent": "head",
+   "pivot": [
+    91.3,
+    127.7
+   ],
+   "spring": 200,
+   "shapes": [
     {
      "kind": "path",
      "d": "M78.5 134.7 L66.7 89.8 L104.1 120.7 Z",
@@ -459,7 +482,18 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#603715"
-    },
+    }
+   ]
+  },
+  {
+   "id": "spine-4",
+   "parent": "head",
+   "pivot": [
+    110.1,
+    121.2
+   ],
+   "spring": 200,
+   "shapes": [
     {
      "kind": "path",
      "d": "M95.4 123.7 L101.6 77.8 L124.7 118.8 Z",
@@ -467,7 +501,18 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#603715"
-    },
+    }
+   ]
+  },
+  {
+   "id": "spine-5",
+   "parent": "head",
+   "pivot": [
+    130.2,
+    121.3
+   ],
+   "spring": 200,
+   "shapes": [
     {
      "kind": "path",
      "d": "M115.5 118.8 L138.8 77.9 L144.8 123.8 Z",
@@ -475,7 +520,18 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#603715"
-    },
+    }
+   ]
+  },
+  {
+   "id": "spine-6",
+   "parent": "head",
+   "pivot": [
+    148.8,
+    127.8
+   ],
+   "spring": 200,
+   "shapes": [
     {
      "kind": "path",
      "d": "M136.1 120.7 L173.6 90 L161.6 134.9 Z",
@@ -483,7 +539,18 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#603715"
-    },
+    }
+   ]
+  },
+  {
+   "id": "spine-7",
+   "parent": "head",
+   "pivot": [
+    163.9,
+    140.0
+   ],
+   "spring": 200,
+   "shapes": [
     {
      "kind": "path",
      "d": "M154.7 129.2 L201.5 112.6 L173.2 150.7 Z",
@@ -491,7 +558,18 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#603715"
-    },
+    }
+   ]
+  },
+  {
+   "id": "spine-8",
+   "parent": "head",
+   "pivot": [
+    173.4,
+    156.2
+   ],
+   "spring": 200,
+   "shapes": [
     {
      "kind": "path",
      "d": "M168.8 143.2 L219 142.8 L177.9 169.3 Z",
@@ -520,46 +598,6 @@
      "stroke": "#3A2A20",
      "width": 7.0,
      "tint": "#603715"
-    },
-    {
-     "kind": "path",
-     "d": "M60.5 164.5 L31.4 145.5 L67.1 145.9 Z",
-     "fill": "#9B6B43"
-    },
-    {
-     "kind": "path",
-     "d": "M67.1 145.7 L47 118.5 L80.4 130.4 Z",
-     "fill": "#9B6B43"
-    },
-    {
-     "kind": "path",
-     "d": "M80.4 130.2 L72 98 L98.8 120.2 Z",
-     "fill": "#9B6B43"
-    },
-    {
-     "kind": "path",
-     "d": "M98.9 120.1 L103.4 87.1 L120 116.5 Z",
-     "fill": "#9B6B43"
-    },
-    {
-     "kind": "path",
-     "d": "M120.2 116.6 L137 87.1 L141.3 120.2 Z",
-     "fill": "#9B6B43"
-    },
-    {
-     "kind": "path",
-     "d": "M141.4 120.2 L168.3 98.2 L159.7 130.4 Z",
-     "fill": "#9B6B43"
-    },
-    {
-     "kind": "path",
-     "d": "M159.8 130.6 L193.2 118.7 L173 145.9 Z",
-     "fill": "#9B6B43"
-    },
-    {
-     "kind": "path",
-     "d": "M173 146.2 L208.7 145.9 L179.5 164.7 Z",
-     "fill": "#9B6B43"
     },
     {
      "kind": "ellipse",
@@ -592,6 +630,126 @@
      "rx": 5.5,
      "ry": 4.5,
      "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "spine-1-top",
+   "parent": "spine-1",
+   "pivot": [
+    66.7,
+    156.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M60.5 164.5 L31.4 145.5 L67.1 145.9 Z",
+     "fill": "#9B6B43"
+    }
+   ]
+  },
+  {
+   "id": "spine-2-top",
+   "parent": "spine-2",
+   "pivot": [
+    76.2,
+    139.8
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M67.1 145.7 L47 118.5 L80.4 130.4 Z",
+     "fill": "#9B6B43"
+    }
+   ]
+  },
+  {
+   "id": "spine-3-top",
+   "parent": "spine-3",
+   "pivot": [
+    91.3,
+    127.7
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M80.4 130.2 L72 98 L98.8 120.2 Z",
+     "fill": "#9B6B43"
+    }
+   ]
+  },
+  {
+   "id": "spine-4-top",
+   "parent": "spine-4",
+   "pivot": [
+    110.1,
+    121.2
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M98.9 120.1 L103.4 87.1 L120 116.5 Z",
+     "fill": "#9B6B43"
+    }
+   ]
+  },
+  {
+   "id": "spine-5-top",
+   "parent": "spine-5",
+   "pivot": [
+    130.2,
+    121.3
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M120.2 116.6 L137 87.1 L141.3 120.2 Z",
+     "fill": "#9B6B43"
+    }
+   ]
+  },
+  {
+   "id": "spine-6-top",
+   "parent": "spine-6",
+   "pivot": [
+    148.8,
+    127.8
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M141.4 120.2 L168.3 98.2 L159.7 130.4 Z",
+     "fill": "#9B6B43"
+    }
+   ]
+  },
+  {
+   "id": "spine-7-top",
+   "parent": "spine-7",
+   "pivot": [
+    163.9,
+    140.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M159.8 130.6 L193.2 118.7 L173 145.9 Z",
+     "fill": "#9B6B43"
+    }
+   ]
+  },
+  {
+   "id": "spine-8-top",
+   "parent": "spine-8",
+   "pivot": [
+    173.4,
+    156.2
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M173 146.2 L208.7 145.9 L179.5 164.7 Z",
+     "fill": "#9B6B43"
     }
    ]
   },

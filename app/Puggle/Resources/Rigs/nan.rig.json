@@ -460,12 +460,13 @@
    "shapes": []
   },
   {
-   "id": "head-back",
+   "id": "bun",
    "parent": "head",
    "pivot": [
-    120,
-    228
+    120.0,
+    120.0
    ],
+   "spring": 190,
    "shapes": [
     {
      "kind": "ellipse",
@@ -498,14 +499,6 @@
      "stroke": "#3A2A20",
      "width": 7.0,
      "tint": "#5E3A24"
-    },
-    {
-     "kind": "ellipse",
-     "x": 120.0,
-     "y": 106.0,
-     "rx": 16.5,
-     "ry": 16.5,
-     "fill": "#8A5A3C"
     },
     {
      "kind": "ellipse",
@@ -549,6 +542,31 @@
      "rx": 1.8,
      "ry": 1.8,
      "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "bun-top",
+   "parent": "bun",
+   "pivot": [
+    120.0,
+    120.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 106.0,
+     "rx": 16.5,
+     "ry": 16.5,
+     "fill": "#8A5A3C"
+    },
+    {
+     "kind": "path",
+     "d": "M104 116 Q120 124 136 116",
+     "stroke": "#E5553B",
+     "width": 6.0,
+     "cap": "round"
     }
    ]
   },
@@ -600,13 +618,6 @@
     228
    ],
    "shapes": [
-    {
-     "kind": "path",
-     "d": "M104 116 Q120 124 136 116",
-     "stroke": "#E5553B",
-     "width": 6.0,
-     "cap": "round"
-    },
     {
      "kind": "ellipse",
      "x": 93.0,

@@ -441,12 +441,13 @@
    "shapes": []
   },
   {
-   "id": "head-back",
+   "id": "ear-left",
    "parent": "head",
    "pivot": [
-    120,
-    228
+    74.4,
+    146.3
    ],
+   "spring": 170,
    "shapes": [
     {
      "kind": "ellipse",
@@ -458,7 +459,18 @@
      "stroke": "#3A2A20",
      "width": 7.0,
      "tint": "#4A525C"
-    },
+    }
+   ]
+  },
+  {
+   "id": "ear-right",
+   "parent": "head",
+   "pivot": [
+    165.6,
+    146.3
+   ],
+   "spring": 170,
+   "shapes": [
     {
      "kind": "ellipse",
      "x": 186.0,
@@ -493,38 +505,6 @@
     },
     {
      "kind": "ellipse",
-     "x": 54.0,
-     "y": 134.0,
-     "rx": 30.5,
-     "ry": 30.5,
-     "fill": "#A9B0B8"
-    },
-    {
-     "kind": "ellipse",
-     "x": 186.0,
-     "y": 134.0,
-     "rx": 30.5,
-     "ry": 30.5,
-     "fill": "#A9B0B8"
-    },
-    {
-     "kind": "ellipse",
-     "x": 54.0,
-     "y": 134.0,
-     "rx": 17.0,
-     "ry": 17.0,
-     "fill": "#F0DAD6"
-    },
-    {
-     "kind": "ellipse",
-     "x": 186.0,
-     "y": 134.0,
-     "rx": 17.0,
-     "ry": 17.0,
-     "fill": "#F0DAD6"
-    },
-    {
-     "kind": "ellipse",
      "x": 74.0,
      "y": 196.0,
      "rx": 12,
@@ -546,6 +526,58 @@
      "stroke": "#3A2A20",
      "width": 4,
      "tint": "#1A1615"
+    }
+   ]
+  },
+  {
+   "id": "ear-left-top",
+   "parent": "ear-left",
+   "pivot": [
+    74.4,
+    146.3
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 54.0,
+     "y": 134.0,
+     "rx": 30.5,
+     "ry": 30.5,
+     "fill": "#A9B0B8"
+    },
+    {
+     "kind": "ellipse",
+     "x": 54.0,
+     "y": 134.0,
+     "rx": 17.0,
+     "ry": 17.0,
+     "fill": "#F0DAD6"
+    }
+   ]
+  },
+  {
+   "id": "ear-right-top",
+   "parent": "ear-right",
+   "pivot": [
+    165.6,
+    146.3
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 186.0,
+     "y": 134.0,
+     "rx": 30.5,
+     "ry": 30.5,
+     "fill": "#A9B0B8"
+    },
+    {
+     "kind": "ellipse",
+     "x": 186.0,
+     "y": 134.0,
+     "rx": 17.0,
+     "ry": 17.0,
+     "fill": "#F0DAD6"
     }
    ]
   },

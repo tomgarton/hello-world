@@ -75,6 +75,32 @@ enum RefinementSheets {
         tuftAndPoses(puggle)
         tuftOptions(puggle)
         heroes(puggle)
+        headParts(puggle)
+    }
+
+    /// Ears, spines, bun, curl and lick are parts of their own: at rest, and each one posed by itself.
+    private static func headParts(_ puggle: Rig) {
+        func cell(_ rig: Rig, _ states: [String: PartState], _ label: String) -> some View {
+            VStack(spacing: 6) {
+                RigFrame(rig: rig, states: states, face: nil).frame(width: 150, height: 190)
+                Text(label).font(.system(size: 13, weight: .semibold)).foregroundStyle(Color(red: 0.23, green: 0.16, blue: 0.13))
+            }
+        }
+        let cast: [(String, Rig?, [String: PartState])] = [
+            ("Puggle: lick", puggle, ["lick": state(r: 24)]),
+            ("Pebble: curl", Rig.load("pebble"), ["curl": state(r: -22)]),
+            ("Kip: ears", Rig.load("kip"), ["ear-left": state(r: -24), "ear-right": state(r: 10)]),
+            ("Sunny: ears", Rig.load("sunny"), ["ear-left": state(r: -20), "ear-right": state(r: 20), "head-2": state(y: -400)]),
+            ("Quill: spines", Rig.load("quill"), ["spine-1": state(r: -16), "spine-3": state(r: -14), "spine-5": state(r: 16), "spine-7": state(r: 14), "spine-8": state(r: 18)]),
+            ("Nan: bun", Rig.load("nan"), ["bun": state(r: 0, x: 0, y: 0, sx: 1.25, sy: 1.25)]),
+        ]
+        let sheet = VStack(alignment: .leading, spacing: 14) {
+            Text("Each is its own part. Top: at rest. Bottom: that part alone moved").font(.system(size: 15, weight: .bold))
+            HStack(spacing: 10) { ForEach(cast.indices, id: \.self) { i in if let rig = cast[i].1 { cell(rig, [:], cast[i].0) } } }
+            HStack(spacing: 10) { ForEach(cast.indices, id: \.self) { i in if let rig = cast[i].1 { cell(rig, cast[i].2, "moved") } } }
+        }
+        .padding(24).background(Color(red: 0.95, green: 0.93, blue: 0.87)).environment(\.lineStyle, .chosen)
+        save(sheet, as: "head-parts.png")
     }
 
     /// Puggle on a clear background, for covers and documents: standing, and waving.

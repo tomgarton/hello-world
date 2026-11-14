@@ -564,33 +564,58 @@ def inset_fill(shape, by):
     return {'kind': 'path', 'd': 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in out) + ' Z', 'fill': shape['fill']}
 
 def join_to_head(name, parts):
+    """Each ear, spine, bun and curl becomes a part of its own, so it can be posed and sprung by itself.
+    It sits on the head as Puggle's lick does: its line shows round the outside, and its fur runs into
+    the head where they meet. Each is a pair: `ear-left` holds the outlined shape, and `ear-left-top`,
+    its child, lays the fur over the seam, so moving `ear-left` moves both."""
     by_id = {p['id']: p for p in parts}
     face = by_id['face']
     skull = face['shapes'][0]
     fur, line = skull['fill'], skull.get('tint')
-    back = by_id.get('head-back')
-    if name == 'nan':
-        # Her bun sat on top of her head as a separate ball: behind, and joined, it is her own fur.
-        top = by_id['head-2']
-        bun = top['shapes'].pop(0)
-        back = {'id': 'head-back', 'parent': 'head', 'pivot': [120, 166], 'shapes': [dict(bun, width=skull['width'])]}
-        parts.insert(parts.index(face), back)
+    if skull['kind'] == 'ellipse': centre = (skull['x'], skull['y'])
+    else:
+        pts = [(float(a), float(b)) for a, b in re.findall(r'(-?[\d.]+) (-?[\d.]+)', skull['d'])]
+        centre = ((min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2)
     if name == 'pebble':
-        # The curl was a thin wire. A thicker lock that starts inside the head, so the fur runs through.
+        # The curl was a thin wire in with nothing else: a thicker lock that starts inside the head, as its own part.
         top = by_id['head-2']
         curl = 'M120 50 Q104 30 119 15 Q138 3 146 19 Q148 31 134 31'
+        top.update(id='curl', pivot=[120, 52], spring=110)
         top['shapes'][:2] = [{'kind': 'path', 'd': curl, 'stroke': INK, 'width': 19, 'cap': 'round', 'tint': line},
                              {'kind': 'path', 'd': 'M124 62 L120 50 ' + curl[9:], 'stroke': fur, 'width': 12, 'cap': 'round'}]
-    if not back: return parts
-    growths, inner = [], []
-    for s in back['shapes']:
-        if not s.get('stroke'): inner.append(s); continue
+        return parts
+    back = by_id.get('head-back')
+    shapes, extras = (back['shapes'] if back else []), {}
+    if name == 'nan':
+        # Her bun and its tie come out of the part that also holds her glasses.
+        top = by_id['head-2']
+        shapes = [dict(top['shapes'].pop(0), width=skull['width'])]
+        extras[0] = [top['shapes'].pop(0)]
+    if not shapes: return parts
+    outlined = [i for i, s in enumerate(shapes) if s.get('stroke')]
+    for i, s in enumerate(shapes):
+        if not s.get('stroke'): extras.setdefault(max(j for j in outlined if j < i), []).append(s)   # an inner ear goes with its ear
+    behind, over = [], []
+    for n, i in enumerate(outlined):
+        s = shapes[i]
+        if s['kind'] == 'ellipse':
+            dx, dy = centre[0] - s['x'], centre[1] - s['y']; d = math.hypot(dx, dy)
+            pivot = [round(s['x'] + dx / d * s['rx'] * 0.7, 1), round(s['y'] + dy / d * s['ry'] * 0.7, 1)]
+        else:
+            pts = [(float(a), float(b)) for a, b in re.findall(r'[ML]\s*(-?[\d.]+)[ ,]+(-?[\d.]+)', s['d'])]
+            base = sorted(pts, key=lambda p: math.hypot(p[0] - centre[0], p[1] - centre[1]))[:2]
+            pivot = [round((base[0][0] + base[1][0]) / 2, 1), round((base[0][1] + base[1][1]) / 2, 1)]
         if name == 'quill':
-            # Spines in the head's own fur and line; the cream they had is gone.
-            s.update(fill=fur, tint=line, width=6.0)
-        growths.append(s)
-    back['shapes'] = growths
-    face['shapes'][1:1] = [inset_fill(s, s['width'] / 2) for s in growths] + inner
+            s.update(fill=fur, tint=line, width=6.0)      # spines in the head's own fur and line
+            pid, spring = f'spine-{n + 1}', 200
+        elif name == 'nan': pid, spring = 'bun', 190
+        else: pid, spring = ('ear-left' if s['x'] < centre[0] else 'ear-right'), 170
+        behind.append({'id': pid, 'parent': 'head', 'pivot': pivot, 'spring': spring, 'shapes': [s]})
+        over.append({'id': pid + '-top', 'parent': pid, 'pivot': pivot, 'shapes': [inset_fill(s, s['width'] / 2)] + extras.get(i, [])})
+    if back: parts.remove(back)
+    at = parts.index(face)
+    parts[at + 1:at + 1] = over
+    parts[at:at] = behind
     return parts
 
 def build(name, svg, height, about, shade, moves, puggle):
