@@ -80,6 +80,71 @@ enum RefinementSheets {
         parentHair()
         hatsOff()
         nanHair()
+        dummy()
+        smear(puggle)
+    }
+
+    /// Pebble with a dummy: an object resting on the front of his closed bill. His bill does not change.
+    private static func dummy() {
+        guard let pebble = Rig.load("pebble") else { return }
+        func with(_ shield: String, _ ring: String) -> Rig {
+            var copy = pebble
+            guard let face = copy.parts.firstIndex(where: { $0.id == "face" }) else { return pebble }
+            copy.parts[face].shapes += [
+                Rig.Shape(kind: "path", d: "M97 150 Q97 139 110 141 Q120 145 130 141 Q143 139 143 150 Q143 162 130 160 Q120 157 110 160 Q97 162 97 150 Z",
+                          fill: shield, stroke: dark, tint: ring, width: 5),
+                Rig.Shape(kind: "ellipse", x: 120, y: 153, rx: 9, ry: 9, fill: nil, stroke: dark, tint: ring, width: 5),
+                Rig.Shape(kind: "ellipse", x: 120, y: 150, rx: 4, ry: 4, fill: ring),
+            ]
+            return copy
+        }
+        let sky = with("#BFD9F5", "#5E84B8"), wattle = with("#F4BE2C", "#B8892A")
+        func column(_ name: String, _ rig: Rig, asleep: Bool = false) -> some View {
+            VStack(spacing: 6) {
+                RigFrame(rig: rig, states: [:], face: asleep ? ["eyes": "closed"] : nil).frame(width: 190, height: 190 * rig.size[1] / rig.size[0])
+                RigFrame(rig: rig, states: [:], face: asleep ? ["eyes": "closed"] : nil).frame(width: 60, height: 60 * rig.size[1] / rig.size[0])
+                Text(name).font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 14) {
+            Text("Pebble with a dummy: a mock-up, as an occasional prop").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            HStack(alignment: .bottom, spacing: 14) {
+                column("Now", pebble)
+                column("Sky dummy", sky)
+                column("Wattle dummy", wattle)
+                column("Asleep with it", sky, asleep: true)
+            }
+        }
+        save(sheet, as: "pebble-dummy.png")
+    }
+
+    /// The eye smear, frame by frame: what is drawn in the moments after her eyes jump.
+    private static func smear(_ puggle: Rig) {
+        func frames(refined: Bool) -> [[String: PartState]] {
+            let runtime = RigRuntime(rig: puggle)
+            runtime.refined = refined
+            runtime.blinkAt = .distantPast       // no blinks or tilts of her own
+            let start = Date.now
+            var out = [runtime.advance(to: start)]
+            runtime.look = CGPoint(x: -1, y: 0)
+            _ = runtime.advance(to: start.addingTimeInterval(0.1))
+            _ = runtime.advance(to: start.addingTimeInterval(0.2))
+            runtime.look = CGPoint(x: 1, y: 0)
+            for after in [0.216, 0.25, 0.3] { out.append(runtime.advance(to: start.addingTimeInterval(after))) }
+            return out
+        }
+        let labels = ["Before", "16 ms after", "50 ms after", "100 ms after"]
+        func strip(_ title: String, _ states: [[String: PartState]]) -> some View {
+            row(title) {
+                ForEach(states.indices, id: \.self) { i in cell(puggle, states[i], height: 130, caption: labels[i], headOnly: true) }
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 18) {
+            Text("Her eyes jump from one side to the other").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            strip("Before today: they jump", frames(refined: false))
+            strip("Now: one stretched frame on the way", frames(refined: true))
+        }
+        save(sheet, as: "eye-smear.png")
     }
 
     /// Other things than a bun for Nan.
@@ -219,7 +284,7 @@ enum RefinementSheets {
             Text("Ears, spines and hair for each feeling (proposed)").font(.system(size: 17, weight: .bold))
             line("At rest", [:])
             ForEach(AnimationTestView.feelings.indices, id: \.self) { i in
-                line(AnimationTestView.feelings[i].name, AnimationTestView.feelings[i].held)
+                line(AnimationTestView.feelings[i].name, AnimationTestView.feelings[i].held())
             }
         }
         .padding(24).background(Color(red: 0.95, green: 0.93, blue: 0.87)).foregroundStyle(Color(red: 0.23, green: 0.16, blue: 0.13))

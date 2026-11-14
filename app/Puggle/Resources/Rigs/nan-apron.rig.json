@@ -437,24 +437,21 @@
    "shapes": []
   },
   {
-   "id": "bun",
+   "id": "curls",
    "parent": "head",
    "pivot": [
-    120.0,
-    120.0
+    120,
+    128
    ],
-   "spring": 190,
+   "spring": 130,
    "shapes": [
     {
-     "kind": "ellipse",
-     "x": 120.0,
-     "y": 106.0,
-     "rx": 20.0,
-     "ry": 20.0,
+     "kind": "path",
+     "d": "M70 132 Q58 114 74 106 Q76 92 94 96 Q102 84 120 90 Q138 84 146 96 Q164 92 166 106 Q182 114 170 132 Z",
      "fill": "#8A5A3C",
      "stroke": "#3A2A20",
-     "width": 7.0,
-     "tint": "#5E3A24"
+     "tint": "#5E3A24",
+     "width": 14.0
     }
    ]
   },
@@ -561,6 +558,21 @@
    ]
   },
   {
+   "id": "curls-top",
+   "parent": "curls",
+   "pivot": [
+    120,
+    128
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70 132 Q58 114 74 106 Q76 92 94 96 Q102 84 120 90 Q138 84 146 96 Q164 92 166 106 Q182 114 170 132 Z",
+     "fill": "#8A5A3C"
+    }
+   ]
+  },
+  {
    "id": "curl-left-top",
    "parent": "curl-left",
    "pivot": [
@@ -587,31 +599,6 @@
      "kind": "path",
      "d": "M182 178 Q201 177 202 192 Q201 204 189 204 Q194 196 181 196 Z",
      "fill": "#8A5A3C"
-    }
-   ]
-  },
-  {
-   "id": "bun-top",
-   "parent": "bun",
-   "pivot": [
-    120.0,
-    120.0
-   ],
-   "shapes": [
-    {
-     "kind": "ellipse",
-     "x": 120.0,
-     "y": 106.0,
-     "rx": 16.5,
-     "ry": 16.5,
-     "fill": "#8A5A3C"
-    },
-    {
-     "kind": "path",
-     "d": "M104 116 Q120 124 136 116",
-     "stroke": "#E5553B",
-     "width": 6.0,
-     "cap": "round"
     }
    ]
   },

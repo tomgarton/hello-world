@@ -687,10 +687,9 @@ def join_to_head(name, parts):
     back = by_id.get('head-back')
     shapes, extras = (back['shapes'] if back else []), {}
     if name == 'nan':
-        # Her bun and its tie come out of the part that also holds her glasses.
+        # Her bun and its tie are gone: she has a set of curls now (see HAIR).
         top = by_id['head-2']
-        shapes = [dict(top['shapes'].pop(0), width=skull['width'])]
-        extras[0] = [top['shapes'].pop(0)]
+        del top['shapes'][:2]
     if not shapes: return parts
     outlined = [i for i, s in enumerate(shapes) if s.get('stroke')]
     for i, s in enumerate(shapes):
@@ -721,7 +720,7 @@ def join_to_head(name, parts):
 
 # Hair for the grown-ups, so each has an outline of their own (Tom, 14 November 2026). Mum: a side
 # sweep and a bob that flicks out. Dad: a scruffy crest and small cheek tufts. Nan and Pop follow:
-# Nan soft curls at the sides under her bun, Pop bushy cheek tufts under his hat. Each lock is a
+# Nan a set of curls on top (chosen over her bun) and soft curls at the sides, Pop bushy cheek tufts under his hat. Each lock is a
 # part of its own, drawn as the ears are: outlined behind the head, its fur over the seam in front.
 def mirrored(d):
     return re.sub(r'(-?[\d.]+) (-?[\d.]+)', lambda m: f'{240 - float(m.group(1)):g} {m.group(2)}', d)
@@ -737,7 +736,8 @@ HAIR = {   # part, pivot, when it shows (None: always), shapes
             ('flick-left', [57, 118], None, [FLICK]), ('flick-right', [183, 118], None, [mirrored(FLICK)])],
     'dad': [('crest', [120, 60], BARE, ['M109 60 Q111 40 120 30 Q129 40 129 60 Z', 'M98 62 Q93 46 101 37 Q109 44 112 60 Z', 'M126 60 Q130 45 139 39 Q144 48 139 62 Z']),
             ('tuft-left', [59, 130], None, [TUFT]), ('tuft-right', [181, 130], None, [mirrored(TUFT)])],
-    'nan': [('curl-left', [58, 126], None, [CURL]), ('curl-right', [182, 126], None, [mirrored(CURL)])],
+    'nan': [('curls', [120, 66], None, ['M70 70 Q58 52 74 44 Q76 30 94 34 Q102 22 120 28 Q138 22 146 34 Q164 30 166 44 Q182 52 170 70 Z']),
+            ('curl-left', [58, 126], None, [CURL]), ('curl-right', [182, 126], None, [mirrored(CURL)])],
     'pop': [('tuft-left', [59, 130], None, [BUSHY]), ('tuft-right', [181, 130], None, [mirrored(BUSHY)])],
     # Under their hats, for when the hats come off: Digby a coarse, stubby tuft between his ears, Sunny two small
     # pointed wisps: small and pointed, so they are not read as a third ear beside her round ones.

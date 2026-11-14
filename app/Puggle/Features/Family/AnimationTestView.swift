@@ -102,39 +102,7 @@ struct AnimationTestView: View {
         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
-    private static func pose(r: Double = 0, y: Double = 0, sx: Double = 1, sy: Double = 1) -> PartState {
-        var s = PartState()
-        s.r = r; s.y = y; s.sx = sx; s.sy = sy
-        return s
-    }
-
-    /// What ears, spines and hair do for a feeling. `ears` turns them up (positive) or down, `lift` raises
-    /// them, `spines` is their size, `tall` and `lean` are how the lick and curl stand. `one` is one ear
-    /// and the spines on that side only, for noticing something.
-    struct Feeling {
-        let name: String, ears: Double, lift: Double, spines: Double, tall: Double, lean: Double, one: Bool
-
-        var held: [String: PartState] {
-            var held: [String: PartState] = [:]
-            held["ear-left"] = AnimationTestView.pose(r: ears, y: -lift)
-            held["ear-right"] = one ? .rest : AnimationTestView.pose(r: -ears, y: -lift)
-            for index in 1...8 {
-                let size = one && index > 4 ? 1 : spines
-                held["spine-\(index)"] = AnimationTestView.pose(sx: size, sy: size)
-            }
-            held["lick"] = AnimationTestView.pose(r: lean, sy: tall)
-            held["curl"] = AnimationTestView.pose(r: lean, sy: tall)
-            return held
-        }
-    }
-
-    static let feelings = [
-        Feeling(name: "Happy", ears: 12, lift: 2, spines: 1.14, tall: 1.18, lean: 0, one: false),
-        Feeling(name: "Surprised", ears: 22, lift: 5, spines: 1.38, tall: 1.4, lean: -14, one: false),
-        Feeling(name: "Shy", ears: -30, lift: 0, spines: 0.66, tall: 0.68, lean: 16, one: false),
-        Feeling(name: "Sleepy", ears: -18, lift: 0, spines: 0.84, tall: 0.82, lean: 26, one: false),
-        Feeling(name: "Curious", ears: 20, lift: 3, spines: 1.24, tall: 1.1, lean: -18, one: true),
-    ]
+    static let feelings = RigFeeling.all
 
     private func wait(_ seconds: Double) async { try? await Task.sleep(for: .seconds(seconds)) }
 
@@ -163,7 +131,7 @@ struct AnimationTestView: View {
             await wait(1.6)
             for feeling in Self.feelings {
                 show(feeling.name, "Ears, spines and hair")
-                proposed.each { $0.held = feeling.held }
+                proposed.each { $0.held = feeling.held() }
                 await wait(1.7)
                 proposed.each { $0.held = [:] }
                 await wait(0.9)

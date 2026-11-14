@@ -347,6 +347,40 @@ enum RigRenderer {
     }
 }
 
+// MARK: Feelings
+
+/// What ears, spines and hair do for a feeling, as her tail does. `ears` turns them up (positive) or down,
+/// `lift` raises them, `spines` is their size, `tall` and `lean` are how a lick or curl stands. `one` is one
+/// ear and the spines on that side only, for noticing something.
+struct RigFeeling {
+    let name: String, ears: Double, lift: Double, spines: Double, tall: Double, lean: Double, one: Bool
+
+    static let happy = RigFeeling(name: "Happy", ears: 12, lift: 2, spines: 1.14, tall: 1.18, lean: 0, one: false)
+    static let surprised = RigFeeling(name: "Surprised", ears: 22, lift: 5, spines: 1.38, tall: 1.4, lean: -14, one: false)
+    static let shy = RigFeeling(name: "Shy", ears: -30, lift: 0, spines: 0.66, tall: 0.68, lean: 16, one: false)
+    static let sleepy = RigFeeling(name: "Sleepy", ears: -18, lift: 0, spines: 0.84, tall: 0.82, lean: 26, one: false)
+    static let curious = RigFeeling(name: "Curious", ears: 20, lift: 3, spines: 1.24, tall: 1.1, lean: -18, one: true)
+    static let all = [happy, surprised, shy, sleepy, curious]
+
+    /// The poses to hold, by part. `amount` is how much of the feeling: 1 in full, 0.5 at night.
+    func held(_ amount: Double = 1) -> [String: PartState] {
+        func pose(r: Double = 0, y: Double = 0, size: Double = 1, tall: Double = 1) -> PartState {
+            var state = PartState()
+            state.r = r * amount
+            state.y = y * amount
+            state.sx = 1 + (size - 1) * amount
+            state.sy = 1 + (size * tall - 1) * amount
+            return state
+        }
+        var held: [String: PartState] = [:]
+        held["ear-left"] = pose(r: ears, y: -lift)
+        held["ear-right"] = one ? .rest : pose(r: -ears, y: -lift)
+        for index in 1...8 { held["spine-\(index)"] = pose(size: one && index > 4 ? 1 : spines) }
+        for hair in ["lick", "curl", "tuft", "crest", "sweep"] { held[hair] = pose(r: lean, tall: tall) }
+        return held
+    }
+}
+
 // MARK: Moving
 
 /// Works out where every part should be at a moment, and eases each towards it.
@@ -360,8 +394,9 @@ final class RigRuntime {
     /// 1 by day, 0.5 at night: scales how big her reactions are.
     var energy = 1.0
     /// The proposed refinements (reports/Cartoon character craft for Puggle.md): a blink that shuts fast and
-    /// opens slowly, eyes that lead a head tilt, and a landing that stops at the ground. Off in the app for now.
-    var refined = false
+    /// opens slowly, eyes that lead a head tilt, a landing that stops at the ground, a stretched frame when
+    /// her eyes jump, and ears, spines and hair that show a feeling. On in the app since 14 November 2026.
+    var refined = true
     /// For tests: a blink or a head tilt asked for now, in place of waiting for one.
     var blinkAt: Date?
     var tiltAt: (start: Date, side: Double)?
@@ -406,7 +441,9 @@ final class RigRuntime {
 
     /// Starts a move from the file. An unknown name does nothing.
     func play(_ name: String, at date: Date = .now) {
-        guard let move = rig.moves?[name], !asleep || name == "wake" else { return }
+        // The hop with weight, where she has one, in place of the plain one.
+        let name = refined && rig.moves?[name + "-refined"] != nil ? name + "-refined" : name
+        guard let move = rig.moves?[name], !asleep || name.hasPrefix("wake") else { return }
         playing[move.track ?? "body"] = (name, date)
     }
 
@@ -493,6 +530,22 @@ final class RigRuntime {
                     change(id) { $0.add(pose, amount: energy) }
                 }
                 for (feature, shape) in key.face ?? [:] { showing[feature] = shape }
+            }
+        }
+        // Ears, spines and hair take a position for what she is feeling: sleepy asleep, happy in a wave or a
+        // hooray, a small happy for a nod, surprised on waking, curious while her eyes follow something.
+        if refined {
+            var mood: (feeling: RigFeeling, amount: Double)?
+            if asleep { mood = (.sleepy, 1) }
+            else if let move = playing["body"]?.name {
+                if move.hasPrefix("wake") { mood = (.surprised, 1) }
+                else if move.hasPrefix("nod") { mood = (.happy, 0.6) }
+                else if !move.hasPrefix("walk") { mood = (.happy, 1) }
+            } else if abs(look.x) + abs(look.y) > 0.3 { mood = (.curious, 1) }
+            if let mood {
+                for (id, pose) in mood.feeling.held(mood.amount * energy) {
+                    change(id) { $0.r += pose.r; $0.x += pose.x; $0.y += pose.y; $0.sx *= pose.sx; $0.sy *= pose.sy }
+                }
             }
         }
         for (id, pose) in held {
