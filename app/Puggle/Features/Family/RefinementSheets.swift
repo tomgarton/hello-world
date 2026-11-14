@@ -82,6 +82,48 @@ enum RefinementSheets {
         nanHair()
         dummy()
         smear(puggle)
+        curlOptions()
+    }
+
+    /// Other ways to draw Pebble's curl.
+    private static func curlOptions() {
+        guard let pebble = Rig.load("pebble") else { return }
+        var bare = pebble
+        bare.parts.removeAll { $0.id == "curl" }
+        // An open loop is drawn as a line of fur with a dark edge, starting inside the head.
+        func looped(_ d: String, _ start: String) -> Rig {
+            var copy = bare
+            guard let face = copy.parts.firstIndex(where: { $0.id == "face" }) else { return bare }
+            copy.parts.insert(Rig.Part(id: "curl", parent: "head", pivot: [120, 54], spring: 110, when: nil, shapes: [
+                Rig.Shape(kind: "path", d: d, stroke: dark, tint: furLine, width: 17, cap: "round"),
+                Rig.Shape(kind: "path", d: start + d.dropFirst(d.prefix(while: { $0 != "Q" }).count), stroke: fur, width: 9, cap: "round"),
+            ]), at: face + 1)
+            return copy
+        }
+        let options: [(String, Rig)] = [
+            ("A. Now", pebble),
+            ("B. A soft peak", withHair(bare, ["M103 58 Q102 42 113 33 Q122 25 119 11 Q135 22 133 39 Q131 49 137 58 Z"])),
+            ("C. An open loop", looped("M120 52 Q116 38 124 29 Q135 20 144 29 Q149 40 138 44 Q129 43 131 34", "M121 62 L120 52 ")),
+            ("D. Two curls, parted", withHair(bare, ["M113 58 Q113 45 104 39 Q95 36 94 45 Q103 43 105 58 Z", "M127 58 Q127 45 136 39 Q145 36 146 45 Q137 43 135 58 Z"])),
+            ("E. A little quiff", withHair(bare, ["M99 58 Q96 42 109 37 Q126 32 137 41 Q142 50 133 53 Q134 46 126 45 Q116 46 116 58 Z"])),
+            ("F. A sprout of three", withHair(bare, ["M104 58 Q99 45 105 37 Q112 42 113 56 Z", "M111 56 Q111 38 120 29 Q129 38 129 56 Z", "M127 56 Q128 42 135 37 Q141 45 136 58 Z"])),
+        ]
+        func column(_ name: String, _ rig: Rig) -> some View {
+            VStack(spacing: 6) {
+                RigFrame(rig: rig, states: [:], face: nil).frame(width: 200, height: 200 * rig.size[1] / rig.size[0])
+                    .frame(width: 200, height: 150, alignment: .top).clipped()
+                HStack(spacing: 8) {
+                    RigFrame(rig: rig, states: [:], face: nil).frame(width: 70, height: 70 * rig.size[1] / rig.size[0])
+                    RigFrame(rig: silhouette(rig), states: [:], face: nil).frame(width: 70, height: 70 * rig.size[1] / rig.size[0])
+                }
+                Text(name).font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 14) {
+            Text("Pebble's curl: the head close up, then small, in colour and as a solid shape").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            HStack(alignment: .bottom, spacing: 10) { ForEach(options.indices, id: \.self) { i in column(options[i].0, options[i].1) } }
+        }
+        save(sheet, as: "pebble-curl.png")
     }
 
     /// Pebble as built: awake with his bottle, asleep with his dummy, in each colour his babygro comes in.
