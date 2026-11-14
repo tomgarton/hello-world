@@ -611,10 +611,11 @@ def dress_for_weather(name, parts, puggle, shade):
             {'kind': 'path', 'd': hook, 'stroke': INK, 'width': 11, 'cap': 'round'},
             {'kind': 'path', 'd': hook, 'stroke': '#C58F5A', 'width': 5.5, 'cap': 'round'},
             dict(hand['right'])]})
-        # The canopy is the last thing drawn, over hair, ears, spines, bows and hats, and its edge is kept
-        # above the tallest of them. It is the umbrella's child, so it sways with the stick.
+        # The canopy is the last thing drawn, in front of hair, ears, spines, bows and hats: they are under
+        # it, so it covers their tops. Its shape is not flattened to clear them (Tom, 14 November 2026). It is
+        # the umbrella's child, so it sways with the shaft.
         parts.append({'id': 'umbrella-top', 'parent': 'umbrella', 'pivot': [hx, hy], 'when': when, 'shapes': [
-            {'kind': 'path', 'd': 'M26 8 Q32 -46 132 -48 Q232 -46 238 8 Q212 -6 185 8 Q158 -6 132 6 Q106 -6 79 8 Q52 -6 26 8 Z',
+            {'kind': 'path', 'd': 'M26 30 Q32 -44 132 -48 Q232 -44 238 30 Q212 14 185 30 Q158 14 132 28 Q106 14 79 30 Q52 14 26 30 Z',
              'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
             {'kind': 'path', 'd': 'M132 -48 L132 -56', 'stroke': INK, 'tint': shade(accent), 'width': 5, 'cap': 'round'}]})
     return parts
