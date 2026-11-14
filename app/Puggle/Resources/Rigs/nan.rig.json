@@ -460,6 +460,27 @@
    "shapes": []
   },
   {
+   "id": "head-back",
+   "parent": "head",
+   "pivot": [
+    120,
+    228
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 106.0,
+     "rx": 20.0,
+     "ry": 20.0,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#5E3A24"
+    }
+   ]
+  },
+  {
    "id": "face",
    "parent": "head",
    "pivot": [
@@ -477,6 +498,14 @@
      "stroke": "#3A2A20",
      "width": 7.0,
      "tint": "#5E3A24"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120.0,
+     "y": 106.0,
+     "rx": 16.5,
+     "ry": 16.5,
+     "fill": "#8A5A3C"
     },
     {
      "kind": "ellipse",
@@ -571,17 +600,6 @@
     228
    ],
    "shapes": [
-    {
-     "kind": "ellipse",
-     "x": 120.0,
-     "y": 106.0,
-     "rx": 20.0,
-     "ry": 20.0,
-     "fill": "#8A5A3C",
-     "stroke": "#3A2A20",
-     "width": 5.0,
-     "tint": "#5E3A24"
-    },
     {
      "kind": "path",
      "d": "M104 116 Q120 124 136 116",

@@ -796,6 +796,30 @@
    ]
   },
   {
+   "id": "lick",
+   "parent": "head",
+   "pivot": [
+    111,
+    58
+   ],
+   "when": "outfit=none|night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M103 58 Q99 44 107 37 Q118 31 124 39 Q117 40 116 47 Q116 53 120 57 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 7
+    },
+    {
+     "kind": "path",
+     "d": "M104 58 Q111 50 119 57 L121 74 L102 74 Z",
+     "fill": "#8A5A3C"
+    }
+   ]
+  },
+  {
    "id": "blush",
    "parent": "head",
    "pivot": [

@@ -541,6 +541,58 @@ def dress_for_weather(name, parts, puggle, shade):
 
 # ---------- Cutting it into parts ----------
 
+# What grows from a head (ears, spines, a bun, a curl) is part of the head: the head's own fur and
+# line, joined to it with no line between, so it changes the head's outline instead of sitting on it.
+def inset_fill(shape, by):
+    """The same shape, smaller by `by` and with no line: laid over a seam, it leaves one outline."""
+    if shape['kind'] == 'ellipse':
+        return {'kind': 'ellipse', 'x': shape['x'], 'y': shape['y'], 'rx': shape['rx'] - by, 'ry': shape['ry'] - by, 'fill': shape['fill']}
+    pts = [(float(a), float(b)) for a, b in re.findall(r'[ML]\s*(-?[\d.]+)[ ,]+(-?[\d.]+)', shape['d'])]
+    cx, cy = sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)
+    lines = []
+    for i, (x1, y1) in enumerate(pts):
+        x2, y2 = pts[(i + 1) % len(pts)]
+        nx, ny = y2 - y1, x1 - x2
+        n = math.hypot(nx, ny); nx, ny = nx / n, ny / n
+        if (cx - x1) * nx + (cy - y1) * ny < 0: nx, ny = -nx, -ny
+        lines.append((nx, ny, nx * (x1 + nx * by) + ny * (y1 + ny * by)))
+    out = []
+    for i in range(len(lines)):
+        a1, b1, c1 = lines[i - 1]; a2, b2, c2 = lines[i]
+        det = a1 * b2 - a2 * b1
+        out.append(((c1 * b2 - c2 * b1) / det, (a1 * c2 - a2 * c1) / det))
+    return {'kind': 'path', 'd': 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in out) + ' Z', 'fill': shape['fill']}
+
+def join_to_head(name, parts):
+    by_id = {p['id']: p for p in parts}
+    face = by_id['face']
+    skull = face['shapes'][0]
+    fur, line = skull['fill'], skull.get('tint')
+    back = by_id.get('head-back')
+    if name == 'nan':
+        # Her bun sat on top of her head as a separate ball: behind, and joined, it is her own fur.
+        top = by_id['head-2']
+        bun = top['shapes'].pop(0)
+        back = {'id': 'head-back', 'parent': 'head', 'pivot': [120, 166], 'shapes': [dict(bun, width=skull['width'])]}
+        parts.insert(parts.index(face), back)
+    if name == 'pebble':
+        # The curl was a thin wire. A thicker lock that starts inside the head, so the fur runs through.
+        top = by_id['head-2']
+        curl = 'M120 50 Q104 30 119 15 Q138 3 146 19 Q148 31 134 31'
+        top['shapes'][:2] = [{'kind': 'path', 'd': curl, 'stroke': INK, 'width': 19, 'cap': 'round', 'tint': line},
+                             {'kind': 'path', 'd': 'M124 62 L120 50 ' + curl[9:], 'stroke': fur, 'width': 12, 'cap': 'round'}]
+    if not back: return parts
+    growths, inner = [], []
+    for s in back['shapes']:
+        if not s.get('stroke'): inner.append(s); continue
+        if name == 'quill':
+            # Spines in the head's own fur and line; the cream they had is gone.
+            s.update(fill=fur, tint=line, width=6.0)
+        growths.append(s)
+    back['shapes'] = growths
+    face['shapes'][1:1] = [inset_fill(s, s['width'] / 2) for s in growths] + inner
+    return parts
+
 def build(name, svg, height, about, shade, moves, puggle):
     grown = height > 400
     if grown:
@@ -677,6 +729,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             x, y, r = eye['x'], eye['y'], eye['rx'] + 1.2
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
+    parts = join_to_head(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.

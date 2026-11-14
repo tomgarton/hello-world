@@ -9,7 +9,7 @@ Send three things together:
 3. **App screens and flows** (`Puggle-app-screens-and-flows.pdf`): who it is for, the personas, every flow, and the app's screens.
 4. **This brief.** It says what is fixed, where things have moved on, and what is open.
 
-**Where this brief and the brand book differ, this brief is newer.** The brand book was made before the animation research of 14 November. Two things changed after it: she is drawn from the front only, and she has a lick of hair.
+**Where this brief and the brand book differ, this brief is newer.** The brand book was made before the animation research of 14 November. Three things changed after it: she is drawn from the front only, she has a lick of hair, and hair, ears and spines are joined to the head as one shape.
 
 ## What Puggle is
 
@@ -41,7 +41,8 @@ Puggle is the character in an iPhone baby and family tracker. She is a platypus,
 **Her look**
 - A blue A-line dress with a light blue pocket, and a red four-petal flower clip, top right.
 - Her fur, bill, dress and clip are never recoloured. No black line.
-- **A lick of hair (newer than the brand book, which says "No hair").** It is part of her head: the same fur and the same line, joined to it, so it breaks the plain curve of her head. It sits left of centre, clear of her clip, and stays small. Which shape is still being chosen; see Open. The rest of the cast keep head accessories, and baby Pebble keeps a curl.
+- **A lick of hair (newer than the brand book, which says "No hair").** One small leaning lick, left of centre, clear of her clip. It is hidden under a hat.
+- **One head, one outline (applies to the whole cast).** Whatever grows from a head is part of it: the same fur, the same line, joined with no line between, so it changes the head's outline. Hair, ears and spines all follow this. Kip's, Digby's and Sunny's ears run into their heads. Quill's spines are the brown of her head, not cream. Nan's bun is joined to her head. Pebble's curl is round and central; Puggle's lick is pointed and leans, so the two are not confused.
 
 **Drawing**
 - Flat colour. No texture, shading, gradients or highlights in the eyes.
@@ -98,7 +99,7 @@ One signature item each. Children share one head size; grown-ups have the same h
 | Name | Who | Signature |
 |---|---|---|
 | Puggle | Platypus, 2½ | Red flower clip, blue dress |
-| Pebble | Her baby sibling, 6 months | A curl of hair; a romper |
+| Pebble | Her baby sibling, 6 months | A round curl of hair; a romper |
 | Mum | Platypus | A white daisy |
 | Dad | Platypus | Shirt and shorts |
 | Nan | Platypus, grandmother | Fur bun; pale blue reading glasses low on her bill |
@@ -125,7 +126,6 @@ The reference pages show these; the brand book does not yet.
 
 ## Open: ideas welcome
 
-- **Which lick of hair.** Five versions are on reference page 3; a single leaning lick is the front-runner. It should be small against her head and read at thumbnail size.
 - **Arms that bend at the elbow**, so she can hold a book, hug her rabbit, or put a hand under her chin (reference page 3).
 - **Mum and Dad** are too alike in outline, and too like a tall Puggle. Ways to tell them apart by shape.
 - **Things two characters do together:** sitting side by side, holding hands, passing a ball. One moves at a time.
