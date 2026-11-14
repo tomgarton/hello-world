@@ -83,7 +83,7 @@ def setup(num, cap, pattern, field, n, big, sub, fields, cta, note):
     return f'''<div class="col"><p class="cap"><span>{num}</span>{cap}</p><div class="phone">
  <div class="panel low" style="{mp.css(pattern, field, 0.75)}"></div><div class="skip">Skip</div>{bar(150, n, 3)}
  <div class="text" style="top:174px"><div class="big">{big}</div><p class="sub">{sub}</p></div>
- <div class="text" style="top:300px">{fields}</div><div class="cta">{cta}</div></div><p class="note">{note}</p></div>'''
+ <div class="text" style="top:316px">{fields}</div><div class="cta">{cta}</div></div><p class="note">{note}</p></div>'''
 
 
 def tile(name, label, on=False):
