@@ -448,6 +448,9 @@ struct StickerView: View {
                 Group {
                     if emblem == "sun" {
                         SunEmblem()
+                    } else if emblem.hasPrefix("icon-") {
+                        // An activity icon, so it takes the icon colour chosen in Settings.
+                        ActivityIcon(named: emblem, size: size * 0.46)
                     } else {
                         Image(emblem).resizable().scaledToFit()
                     }

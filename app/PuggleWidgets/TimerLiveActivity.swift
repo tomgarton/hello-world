@@ -16,7 +16,7 @@ struct TimerLiveActivity: Widget {
                 // Just the icon up here: the top corners curve in round the camera,
                 // so words in them get clipped. The name goes in the row below.
                 DynamicIslandExpandedRegion(.leading) {
-                    Image(systemName: symbol(context.state))
+                    glyph(context.state, size: 26)
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(Tone.moon)
                         .frame(width: 44, height: 44)
@@ -85,7 +85,7 @@ struct TimerLiveActivity: Widget {
                     .padding(.top, 4)
                 }
             } compactLeading: {
-                Image(systemName: symbol(context.state)).foregroundStyle(Tone.moon)
+                glyph(context.state, size: 20).foregroundStyle(Tone.moon)
             } compactTrailing: {
                 Group {
                     if context.state.mode == "glance", let fed = context.state.fedSince {
@@ -98,17 +98,27 @@ struct TimerLiveActivity: Widget {
                 .foregroundStyle(Tone.moon)
                 .frame(maxWidth: 64)
             } minimal: {
-                Image(systemName: symbol(context.state)).foregroundStyle(Tone.moon)
+                glyph(context.state, size: 20).foregroundStyle(Tone.moon)
             }
             .keylineTint(Tone.moon)
         }
     }
 
-    private func symbol(_ state: TimerAttributes.ContentState) -> String {
-        switch state.mode {
-        case "sleep": "moon.fill"
-        case "feed": "heart.fill"
-        default: "clock"
+    private func glyph(_ state: TimerAttributes.ContentState, size: CGFloat) -> some View {
+        TimerGlyph(mode: state.mode, size: size)
+    }
+}
+
+/// Puggle's own moon for a sleep and bottle for a feed. A glance at the day has no icon of ours, so it keeps Apple's clock.
+private struct TimerGlyph: View {
+    let mode: String
+    var size: CGFloat = 20
+
+    var body: some View {
+        switch mode {
+        case "sleep": Glyph("sleep", size: size)
+        case "feed": Glyph("bottle", size: size)
+        default: Image(systemName: "clock")
         }
     }
 }
@@ -128,7 +138,7 @@ private struct LockScreenCard: View {
         let state = context.state
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 14) {
-                Image(systemName: state.mode == "sleep" ? "moon.fill" : (state.mode == "feed" ? "heart.fill" : "clock"))
+                TimerGlyph(mode: state.mode, size: 28)
                     .font(.title2)
                     .foregroundStyle(Tone.moon)
                     .frame(width: 30)

@@ -111,7 +111,7 @@ private struct ChildWidgetView: View {
                     }
                     Spacer(minLength: 0)
                     if let start = child.asleepSince {
-                        Label("Asleep", systemImage: "moon.fill").font(.caption.weight(.semibold))
+                        Label { Text("Asleep") } icon: { Glyph("sleep", size: 14) }.font(.caption.weight(.semibold))
                         Text(start, style: .timer).font(.title2.weight(.semibold)).monospacedDigit()
                     } else if let fed = child.lastFeed {
                         Text("Since a feed").font(.caption.weight(.semibold)).foregroundStyle(WTone.muted)
@@ -205,13 +205,13 @@ private struct FamilyWidgetView: View {
                 if let nappy = child.lastNappy, entry.date.timeIntervalSince(nappy) < undoWindow, entry.date >= nappy.addingTimeInterval(-5) {
                     button("Undo", symbol: "arrow.uturn.backward", action: TimerActions.undoNappy, child: child, filled: false)
                 } else {
-                    button(Terms.nappy, symbol: "drop", action: TimerActions.nappyWet, child: child, filled: false)
+                    button(Terms.nappy, symbol: "glyph-nappy", action: TimerActions.nappyWet, child: child, filled: false)
                 }
             }
             if child.asleepSince != nil {
                 button("Woke", symbol: "sun.max", action: TimerActions.wokeUp, child: child, filled: true)
             } else {
-                button("Sleep", symbol: "moon", action: TimerActions.startSleep, child: child, filled: true)
+                button("Sleep", symbol: "glyph-sleep", action: TimerActions.startSleep, child: child, filled: true)
             }
         }
         .foregroundStyle(WTone.ink)
@@ -219,7 +219,16 @@ private struct FamilyWidgetView: View {
 
     private func button(_ title: String, symbol: String, action: String, child: WidgetSnapshot.Child, filled: Bool) -> some View {
         Button(intent: TimerActionIntent(action, childID: child.id)) {
-            Label(title, systemImage: symbol)
+            // "glyph-…" is one of Puggle's own icons; anything else is one of Apple's symbols.
+            Label {
+                Text(title)
+            } icon: {
+                if symbol.hasPrefix("glyph-") {
+                    Glyph(String(symbol.dropFirst(6)), size: 15)
+                } else {
+                    Image(systemName: symbol)
+                }
+            }
                 .font(.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
                 .padding(.horizontal, 10)
@@ -238,7 +247,7 @@ private struct FamilyWidgetView: View {
 private struct EmptyWidget: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Image(systemName: "moon.stars").font(.title2)
+            Glyph("sleep", size: 28)
             Text("No children to show. Open the app to add one.").font(.subheadline)
         }
         .foregroundStyle(WTone.ink)

@@ -95,7 +95,7 @@ struct HistoryView: View {
                         Picker("What", selection: $kindFilter) {
                             Text("Everything").tag("")
                             ForEach(EventKind.allCases) { kind in
-                                Label(kind.title, systemImage: kind.symbol).tag(kind.rawValue)
+                                Label { Text(kind.title) } icon: { Image(kind.iconName + "-plain") }.tag(kind.rawValue)
                             }
                         }
                         if isFiltered {

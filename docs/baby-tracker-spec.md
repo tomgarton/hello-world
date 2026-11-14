@@ -1168,3 +1168,11 @@ Tom found the lock screen still had Puggle's old face, and asked for a pass thro
 - The breastfeeding choices, poo and wee, and the large icon drawings are still outside the app.
 
 Icons in dark (14 November 2026). Tom, from the TestFlight build: the icon lines look too thick in dark mode. A pale line on a dark ground reads heavier than a dark line of the same width, and the breast's skin was nearly the line's colour, so it had no visible outline. Each tinted icon now has a second drawing for dark with the line a fifth thinner (`DARK_LINE` in `docs/tools/make_icons.py`), and fixed colours a fifth dimmer (`DARK_FIXED`). The catalogue picks the drawing by appearance. The one-colour list icons are unchanged. Comparison: `docs/previews/icons/in-app/dark-lines.png`.
+
+Icons finished in three more places (14 November 2026), from the sweep:
+
+- **Stamps.** A stamp that carries an activity icon (first food, first steps, the potty) now draws it with `ActivityIcon`, so it takes the icon colour from Settings. `docs/previews/icons/in-app/stamp-icon-colour.png`.
+- **Menus.** The choice on a Today tile with more than one kind, and the kind filter in History, show Puggle's one-colour icons in place of Apple's symbols.
+- **Widgets, the Live Activity and the Dynamic Island.** The widget target has its own small catalogue (`app/PuggleWidgets/Glyphs.xcassets`: sleep, bottle, nappy), written by `make_icons.py --install`, and a `Glyph` view. Sleep shows Puggle's moon, a feed shows the bottle (it was a heart), and the nappy button shows the nappy (it was a drop).
+- **Still Apple's symbols, on purpose:** the clock for a glance at the day, the sun on "Woke", the undo arrow, and the moon on the Control Centre button, which only accepts Apple's symbols.
+- Checked: the app and widgets build, 51 tests pass, and a stamp was seen in the simulator in yellow and in a chosen colour. Not seen: the two menus, the widgets, the Live Activity and the Dynamic Island.

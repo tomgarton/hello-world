@@ -29,6 +29,9 @@ import math, os, re, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'previews', 'icons')
 ASSETS = os.path.join(HERE, '..', '..', 'app', 'Puggle', 'Resources', 'Assets.xcassets')
+# The widget target has a small catalogue of its own: the one-colour drawings it shows, as `glyph-…`.
+WIDGET_ASSETS = os.path.join(HERE, '..', '..', 'app', 'PuggleWidgets', 'Glyphs.xcassets')
+WIDGET_GLYPHS = ['sleep', 'bottle', 'nappy']
 INK, DARK, WATTLE, SKY = '#3A2A20', '#EBDDC4', '#F4BE2C', '#BFD9F5'
 W = 2
 
@@ -208,10 +211,10 @@ def layered(spec, layer, size, dark=False):
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {box} {box}" width="{size}" height="{size}">{inner}</svg>'
 
 
-def imageset(name, text, template, dark=None):
+def imageset(name, text, template, dark=None, catalogue=None):
     """One vector image in the app's catalogue, with a second drawing for dark if one is given."""
     import json
-    folder = os.path.join(ASSETS, f'{name}.imageset')
+    folder = os.path.join(catalogue or ASSETS, f'{name}.imageset')
     os.makedirs(folder, exist_ok=True)
     open(os.path.join(folder, f'{name}.svg'), 'w').write(text)
     props = {'preserves-vector-representation': True}
@@ -444,6 +447,11 @@ def main():
                     text = svg(name, spec=spec, layer=layer)
                     other = svg(name, spec=spec, layer=layer, ink=DARK) if layer != 'fill' else None
                     if text: imageset(f'icon-{name}{tag}-{layer}', text, template=layer != 'fixed', dark=other)
+        import json
+        os.makedirs(WIDGET_ASSETS, exist_ok=True)
+        json.dump({'info': {'author': 'xcode', 'version': 1}}, open(os.path.join(WIDGET_ASSETS, 'Contents.json'), 'w'), indent=2)
+        for name in WIDGET_GLYPHS:
+            imageset(f'glyph-{name}', svg(name, plain=True), template=True, catalogue=WIDGET_ASSETS)
         print('installed', len(ICONS) - len(NEW), 'icons')
     grid = ''.join(f'<path d="M{i} 0V24M0 {i}H24" stroke="#C9583F" stroke-width="0.03" opacity=".45"/>' for i in range(25))
     keys = ('<rect x="1" y="1" width="22" height="22" fill="none" stroke="#2A62B8" stroke-width="0.06" stroke-dasharray=".3 .3"/>'

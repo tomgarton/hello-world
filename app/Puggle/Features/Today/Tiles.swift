@@ -109,7 +109,7 @@ struct TileButton: View {
             } else {
                 Menu {
                     ForEach(choices) { kind in
-                        Button { onAdd(kind) } label: { Label(kind.title, systemImage: kind.symbol) }
+                        Button { onAdd(kind) } label: { Label { Text(kind.title) } icon: { Image(kind.iconName + "-plain") } }
                     }
                     if !entries.isEmpty {
                         Divider()
