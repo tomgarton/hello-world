@@ -577,12 +577,15 @@ def join_to_head(name, parts):
         pts = [(float(a), float(b)) for a, b in re.findall(r'(-?[\d.]+) (-?[\d.]+)', skull['d'])]
         centre = ((min(p[0] for p in pts) + max(p[0] for p in pts)) / 2, (min(p[1] for p in pts) + max(p[1] for p in pts)) / 2)
     if name == 'pebble':
-        # The curl was a thin wire in with nothing else: a thicker lock that starts inside the head, as its own part.
+        # Her curl was a wire: a dark line with a thread of fur in it. Drawn as a lock, like Puggle's lick,
+        # it is fur with the head's line: a stem that rolls over into a round end, with fur over the seam.
         top = by_id['head-2']
-        curl = 'M120 50 Q104 30 119 15 Q138 3 146 19 Q148 31 134 31'
-        top.update(id='curl', pivot=[120, 52], spring=110)
-        top['shapes'][:2] = [{'kind': 'path', 'd': curl, 'stroke': INK, 'width': 19, 'cap': 'round', 'tint': line},
-                             {'kind': 'path', 'd': 'M124 62 L120 50 ' + curl[9:], 'stroke': fur, 'width': 12, 'cap': 'round'}]
+        top.update(id='curl', pivot=[118, 54], spring=110)
+        top['shapes'][:2] = [
+            {'kind': 'path', 'd': 'M108 56 Q102 38 110 26 Q118 12 134 14 Q147 17 146 31 Q143 43 131 42 Q125 41 125 35 Q123 46 128 56 Z',
+             'fill': fur, 'stroke': INK, 'tint': line, 'width': skull['width']},
+            {'kind': 'path', 'd': 'M110 43 L120 43 L123 53 L132 55 L132 70 L104 70 L104 55 L109 53 Z', 'fill': fur},
+            {'kind': 'path', 'd': 'M133 33 Q139 32 139 26 Q136 21 130 23', 'stroke': line, 'width': 3.5, 'cap': 'round'}]
         return parts
     back = by_id.get('head-back')
     shapes, extras = (back['shapes'] if back else []), {}
