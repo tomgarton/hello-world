@@ -79,18 +79,18 @@ enum RefinementSheets {
 
     private static let dark = "#3A2A20", fur = "#8A5A3C", furLine = "#5E3A24", sleeve = "#2A62B8", sleeveLine = "#1B4387"
 
-    /// Three short locks on top of her head, drawn behind it so they grow out of the outline.
+    /// Three locks that are part of her head: the same fur and the same line, joined to it, so the top of her
+    /// head is no longer a plain curve. They sit left of centre, clear of her clip.
     private static func withTuft(_ rig: Rig) -> Rig {
         var copy = rig
         guard let head = copy.parts.firstIndex(where: { $0.id == "head" }) else { return rig }
         var locks: [Rig.Shape] = []
-        for d in ["M110 54 Q103 38 113 31", "M121 52 Q120 33 130 27", "M131 54 Q137 42 145 40"] {
-            locks.append(Rig.Shape(kind: "path", d: d, stroke: dark, tint: furLine, width: 12, cap: "round"))
+        for d in ["M85 62 Q78 44 84 34 Q91 25 98 34 Q104 44 104 60 Z", "M100 58 Q98 36 106 25 Q114 16 120 26 Q125 38 121 56 Z", "M117 58 Q121 42 128 35 Q137 29 140 38 Q141 48 133 60 Z"] {
+            locks.append(Rig.Shape(kind: "path", d: d, fill: fur, stroke: dark, tint: furLine, width: 7))
         }
-        for d in ["M110 54 Q103 38 113 31", "M121 52 Q120 33 130 27", "M131 54 Q137 42 145 40"] {
-            locks.append(Rig.Shape(kind: "path", d: d, stroke: fur, width: 5, cap: "round"))
-        }
-        copy.parts[head].shapes.insert(contentsOf: locks, at: 0)
+        // Fur over the join, so the locks and the head read as one shape with one outline.
+        locks.append(Rig.Shape(kind: "path", d: "M86 58 Q108 50 131 57 L133 74 L84 74 Z", fill: fur))
+        copy.parts[head].shapes.append(contentsOf: locks)
         return copy
     }
 
