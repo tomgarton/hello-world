@@ -100,10 +100,10 @@ One signature item each. Children share one head size; grown-ups have the same h
 |---|---|---|
 | Puggle | Platypus, 2½ | Red flower clip, blue dress |
 | Pebble | Her baby sibling, 6 months | A round curl of hair; a romper |
-| Mum | Platypus | A white daisy |
-| Dad | Platypus | Shirt and shorts |
-| Nan | Platypus, grandmother | Fur bun; pale blue reading glasses low on her bill |
-| Pop | Platypus, grandfather | Round glasses at eye level; green bucket hat |
+| Mum | Platypus | A white daisy; a side sweep of hair and a bob that flicks out |
+| Dad | Platypus | A scruffy crest of hair and small cheek tufts; shirt and shorts |
+| Nan | Platypus, grandmother | Fur bun and soft side curls; pale blue reading glasses low on her bill |
+| Pop | Platypus, grandfather | Round glasses at eye level; green bucket hat; bushy cheek tufts |
 | Quill | Echidna, 2½ | Spines |
 | Kip | Koala, 3; her best friend; falls asleep anywhere | Blue bow |
 | Digby | Wombat, 3½; loves digging | Red beanie |
@@ -127,7 +127,6 @@ The reference pages show these; the brand book does not yet.
 ## Open: ideas welcome
 
 - **Arms that bend at the elbow**, so she can hold a book, hug her rabbit, or put a hand under her chin (reference page 3).
-- **Mum and Dad** are too alike in outline, and too like a tall Puggle. Ways to tell them apart by shape.
 - **Things two characters do together:** sitting side by side, holding hands, passing a ball. One moves at a time.
 - **More outfits for Puggle** without recolouring her: a small print on her dress (quatrefoil, gum leaf or wattle) is the proposal.
 - **A flat version** with no outline, for prints and small sizes.

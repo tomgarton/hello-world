@@ -621,6 +621,45 @@ def join_to_head(name, parts):
     parts[at:at] = behind
     return parts
 
+
+# Hair for the grown-ups, so each has an outline of their own (Tom, 14 November 2026). Mum: a side
+# sweep and a bob that flicks out. Dad: a scruffy crest and small cheek tufts. Nan and Pop follow:
+# Nan soft curls at the sides under her bun, Pop bushy cheek tufts under his hat. Each lock is a
+# part of its own, drawn as the ears are: outlined behind the head, its fur over the seam in front.
+def mirrored(d):
+    return re.sub(r'(-?[\d.]+) (-?[\d.]+)', lambda m: f'{240 - float(m.group(1)):g} {m.group(2)}', d)
+
+FLICK = 'M58 124 Q36 132 30 114 Q42 122 56 108 Z'
+TUFT = 'M58 120 L44 124 L54 130 L45 139 L60 140 Z'
+CURL = 'M58 116 Q39 115 38 130 Q39 142 51 142 Q46 134 59 134 Z'
+BUSHY = 'M58 116 L42 119 L52 125 L40 130 L52 135 L43 143 L60 142 Z'
+HAIR = {   # part, pivot, shown only bare-headed, shapes
+    'mum': [('sweep', [100, 62], True, ['M88 64 Q80 44 96 35 Q114 28 130 38 Q139 45 137 55 Q128 46 117 48 Q107 52 110 64 Z']),
+            ('flick-left', [57, 118], False, [FLICK]), ('flick-right', [183, 118], False, [mirrored(FLICK)])],
+    'dad': [('crest', [120, 60], True, ['M109 60 Q111 40 120 30 Q129 40 129 60 Z', 'M98 62 Q93 46 101 37 Q109 44 112 60 Z', 'M126 60 Q130 45 139 39 Q144 48 139 62 Z']),
+            ('tuft-left', [59, 130], False, [TUFT]), ('tuft-right', [181, 130], False, [mirrored(TUFT)])],
+    'nan': [('curl-left', [58, 126], False, [CURL]), ('curl-right', [182, 126], False, [mirrored(CURL)])],
+    'pop': [('tuft-left', [59, 130], False, [BUSHY]), ('tuft-right', [181, 130], False, [mirrored(BUSHY)])],
+}
+
+def grow_hair(name, parts):
+    if name not in HAIR: return parts
+    face = next(p for p in parts if p['id'] == 'face')
+    skull = face['shapes'][0]
+    fur, line = skull['fill'], skull.get('tint')
+    behind, over = [], []
+    for pid, pivot, bare, locks in HAIR[name]:
+        # The line is drawn at twice its width behind the fur, so the half that shows matches the head's.
+        back = {'id': pid, 'parent': 'head', 'pivot': pivot, 'spring': 130,
+                'shapes': [{'kind': 'path', 'd': d, 'fill': fur, 'stroke': INK, 'tint': line, 'width': skull['width'] * 2} for d in locks]}
+        top = {'id': pid + '-top', 'parent': pid, 'pivot': pivot, 'shapes': [{'kind': 'path', 'd': d, 'fill': fur} for d in locks]}
+        if bare: back['when'] = top['when'] = 'outfit=none|night'
+        behind.append(back); over.append(top)
+    at = parts.index(face)
+    parts[at + 1:at + 1] = over
+    parts[at:at] = behind
+    return parts
+
 def build(name, svg, height, about, shade, moves, puggle):
     grown = height > 400
     if grown:
@@ -758,6 +797,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
     parts = join_to_head(name, parts)
+    parts = grow_hair(name, parts)
     parts = dress_for_weather(name, parts, puggle, shade)
     ids = {p['id'] for p in parts}
     # Her moves, kept to the parts this character has. Faces are left alone: they have one pair of eyes.

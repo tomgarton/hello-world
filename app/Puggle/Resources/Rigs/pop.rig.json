@@ -418,6 +418,44 @@
    "shapes": []
   },
   {
+   "id": "tuft-left",
+   "parent": "head",
+   "pivot": [
+    59,
+    130
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M58 116 L42 119 L52 125 L40 130 L52 135 L43 143 L60 142 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    }
+   ]
+  },
+  {
+   "id": "tuft-right",
+   "parent": "head",
+   "pivot": [
+    181,
+    130
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M182 116 L198 119 L188 125 L200 130 L188 135 L197 143 L180 142 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    }
+   ]
+  },
+  {
    "id": "face",
    "parent": "head",
    "pivot": [
@@ -478,6 +516,36 @@
      "rx": 1.8,
      "ry": 1.8,
      "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "tuft-left-top",
+   "parent": "tuft-left",
+   "pivot": [
+    59,
+    130
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M58 116 L42 119 L52 125 L40 130 L52 135 L43 143 L60 142 Z",
+     "fill": "#8A5A3C"
+    }
+   ]
+  },
+  {
+   "id": "tuft-right-top",
+   "parent": "tuft-right",
+   "pivot": [
+    181,
+    130
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M182 116 L198 119 L188 125 L200 130 L188 135 L197 143 L180 142 Z",
+     "fill": "#8A5A3C"
     }
    ]
   },

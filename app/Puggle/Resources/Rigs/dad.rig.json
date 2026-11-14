@@ -375,6 +375,80 @@
    "shapes": []
   },
   {
+   "id": "crest",
+   "parent": "head",
+   "pivot": [
+    120,
+    60
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M109 60 Q111 40 120 30 Q129 40 129 60 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    },
+    {
+     "kind": "path",
+     "d": "M98 62 Q93 46 101 37 Q109 44 112 60 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    },
+    {
+     "kind": "path",
+     "d": "M126 60 Q130 45 139 39 Q144 48 139 62 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    }
+   ],
+   "when": "outfit=none|night"
+  },
+  {
+   "id": "tuft-left",
+   "parent": "head",
+   "pivot": [
+    59,
+    130
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M58 120 L44 124 L54 130 L45 139 L60 140 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    }
+   ]
+  },
+  {
+   "id": "tuft-right",
+   "parent": "head",
+   "pivot": [
+    181,
+    130
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M182 120 L196 124 L186 130 L195 139 L180 140 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 14.0
+    }
+   ]
+  },
+  {
    "id": "face",
    "parent": "head",
    "pivot": [
@@ -435,6 +509,62 @@
      "rx": 1.8,
      "ry": 1.8,
      "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "crest-top",
+   "parent": "crest",
+   "pivot": [
+    120,
+    60
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M109 60 Q111 40 120 30 Q129 40 129 60 Z",
+     "fill": "#8A5A3C"
+    },
+    {
+     "kind": "path",
+     "d": "M98 62 Q93 46 101 37 Q109 44 112 60 Z",
+     "fill": "#8A5A3C"
+    },
+    {
+     "kind": "path",
+     "d": "M126 60 Q130 45 139 39 Q144 48 139 62 Z",
+     "fill": "#8A5A3C"
+    }
+   ],
+   "when": "outfit=none|night"
+  },
+  {
+   "id": "tuft-left-top",
+   "parent": "tuft-left",
+   "pivot": [
+    59,
+    130
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M58 120 L44 124 L54 130 L45 139 L60 140 Z",
+     "fill": "#8A5A3C"
+    }
+   ]
+  },
+  {
+   "id": "tuft-right-top",
+   "parent": "tuft-right",
+   "pivot": [
+    181,
+    130
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M182 120 L196 124 L186 130 L195 139 L180 140 Z",
+     "fill": "#8A5A3C"
     }
    ]
   },
