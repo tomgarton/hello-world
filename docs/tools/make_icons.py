@@ -60,6 +60,7 @@ NAPPY = 'M6 4.5H18A4 4 0 0 1 22 8.5V12C22 17 18.5 20.5 14 20.5H10C5.5 20.5 2 17 
 BREAST = 'M7.5 2.5C13 5 20.5 8.5 20.5 14A8 8 0 0 1 12.5 22C7.5 22 3.5 18.5 3.5 13.5C3.5 9.5 5.5 6 7.5 2.5Z'
 POTTY = ('M12 4C9 4 7.5 6.5 7 10C5 10.8 3.6 12.5 3 14.5C2.3 17 2 18.5 2 19.5A2.5 2.5 0 0 0 4.5 22H19.5A2.5 2.5 0 0 0 22 19.5'
          'C22 18.5 21.7 17 21 14.5C20.4 12.5 19 10.8 17 10C16.5 6.5 15 4 12 4Z')
+FRONT = 'M3 14.5C5 16.5 7 17.1 8.3 17.2C8.6 15.2 10 14 12 14C14 14 15.4 15.2 15.7 17.2C17 17.1 19 16.5 21 14.5'
 # A shallow inner curve (radius 9.5), so the crescent is thick through the middle.
 MOON = 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5A9.5 9.5 0 0 0 20.5 14.5Z'
 TOOTH = ('M7 3C8.5 3 10 4 12 4C14 4 15.5 3 17 3C19.5 3 21 5 21 7.5C21 10 20 11.5 19.5 14L18.5 19C18.2 20.5 17.5 21.5 16.3 21.5'
@@ -88,10 +89,11 @@ ICONS = {
     'nappy': icon([NAPPY, rr(2, 7.5, 5.5, 3.5, 1.75), rr(16.5, 7.5, 5.5, 3.5, 1.75), 'M14 20.5C14 16 18 12 22 12', 'M10 20.5C10 16 6 12 2 12'],
                   sky=[rr(2, 7.5, 5.5, 3.5, 1.75), rr(16.5, 7.5, 5.5, 3.5, 1.75), 'M22 12C22 17 18.5 20.5 14 20.5C14 16 18 12 22 12Z', 'M2 12C2 17 5.5 20.5 10 20.5C10 16 6 12 2 12Z'],
                   note='One closed, padded shape. The tabs and the leg openings sit inside it, which is what says nappy and not pants.'),
-    'potty': icon([POTTY, 'M3 14.5C5 16.6 8.5 17.5 12 17.5C15.5 17.5 19 16.6 21 14.5'],
-                  sky=['M3 14.5C5 16.6 8.5 17.5 12 17.5C15.5 17.5 19 16.6 21 14.5C21.7 17 22 18.5 22 19.5A2.5 2.5 0 0 1 19.5 22H4.5A2.5 2.5 0 0 1 2 19.5C2 18.5 2.3 17 3 14.5Z'],
-                  ink=['M8.5 13A3.5 1.5 0 1 0 15.5 13A3.5 1.5 0 1 0 8.5 13Z'],
-                  note='A small backrest, a wide seat with its opening, and a base.'),
+    # The front of the seat swells up in the middle: the splash guard. It stands in front of the opening.
+    'potty': icon([POTTY, FRONT],
+                  sky=[FRONT + 'C21.7 17 22 18.5 22 19.5A2.5 2.5 0 0 1 19.5 22H4.5A2.5 2.5 0 0 1 2 19.5C2 18.5 2.3 17 3 14.5Z'],
+                  ink=['M8.5 11.8A3.5 1.3 0 1 0 15.5 11.8A3.5 1.3 0 1 0 8.5 11.8Z'],
+                  note='A small backrest, a wide seat with its opening, a raised front and a base.'),
     'bath': icon(['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z', 'M6.5 19.5L5.5 22M17.5 19.5L18.5 22', circle(8.5, 5.5, 2.5), circle(15, 6.5, 1.5)],
                  sky=['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z'], note='A filled tub and two bubbles.'),
     'growth': icon([rr(7.5, 2, 9, 20, 2.5), 'M7.5 6.5H10.5M7.5 10.5H12M7.5 14.5H10.5M7.5 18.5H12'], wattle=[rr(7.5, 2, 9, 20, 2.5)],

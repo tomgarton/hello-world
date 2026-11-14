@@ -1111,3 +1111,5 @@ Tom decided: yellow is the default; Settings can change it to a colour of your c
 - **Each child's colour** applies where an icon belongs to one child: a Today tile when one child uses it, and the log buttons in a child's panel. Anything else stays yellow, and so does pumping, which is the parent's. Lists keep the one-colour drawing.
 - For checking: `-debugAppearance 1` opens the screen; `-iconColour own -iconColourOwn <number>` or `-iconColour child` sets the choice.
 - Not done: the breastfeeding choices still use blue for blankets and are not in the app; poo and wee are not in the app; the seven new large designs have not been carried down to the smaller sizes.
+
+Potty, all three sizes (14 November 2026). Tom pointed out the full sheets still showed the potty without its raised front. The small and regular drawings now have it too: the front of the seat swells up in the middle, in front of the opening. The large one's yellow seat no longer shows under the raised bit. Sheets re-rendered: `sizes.png`, `large.png`, `refined.png`. The app has the new small and regular potty.

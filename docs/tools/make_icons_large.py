@@ -94,7 +94,7 @@ LARGE = {
     'nappy': (doubled('nappy', only_fine=[scale('M8.5 7.3H15.5'), 'M21 23.5H27M21.5 27H26.5M22 30.5H26']), False),
     # The splash guard is the raised lip at the front. It is the blue body itself rising into the seat: the line between
     # blue and yellow swells up in the middle, with no edges of its own.
-    'potty': (drawn([POTTY, 'M33.5 27.73A12 5 0 1 0 17.5 27.73', GUARD], fine=['M12 36.5H18'], sky=[POTTY], wattle=[SEAT], tint=[(GUARD + 'V29.5H17.5Z', '#BFD9F5')],
+    'potty': (drawn([POTTY, 'M33.5 27.73A12 5 0 1 0 17.5 27.73', GUARD], fine=['M12 36.5H18'], sky=[POTTY], wattle=['M33.5 27.73A12 5 0 1 0 17.5 27.73' + GUARD[GUARD.index('C'):] + 'Z'],
                     ink=['M18 24A7.5 2.8 0 0 1 33 24C33 24.9 31.9 25.7 30.3 26.2C29.8 23.8 28 22.4 25.5 22.4C23 22.4 21.2 23.8 20.7 26.2C19.1 25.7 18 24.9 18 24Z']), True),
     'bath': (drawn([rr(4, 19, 40, 5, 2.5), TUB, 'M14 38.5V41M34 38.5V41', FOAM, circle(32.5, 11, 4.2), DUCK, circle(13, 8.5, 2.5)],
                    fine=[circle(20, 5.5, 1.6), 'M36.5 10L39.8 11.3L36.3 12.8', 'M13 29Q16 27 19 29Q22 31 25 29'],
