@@ -945,11 +945,20 @@ def older(name, parts):
 
 
 def spectacles(name, parts):
-    """Nan's glasses are red and Pop's are green, round, with no glass in them and a frame thick enough to read when small.
+    """Nan's glasses are red half-moons, resting on her bill so her eyes look over them; Pop's are green and round,
+    round his eyes. Neither has glass in it, and the frame is thick enough to read when small.
     The colours are one step off the brand's red and green (#E5543B, #3C9B5F), so that swapping a garment's colour
     for another never repaints the glasses with it."""
     colour = {'nan': '#E5543B', 'pop': '#3C9B5F'}[name]
     glasses = next(p for p in parts if p['id'] == 'head-2')
+    def frame(d): return {'kind': 'path', 'd': d, 'stroke': INK, 'tint': colour, 'width': 6.5, 'cap': 'round'}
+    if name == 'nan':
+        # Flat across the top, round below. The bridge sits above her nostrils.
+        y = 132
+        glasses['shapes'] = [frame(f'M{x - 15} {y - 5} L{x + 15} {y - 5} C{x + 15} {y + 17} {x - 15} {y + 17} {x - 15} {y - 5} Z') for x in (93, 147)] + [
+            frame(f'M108 {y - 4} Q120 {y - 10} 132 {y - 4}'),
+            frame(f'M78 {y - 5} L56 {y - 10} M162 {y - 5} L184 {y - 10}')]
+        return parts
     kept = []
     for shape in glasses['shapes']:
         if shape.get('stroke', '').upper() == '#FFFFFF': continue   # the shine on the glass

@@ -962,40 +962,36 @@
    ],
    "shapes": [
     {
-     "kind": "ellipse",
-     "x": 93.0,
-     "y": 196.0,
-     "rx": 14.0,
-     "ry": 14.0,
+     "kind": "path",
+     "d": "M78 189 L108 189 C108 211 78 211 78 189 Z",
      "stroke": "#3A2A20",
+     "tint": "#E5543B",
      "width": 6.5,
-     "tint": "#E5543B"
-    },
-    {
-     "kind": "ellipse",
-     "x": 147.0,
-     "y": 196.0,
-     "rx": 14.0,
-     "ry": 14.0,
-     "stroke": "#3A2A20",
-     "width": 6.5,
-     "tint": "#E5543B"
+     "cap": "round"
     },
     {
      "kind": "path",
-     "d": "M107 204 Q120 198 133 204",
+     "d": "M132 189 L162 189 C162 211 132 211 132 189 Z",
      "stroke": "#3A2A20",
+     "tint": "#E5543B",
      "width": 6.5,
-     "cap": "round",
-     "tint": "#E5543B"
+     "cap": "round"
     },
     {
      "kind": "path",
-     "d": "M79 202 L56 196 M161 202 L184 196",
+     "d": "M108 190 Q120 184 132 190",
      "stroke": "#3A2A20",
+     "tint": "#E5543B",
      "width": 6.5,
-     "cap": "round",
-     "tint": "#E5543B"
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M78 189 L56 184 M162 189 L184 184",
+     "stroke": "#3A2A20",
+     "tint": "#E5543B",
+     "width": 6.5,
+     "cap": "round"
     }
    ]
   },
