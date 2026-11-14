@@ -153,6 +153,12 @@ struct DeveloperView: View {
         }
         .protectedCover(isPresented: $showingPad) { PlayPadView() }
         .fullScreenCover(isPresented: $showingFirstRun) { OnboardingDemoView() }
+        .safeAreaInset(edge: .bottom) {
+            NavigationLink("Animation tests: now and proposed") { AnimationTestView() }
+                .font(.body.weight(.semibold))
+                .frame(maxWidth: .infinity, minHeight: 50)
+                .background(Palette.paper)
+        }
         .sheet(item: $sticker) { StickerDetailView(sticker: $0) }
     }
 

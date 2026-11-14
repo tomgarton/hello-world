@@ -239,7 +239,10 @@ struct RootView: View {
     @ViewBuilder private var content: some View {
         #if DEBUG
         // For checking the play pad: launch with "-debugPad 1".
-        if UserDefaults.standard.string(forKey: "debugFirstRun") == "1" {
+        if UserDefaults.standard.string(forKey: "debugAnimTest") == "1" {
+            // For comparing how she moves now with the proposed refinements: "-debugAnimTest 1".
+            AnimationTestView()
+        } else if UserDefaults.standard.string(forKey: "debugFirstRun") == "1" {
             // For checking the first-run demo: launch with "-debugFirstRun 1".
             OnboardingDemoView()
         } else if let join = UserDefaults.standard.string(forKey: "debugJoin") {

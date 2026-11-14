@@ -1014,6 +1014,89 @@
     }
    ],
    "length": 0.64
+  },
+  "greet-left": {
+   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-left": {
+       "r": 20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-left": {
+       "r": 80
+      },
+      "head": {
+       "r": 5
+      },
+      "body": {
+       "y": -2
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-left": {
+       "r": 60
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-left": {
+       "r": 80
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-left": {
+       "r": 60
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-left": {
+       "r": 80
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {}
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    }
+   ],
+   "length": 1.75
   }
  },
  "face": {

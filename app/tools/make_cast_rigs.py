@@ -689,6 +689,15 @@ def build(name, svg, height, about, shade, moves, puggle):
             key['pose'] = {k: v for k, v in pose.items() if k in ids}
         borrowed[move_name] = move
     # The shoulders move with the body.
+    # A wave with the other arm, for answering someone who stands on their left.
+    mirror = json.loads(json.dumps(borrowed['greet']))
+    for key in mirror['keys']:
+        flipped = {}
+        for part, pose in key['pose'].items():
+            other = part.replace('right', 'LEFT').replace('left', 'right').replace('LEFT', 'left')
+            flipped[other] = {k: (-v if k in ('r', 'x') else v) for k, v in pose.items()}
+        key['pose'] = flipped
+    borrowed['greet-left'] = mirror
     return {'name': name.capitalize(), 'size': [240, height], 'about': about + ' Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.',
             'parts': parts, 'moves': borrowed, 'face': {'eyes': 'open'}}
 

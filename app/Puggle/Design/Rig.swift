@@ -356,6 +356,24 @@ final class RigRuntime {
     var asleep = false
     /// 1 by day, 0.5 at night: scales how big her reactions are.
     var energy = 1.0
+    /// The proposed refinements (reports/Cartoon character craft for Puggle.md): a blink that shuts fast and
+    /// opens slowly, eyes that lead a head tilt, and a landing that stops at the ground. Off in the app for now.
+    var refined = false
+    /// For tests: a blink or a head tilt asked for now, in place of waiting for one.
+    var blinkAt: Date?
+    var tiltAt: (start: Date, side: Double)?
+
+    /// How far open the eyes are, `since` seconds into a blink: 1 open, about 0.1 shut. Nil when not blinking.
+    private func blink(_ since: Double) -> Double? {
+        guard since >= 0 else { return nil }
+        if !refined { return since < 0.13 ? 0.12 : nil }
+        // Shut in 80 ms, held for 50, open again over 160: faster down than up, as an eyelid is.
+        if since < 0.08 { return 1 - 0.9 * (since / 0.08) }
+        if since < 0.13 { return 0.1 }
+        if since < 0.29 { let u = (since - 0.13) / 0.16; return 0.1 + 0.9 * u * u * (3 - 2 * u) }
+        return nil
+    }
+
     /// Walking on the spot for as long as this is true.
     var walking = false {
         didSet {
@@ -409,19 +427,34 @@ final class RigRuntime {
             var random = SeededRandom(UInt64(index) &* 2654435761 &+ 17)
             let start = index * beat + random.range(0.2, 2.6)
             let twice = random.unit() < 0.25
-            let since = t - start
-            if (since >= 0 && since < 0.13) || (twice && since >= 0.3 && since < 0.43) {
-                change("eye-left") { $0.sy = 0.12 }
-                change("eye-right") { $0.sy = 0.12 }
-            }
+            // A test that asks for its own blinks and tilts gets only those.
+            let scripted = blinkAt != nil || tiltAt != nil
+            var open = scripted ? nil : (blink(t - start) ?? (twice ? blink(t - start - 0.3) : nil))
+            if let blinkAt { open = blink(date.timeIntervalSince(blinkAt)) ?? open }
             // Now and then she tips her head to one side, as if wondering, and holds it.
             let pause = 9.0, turn = floor(t / pause)
             var whim = SeededRandom(UInt64(turn) &* 40503 &+ 5)
             let begin = turn * pause + whim.range(1, 6)
-            if t >= begin, t < begin + 1.5 {
-                let side = whim.unit() < 0.5 ? -1.0 : 1.0
-                change("head") { $0.r += 6 * side }
-                change("clip") { $0.r += 5 * side }
+            var tilt: (since: Double, side: Double)?
+            if !scripted, t >= begin, t < begin + 1.9 { tilt = (t - begin, whim.unit() < 0.5 ? -1.0 : 1.0) }
+            if let tiltAt, date.timeIntervalSince(tiltAt.start) >= 0, date.timeIntervalSince(tiltAt.start) < 1.9 {
+                tilt = (date.timeIntervalSince(tiltAt.start), tiltAt.side)
+            }
+            if let tilt, refined {
+                // She looks first; a blink as her head starts after her eyes; her clip is the last to arrive.
+                // Going back, the same order: eyes, then head, then clip.
+                let side = tilt.side, since = tilt.since
+                if since < 1.5 { for eye in ["eye-left", "eye-right"] { change(eye) { $0.x += 4.5 * side } } }
+                if since >= 0.16, since < 1.62 { change("head") { $0.r += 7 * side } }
+                if since >= 0.3, since < 1.76 { change("clip") { $0.r += 5 * side } }
+                open = blink(since - 0.1) ?? blink(since - 1.46) ?? open
+            } else if let tilt, tilt.since < 1.5 {
+                change("head") { $0.r += 6 * tilt.side }
+                change("clip") { $0.r += 5 * tilt.side }
+            }
+            if let open {
+                change("eye-left") { $0.sy = open }
+                change("eye-right") { $0.sy = open }
             }
             // Eyes lead, and the head follows a little.
             for eye in ["eye-left", "eye-right"] {
@@ -492,6 +525,11 @@ final class RigRuntime {
                     velocity[i] += (stiffness * (aim[i] - value[i]) - damping * velocity[i]) * dt
                     value[i] += velocity[i] * dt
                 }
+            }
+            // A landing stops at the ground: the spring must not carry her feet through it.
+            if refined, part.id == "body", value[2] > 0 {
+                value[2] = 0
+                velocity[2] = min(velocity[2], 0)
             }
             shown[part.id] = value
             speed[part.id] = velocity
