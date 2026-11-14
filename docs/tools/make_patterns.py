@@ -104,8 +104,6 @@ OUTLINE = {
     # For the whole head: '_size' makes it smaller or larger, '_mouth' lengthens the short line under the nose.
     'nan': {'head-2': {'solid': True, 'down': 5}},      # her bill does not show through her glasses; eyes clear above them
     'pop': {'head-2': {'thin': 0.55}},                  # a fine frame, so his eyes inside it do not read as double circles
-    'dad': {'tuft-left': {'drop': True}, 'tuft-left-top': {'drop': True},      # his small cheek tufts read as scratches
-            'tuft-right': {'drop': True}, 'tuft-right-top': {'drop': True}},
     'quill': {'_size': 0.84},                           # her spines made her far bigger than everyone else
     'digby': {'_mouth': 9}, 'sunny': {'_mouth': 9},     # a longer mouth, so it is seen at this size
 }
@@ -138,10 +136,10 @@ def head(name, line, field):
         if tweak.get('down'): out += f'<g transform="translate(0 {tweak["down"]})">'
         for shape in part['shapes']:
             shape = dict(shape)
-            # Legible in line: nostril dots are half as big again, so they read as dots and not specks, and eyes
+            # Legible in line: nostril dots are twice the size, so they read as dots and not specks, and eyes
             # are a little larger.
             if shape['kind'] == 'ellipse' and shape.get('rx', 9) < 2.5:
-                shape['rx'], shape['ry'] = shape['rx'] * 1.5, shape.get('ry', shape['rx']) * 1.5
+                shape['rx'], shape['ry'] = shape['rx'] * 2, shape.get('ry', shape['rx']) * 2
             if part['id'].startswith('eye-') and shape['kind'] == 'ellipse':
                 shape['rx'], shape['ry'] = shape['rx'] * 1.2, shape.get('ry', shape['rx']) * 1.2
             # A lens with nothing to see through it is filled, so what is behind does not show.
