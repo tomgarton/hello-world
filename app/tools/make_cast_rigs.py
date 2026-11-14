@@ -827,8 +827,8 @@ def regrow_tail(parts, grown, sitting=False):
     if not tail: return parts
     oval = tail['shapes'][0]
     # Where the oval's near end was, and further in behind the body; a grown-up's sits higher, at the hip.
-    # Up at the hip, where a tail leaves the body: not down by the knees. A sitting baby's stays near the ground.
-    lift = 50 if grown else 6 if sitting else 18
+    # Up at the hip, where a tail leaves the body: not down by the knees or, for a sitting baby, along the ground.
+    lift = 50 if grown else 30 if sitting else 18
     bx, by = oval['x'] - 28, oval['y'] + 14 - lift
     outline, ridges = paddle(bx, by, long=72.0)
     tail['shapes'] = [{'kind': 'path', 'd': outline, 'fill': oval['fill'], 'stroke': oval['stroke'], 'tint': oval.get('tint'), 'width': oval['width']},

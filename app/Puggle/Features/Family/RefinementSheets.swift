@@ -91,6 +91,8 @@ enum RefinementSheets {
         func with(_ rig: Rig, _ shield: String, _ line: String) -> Rig {
             var copy = rig
             guard let face = copy.parts.firstIndex(where: { $0.id == "face" }) else { return rig }
+            // One or the other: with a dummy he has no bottle, and his hands rest together.
+            if let held = copy.parts.firstIndex(where: { $0.id == "held" }) { copy.parts[held].shapes = [] }
             copy.parts[face].shapes += [
                 Rig.Shape(kind: "path", d: "M90 151 Q90 136 106 139 Q120 144 134 139 Q150 136 150 151 Q150 167 134 164 Q120 160 106 164 Q90 167 90 151 Z",
                           fill: shield, stroke: dark, tint: line, width: 5),
@@ -119,7 +121,7 @@ enum RefinementSheets {
             }
         }
         let sheet = VStack(alignment: .leading, spacing: 14) {
-            Text("Pebble's onesie, and a dummy that shows. Top: the onesie. Middle: with the dummy. Bottom: at scene size")
+            Text("Pebble's babygro. Top: with his bottle. Middle: with a dummy instead. Bottom: at scene size")
                 .font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
             HStack(alignment: .bottom, spacing: 12) {
                 ForEach(options.indices, id: \.self) { i in
