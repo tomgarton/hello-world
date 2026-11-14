@@ -394,7 +394,7 @@
    "shapes": [
     {
      "kind": "path",
-     "d": "M152 244 Q198 290 142 264",
+     "d": "M152 244 Q192 294 188 258",
      "stroke": "#3A2A20",
      "width": 34.0,
      "cap": "round",
@@ -402,69 +402,18 @@
     },
     {
      "kind": "path",
-     "d": "M152 244 Q198 290 142 264",
+     "d": "M152 244 Q192 294 188 258",
      "stroke": "#E5553B",
      "width": 22.0,
      "cap": "round"
     },
     {
      "kind": "path",
-     "d": "M154.8 257.8 L145.5 277.8",
+     "d": "M199.9 265.7 L178.1 268.2",
      "stroke": "#3A2A20",
      "width": 4.0,
      "cap": "round",
      "tint": "#B23A26"
-    }
-   ]
-  },
-  {
-   "id": "umbrella",
-   "parent": "upper",
-   "pivot": [
-    142.0,
-    264.0
-   ],
-   "spring": 120,
-   "when": "outfit=rain|sun",
-   "shapes": [
-    {
-     "kind": "path",
-     "d": "M142 264 L142 32",
-     "stroke": "#3A2A20",
-     "width": 7,
-     "cap": "round"
-    },
-    {
-     "kind": "path",
-     "d": "M142 264 L142 32",
-     "stroke": "#C9CED3",
-     "width": 2.5,
-     "cap": "round"
-    },
-    {
-     "kind": "path",
-     "d": "M142 266 L142 281 Q142 289 150 289 Q158 289 158 281 L158 277",
-     "stroke": "#3A2A20",
-     "width": 11,
-     "cap": "round"
-    },
-    {
-     "kind": "path",
-     "d": "M142 266 L142 281 Q142 289 150 289 Q158 289 158 281 L158 277",
-     "stroke": "#C58F5A",
-     "width": 5.5,
-     "cap": "round"
-    },
-    {
-     "kind": "ellipse",
-     "x": 142.0,
-     "y": 264.0,
-     "rx": 12.5,
-     "ry": 12.5,
-     "fill": "#8A5A3C",
-     "stroke": "#3A2A20",
-     "width": 5.0,
-     "tint": "#5E3A24"
     }
    ]
   },
@@ -784,17 +733,57 @@
    ]
   },
   {
-   "id": "umbrella-top",
-   "parent": "umbrella",
+   "id": "umbrella",
+   "parent": "upper",
    "pivot": [
-    142.0,
-    264.0
+    188.0,
+    258.0
    ],
+   "spring": 120,
    "when": "outfit=rain|sun",
    "shapes": [
     {
      "kind": "path",
-     "d": "M46.6 84.2 Q52 17.6 142 14 Q232 17.6 237.4 84.2 Q214 69.8 189.7 84.2 Q165.4 69.8 142 82.4 Q118.6 69.8 94.3 84.2 Q70 69.8 46.6 84.2 Z",
+     "d": "M188 258 L188 32",
+     "stroke": "#3A2A20",
+     "width": 7,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M188 258 L188 32",
+     "stroke": "#C9CED3",
+     "width": 2.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M188 260 L188 275 Q188 283 196 283 Q204 283 204 275 L204 271",
+     "stroke": "#3A2A20",
+     "width": 11,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M188 260 L188 275 Q188 283 196 283 Q204 283 204 275 L204 271",
+     "stroke": "#C58F5A",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 188.0,
+     "y": 258.0,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#5E3A24"
+    },
+    {
+     "kind": "path",
+     "d": "M82 92 Q88 18 188 14 Q288 18 294 92 Q268 76 241 92 Q214 76 188 90 Q162 76 135 92 Q108 76 82 92 Z",
      "fill": "#E5553B",
      "stroke": "#3A2A20",
      "tint": "#B23A26",
@@ -802,7 +791,7 @@
     },
     {
      "kind": "path",
-     "d": "M142 14 L142 6",
+     "d": "M188 14 L188 6",
      "stroke": "#3A2A20",
      "tint": "#B23A26",
      "width": 5,
@@ -1349,5 +1338,6 @@
   ],
   "rain": {}
  },
- "headroom": 62
+ "headroom": 62,
+ "sideroom": 60
 }

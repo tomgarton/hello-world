@@ -28,6 +28,9 @@ struct Rig: Codable {
     var wardrobe: Wardrobe?
     /// Empty space above the head, in the drawing's units, for something held over it (an umbrella).
     var headroom: CGFloat?
+    /// How far something held (an umbrella's canopy) reaches past the drawing's sides, in the drawing's units.
+    /// The drawing keeps its size and place; it is only given this much more room to draw in on each side.
+    var sideroom: CGFloat?
 
     struct Wardrobe: Codable {
         /// The first is as drawn (no swaps).

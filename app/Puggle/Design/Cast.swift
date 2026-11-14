@@ -172,12 +172,20 @@ struct CastView: View {
     @Environment(\.puggleNight) private var night
 
     var body: some View {
-        Group {
-            if let rig = controller.rig {
-                RigView(runtime: rig, moving: !reduceMotion && !frozen)
+        // They take the room their own drawing needs, and are drawn on a wider surface where something
+        // they hold reaches past it, so an umbrella is not cut off at their sides.
+        Color.clear
+            .aspectRatio(controller.member.aspect, contentMode: .fit)
+            .overlay {
+                if let rig = controller.rig {
+                    GeometryReader { box in
+                        let extra = box.size.width * (rig.rig.sideroom ?? 0) * 2 / rig.rig.size[0]
+                        RigView(runtime: rig, moving: !reduceMotion && !frozen)
+                            .frame(width: box.size.width + extra, height: box.size.height)
+                            .offset(x: -extra / 2)
+                    }
+                }
             }
-        }
-        .aspectRatio(controller.member.aspect, contentMode: .fit)
         .brightness(night ? -0.18 : 0)
         .saturation(night ? 0.8 : 1)
         .accessibilityElement()

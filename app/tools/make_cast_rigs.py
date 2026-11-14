@@ -517,6 +517,7 @@ def refine(name, shapes, shade):
 ACCENT = {'nan': '#E5553B', 'mum': '#F4BE2C', 'dad': '#3C9A5F', 'pop': '#3C9A5F', 'pebble': '#E5553B',
           'quill': '#2A62B8', 'kip': '#2A62B8', 'digby': '#E5553B', 'sunny': '#E5553B'}
 UMBRELLA = {'nan', 'quill', 'kip', 'sunny'}     # the rest wear a raincoat
+SIDEROOM = 60                                   # how far the canopy reaches past their side, held beside the face
 HEADROOM = 62                                   # space above the head for an open umbrella, in the drawing's units
 
 def lowered(rig, by):
@@ -593,13 +594,14 @@ def dress_for_weather(name, parts, puggle, shade):
         parts.insert(top, copy('rainhat', parent='head'))
     if name in UMBRELLA:
         when = 'outfit=rain|sun' if name == 'nan' else 'outfit=rain'
-        # The umbrella stands straight up, at one height and one size for everyone. So it is the arm that
-        # changes: a second right arm, shown only with the umbrella, bent with the elbow out and the fist at
-        # the chest, just under the chin. Their usual arm is hidden while it is up.
+        # The umbrella stands straight up, at one height and one size for everyone, and all of it is in front
+        # of them. So that the shaft does not cross their face, it stands beside it, and the arm changes: a
+        # second right arm, shown only with the umbrella, bent up with the fist beside the chin. Their usual
+        # arm is hidden while it is up.
         arm = parts[at('arm-right')]
         sx, sy = arm['pivot']
-        hx, hy = 142.0, 202.0
-        cx, cy = sx + 46, sy + 46                                # the elbow's side of the bend
+        hx, hy = 188.0, 196.0
+        cx, cy = sx + 40, sy + 50                                # the elbow's side of the bend
         bend = f'M{sx:g} {sy:g} Q{cx:g} {cy:g} {hx:g} {hy:g}'
         dx, dy = hx - cx, hy - cy
         far = math.hypot(dx, dy); dx, dy = dx / far, dy / far
@@ -610,27 +612,21 @@ def dress_for_weather(name, parts, puggle, shade):
         fist['x'], fist['y'] = hx, hy
         arm['when'] = 'outfit=none|warm|night|bare' if name == 'nan' else 'outfit=none|warm|sun|night|bare'
         parts.insert(at('head'), {'id': 'arm-right-hold', 'parent': 'upper', 'pivot': arm['pivot'], 'spring': 150, 'when': when, 'shapes': [dark, sleeve, edge]})
-        # A slim shaft straight up, over the sleeve and behind their head, and below the fist a short wooden
-        # handle that hooks round. The fist is drawn last, so it is holding the shaft. The canopy stands above
-        # the drawing's own top, so these four have headroom added (see HEADROOM).
+        # The umbrella is the last thing drawn, in front of the head and of hair, ears, spines, bows and hats:
+        # a slim shaft straight up, a short wooden handle that hooks round below the fist, the fist over the
+        # shaft so it is held, and then the canopy at its full size, centred on the shaft. The canopy stands
+        # above and beside the drawing, so these four have room added (see HEADROOM and SIDEROOM).
         r = 8
         hook = f'M{hx:g} {hy + 2:g} L{hx:g} {hy + 17:g} Q{hx:g} {hy + 17 + r:g} {hx + r:g} {hy + 17 + r:g} Q{hx + 2 * r:g} {hy + 17 + r:g} {hx + 2 * r:g} {hy + 17:g} L{hx + 2 * r:g} {hy + 13:g}'
         shaft = f'M{hx:g} {hy:g} L{hx:g} -30'
-        parts.insert(at('head'), {'id': 'umbrella', 'parent': 'upper', 'pivot': [hx, hy], 'spring': 120, 'when': when, 'shapes': [
+        parts.append({'id': 'umbrella', 'parent': 'upper', 'pivot': [hx, hy], 'spring': 120, 'when': when, 'shapes': [
             {'kind': 'path', 'd': shaft, 'stroke': INK, 'width': 7, 'cap': 'round'},
             {'kind': 'path', 'd': shaft, 'stroke': '#C9CED3', 'width': 2.5, 'cap': 'round'},
             {'kind': 'path', 'd': hook, 'stroke': INK, 'width': 11, 'cap': 'round'},
             {'kind': 'path', 'd': hook, 'stroke': '#C58F5A', 'width': 5.5, 'cap': 'round'},
-            fist]})
-        # The canopy is the last thing drawn, in front of hair, ears, spines, bows and hats: they are under
-        # it, so it covers their tops. It is centred on the shaft, and a little smaller all over (not
-        # flattened) so that it stays inside the drawing. It is the umbrella's child, so it sways with it.
-        k, top = 0.9, -48
-        def fit(x, y): return f'{hx + (x - 132) * k:.1f} {top + (y - top) * k:.1f}'
-        canopy = 'M' + fit(26, 30) + ''.join(f' Q{fit(a, b)} {fit(c, d)}' for a, b, c, d in
-                 [(32, -44, 132, -48), (232, -44, 238, 30), (212, 14, 185, 30), (158, 14, 132, 28), (106, 14, 79, 30), (52, 14, 26, 30)]) + ' Z'
-        parts.append({'id': 'umbrella-top', 'parent': 'umbrella', 'pivot': [hx, hy], 'when': when, 'shapes': [
-            {'kind': 'path', 'd': canopy, 'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
+            fist,
+            {'kind': 'path', 'd': moved('M26 30 Q32 -44 132 -48 Q232 -44 238 30 Q212 14 185 30 Q158 14 132 28 Q106 14 79 30 Q52 14 26 30 Z', hx - 132, 0),
+             'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
             {'kind': 'path', 'd': f'M{hx:g} -48 L{hx:g} -56', 'stroke': INK, 'tint': shade(accent), 'width': 5, 'cap': 'round'}]})
     return parts
 
@@ -988,6 +984,7 @@ def main():
             rig = build(name, svg, height, about, shade, moves, puggle)
             rig['wardrobe'] = wardrobe
             if name in UMBRELLA: rig = lowered(rig, HEADROOM)
+            if name in UMBRELLA: rig['sideroom'] = SIDEROOM
             with open(f'{RIGS}/{name}{"-" + variant if variant else ""}.rig.json', 'w') as out:
                 json.dump(rig, out, indent=1, ensure_ascii=False)
             print(name, variant or '(as drawn)', len(rig['parts']), 'parts')
