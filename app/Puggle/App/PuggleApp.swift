@@ -137,6 +137,8 @@ struct RootView: View {
     @EnvironmentObject private var store: FamilyStore
     @AppStorage("hasOnboarded") private var hasOnboarded = false
     @AppStorage(Setting.justLog) private var justLog = false
+    /// The tab showing. For screenshots it can start elsewhere: "-debugTab 2" (0 Today, 1 History, 2 Insights, 3 Family).
+    @State private var tab = UserDefaults.standard.integer(forKey: "debugTab")
     @State private var inFirstRun = false
     @State private var splashing = !Palette.nightJustChanged
     @ObservedObject private var invites = InviteCenter.shared
@@ -291,17 +293,17 @@ struct RootView: View {
             }
             .onAppear { inFirstRun = true }
         } else {
-            TabView {
+            TabView(selection: $tab) {
                 TodayView()
-                    .tabItem { Label("Today", systemImage: "house") }
+                    .tabItem { Label("Today", systemImage: "house") }.tag(0)
                 HistoryView()
-                    .tabItem { Label("History", systemImage: "calendar") }
+                    .tabItem { Label("History", systemImage: "calendar") }.tag(1)
                 if !justLog {
                     InsightsView()
-                        .tabItem { Label("Insights", systemImage: "chart.bar") }
+                        .tabItem { Label("Insights", systemImage: "chart.bar") }.tag(2)
                 }
                 FamilyView()
-                    .tabItem { Label("Family", systemImage: "person.2") }
+                    .tabItem { Label("Family", systemImage: "person.2") }.tag(3)
             }
         }
     }

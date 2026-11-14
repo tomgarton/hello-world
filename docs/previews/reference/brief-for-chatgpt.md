@@ -4,9 +4,12 @@ Updated 14 November 2026, after checking everything against the brand book.
 
 Send three things together:
 
-1. **The brand book** (`Puggle-brand-2026-11-14.pdf`, 40 pages). This is the source of truth for the brand.
+1. **The brand book** (`Puggle-brand-2026-11-14.pdf`, 40 pages). The base for the brand.
 2. **The twelve reference pages.** These show what the app draws today, which is ahead of the brand book in places.
-3. **This brief.** It says what is fixed, where the app has moved on, and what is open.
+3. **App screens and flows** (`Puggle-app-screens-and-flows.pdf`): who it is for, the personas, every flow, and the app's screens.
+4. **This brief.** It says what is fixed, where things have moved on, and what is open.
+
+**Where this brief and the brand book differ, this brief is newer.** The brand book was made before the animation research of 14 November. Two things changed after it: she is drawn from the front only, and she has a lick of hair.
 
 ## What Puggle is
 
@@ -38,7 +41,7 @@ Puggle is the character in an iPhone baby and family tracker. She is a platypus,
 **Her look**
 - A blue A-line dress with a light blue pocket, and a red four-petal flower clip, top right.
 - Her fur, bill, dress and clip are never recoloured. No black line.
-- No hair. Characters have head accessories; baby Pebble's curl is the one exception. (A lick of hair for Puggle is being explored; see Open.)
+- **A lick of hair (newer than the brand book, which says "No hair").** It is part of her head: the same fur and the same line, joined to it, so it breaks the plain curve of her head. It sits left of centre, clear of her clip, and stays small. Which shape is still being chosen; see Open. The rest of the cast keep head accessories, and baby Pebble keeps a curl.
 
 **Drawing**
 - Flat colour. No texture, shading, gradients or highlights in the eyes.
@@ -49,9 +52,9 @@ Puggle is the character in an iPhone baby and family tracker. She is a platypus,
 - Under about 100 points tall: no nostrils or pocket, and a line a quarter heavier.
 
 **Views**
-- The app draws her from the front only.
-- Her model sheet also has three-quarter, side and back views. The three-quarter view is her acting view for key poses (potty dance, flop-sit, tippy-toe reach).
-- A side-on walk is a proposal, not decided.
+- **Front only (newer than the brand book).** She always faces the viewer. No three-quarter or side views, and no smooth head turns. To look at someone she slides her eyes and leans her head a little.
+- The brand book's model sheet shows three-quarter, side and back views, and its motion board calls three-quarter "her acting view". Those boards predate this decision. Their poses (potty dance, flop-sit, tippy-toe reach) are still wanted, redrawn from the front.
+- A back view may still be useful in a story, such as her looking out of a window.
 
 **How she moves**
 - Reactions are snappy: hold each pose and pop to the next. Breathing, sleeping and scenes stay smooth.
@@ -122,12 +125,12 @@ The reference pages show these; the brand book does not yet.
 
 ## Open: ideas welcome
 
-- **A lick of hair** on Puggle. The brand rule is no hair, so this would change it. Five versions are on reference page 3; a single leaning lick is the front-runner.
+- **Which lick of hair.** Five versions are on reference page 3; a single leaning lick is the front-runner. It should be small against her head and read at thumbnail size.
 - **Arms that bend at the elbow**, so she can hold a book, hug her rabbit, or put a hand under her chin (reference page 3).
 - **Mum and Dad** are too alike in outline, and too like a tall Puggle. Ways to tell them apart by shape.
 - **Things two characters do together:** sitting side by side, holding hands, passing a ball. One moves at a time.
 - **More outfits for Puggle** without recolouring her: a small print on her dress (quatrefoil, gum leaf or wattle) is the proposal.
 - **A flat version** with no outline, for prints and small sizes.
-- **A side-on walk.**
+- **How she walks from the front**, now that a side-on walk is out.
 - **Proposed movement** on reference pages 6 and 7: a blink that shuts fast and opens slowly, eyes that lead a head tilt, a hop with more weight.
 - **The logo**, Pebble's name, and whether the app icon keeps a dark line.
