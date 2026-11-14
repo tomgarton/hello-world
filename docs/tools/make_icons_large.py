@@ -60,17 +60,21 @@ POTTY = ('M8 40C7 34 9 24 11 21C12 19 14 18 17 17.5C17 10 20 5.5 25.5 5.5C31 5.5
          'C42.5 26 43.5 34 43 40C43 42 42 43 40 43H34C33 43 32.5 42 32 41H19C18.5 42 18 43 17 43H11C9 43 8 42 8 40Z')
 SEAT = 'M13.5 24A12 5 0 1 0 37.5 24A12 5 0 1 0 13.5 24Z'
 GUARD = 'M17.5 27.73C19.5 28 20.3 27 20.6 25.8C21.2 23.6 23 22.4 25.5 22.4C28 22.4 29.8 23.6 30.4 25.8C30.7 27 31.5 28 33.5 27.73'
-# Weight: a baby scale, with a curved tray on a base and a dial.
-TRAY = 'M5 13C5 10 8 9 12 9.5C17 10.2 20 10.5 24 10.5C28 10.5 31 10.2 36 9.5C40 9 43 10 43 13C43 16.5 39 19 35 19H13C9 19 5 16.5 5 13Z'
-BASE = 'M12 23H36C38 23 39.3 24.2 39.8 26L42.5 37C43.2 40 41.5 42.5 38.5 42.5H9.5C6.5 42.5 4.8 40 5.5 37L8.2 26C8.7 24.2 10 23 12 23Z'
-DIAL = 'M15 38.5A9 9 0 0 1 33 38.5Z'
-# Solids: a bowl on a foot, a mound of food, a spoon standing in it, and steam.
-BOWL = 'M5 22H43C43 31 36.5 38 27 38H21C11.5 38 5 31 5 22Z'
-MOUND = 'M10 22C10 18.5 12.5 16.5 15.5 17C16.5 14 20 13 22.5 15C24.5 12.5 28.5 13 29.5 16C33 15.5 35.5 18 35.5 22'
-# Bath: a tub with a rim and feet, foam, a duck and two bubbles.
-TUB = 'M7 24C7 32 11 38 18 38H30C37 38 41 32 41 24'
-FOAM = 'M10 19C10 16 12.5 14.5 15 15.5C16 13 19.5 12.5 21 15C22.8 14 24.5 15.5 24.5 17.5V19'
-DUCK = 'M27.5 19C26.5 16.5 27.5 14.5 29.5 14M36.5 13.5C38.8 14.8 39.8 17 39 19'
+# Weight: a baby scale. A shallow tray with its dish underneath, a short neck, and a base with a dial.
+TRAY = 'M5 12.5C5 9.8 7.8 8.8 11.5 9.3C16.5 10 20 10.3 24 10.3C28 10.3 31.5 10 36.5 9.3C40.2 8.8 43 9.8 43 12.5C43 15 40.5 16.5 37 16.5H11C7.5 16.5 5 15 5 12.5Z'
+DISH = 'M11 16.5C12 19.5 14.5 21.5 18 21.5H30C33.5 21.5 36 19.5 37 16.5'
+BASE = 'M13 24H35C37 24 38.3 25.2 38.8 27L41.5 37.5C42.2 40.5 40.5 43 37.5 43H10.5C7.5 43 5.8 40.5 6.5 37.5L9.2 27C9.7 25.2 11 24 13 24Z'
+DIAL = 'M14.5 39.5A9.5 9.5 0 0 1 33.5 39.5Z'
+# Solids: a deep bowl with a rim and a foot, a mound of food, a spoon standing in it, and steam.
+BOWL = 'M5 21H43C43 31.5 35.5 39 24 39C12.5 39 5 31.5 5 21Z'
+MOUND_A = 'M10 21C10 17.5 12.5 15.5 15.5 16C16.5 13 20 12 22.5 14C24 12.2 27.5 12 29.6 14'
+MOUND_B = 'M33 16.8C35.5 17.3 37 19 37 21'
+SPOON = 'M31.2 18.9L40.7 7.9A2.2 2.2 0 0 0 37.3 5.1L27.8 16.1A2.2 2.2 0 0 0 31.2 18.9Z'
+# Bath: a tub with a rim and round feet, foam, a duck facing the foam, and two bubbles.
+TUB = 'M7.5 24C7.5 32.5 12 38 19 38H29C36 38 40.5 32.5 40.5 24'
+FOAM = 'M9.5 19C9.5 16 12 14.5 14.5 15.5C15.5 13 19 12.5 20.5 15C22 14.2 23.5 15.5 23.5 17.5V19'
+DUCK = 'M26.5 19C26 16 27.3 13.8 29.3 12.8M36 12.3C37.5 14 39.5 14 41 12.5C42 15 41.5 17.5 40.5 19'
+BEAK = 'M28.3 8L24.8 9.5L28.3 11'
 # Pump: a funnel, a body with a lever, and a bottle with milk in it.
 FUNNEL = 'M15 5L25 16.5C27 16.5 29 18 29 20.5V24.5M20 24.5V21.5L7 19'
 MOUTH = 'M14.5 4.5C17 6 15 12 12 15.5C9.5 18.5 7 19.5 6 18.5C4 17 6 11 9 7.5C11 5 13.3 3.8 14.5 4.5Z'
@@ -87,23 +91,24 @@ LARGE = {
                    fine=['M13.2 36H34.8', 'M21 33H27M21 40H27'],
                    sky=['M15 5L25 16.5C27 16.5 29 18 29 20.5V24.5H20V21.5L7 19C4.5 17 6 11 9 7.5C11 5 13.3 3.8 15 5Z'],
                    wattle=['M13.2 36H34.8C35 36.3 35 36.7 35 37V39.5C35 42 33 44 30.5 44H17.5C15 44 13 42 13 39.5V37C13 36.7 13 36.3 13.2 36Z']), True),
-    'solids': (drawn([BOWL, 'M17 38V40.5C17 41.6 17.9 42.5 19 42.5H29C30.1 42.5 31 41.6 31 40.5V38', MOUND, 'M30.5 16.5L39 7'],
-                     fine=['M9 27C14 29.5 34 29.5 39 27', 'M9 12L7 9.5M13 10L12 6.5M17.5 10.5V7'],
-                     sky=[BOWL], wattle=[MOUND + 'Z']), True),
+    'solids': (drawn([BOWL, 'M17.5 39.5V41A2 2 0 0 0 19.5 43H28.5A2 2 0 0 0 30.5 41V39.5', MOUND_A, MOUND_B, SPOON,
+                      'M8.5 13.5L6 10.5M13 11L11.8 7M18 10.5V6.5'],
+                     fine=['M6 25.5H42'],
+                     wattle=[MOUND_A + 'L27.8 16.1A2.2 2.2 0 0 0 31.2 18.9L33 16.8C35.5 17.3 37 19 37 21Z']), True),
     'sleep': (doubled('sleep'), False),
     'nappy': (doubled('nappy', only_fine=[scale('M8.5 7.3H15.5'), 'M21 23.5H27M21.5 27H26.5M22 30.5H26']), False),
     # The splash guard is the raised lip at the front. It is the blue body itself rising into the seat: the line between
     # blue and yellow swells up in the middle, with no edges of its own.
     'potty': (drawn([POTTY, 'M33.5 27.73A12 5 0 1 0 17.5 27.73', GUARD], fine=['M12 36.5H18'], sky=[POTTY], wattle=['M33.5 27.73A12 5 0 1 0 17.5 27.73' + GUARD[GUARD.index('C'):] + 'Z'],
                     ink=['M18 24A7.5 2.8 0 0 1 33 24C33 24.9 31.9 25.7 30.3 26.2C29.8 23.8 28 22.4 25.5 22.4C23 22.4 21.2 23.8 20.7 26.2C19.1 25.7 18 24.9 18 24Z']), True),
-    'bath': (drawn([rr(4, 19, 40, 5, 2.5), TUB, 'M14 38.5V41M34 38.5V41', FOAM, circle(32.5, 11, 4.2), DUCK, circle(13, 8.5, 2.5)],
-                   fine=[circle(20, 5.5, 1.6), 'M36.5 10L39.8 11.3L36.3 12.8', 'M13 29Q16 27 19 29Q22 31 25 29'],
-                   sky=[rr(4, 19, 40, 5, 2.5), TUB + 'Z'], wattle=[circle(32.5, 11, 4.2), 'M27.5 19C26.5 16.5 27.5 14.5 29.5 14L36.5 13.5C38.8 14.8 39.8 17 39 19Z'],
-                   ink=[circle(33.3, 10.2, .9)]), True),
+    'bath': (drawn([rr(4, 19, 40, 5, 2.5), TUB, circle(14, 40.3, 1.9), circle(34, 40.3, 1.9), FOAM, circle(32.5, 9.5, 4.5), DUCK, circle(12.5, 8.5, 2.6)],
+                   fine=[circle(19, 5.5, 1.6), BEAK + 'Z', 'M32 16.2Q34.5 18 37 16'],
+                   wattle=[circle(32.5, 9.5, 4.5), 'M26.5 19C26 16 27.3 13.8 29.3 12.8L36 12.3C37.5 14 39.5 14 41 12.5C42 15 41.5 17.5 40.5 19Z', BEAK + 'Z'],
+                   ink=[circle(31, 8.8, .9)]), True),
     'growth': (doubled('growth'), False),
-    'weight': (drawn([TRAY, 'M20 19V23M28 19V23', BASE, DIAL, 'M24 38.5L27.5 32.5'],
-                     fine=['M9.5 14.5C14 16 34 16 38.5 14.5', 'M24 29.5V31.8M17.6 32.1L19.2 33.7M30.4 32.1L28.8 33.7'],
-                     sky=[TRAY, BASE], wattle=[DIAL]), True),
+    'weight': (drawn([TRAY, DISH, 'M19 21.5V24M29 21.5V24', BASE, DIAL, 'M24 39.5L27.6 33.3'],
+                     fine=['M10 13.2C14.5 14.3 33.5 14.3 38 13.2', 'M24 30V32.5M15.8 34.8L17.9 36M32.2 34.8L30.1 36'],
+                     wattle=[DIAL]), True),
     'temperature': (doubled('temperature'), False),
     'medicine': (doubled('medicine'), False),
     'vaccine': (doubled('vaccine'), False),

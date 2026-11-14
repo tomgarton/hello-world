@@ -57,11 +57,13 @@ def icon(lines, wattle=(), sky=(), ink=(), tint=(), turn=0, note='', fine=(), bo
 
 TEAT = 'M9 8C9 6.5 10 6 10 4.5A2 2 0 0 1 14 4.5C14 6 15 6.5 15 8'
 NAPPY = 'M6 4.5H18A4 4 0 0 1 22 8.5V12C22 17 18.5 20.5 14 20.5H10C5.5 20.5 2 17 2 12V8.5A4 4 0 0 1 6 4.5Z'
-# In profile: flat down the left, where it meets the chest, and full to the right.
-BREAST = 'M5.5 3C6.5 7 12 8.5 16.5 10.5C19 11.7 20.5 13.5 20.5 15.5A6 6 0 0 1 14.5 21.5H7.5A2 2 0 0 1 5.5 19.5Z'
+# The teardrop of the second pass, with its left side flat where it meets the chest.
+BREAST = 'M5.5 2.5C11 5 20.5 8.5 20.5 14A8 8 0 0 1 12.5 22C8.5 22 5.5 19.5 5.5 15.5Z'
 POTTY = ('M12 4C9 4 7.5 6.5 7 10C5 10.8 3.6 12.5 3 14.5C2.3 17 2 18.5 2 19.5A2.5 2.5 0 0 0 4.5 22H19.5A2.5 2.5 0 0 0 22 19.5'
          'C22 18.5 21.7 17 21 14.5C20.4 12.5 19 10.8 17 10C16.5 6.5 15 4 12 4Z')
 FRONT = 'M3 14.5C5 16.5 7 17.1 8.3 17.2C8.6 15.2 10 14 12 14C14 14 15.4 15.2 15.7 17.2C17 17.1 19 16.5 21 14.5'
+MOUND24 = 'M5 11C5 9 6.5 8 8 8.3C8.7 6.5 11 6 12.3 7.3C13.5 6.3 15.5 6.8 16 8.5C17.8 8.3 19 9.5 19 11'
+SCALE24 = 'M7 11H17C18 11 18.7 11.6 19 12.5L20.8 18.5C21.2 20 20.2 21.5 18.5 21.5H5.5C3.8 21.5 2.8 20 3.2 18.5L5 12.5C5.3 11.6 6 11 7 11Z'
 # A shallow inner curve (radius 9.5), so the crescent is thick through the middle.
 MOON = 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5A9.5 9.5 0 0 0 20.5 14.5Z'
 TOOTH = ('M7 3C8.5 3 10 4 12 4C14 4 15.5 3 17 3C19.5 3 21 5 21 7.5C21 10 20 11.5 19.5 14L18.5 19C18.2 20.5 17.5 21.5 16.3 21.5'
@@ -77,13 +79,13 @@ ICONS = {
     'bottle': icon([TEAT, rr(7, 8, 10, 3.5, 1.75), 'M8 11.5C6.5 13 5.5 14.5 5.5 17V19A3 3 0 0 0 8.5 22H15.5A3 3 0 0 0 18.5 19V17C18.5 14.5 17.5 13 16 11.5', 'M9.5 15.5H12.5M9.5 18.5H12.5'],
                    wattle=[TEAT + 'Z'], sky=[rr(7, 8, 10, 3.5, 1.75)],
                    note='A teat, a collar and a body with shoulders. Two measure marks; three will not fit.'),
-    'breastfeed': icon([BREAST], tint=[(BREAST, '#F3D9C9'), (circle(16.3, 15.8, 2.4), '#C27C66', True)],
+    'breastfeed': icon([BREAST], tint=[(BREAST, '#F3D9C9'), (circle(16, 15, 2.5), '#C27C66', True)],
                        note='A breast, in place of the two heads. In Shell, a brand colour: see the two versions below.'),
     'pump': icon(['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5', rr(12, 9.5, 6, 4, 1.5), rr(10, 13.5, 10, 8.5, 3)],
                  sky=['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5Z'], wattle=['M10 17.5H20V19A3 3 0 0 1 17 22H13A3 3 0 0 1 10 19Z'],
                  note='A cupped funnel, tilted up, sitting on its bottle.'),
-    'solids': icon(['M7 11A5 5 0 0 1 17 11', 'M2.5 11H21.5A9.5 9.5 0 0 1 2.5 11Z', 'M15.5 7.5L20.5 2.5'],
-                   wattle=['M7 11A5 5 0 0 1 17 11Z'], sky=['M2.5 11H21.5A9.5 9.5 0 0 1 2.5 11Z'], note='A filled bowl.'),
+    'solids': icon(['M2.5 11H21.5C21.5 15.5 18 19 13.5 19H10.5C6 19 2.5 15.5 2.5 11Z', MOUND24, 'M15.5 8L20 3', 'M9 21.5H15'],
+                   wattle=[MOUND24 + 'Z'], note='A bowl on a foot, a mound of food and a spoon.'),
     'sleep': icon([MOON], wattle=[MOON], ink=[sparkle(18.5, 5, 3)], note='A filled moon, thick through the middle.'),
     # The tabs are flat and wide and sit right above the leg openings, so each side reads as one band of the
     # garment and the four patches are not two eyes and a mouth. The leg openings are big, which narrows the crotch.
@@ -95,13 +97,12 @@ ICONS = {
                   sky=[FRONT + 'C21.7 17 22 18.5 22 19.5A2.5 2.5 0 0 1 19.5 22H4.5A2.5 2.5 0 0 1 2 19.5C2 18.5 2.3 17 3 14.5Z'],
                   ink=['M8.5 11.8A3.5 1.3 0 1 0 15.5 11.8A3.5 1.3 0 1 0 8.5 11.8Z'],
                   note='A small backrest, a wide seat with its opening, a raised front and a base.'),
-    'bath': icon(['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z', 'M6.5 19.5L5.5 22M17.5 19.5L18.5 22', circle(8.5, 5.5, 2.5), circle(15, 6.5, 1.5)],
-                 sky=['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z'], note='A filled tub and two bubbles.'),
+    'bath': icon(['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z', 'M6.5 19.5L5.5 22M17.5 19.5L18.5 22', circle(16, 7, 3), circle(7.5, 5.5, 2.3)],
+                 wattle=[circle(16, 7, 3)], note='A tub, a bubble and a duck looking over the rim.'),
     'growth': icon([rr(7.5, 2, 9, 20, 2.5), 'M7.5 6.5H10.5M7.5 10.5H12M7.5 14.5H10.5M7.5 18.5H12'], wattle=[rr(7.5, 2, 9, 20, 2.5)],
                    note='A height chart by itself. The arrow is gone.'),
-    'weight': icon([rr(3, 3.5, 18, 18, 4.5), 'M7.5 11.5A4.5 4.5 0 0 1 16.5 11.5Z', 'M12 11.5L13.5 9'],
-                   sky=[rr(3, 3.5, 18, 18, 4.5)], wattle=['M7.5 11.5A4.5 4.5 0 0 1 16.5 11.5Z'],
-                   note='A scale seen from above, with its dial. The tray on a stand read as an hourglass.'),
+    'weight': icon([rr(3, 3.5, 18, 4.5, 2.25), 'M12 8V11', SCALE24, 'M8 19A4 4 0 0 1 16 19Z'],
+                   wattle=['M8 19A4 4 0 0 1 16 19Z'], note='A baby scale: a tray, a base and a dial.'),
     'temperature': icon(['M9 13V5A3 3 0 0 1 15 5V13A5 5 0 1 1 9 13Z'], wattle=[circle(12, 17, 2.5), rr(11, 7.5, 2, 9, 1)],
                         note='The reading is a filled column, not a second line.'),
     'medicine': icon([rr(2.5, 8, 19, 8, 4), 'M12 8V16'], wattle=['M6.5 8H12V16H6.5A4 4 0 0 1 6.5 8Z'], turn=-45, note='A capsule.'),
@@ -127,7 +128,7 @@ NEW = ['poo', 'wee']
 # and the Sky fills go. Three icons had no Wattle at all: their Sky part becomes the accent.
 for _name, _spec in ICONS.items():
     if _name == 'nappy': _spec['wattle'] += _spec['sky'][:2]      # the fastening tabs
-    if _name in ('potty', 'bath'): _spec['wattle'] += _spec['sky']  # the base; the tub
+    if _name == 'potty': _spec['wattle'] += _spec['sky']  # the base
     _spec['sky'] = []
 
 
@@ -187,7 +188,7 @@ def from_file(path):
 
 
 # The breast again with no skin colour, to compare. Shell is a brand colour, and one skin tone.
-PLAIN_BREAST = icon([BREAST], wattle=[circle(16.3, 15.8, 2.4)], ink=[circle(16.3, 15.8, 1)])
+PLAIN_BREAST = icon([BREAST], wattle=[circle(16, 15, 2.5)], ink=[circle(16, 15, 1)])
 
 
 # Other ways to draw breastfeeding (14 November 2026). The app is meant for families anywhere, and a bare breast
@@ -197,7 +198,7 @@ TONES = [('#F3D9C9', '#C27C66'), ('#E9C4A2', '#B0704F'), ('#CF9B6E', '#8E5637'),
 
 
 def breast(tone, areola):
-    return icon([BREAST32], box=32, weight=2.2, tint=[(BREAST32, tone), (circle(21.8, 21, 3.2), areola, True)])
+    return icon([BREAST32], box=32, weight=2.2, tint=[(BREAST32, tone), (circle(21.5, 20, 3.3), areola, True)])
 
 
 # The four with a baby in them are drawn on a 32 canvas, not 24. That is the room a closed eye, an ear, hair and
@@ -240,7 +241,7 @@ TORSO = 'M8 13.5C5.2 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H21C24.5 28.5 27 
 FRINGE = 'M6.7 11C11 11 15 9 17 5.5'
 BUN = 'M9.1 4.6A2.4 2.4 0 1 0 6.8 7.7'
 ARM = 'M8.5 20.5C10 24 14.5 26.5 20 26.2C22.5 26 24.8 25.2 26.2 23.8'
-BREAST32 = 'M7.5 4C9 9.5 16 11.5 22 14C25.5 15.6 27.5 18 27.5 20.5A8 8 0 0 1 19.5 28.5H10A2.5 2.5 0 0 1 7.5 26Z'
+BREAST32 = 'M7.5 3.5C15 7 27.5 11.5 27.5 18.5A10.5 10.5 0 0 1 17 29.5C11.5 29.5 7.5 26 7.5 20.5Z'
 LAP = 'M4.58 17.3C8.5 16 12.5 22 18.5 22C22 22 24.5 18 27.42 17.3'
 DROP32 = 'M16 2.5C21.5 9 26.5 14 26.5 19.5A10.5 10.5 0 0 1 5.5 19.5C5.5 14 10.5 9 16 2.5Z'
 HEART32 = 'M16 28C9.5 23.5 3 18.5 3 11.5A6.5 6.5 0 0 1 16 9A6.5 6.5 0 0 1 29 11.5C29 18.5 22.5 23.5 16 28Z'
@@ -315,13 +316,13 @@ MILK = 'M5.9 14.5H18.1C18.4 15.3 18.5 16.1 18.5 17V19A3 3 0 0 1 15.5 22H8.5A3 3 
 DETAIL = {
     'bottle': dict(drop=[3], fine=['M5.9 14.5H18.1', 'M8.5 16.5H10.5M8.5 18.5H11.5M8.5 20.3H10.5'], note='Milk in the bottle, and three measure marks.'),
     'pump': dict(fine=['M10 17.5H20', 'M17.8 15.5H20'], note='The milk has a surface, and the bottle a mark.'),
-    'solids': dict(fine=['M5.5 15.5C9 17.2 15 17.2 18.5 15.5'], note='A stripe round the bowl.'),
+    'solids': dict(fine=['M4.5 13.5H19.5', 'M4.5 6.5L3.5 5M7 5.3L6.4 3.5M9.5 5V3'], note='A rim on the bowl, and steam.'),
     'sleep': dict(ink=[sparkle(15, 10, 1.5), sparkle(21, 10.5, 1.2)], note='Two more stars.'),
     'nappy': dict(fine=['M8.5 7.3H15.5', 'M12 12.5V16.5'], note='A waistband seam and a centre fold.'),
     'potty': dict(fine=['M6 19.3H9.5'], note='A highlight on the base.'),
-    'bath': dict(fine=[circle(19.5, 3.8, 1.2), 'M6 14.5Q8 13.2 10 14.5Q12 15.8 14 14.5'], note='A third bubble and a ripple.'),
+    'bath': dict(fine=[circle(11.5, 3.3, 1.2), 'M13.2 6.2L11.2 7L13.2 8'], ink=[circle(15.2, 6.4, .7)], note='A second bubble, and the duck has a beak and an eye.'),
     'growth': dict(fine=['M7.5 4.5H9.5M7.5 8.5H9.5M7.5 12.5H9.5M7.5 16.5H9.5'], note='Half marks between the marks.'),
-    'weight': dict(fine=['M9 15.5H15'], note='A readout under the dial.'),
+    'weight': dict(fine=['M12 19L13.6 16.4', 'M6.5 5.8H17.5'], note='A needle on the dial and a line in the tray.'),
     'temperature': dict(fine=['M17.5 5.5H19.5M17.5 8.5H19.5M17.5 11.5H19.5'], note='A scale beside the tube.'),
     'medicine': dict(fine=['M14.5 10.5H17'], note='A highlight on the capsule.'),
     'vaccine': dict(fine=['M13 9.5H15M13 12H15M13 14.5H15'], note='Marks on the barrel.'),

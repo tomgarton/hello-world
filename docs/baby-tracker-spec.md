@@ -1117,3 +1117,13 @@ Potty, all three sizes (14 November 2026). Tom pointed out the full sheets still
 Tooth and poo, large (14 November 2026): Tom took the eyes and smile off both. The tooth is back to its highlight and yellow dot; the poo keeps its folds and shine marks. The only faces left in the library are closed eyes on babies and parents.
 
 Breast and tooth (14 November 2026). Tom: the yellow dot on the tooth could be a cavity, and should the breast be flat down the left? Both changed, in every size and in the app. The tooth's dot is now a four-point sparkle. The breast is drawn in profile: flat down the left where it meets the chest, a gentle slope above, full below and to the right. The teardrop it replaces is kept in git (commit 15cbaad, `BREAST` in `docs/tools/make_icons.py`), as every unchosen variant is. Close-up: `docs/previews/icons/breast-tooth.png`.
+
+Second pass on four icons (14 November 2026), after Tom: the flat-sided breast lost its shape, and ChatGPT's bath, solids and scales were better than ours.
+
+- **Breast:** the teardrop of the second pass again, with only its left side made flat. The wedge with a sloped top is in git (commit 3cea5e2).
+- **Solids:** a deeper bowl with a rim and a foot, a lumpier mound, a spoon with a drawn handle standing in it, and steam in the main line.
+- **Bath:** round feet, no ripple, and a bigger duck that faces the foam, with a beak, an eye, a wing and a tail.
+- **Weight:** the tray has its dish underneath, then a short neck, and a taller base with a bigger dial and three marks.
+- **All sizes:** the small and regular drawings of these three now follow the same designs (a bowl with a mound and spoon; a tub with a bubble and a duck's head; a tray, base and dial), so they are in the app too. Before this they were the older designs: a plain bowl, a tub with bubbles, a scale seen from above.
+
+Close-up: `docs/previews/icons/second-pass-four.png`. Still to carry down to the smaller sizes: pump, tummy time, play and poo.
