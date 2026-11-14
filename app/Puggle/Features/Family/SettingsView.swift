@@ -62,6 +62,14 @@ struct SettingsView: View {
             outsideSection
             sampleSection
             moreSection
+            if TesterDetail.on {
+                Section {
+                    NavigationLink("iCloud check") { CloudCheckView() }
+                } footer: {
+                    Text("Test builds only. Lists what iCloud holds for this family, to track down a sharing problem.")
+                }
+                .listRowBackground(Palette.paper)
+            }
             #if DEBUG
             Section {
                 NavigationLink("Developer") { DeveloperView() }
