@@ -600,8 +600,10 @@ def dress_for_weather(name, parts, puggle, shade):
         # arm is hidden while it is up.
         arm = parts[at('arm-right')]
         sx, sy = arm['pivot']
-        hx, hy = 188.0, 196.0
-        cx, cy = sx + 40, sy + 50                                # the elbow's side of the bend
+        # The fist is up beside the cheek, so little of the shaft shows between it and the canopy. Heads are
+        # at one height in every drawing, grown-up or child, so one height suits them all.
+        hx, hy = 190.0, 142.0
+        cx, cy = sx + 50, sy + 30                                # the elbow's side of the bend
         bend = f'M{sx:g} {sy:g} Q{cx:g} {cy:g} {hx:g} {hy:g}'
         dx, dy = hx - cx, hy - cy
         far = math.hypot(dx, dy); dx, dy = dx / far, dy / far
