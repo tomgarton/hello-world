@@ -84,49 +84,24 @@ enum RefinementSheets {
         smear(puggle)
     }
 
-    /// Pebble in other onesies, each with a dummy in a colour that stands out against it and against his bill.
-    /// The dummy is an object resting on the front of his closed bill. His bill does not change.
+    /// Pebble as built: awake with his bottle, asleep with his dummy, in each colour his babygro comes in.
     private static func dummy() {
         guard let pebble = Rig.load("pebble") else { return }
-        func with(_ rig: Rig, _ shield: String, _ line: String) -> Rig {
-            var copy = rig
-            guard let face = copy.parts.firstIndex(where: { $0.id == "face" }) else { return rig }
-            // One or the other: with a dummy he has no bottle, and his hands rest together.
-            if let held = copy.parts.firstIndex(where: { $0.id == "held" }) { copy.parts[held].shapes = [] }
-            copy.parts[face].shapes += [
-                Rig.Shape(kind: "path", d: "M90 151 Q90 136 106 139 Q120 144 134 139 Q150 136 150 151 Q150 167 134 164 Q120 160 106 164 Q90 167 90 151 Z",
-                          fill: shield, stroke: dark, tint: line, width: 5),
-                Rig.Shape(kind: "ellipse", x: 120, y: 160, rx: 12, ry: 12, fill: nil, stroke: dark, tint: line, width: 9),
-                Rig.Shape(kind: "ellipse", x: 120, y: 160, rx: 12, ry: 12, fill: nil, stroke: "#FBF6E9", tint: nil, width: 4),
-                Rig.Shape(kind: "ellipse", x: 120, y: 150, rx: 5.5, ry: 5.5, fill: "#FBF6E9", stroke: dark, tint: line, width: 3),
-            ]
-            return copy
-        }
-        let looks = pebble.wardrobe?.looks ?? []
-        func dressed(_ look: Int) -> Rig { look < looks.count ? pebble.wearing(looks[look]) : pebble }
-        // onesie (a look), then the dummy's colour and its line
-        let options: [(String, Int, String, String)] = [
-            ("Wattle, as now", 0, "#E5553B", "#B23A26"),
-            ("Sky", 1, "#F4BE2C", "#B8892A"),
-            ("Mint", 2, "#E5553B", "#B23A26"),
-            ("Waratah", 4, "#BFD9F5", "#5E84B8"),
-            ("Gum", 5, "#F4BE2C", "#B8892A"),
-        ]
-        func column(_ name: String, _ plain: Rig, _ rig: Rig) -> some View {
+        let looks = pebble.wardrobe?.looks ?? [[:]]
+        let names = ["Gum, his own", "Sky", "Mint", "Shell", "Waratah"]
+        func column(_ name: String, _ rig: Rig) -> some View {
             VStack(spacing: 6) {
-                RigFrame(rig: plain, states: [:], face: nil).frame(width: 150, height: 150 * rig.size[1] / rig.size[0])
                 RigFrame(rig: rig, states: [:], face: nil).frame(width: 150, height: 150 * rig.size[1] / rig.size[0])
-                RigFrame(rig: rig, states: [:], face: nil).frame(width: 56, height: 56 * rig.size[1] / rig.size[0])
+                RigFrame(rig: rig, states: [:], face: ["eyes": "closed"]).frame(width: 150, height: 150 * rig.size[1] / rig.size[0])
+                RigFrame(rig: rig, states: [:], face: ["eyes": "closed"]).frame(width: 56, height: 56 * rig.size[1] / rig.size[0])
                 Text(name).font(.system(size: 13, weight: .semibold)).foregroundStyle(ink)
             }
         }
         let sheet = VStack(alignment: .leading, spacing: 14) {
-            Text("Pebble's babygro. Top: with his bottle. Middle: with a dummy instead. Bottom: at scene size")
+            Text("Pebble. Top: awake, with his bottle. Middle: asleep, with his dummy. Bottom: asleep at scene size")
                 .font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
             HStack(alignment: .bottom, spacing: 12) {
-                ForEach(options.indices, id: \.self) { i in
-                    column(options[i].0, dressed(options[i].1), with(dressed(options[i].1), options[i].2, options[i].3))
-                }
+                ForEach(looks.indices, id: \.self) { i in column(i < names.count ? names[i] : "", pebble.wearing(looks[i])) }
             }
         }
         save(sheet, as: "pebble-dummy.png")

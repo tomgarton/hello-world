@@ -97,8 +97,8 @@ def drawings():
         'dad': (grown('dad', '#2A62B8', ['', 'jumper', 'overalls']), 456, '#2A62B8', PAIRS['dad'], "Dad: a shirt and shorts."),
         'pop': (grown('pop', '#BFD9F5', ['', 'waistcoat', 'jumper']), 456, '#BFD9F5', PAIRS['pop'],
                 "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan."),
-        'pebble': ({'': baby('neutral', '#F4BE2C')}, 270, '#F4BE2C', ['#BFD9F5', '#CFE5D2', '#F3D9C9', '#E5553B', '#3C9A5F'],
-                   "Pebble: Puggle's baby brother, about six months, sitting with a bottle. A round curl."),
+        'pebble': ({'': baby('neutral', '#3C9A5F')}, 270, '#3C9A5F', ['#BFD9F5', '#CFE5D2', '#F3D9C9', '#E5553B'],
+                   "Pebble: Puggle's baby brother, about six months, sitting in a gum-green babygro with a bottle, or a dummy when he sleeps. A round curl."),
         'quill': ({'': quill('dungarees'), 'jumper': quill('jumper'), 'tee': quill('tee')}, 300, '#E5553B', ['#2A62B8', '#3C9A5F', '#F4BE2C'],
                   "Quill: an echidna, Puggle's friend. The spines are the signature."),
         'kip': ({'': kip('dress'), 'dungarees': kip('dungarees'), 'jumper': kip('jumper')}, 300, '#F4BE2C', ['#E5553B', '#3C9A5F', '#F3D9C9'],
@@ -857,7 +857,17 @@ def babygro(parts):
                 {'kind': 'ellipse', 'x': x, 'y': 248, 'rx': 9, 'ry': 11, 'rotate': turn, 'fill': lighten(suit['fill'])}]
     upper['shapes'] = ([piece(leg), piece(mirrored(leg)), piece(body), seam('M120 172 L120 240'), seam('M102 169 Q120 181 138 169', 3.5)]
                        + poppers + sole(76, -14) + sole(164, 14) + upper['shapes'][1:])
-    # His own feet are inside it.
+    # A bottle or a dummy, never both: the bottle while he is awake, a wattle-yellow dummy while he sleeps,
+    # when his hands rest together. The dummy is a shield and a ring resting on the front of his closed
+    # bill; the bill itself does not change.
+    next(p for p in parts if p['id'] == 'held')['when'] = 'eyes=open'
+    gold, line = '#F4BE2C', '#B8892A'
+    parts.append({'id': 'dummy', 'parent': 'head', 'pivot': [120, 152], 'when': 'eyes=closed', 'shapes': [
+        {'kind': 'path', 'd': 'M90 151 Q90 136 106 139 Q120 144 134 139 Q150 136 150 151 Q150 167 134 164 Q120 160 106 164 Q90 167 90 151 Z',
+         'fill': gold, 'stroke': INK, 'tint': line, 'width': 5},
+        {'kind': 'ellipse', 'x': 120, 'y': 160, 'rx': 12, 'ry': 12, 'stroke': INK, 'tint': line, 'width': 9},
+        {'kind': 'ellipse', 'x': 120, 'y': 160, 'rx': 12, 'ry': 12, 'stroke': '#FBF6E9', 'width': 4},
+        {'kind': 'ellipse', 'x': 120, 'y': 150, 'rx': 5.5, 'ry': 5.5, 'fill': '#FBF6E9', 'stroke': INK, 'tint': line, 'width': 3}]})
     for side in ('left', 'right'):
         next(p for p in parts if p['id'] == f'foot-{side}')['shapes'] = []
     return parts
