@@ -592,32 +592,46 @@ def dress_for_weather(name, parts, puggle, shade):
         # Everyone in a raincoat wears the same yellow rain hat: yellow is what says "rain" at a glance.
         parts.insert(top, copy('rainhat', parent='head'))
     if name in UMBRELLA:
-        hx, hy = hand['right']['x'], hand['right']['y']
         when = 'outfit=rain|sun' if name == 'nan' else 'outfit=rain'
-        # A proper umbrella: a slim shaft up from their hand, behind their head, and below the hand a wooden
-        # handle that hooks round. Their hand is drawn again over the shaft, so they are holding it. It stands
-        # above the drawing's own top, so these four have headroom added (see HEADROOM).
-        tx, ty = 138, -30
-        length = math.hypot(hx - tx, hy - ty)
-        ux, uy = (hx - tx) / length, (hy - ty) / length
-        nx, ny = (uy, -ux) if uy > 0 else (-uy, ux)          # the side the hook turns to: outwards
-        def along(a, b=0): return f'{hx + ux * a + nx * b:.1f} {hy + uy * a + ny * b:.1f}'
-        r = 11
-        hook = f'M{along(2)} L{along(20)} Q{along(20 + r)} {along(20 + r, r)} Q{along(20 + r, 2 * r)} {along(20, 2 * r)} L{along(14, 2 * r)}'
-        shaft = f'M{along(4)} L{tx} {ty}'
+        # The umbrella stands straight up, at one height and one size for everyone. So it is the arm that
+        # changes: a second right arm, shown only with the umbrella, bent with the elbow out and the fist at
+        # the chest, just under the chin. Their usual arm is hidden while it is up.
+        arm = parts[at('arm-right')]
+        sx, sy = arm['pivot']
+        hx, hy = 142.0, 202.0
+        cx, cy = sx + 46, sy + 46                                # the elbow's side of the bend
+        bend = f'M{sx:g} {sy:g} Q{cx:g} {cy:g} {hx:g} {hy:g}'
+        dx, dy = hx - cx, hy - cy
+        far = math.hypot(dx, dy); dx, dy = dx / far, dy / far
+        cuff = f'M{hx - dx * 9 - dy * 11:.1f} {hy - dy * 9 + dx * 11:.1f} L{hx - dx * 9 + dy * 11:.1f} {hy - dy * 9 - dx * 11:.1f}'
+        dark, sleeve, edge, fist = (json.loads(json.dumps(shp)) for shp in arm['shapes'][:4])
+        dark['d'] = sleeve['d'] = bend
+        edge['d'] = cuff
+        fist['x'], fist['y'] = hx, hy
+        arm['when'] = 'outfit=none|warm|night|bare' if name == 'nan' else 'outfit=none|warm|sun|night|bare'
+        parts.insert(at('head'), {'id': 'arm-right-hold', 'parent': 'upper', 'pivot': arm['pivot'], 'spring': 150, 'when': when, 'shapes': [dark, sleeve, edge]})
+        # A slim shaft straight up, over the sleeve and behind their head, and below the fist a short wooden
+        # handle that hooks round. The fist is drawn last, so it is holding the shaft. The canopy stands above
+        # the drawing's own top, so these four have headroom added (see HEADROOM).
+        r = 8
+        hook = f'M{hx:g} {hy + 2:g} L{hx:g} {hy + 17:g} Q{hx:g} {hy + 17 + r:g} {hx + r:g} {hy + 17 + r:g} Q{hx + 2 * r:g} {hy + 17 + r:g} {hx + 2 * r:g} {hy + 17:g} L{hx + 2 * r:g} {hy + 13:g}'
+        shaft = f'M{hx:g} {hy:g} L{hx:g} -30'
         parts.insert(at('head'), {'id': 'umbrella', 'parent': 'upper', 'pivot': [hx, hy], 'spring': 120, 'when': when, 'shapes': [
             {'kind': 'path', 'd': shaft, 'stroke': INK, 'width': 7, 'cap': 'round'},
             {'kind': 'path', 'd': shaft, 'stroke': '#C9CED3', 'width': 2.5, 'cap': 'round'},
             {'kind': 'path', 'd': hook, 'stroke': INK, 'width': 11, 'cap': 'round'},
             {'kind': 'path', 'd': hook, 'stroke': '#C58F5A', 'width': 5.5, 'cap': 'round'},
-            dict(hand['right'])]})
+            fist]})
         # The canopy is the last thing drawn, in front of hair, ears, spines, bows and hats: they are under
-        # it, so it covers their tops. Its shape is not flattened to clear them (Tom, 14 November 2026). It is
-        # the umbrella's child, so it sways with the shaft.
+        # it, so it covers their tops. It is centred on the shaft, and a little smaller all over (not
+        # flattened) so that it stays inside the drawing. It is the umbrella's child, so it sways with it.
+        k, top = 0.9, -48
+        def fit(x, y): return f'{hx + (x - 132) * k:.1f} {top + (y - top) * k:.1f}'
+        canopy = 'M' + fit(26, 30) + ''.join(f' Q{fit(a, b)} {fit(c, d)}' for a, b, c, d in
+                 [(32, -44, 132, -48), (232, -44, 238, 30), (212, 14, 185, 30), (158, 14, 132, 28), (106, 14, 79, 30), (52, 14, 26, 30)]) + ' Z'
         parts.append({'id': 'umbrella-top', 'parent': 'umbrella', 'pivot': [hx, hy], 'when': when, 'shapes': [
-            {'kind': 'path', 'd': 'M26 30 Q32 -44 132 -48 Q232 -44 238 30 Q212 14 185 30 Q158 14 132 28 Q106 14 79 30 Q52 14 26 30 Z',
-             'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
-            {'kind': 'path', 'd': 'M132 -48 L132 -56', 'stroke': INK, 'tint': shade(accent), 'width': 5, 'cap': 'round'}]})
+            {'kind': 'path', 'd': canopy, 'fill': accent, 'stroke': INK, 'tint': shade(accent), 'width': 6},
+            {'kind': 'path', 'd': f'M{hx:g} -48 L{hx:g} -56', 'stroke': INK, 'tint': shade(accent), 'width': 5, 'cap': 'round'}]})
     return parts
 
 
