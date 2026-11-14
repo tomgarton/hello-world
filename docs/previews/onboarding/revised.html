@@ -1,0 +1,124 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>First run, revised</title>
+<style>
+:root{--ink:#3A2A20;--paper:#FBF6E9;--sand:#F2ECDD;--field:#EAE2D2;--muted:#6B5E52;--line:#DDD2BC;--red:#B23A26}
+*{box-sizing:border-box}
+body{margin:0;background:#E4DCC8;color:var(--ink);font:15px/1.35 -apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;padding:34px 34px 40px;width:2060px}
+h1{font-size:32px;margin:0 0 4px;letter-spacing:-.02em}
+.lede{color:var(--muted);font-size:17px;margin:0 0 22px;max-width:120ch}
+h2{font-size:20px;margin:26px 0 12px}
+h2 b{color:var(--red)}
+.row{display:flex;gap:26px;align-items:flex-start}
+.col{width:306px}
+.cap{font-weight:700;margin:0 0 8px;font-size:15px}
+.cap span{color:var(--red);margin-right:6px}
+.note{color:var(--muted);font-size:14px;margin:10px 2px 0}
+.phone{width:306px;height:664px;background:var(--sand);border-radius:38px;overflow:hidden;position:relative;border:1px solid var(--line)}
+.scene{display:block;width:306px;height:188px;object-fit:cover;object-position:top}
+.strip{display:block;width:306px;height:138px;object-fit:cover;object-position:50% 78%}
+.body{padding:14px 18px 0}
+.big{font-size:27px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin:12px 0 6px}
+.sub{color:var(--muted);font-size:15.5px;margin:0}
+.piece{display:block;width:270px;border-radius:16px;margin:0 auto}
+.crop{width:270px;margin:0 auto;overflow:hidden;border-radius:16px}
+.crop img{display:block;width:306px;margin-left:-18px}
+.cta{position:absolute;left:18px;right:18px;bottom:26px;height:50px;border-radius:25px;background:var(--ink);color:var(--paper);display:grid;place-items:center;font-weight:650;font-size:16px}
+.cta.off{background:#9A8E80}
+.under{position:absolute;left:0;right:0;bottom:84px;text-align:center;font-weight:650}
+.bar{position:absolute;top:196px;left:18px;right:18px;display:flex;gap:5px;align-items:center}
+.bar i{flex:1;height:4px;border-radius:2px;background:#D9CFBB}
+.bar i.on{background:var(--ink)}
+.bar em{font-style:normal;font-weight:650;margin-left:10px}
+.bar.low{top:146px}
+.top{padding-top:22px}
+.try{background:var(--paper);border-radius:18px;padding:12px 14px;margin-top:2px}
+.try small{color:var(--muted);font-weight:650}
+.amt{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.amt b{font-size:34px;font-weight:800}.amt b small{font-size:13px;font-weight:500}
+.dot{width:40px;height:40px;border-radius:50%;background:var(--field);display:grid;place-items:center;font-size:22px}
+.field{background:#FFFCF3;border-radius:16px;height:48px;display:flex;align-items:center;padding:0 16px;color:#B9B0A2;font-size:16px;margin-top:10px}
+.field.set{color:var(--ink)}
+.chips{display:flex;gap:8px;margin-top:12px}.chips u{text-decoration:none;width:34px;height:34px;border-radius:50%}
+.word{font-size:46px;font-weight:800;letter-spacing:-.04em;text-align:center;margin:14px 0 0}
+.center{text-align:center}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px 20px;width:640px}
+.box h3{margin:0 0 8px;font-size:17px}.box ul{margin:0;padding-left:20px}.box li{margin:0 0 6px}
+</style></head><body>
+<h1>First run, revised</h1>
+<p class="lede">A mock-up, not built. The scenes and pieces of the app are real screenshots from today's build; the layout and words are the proposal. There is no sign-in in Puggle, so "before sign-in" here means before any setup question.</p>
+
+<h2><b>Before setup:</b> what it does, one feature a page, a different scene and companion each time</h2>
+<div class="row">
+ <div class="col"><p class="cap"><span>0</span>Welcome</p><div class="phone">
+  <div class="body top"><img class="piece" src="img2/hatch.png" style="border-radius:22px">
+  <div class="word">puggle</div><p class="sub center" style="margin-top:2px">Baby tracker for the whole family</p></div>
+  <div class="under" style="bottom:120px;color:var(--muted);font-weight:500">Takes a minute. No account.</div>
+  <div class="under">I've been invited &nbsp;·&nbsp; Look around first</div><div class="cta">Start a new family</div></div>
+  <p class="note">As now, plus one line that sets expectations, and the invite route always visible.</p></div>
+
+ <div class="col"><p class="cap"><span>1</span>Logging</p><div class="phone">
+  <img class="scene" src="img2/scene-yard.png"><div class="bar"><i class="on"></i><i></i><i></i><i></i><i></i><em>Skip</em></div>
+  <div class="body" style="padding-top:26px"><div class="try"><small>Try it</small><div class="amt"><span class="dot">−</span><b>160 <small>ml</small></b><span class="dot">+</span></div></div>
+  <div class="crop" style="margin-top:8px"><img src="img2/tiles.png"></div>
+  <div class="big">Log it in a tap or two</div><p class="sub">Feeds, sleeps, nappies and the potty. One hand is enough.</p></div>
+  <div class="cta">Next</div></div>
+  <p class="note">Kept, with the real tiles under it. Puggle is doing something, not standing.</p></div>
+
+ <div class="col"><p class="cap"><span>2</span>Every child</p><div class="phone">
+  <img class="scene" src="img2/scene-hills.png"><div class="bar"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><em>Skip</em></div>
+  <div class="body" style="padding-top:26px"><div class="crop"><img src="img2/cards.png"></div>
+  <div class="big">Every child on one screen</div><p class="sub">A baby and a toddler side by side. Sleep timers run for each.</p></div>
+  <div class="cta">Next</div></div>
+  <p class="note">New. This is what sets Puggle apart, and today's flow never shows it.</p></div>
+
+ <div class="col"><p class="cap"><span>3</span>Together</p><div class="phone">
+  <img class="scene" src="img2/scene-rain.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><em>Skip</em></div>
+  <div class="body" style="padding-top:26px"><div class="crop" style="height:176px"><img src="img2/history.png"></div>
+  <div class="big">Everyone who helps, in step</div><p class="sub">Invite a partner, Nan or a carer. You choose what each can do.</p></div>
+  <div class="cta">Next</div></div>
+  <p class="note">Replaces the text-only page. The list shows who logged what.</p></div>
+
+ <div class="col"><p class="cap"><span>4</span>Looking back</p><div class="phone">
+  <img class="scene" src="img2/scene-bush.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><em>Skip</em></div>
+  <div class="body" style="padding-top:26px"><div class="crop" style="height:180px"><img src="img2/chart.png"></div>
+  <div class="big">See the week at a glance</div><p class="sub">Totals and patterns, when you want them. Never a score.</p></div>
+  <div class="cta">Next</div></div>
+  <p class="note">Kept, with the real chart.</p></div>
+
+ <div class="col"><p class="cap"><span>5</span>Calm and private</p><div class="phone">
+  <img class="scene" src="img2/scene-night.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><em>Skip</em></div>
+  <div class="body" style="padding-top:30px">
+  <div class="big">Quiet at night, and yours</div><p class="sub">After dark everything dims and slows. Your entries stay on your iPhone and in your iCloud. No account, no ads.</p>
+  <p class="sub" style="margin-top:14px;color:var(--ink);font-weight:650">How your data is kept</p></div>
+  <div class="cta">Set up your family</div></div>
+  <p class="note">New. Puggle's day follows yours, and the privacy promise gets a picture.</p></div>
+</div>
+
+<h2><b>Setup:</b> the same questions, each under a strip of scene, on one progress bar</h2>
+<div class="row">
+ <div class="col"><p class="cap"><span>6</span>You</p><div class="phone">
+  <img class="strip" src="img2/scene-room.png"><div class="bar low"><i class="on"></i><i></i><i></i><em>Skip</em></div>
+  <div class="body" style="padding-top:26px"><div class="big">Who's this?</div><p class="sub">Your name shows beside what you log.</p>
+  <div class="field">Your name</div><div class="field">Family name (optional)</div></div><div class="cta">Continue</div></div>
+  <p class="note">One short question as the heading, in place of "Set up your family".</p></div>
+ <div class="col"><p class="cap"><span>7</span>First child</p><div class="phone">
+  <img class="strip" src="img2/scene-hills.png"><div class="bar low"><i class="on"></i><i class="on"></i><i></i><em>Skip</em></div>
+  <div class="body" style="padding-top:26px"><div class="big">Who are we looking after?</div>
+  <div class="field set">Harry</div><div class="field">Birth date</div>
+  <div class="chips"><u style="background:#BFD9F5;outline:3px solid var(--ink);outline-offset:2px"></u><u style="background:#F3D9C9"></u><u style="background:#CFE5D2"></u><u style="background:#F4E7B0"></u><u style="background:#E0D3EE"></u><u style="background:#F5CEDB"></u></div>
+  <p class="sub" style="margin-top:12px;font-size:14px">Their age decides what shows on Today.</p></div><div class="cta">Add Harry</div></div>
+  <p class="note">Colours on one line. "Anyone else?" and inviting follow as now.</p></div>
+ <div class="col"><p class="cap"><span>8</span>Your family</p><div class="phone">
+  <div class="body top center"><div class="big" style="margin-top:20px">Your family</div><p class="sub">Harry and Sam</p></div>
+  <img src="img2/heap.png" style="position:absolute;left:0;bottom:86px;width:306px">
+  <div class="cta">Open Today</div></div>
+  <p class="note">The heap stays as the finish.</p></div>
+ <div class="box"><h3>What changes, and why</h3><ul>
+  <li><b>Five feature pages, not three</b>, each with a real piece of the app. Adds "every child" and "calm and private".</li>
+  <li><b>A different scene and companion on every page</b>, so the cast and the weather are part of the pitch.</li>
+  <li><b>The scene runs edge to edge</b> at the top, larger than the inset card today.</li>
+  <li><b>One progress bar</b> for the pages, then one for setup. Skip stays on every page.</li>
+  <li><b>All features come before any question.</b> Someone who skips still lands on setup; someone unsure can open the sample family.</li>
+  <li><b>Not shown:</b> Siri and widgets, medicine reminders, Play. They fit better as tips on Today after a few days.</li>
+ </ul></div>
+</div>
+</body></html>
