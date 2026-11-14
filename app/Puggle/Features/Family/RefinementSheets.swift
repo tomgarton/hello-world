@@ -148,6 +148,69 @@ enum RefinementSheets {
             }
         }
         save(sheet, as: "grey-hair.png")
+
+        // Second sheet: salt and pepper, blended in four ways.
+        let mid = "#B79F8A", faded = "#A07E65", fadedLine = "#6E4C37"
+        /// A lock of hair: a thin leaf from one point to another, bowed to one side.
+        func lock(_ ax: Double, _ ay: Double, _ bx: Double, _ by: Double, bend: Double = 3, thick: Double = 5) -> String {
+            let mx = (ax + bx) / 2, my = (ay + by) / 2, length = max(hypot(bx - ax, by - ay), 1)
+            let nx = -(by - ay) / length, ny = (bx - ax) / length
+            func point(_ x: Double, _ y: Double) -> String { "\((x * 10).rounded() / 10) \((y * 10).rounded() / 10)" }
+            return "M\(point(ax, ay)) Q\(point(mx + nx * (bend + thick), my + ny * (bend + thick))) \(point(bx, by)) Q\(point(mx + nx * (bend - thick), my + ny * (bend - thick))) \(point(ax, ay)) Z"
+        }
+        func drawn(_ rig: Rig, strokes: [String: [String]] = [:], locks: [String: [(String, String)]] = [:], strokeColour: String = mid, fade: [String] = []) -> Rig {
+            var copy = rig
+            if !fade.isEmpty {
+                for index in copy.parts.indices where fade.contains(where: { copy.parts[index].id == $0 || copy.parts[index].id == $0 + "-top" }) {
+                    for shape in copy.parts[index].shapes.indices {
+                        copy.parts[index].shapes[shape].fill = faded
+                        if copy.parts[index].shapes[shape].tint != nil { copy.parts[index].shapes[shape].tint = fadedLine }
+                    }
+                }
+            }
+            for (id, lines) in strokes {
+                guard let index = copy.parts.firstIndex(where: { $0.id == id }) else { continue }
+                copy.parts[index].shapes += lines.map { Rig.Shape(kind: "path", d: $0, stroke: strokeColour, width: 4.5, cap: "round") }
+            }
+            for (id, leaves) in locks {
+                guard let index = copy.parts.firstIndex(where: { $0.id == id }) else { continue }
+                copy.parts[index].shapes += leaves.map { Rig.Shape(kind: "path", d: $0.0, fill: $0.1) }
+            }
+            return copy
+        }
+        func both(_ left: [(String, String)]) -> [(String, String)] { left.map { (mirrored($0.0), $0.1) } }
+        // Nan. Locks that follow the curls, in two tones.
+        let nanLocks: [(String, String)] = [
+            (lock(78, 112, 96, 101, bend: -4), mid), (lock(100, 99, 119, 94, bend: -3), silver), (lock(123, 95, 142, 99, bend: -3), mid), (lock(146, 102, 162, 112, bend: -4), silver),
+            (lock(94, 117, 116, 111, bend: -3), silver), (lock(124, 111, 146, 117, bend: -3), mid),
+        ]
+        let nanSideLock = [(lock(44, 193, 55, 183, bend: -3, thick: 4), mid)]
+        // Nan. Strands that start at her brow and sweep up into the curls, as hair greys from the root.
+        let nanSweep: [(String, String)] = [
+            (lock(84, 130, 78, 108, bend: 3), mid), (lock(100, 128, 97, 102, bend: 2), mid), (lock(120, 127, 120, 97, bend: 0, thick: 4), mid),
+            (lock(140, 128, 143, 102, bend: -2), mid), (lock(156, 130, 162, 108, bend: -3), mid),
+        ]
+        // Pop. A leaf along each spike of the tuft; or only the tips.
+        let popLocks: [(String, String)] = [(lock(57, 120, 44, 119.5, bend: 0, thick: 3.2), mid), (lock(57, 130, 42, 130, bend: 0, thick: 3.2), silver), (lock(58, 140, 45, 142, bend: 0, thick: 3.2), mid)]
+        let popTips: [(String, String)] = [("M42 119 L49 117.6 L50 123.6 Z", mid), ("M40 130 L48 126.8 L48 133.4 Z", mid), ("M43 143 L49 137.6 L51 142.6 Z", mid)]
+        let nanSoft = streaked(nan, nanMore), popSoft = streaked(pop, popMore)
+        let blended = VStack(alignment: .leading, spacing: 16) {
+            row("Nan: salt and pepper, blended in") {
+                column("C. As on the first sheet", nanSoft)
+                column("1. Softer colour", drawn(nan, strokes: nanMore))
+                column("2. Locks, in two tones", drawn(nan, locks: ["curls-top": nanLocks, "curl-left-top": nanSideLock, "curl-right-top": both(nanSideLock)]))
+                column("3. Swept up from the brow", drawn(nan, locks: ["curls-top": nanSweep, "curl-left-top": nanSideLock, "curl-right-top": both(nanSideLock)]))
+                column("4. Faded hair, lighter locks", drawn(nan, locks: ["curls-top": nanLocks.map { ($0.0, silver) }, "curl-left-top": nanSideLock.map { ($0.0, silver) }, "curl-right-top": both(nanSideLock).map { ($0.0, silver) }], fade: ["curls", "curl-left", "curl-right"]))
+            }
+            row("Pop") {
+                column("C. As on the first sheet", popSoft)
+                column("1. Softer colour", drawn(pop, strokes: popMore))
+                column("2. Locks, in two tones", drawn(pop, locks: ["tuft-left-top": popLocks, "tuft-right-top": both(popLocks)]))
+                column("3. Grey at the tips", drawn(pop, locks: ["tuft-left-top": popTips, "tuft-right-top": both(popTips)]))
+                column("4. Faded tufts, lighter locks", drawn(pop, locks: ["tuft-left-top": popLocks.map { ($0.0, silver) }, "tuft-right-top": both(popLocks).map { ($0.0, silver) }], fade: ["tuft-left", "tuft-right"]))
+            }
+        }
+        save(blended, as: "grey-blend.png")
     }
 
     /// Arms that bend at the elbow: Puggle's new poses, the same on everyone, and in her other clothes.
