@@ -15,6 +15,8 @@ and includes a privacy manifest, so uploads go straight through.
 
 ## Each build (from app/)
 
+One step: `zsh tools/testflight.sh` (add `--archive-only` to stop before the upload). The note for testers is in `docs/testflight-notes.md`. The two commands it runs:
+
 ```
 xcodebuild -project Puggle.xcodeproj -scheme Puggle -configuration Release \
   -destination generic/platform=iOS -archivePath build/Puggle.xcarchive \
