@@ -1,0 +1,151 @@
+# Rive contract
+
+**Read first (12 November 2026).** The app now draws and moves Puggle itself, from `app/Puggle/Resources/Rigs/puggle.rig.json` played by `app/Puggle/Design/Rig.swift`. That file is the reference for how she looks and moves. This contract still holds for names and inputs: the app's rig answers the same ones, and a Rive file built to this contract later would take its place, with the rig as the fallback. Where the timings or drawings below differ from the rig file, the rig file is right. `puggle-parts.svg` in this folder is the 10 November drawing and is out of date (dark line, stitched cheeks, old eyes, no eyebrows).
+
+The agreement between the Rive file (built by Tom in the Rive editor) and the app code (`app/Puggle/Design/PuggleView.swift`). If the names here match on both sides, either side can change freely.
+
+Names are case-sensitive. Change one here first, then in the file and the code.
+
+## Files
+
+| File | What | Where it goes |
+|---|---|---|
+| `puggle-parts.svg` | Puggle's parts with named groups, for import into Rive | this folder |
+| `puggle.riv` | The exported character file | `app/Puggle/Resources/puggle.riv` |
+| `scenes.riv` | The exported scenes file (later) | `app/Puggle/Resources/scenes.riv` |
+
+Keep a link to the Rive editor file in this README once it exists, so the source is not only on one machine.
+
+## Character file: `puggle.riv`
+
+**Artboard:** `Puggle`, 240 × 300, transparent background. Feet on the bottom edge, centred.
+
+**State machine:** `Mood`
+
+| Input | Type | Set by the app when | Behaviour |
+|---|---|---|---|
+| `greet` | Trigger | The app opens; the splash screen | Plays Wave once, returns to Idle |
+| `celebrate` | Trigger | A log is saved; a milestone is added | Plays Hooray once, returns to Idle |
+| `asleep` | Boolean | A sleep timer is running for the child shown, or it is night | True: go to Sleepy and stay. False: back to Idle |
+| `walking` | Boolean | Pull to refresh is in progress | True: Walk loop. False: back to Idle |
+
+| `nod` | Trigger | An everyday log is saved (bottle, nappy, solids) | One small happy bounce, 0.4 s |
+| `proud` | Trigger | A potty success | Ta-da, tail straight up, 1.5 s |
+| `wake` | Trigger | A sleep ends | Stretch and wake, 1.2 s, then Idle |
+| `energy` | Number, 0 to 1 | The app sets 1 by day and 0.5 at night (about 10 pm to 6 am) | Scales how big and fast reactions are. Below 1 there are no jumps |
+| `lookX`, `lookY` | Number, -1 to 1 | A finger is on or near her | Her eyes shift up to 5 px towards it. Back to 0 when the finger lifts |
+
+If `asleep` is true, every trigger except `wake` is ignored (she stays asleep).
+
+`celebrate` is now only for milestones; everyday logs use `nod`.
+
+## Reaction rules (canvas: "Motion direction")
+
+- **Never in the way.** Nothing in the app waits for an animation.
+- **No guilt.** She is never sad, worried or disappointed about what a parent did or did not log. There is no input for it, on purpose.
+- **Quiet at night.** `energy` drops; idle becomes Sleepy while a child is asleep.
+- **Silent by default.** Sound only if switched on; a soft haptic when she lands.
+- **One thing at a time.** While she reacts, the scene's ambient loops pause.
+
+## Timing: snappy for reactions, smooth for ambient
+
+**Decided (Tom, 2026-11-11): snappy for reactions.** Wave, Hooray, nod and proud are pose-to-pose: hold each pose, move to the next in about 0.05 to 0.1 s. Breathing, sleeping and scene loops ease all the way.
+
+Two things learned from looking at captured frames, worth keeping in Rive: a raised hand must stay clear of her head or it vanishes behind it, and arms straight out on landing look stiff, so they drop.
+
+## The tail shows the feeling
+
+| Feeling | Tail |
+|---|---|
+| Calm | Resting, slightly raised (the default) |
+| Happy | Up and wagging |
+| Proud | Straight up |
+| Surprised | Stiff, straight out |
+| Sad | Drooping to the ground (her own stories only) |
+| Shy | Tucked close, half hidden |
+| Sleepy | Curled around her feet |
+
+## Acting view and toddler moves
+
+Reactions are staged in the three-quarter view where possible. Key poses to build towards: **potty dance** (knees together, hands at the front of her dress, tail stiff), **flop-sit** (bottom lands, legs out, arms up), **tippy-toe reach** (on her toes, one arm stretched, tail as counterweight).
+
+**Layers**
+
+1. Body: Idle, Wave, Hooray, Nod, FallAsleep, Sleepy, Walk
+2. Blink: runs all the time over layer 1, except in FallAsleep and Sleepy
+
+**Motion principles** (what makes it feel alive; keep them when rebuilding)
+
+- Anticipation: a small move the other way first.
+- Squash and stretch: about the feet, volume roughly constant.
+- Follow-through: tail, clip and head start and stop a beat after the body.
+- Idle is not a pure loop: rare one-off moments on a longer cycle.
+
+**Timelines**
+
+Timings come from the motion studies on the canvas ("Motion studies for Rive", Characters page; source `design/canvas/gen/motion.py`). Treat them as a starting point.
+
+| Timeline | Length | Loops | What happens |
+|---|---|---|---|
+| `Idle` | 3.6 s breath, inside a 7.2 s cycle | yes | Head sinks 2 px and returns (breath); the body follows 0.15 s earlier, the clip 0.3 s later. Arms swing about 3°. Tail drifts between -4° and 5°. Once per 7.2 s: the eyes glance 5 px to one side for a second, and the tail flicks to 12° and back |
+| `Blink` | 4.2 s | yes | Eyes open for most of it; close and reopen over the last 0.4 s |
+| `Wave` | 2.2 s | no | Snappy. Poses, each held: rest; dip (arm 12° the wrong way); arm up beside the head (90° from rest, hand clear of the head); out (56°); up; out; up; rest. She leans 3° away from the waving arm, the other arm lifts 14° for balance, the head tilts 7° towards the hand. Tail and clip follow about 0.09 s late. Eyes are happy arcs |
+| `Hooray` | 1.7 s | no | Snappy. Poses: rest, arms down; crouch (106% wide, 90% tall, about the feet), arms pull in 22°; air (jump 42 px, 96% by 106%), arms fling up 74° into a V; land (108% by 88%), arms drop to 18°; rebound (5 px, 98% by 103%); rest. Tail lags 0.05 s, head 0.03 s, clip 0.07 s. Shadow shrinks in the air. Four quatrefoils show only while she is in the air |
+| `Nod` | 0.4 s | no | The everyday "saved" reaction. Dip (105% by 93%), pop up 9 px (98% by 103%), settle. Arms and tail flick out and back. Small enough to play many times a day |
+| `FallAsleep` | 7 s | no | The transition into Sleepy. Eyes droop, reopen, droop further, reopen less, then close. The head nods 4°, 7°, then 9° and stays. Arms hang lower. Z's begin once the eyes are shut |
+| `Sleepy` | 5 s | yes | Eyes closed (downward arcs). Head stays nodded and rises 1° with each breath. Body breathes 3 px. Three small z's float up and fade, 0.9 s apart |
+| `Walk` | 0.84 s for two steps | yes | Side view, a toddler waddle: quick, short steps. Smooth, not snappy. Each leg swings from the hip: 30° forward at contact, vertical at mid-stance, 28° back at push-off, then lifts up to 11 px and swings through, reaching 34° forward just before the next contact. The far leg is half a cycle behind. The body drops 4.5 px just after each contact and rises 6 px at push-off. It leans forward 5°, tipping to 7° as the weight lands. Each arm swings opposite its own-side leg, at 85% of the leg's angle. The tail counter-swings between 10° and 26°, about 0.07 s late. The head moves half as much as the body, 0.05 s late; the clip 0.1 s late. The four keys per step (contact, down, passing, up) are on the canvas pose sheet |
+
+**Transitions:** blend 0.15 to 0.25 s between states. Wave and Hooray exit to Idle when they finish. `asleep` turning true plays FallAsleep, then loops Sleepy; turning false blends back to Idle over 0.5 s.
+
+**Rules that hold in every state**
+
+- The bill never moves, opens, tilts or changes shape. No mouth.
+- Eyebrows are off at rest and appear only with a feeling: raised for delight, soft for content and sleepy. Never angry, sad or worried (changed 12 November 2026; was "no brows").
+- Emotion is eyes (dots, happy arcs, closed arcs, squeezed shut), eyebrows, cheeks (a little bigger when happy, marks when pleased), floating marks, body and tail.
+- Outlines are a darker shade of each part's own colour.
+- The quatrefoil clip stays on her head, top right as we see her.
+
+## Scenes file: `scenes.riv` (later)
+
+One artboard per scene, each 390 × 300, with the character nested as a component so she is the same Puggle everywhere.
+
+| Artboard | Ambient loops | Cast |
+|---|---|---|
+| `Morning` | Sun rises and settles (14 s), glow pulses (5 s), washing sways (4 s), magpie bobs (0.9 s), dew twinkles (2.6 s) | Puggle stretching, Pebble |
+| `Bedtime` | Stars twinkle out of step (2 to 5.5 s), moon halo pulses (6 s), lamp flickers (3.4 s), shooting star every 9 s | Puggle under the lamp |
+| `Celebration` | Confetti falls without a seam (7 s), balloons bob (2.6 to 3.8 s), big quatrefoil pulses (2.4 s) | Puggle, Quill, Kip |
+| `Rainy` | Rain loops (0.5 s), rings spread on the puddle (1.6 s) | Puggle jumping |
+
+Each scene artboard has a state machine called `Ambient` with no inputs to begin with. The app picks the artboard by name.
+
+## App side
+
+- `PuggleView` loads `puggle.riv`, artboard `Puggle`, state machine `Mood`, and offers `greet()`, `celebrate()`, `asleep` and `walking`.
+- With Reduce Motion on, or if the file is missing, it shows the still image `PuggleStill` from the asset catalogue.
+- Widgets and Live Activities use still images; Rive does not run there.
+
+### Turning Rive on in the project
+
+The view compiles without Rive and shows the still image. To switch Rive on, add the runtime to `app/project.yml` and re-run `xcodegen`:
+
+```yaml
+packages:
+  RiveRuntime:
+    url: https://github.com/rive-app/rive-ios
+    from: "6.0.0"        # check the current release first
+targets:
+  Puggle:
+    dependencies:
+      - package: RiveRuntime
+```
+
+Then add `puggle.riv` to `app/Puggle/Resources/`.
+
+## Order of work
+
+1. Idle and Blink only. Export, add to the app, see it on a phone.
+2. Wave and Hooray, with the two triggers.
+3. Sleepy and the `asleep` input.
+4. Walk.
+5. Scenes.

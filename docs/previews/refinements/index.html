@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puggle: the next layer of refinement</title>
+<style>
+  :root { --paper: #F2ECDD; --card: #FBF6E9; --ink: #3A2A20; --muted: #6B5E52; --line: #DDD2BC; --red: #B23A26; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif; }
+  main { max-width: 1040px; margin: 0 auto; padding: 40px 20px 80px; }
+  h1 { font-size: 34px; line-height: 1.15; margin: 0 0 10px; letter-spacing: -0.02em; }
+  .lede { color: var(--muted); max-width: 62ch; margin: 0 0 28px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 22px; padding: 22px; margin: 0 0 22px; }
+  h2 { font-size: 22px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .n { color: var(--red); font-weight: 700; margin-right: 6px; }
+  p { margin: 0 0 12px; max-width: 70ch; }
+  .meta { color: var(--muted); font-size: 15px; margin: 12px 0 0; }
+  .meta b { color: var(--ink); }
+  img { display: block; width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); }
+  .scroll { overflow-x: auto; border-radius: 14px; }
+  .scroll img { min-width: 760px; }
+  ol { margin: 0; padding-left: 22px; max-width: 70ch; }
+  li { margin: 0 0 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Puggle: the next layer of refinement</h1>
+  <p class="lede">Nine mock-ups of what could change, drawn with the app's own characters so each shows what would really move. None of it is built. Where a mock-up has two rows, the top is how it works now and the bottom is the proposal.</p>
+
+  <section>
+    <h2><span class="n">1</span>A model sheet, written as numbers</h2>
+    <p>Her look becomes a short list of measurements and a "never" list, so every new pose, outfit and cast member can be checked against it. The Simpsons keeps its cast consistent the same way: countable rules, not adjectives.</p>
+    <div class="scroll"><img src="refine-1-model.png" alt="Puggle with her head width, eye line, eye spacing and bill width marked, beside a list of her measurements and a list of things she never has"></div>
+    <p class="meta"><b>Effort:</b> small. The numbers are already in her drawing file; this writes them down, one page per character.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">2</span>The silhouette test</h2>
+    <p>Everyone filled in solid. The friends pass easily: spines, round ears, a beanie, a wide hat. The platypus family is the weak spot. Nan's bun and Pop's hat carry them, but Mum and Dad are almost the same shape, and both are close to a tall Puggle.</p>
+    <div class="scroll"><img src="refine-2-silhouettes.png" alt="The cast in colour, and below them the same figures as solid dark shapes with their names"></div>
+    <p class="meta"><b>What it suggests:</b> give Mum and Dad a clearer difference in outline, such as a wider skirt for Mum and squarer shoulders for Dad, and make the grown-ups' body shape differ more from Puggle's than height alone.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">3</span>A small, fixed set of faces</h2>
+    <p>Six faces, each made from one or two small changes to eyes, eyebrows, cheeks or the tilt of her head. No mouth, no sad or cross eyebrows. On a face this simple, tiny changes carry a lot, so the set stays small and each one is tested on its own.</p>
+    <div class="scroll"><img src="refine-3-expressions.png" alt="Puggle six times: neutral, pleased, delighted, curious, sleepy and surprised"></div>
+    <p class="meta"><b>Effort:</b> small. All six use parts she already has. "Surprised" is the only new one.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">4</span>Blinks that mean something</h2>
+    <p>Today her eyes shut and open like a switch, on a timer. The proposal has two parts. The blink closes quickly and opens slowly, which is how a real one goes. And she also blinks when she looks somewhere new or when something registers, so a blink reads as a thought.</p>
+    <div class="scroll"><img src="refine-4-blink.png" alt="Two rows of Puggle's head through a blink. The top row snaps shut and open; the bottom row closes fast and opens gradually"></div>
+    <p class="meta"><b>Effort:</b> small. It is timing only. At night the slower, "thinking" blink would be used more.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">5</span>Her eyes lead, her head follows</h2>
+    <p>Today her head, eyes and clip tip over as one piece. In the proposal she looks first, blinks as her head starts to move, and her clip arrives a moment late and swings past before it settles. It is the same tilt, but it now reads as her noticing something.</p>
+    <div class="scroll"><img src="refine-5-eyes-lead.png" alt="Two rows. The top shows Puggle's head tilting in one piece. The bottom shows her eyes sliding first, a blink, the head arriving, and the clip settling last"></div>
+    <p class="meta"><b>Effort:</b> small. Each part starts a fraction of a second after the one it hangs from.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">6</span>A hop with weight</h2>
+    <p>Today she goes straight up and straight down. The proposal adds a small dip before she leaves the ground, a stretch on the way up with her tail trailing, a landing where she gets wider as she gets shorter, and a settle where her arms, tail and clip catch up. Her head never squashes.</p>
+    <div class="scroll"><img src="refine-6-hop.png" alt="Two rows. The top shows rest, up and down. The bottom shows rest, a dip, a stretched jump, a squashed landing, a settle and rest"></div>
+    <p class="meta"><b>Effort:</b> small to medium. The poses are numbers, but her outline has to stay the same thickness when she squashes. With Reduce Motion on, none of this plays.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">7</span>Two together: a look, a pause, an answer</h2>
+    <p>Today Puggle and whoever is with her both wave at once, each looking straight out. In the proposal only one of them moves at a time. Puggle looks at Kip and waves with the arm nearest her; Kip looks back, then answers; Puggle is pleased, and they hold. This is what makes them look as if they know each other.</p>
+    <div class="scroll"><img src="refine-7-pair.png" alt="The top row shows Puggle and Kip waving at the same moment. The bottom row shows five steps: Puggle looks, Puggle waves, Kip looks back, Kip waves, Puggle is pleased"></div>
+    <p class="meta"><b>Effort:</b> medium. It needs a small rule in each scene for whose turn it is, and a handful of these exchanges so the same one does not repeat.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">8</span>A tuft of hair, and arms that bend</h2>
+    <p>Two ideas taken from the outside sketches and redrawn in her own style: no mouth, her blue dress and red clip, and hands that never cover her face or bill, as the brand book asks. The brand book's rule is no hair, so the lick would change that. The top row tries a small tuft of hair, in colour and as a solid shape. The bottom row shows what an arm that bends at the elbow lets her do. Today her arms can only swing from the shoulder, so none of these four are possible.</p>
+    <div class="scroll"><img src="refine-8-tuft-and-arms.png" alt="Top row: Puggle now and with a tuft of hair, each also as a solid shape. Bottom row: thinking with a hand to her chin, hugging her toy rabbit, reading a book, and surprised with hands to her cheeks"></div>
+    <p class="meta"><b>Effort:</b> medium. The arm becomes one curve from shoulder to hand, which the rig can move. These are still poses; getting into and out of them is the animation work.</p>
+  </section>
+
+  <section>
+    <h2><span class="n">9</span>Tuft options</h2>
+    <p>Five ways to draw the tuft, each as part of her head in the same fur and line. Each is shown close up, as a solid shape, and at the two sizes she appears in the app, where a tuft either reads or turns into noise.</p>
+    <div class="scroll"><img src="refine-9-tuft-options.png" alt="Six columns: no tuft, the tall tuft, a shorter one, two locks, one leaning lick, and a low fluff. Each column shows her head, its silhouette, and her at small sizes"></div>
+    <p class="meta"><b>What stands out:</b> the tall one is busiest and crowds her clip. The low fluff nearly vanishes when small. The single leaning lick stays clear at every size and echoes Pebble's curl.</p>
+  </section>
+
+  <section>
+    <h2>Not shown here</h2>
+    <ol>
+      <li><b>A way of moving for each character.</b> The same nod and wave, at different speeds and sizes: Pebble tiny and quick, the grown-ups slower and smaller, Nan and Pop slowest.</li>
+      <li><b>More variety at rest.</b> A few small head moves and a few small body moves, mixed at random, so she never visibly loops.</li>
+      <li><b>Things done together.</b> Sitting side by side is the cheapest; holding hands and passing a ball each need new poses.</li>
+    </ol>
+  </section>
+</main>
+</body>
+</html>

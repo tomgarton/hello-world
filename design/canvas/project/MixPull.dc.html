@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Mix, pull to refresh</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+<style>
+body{margin:0}
+a{color:#0F2238}a:hover{color:#33455C}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes bob{50%{transform:translateY(-6px)}}@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-16px)}}
+@media (prefers-reduced-motion: reduce){*{animation:none !important}}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #FFFFFF; color: #0F2238; font-family: 'Bricolage Grotesque', system-ui, sans-serif; display: flex; flex-direction: column">
+<div style="height: 96px; flex-shrink: 0; background: #BDE2FF; box-sizing: border-box; padding: 54px 20px 0 20px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 15px; font-weight: 700"><svg aria-hidden="true" width="28" height="28" viewBox="0 0 28 28" style="animation: spin 1.600s linear infinite"><circle cx="14" cy="14" r="6" fill="#FFC531" stroke="#0F2238" stroke-width="2"></circle><circle cx="14" cy="14" r="11" fill="none" stroke="#0F2238" stroke-width="2.500" stroke-dasharray="1 7.600" stroke-linecap="round"></circle></svg>Catching up with the other phones</div>
+<div style="position: relative; height: 396px; background: #BDE2FF; overflow: hidden; flex-shrink: 0">
+<svg role="img" aria-label="Afternoon sun over two hills. An orange character sleeps on a cloud and a blue character is awake on the hill" width="390" height="396" viewBox="0 0 390 396" style="position: absolute; left: 0; top: 0"><circle cx="320" cy="112" r="42" fill="#FFC531" stroke="#0F2238" stroke-width="2.500"></circle><circle cx="320" cy="112" r="62" fill="none" stroke="#0F2238" stroke-width="3" stroke-dasharray="2 14" stroke-linecap="round" style="transform-box: fill-box; transform-origin: center; animation: spin 6s linear infinite"></circle><ellipse cx="300" cy="424" rx="230" ry="110" fill="#2E9E66"></ellipse><ellipse cx="70" cy="436" rx="220" ry="120" fill="#3FBF7F"></ellipse><g style="animation: hop 0.9s ease-in-out infinite"><ellipse cx="112" cy="302" rx="24" ry="21" fill="#8EC0FF" stroke="#0F2238" stroke-width="2.500"></ellipse><circle cx="104" cy="299" r="3" fill="#0F2238"></circle><circle cx="120" cy="299" r="3" fill="#0F2238"></circle><path d="M108 309c2 3 6 3 8 0" fill="none" stroke="#0F2238" stroke-width="2.500" stroke-linecap="round"></path></g><g style="animation: bob 2.4s ease-in-out infinite"><g><ellipse cx="262" cy="236" rx="24" ry="21" fill="#FFB170" stroke="#0F2238" stroke-width="2.500"></ellipse><path d="M250 234c2 3 6 3 8 0" fill="none" stroke="#0F2238" stroke-width="2.500" stroke-linecap="round"></path><path d="M266 234c2 3 6 3 8 0" fill="none" stroke="#0F2238" stroke-width="2.500" stroke-linecap="round"></path><path d="M258 243c2 3 6 3 8 0" fill="none" stroke="#0F2238" stroke-width="2.500" stroke-linecap="round"></path></g><rect x="200" y="252" width="124" height="44" rx="22" fill="#FFFFFF"></rect><circle cx="232" cy="254" r="20" fill="#FFFFFF"></circle><circle cx="290" cy="256" r="18" fill="#FFFFFF"></circle><path d="M318 206h12l-12 14h12" fill="none" stroke="#0F2238" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path><path d="M338 184h9l-9 10h9" fill="none" stroke="#0F2238" stroke-width="2.500" stroke-linecap="round" stroke-linejoin="round"></path></g></svg>
+<div style="position: absolute; left: 20px; top: 14px; width: 236px; display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 14px; font-weight: 700; letter-spacing: 0.03em">Tuesday, 2:50 pm</div>
+<h1 style="margin: 0; font-size: 40px; font-weight: 800; line-height: 1.02; letter-spacing: -0.02em">One down, one to go.</h1>
+<div style="font-size: 16px; font-weight: 500; line-height: 1.35">Ada has been asleep for 42 minutes. Milo has other plans.</div>
+</div>
+</div>
+
+<div style="flex-grow: 1; min-height: 0; padding: 16px 16px 0 16px; display: flex; flex-direction: column; gap: 10px">
+
+<div style="background: #EEF5FF; border-radius: 24px; padding: 14px 16px; display: flex; align-items: center; gap: 14px">
+<div style="width: 52px; height: 52px; border-radius: 26px; background: #8EC0FF; color: #0F2238; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0">M</div>
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0">
+<div style="font-size: 18px; font-weight: 800">Milo, awake 1h 05m</div>
+<div style="font-size: 14px; font-weight: 500; color: #33455C">Bottle o'clock is about 3:45</div>
+</div>
+</div>
+
+<div style="background: #FFF1E2; border-radius: 24px; padding: 14px 16px; display: flex; align-items: center; gap: 14px">
+<div style="width: 52px; height: 52px; border-radius: 26px; background: #FFB170; color: #0F2238; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; flex-shrink: 0">A</div>
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0">
+<div style="font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums">Ada, napping 0:42</div>
+<div style="font-size: 14px; font-weight: 500; color: #5A4636">Dry since 11:30. Three stickers so far</div>
+</div>
+<button style="height: 44px; padding: 0 16px; border: 2.500px solid #0F2238; border-radius: 22px; box-shadow: 3px 3px 0 #0F2238; background: #FFFFFF; color: #0F2238; font: inherit; font-size: 14px; font-weight: 700; flex-shrink: 0">Wake</button>
+</div>
+
+</div>
+
+<div style="padding: 12px 16px 34px 16px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px">
+<button style="height: 58px; border: 2.500px solid #0F2238; border-radius: 18px; box-shadow: 3px 3px 0 #0F2238; background: #FFFFFF; color: #0F2238; font: inherit; font-size: 14px; font-weight: 700">Bottle</button>
+<button style="height: 58px; border: 2.500px solid #0F2238; border-radius: 18px; box-shadow: 3px 3px 0 #0F2238; background: #FFFFFF; color: #0F2238; font: inherit; font-size: 14px; font-weight: 700">Sleep</button>
+<button style="height: 58px; border: 2.500px solid #0F2238; border-radius: 18px; box-shadow: 3px 3px 0 #0F2238; background: #FFFFFF; color: #0F2238; font: inherit; font-size: 14px; font-weight: 700">Nappy</button>
+<button style="height: 58px; border: 2.500px solid #0F2238; border-radius: 18px; box-shadow: 3px 3px 0 #0F2238; background: #FFFFFF; color: #0F2238; font: inherit; font-size: 14px; font-weight: 700">Potty</button>
+<button style="height: 58px; border: 2.500px solid #0F2238; border-radius: 18px; box-shadow: 3px 3px 0 #0F2238; background: #FFC531; color: #0F2238; font: inherit; font-size: 14px; font-weight: 700; font-weight: 800">More</button>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

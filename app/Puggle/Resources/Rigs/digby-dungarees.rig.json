@@ -1,0 +1,2930 @@
+{
+ "name": "Digby",
+ "size": [
+  240,
+  300
+ ],
+ "about": "Digby: a wombat who loves digging. A red beanie. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "parts": [
+  {
+   "id": "body",
+   "pivot": [
+    120,
+    290
+   ],
+   "shapes": []
+  },
+  {
+   "id": "foot-left",
+   "parent": "body",
+   "pivot": [
+    100.0,
+    276.0
+   ],
+   "spring": 200,
+   "shapes": [
+    {
+     "x": 100.0,
+     "y": 272.0,
+     "rotate": 7,
+     "kind": "path",
+     "d": "M91 271 L109 271 Q123 275 122 283 Q122 290 115.65 289 Q112.55 285 109.45 289 Q106.275 292 103.1 289 Q100 285 96.9 289 Q93.725 292 90.55 289 Q87.45 285 84.35 289 Q78 290 78 283 Q77 275 91 271 Z",
+     "fill": "#7F7168",
+     "stroke": "#3A2A20",
+     "tint": "#40332B",
+     "width": 5.5
+    },
+    {
+     "x": 100.0,
+     "y": 272.0,
+     "rotate": 7,
+     "kind": "path",
+     "d": "M112.55 288 L111.044 281",
+     "stroke": "#40332B",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "x": 100.0,
+     "y": 272.0,
+     "rotate": 7,
+     "kind": "path",
+     "d": "M100 288 L100 281",
+     "stroke": "#40332B",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "x": 100.0,
+     "y": 272.0,
+     "rotate": 7,
+     "kind": "path",
+     "d": "M87.45 288 L88.956 281",
+     "stroke": "#40332B",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "x": 120.8,
+     "y": 285.6,
+     "rotate": 7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    },
+    {
+     "x": 106.3,
+     "y": 287.1,
+     "rotate": 7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    },
+    {
+     "x": 93.7,
+     "y": 287.1,
+     "rotate": 7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    },
+    {
+     "x": 79.2,
+     "y": 285.6,
+     "rotate": 7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    }
+   ]
+  },
+  {
+   "id": "foot-right",
+   "parent": "body",
+   "pivot": [
+    140.0,
+    276.0
+   ],
+   "spring": 200,
+   "shapes": [
+    {
+     "x": 140.0,
+     "y": 272.0,
+     "rotate": -7,
+     "kind": "path",
+     "d": "M131 271 L149 271 Q163 275 162 283 Q162 290 155.65 289 Q152.55 285 149.45 289 Q146.275 292 143.1 289 Q140 285 136.9 289 Q133.725 292 130.55 289 Q127.45 285 124.35 289 Q118 290 118 283 Q117 275 131 271 Z",
+     "fill": "#7F7168",
+     "stroke": "#3A2A20",
+     "tint": "#40332B",
+     "width": 5.5
+    },
+    {
+     "x": 140.0,
+     "y": 272.0,
+     "rotate": -7,
+     "kind": "path",
+     "d": "M152.55 288 L151.044 281",
+     "stroke": "#40332B",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "x": 140.0,
+     "y": 272.0,
+     "rotate": -7,
+     "kind": "path",
+     "d": "M140 288 L140 281",
+     "stroke": "#40332B",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "x": 140.0,
+     "y": 272.0,
+     "rotate": -7,
+     "kind": "path",
+     "d": "M127.45 288 L128.956 281",
+     "stroke": "#40332B",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "x": 160.8,
+     "y": 285.6,
+     "rotate": -7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    },
+    {
+     "x": 146.3,
+     "y": 287.1,
+     "rotate": -7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    },
+    {
+     "x": 133.7,
+     "y": 287.1,
+     "rotate": -7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    },
+    {
+     "x": 119.2,
+     "y": 285.6,
+     "rotate": -7,
+     "kind": "ellipse",
+     "rx": 2.6,
+     "ry": 2.4,
+     "fill": "#C5BFBB"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "parent": "body",
+   "pivot": [
+    120,
+    232.0
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L168 222 Q170 232 158 232 L82 232 Q70 232 72 222 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#7E7766"
+    },
+    {
+     "kind": "path",
+     "d": "M72 208 L168 208 L174 270 L127 270 L120 250 L113 270 L66 270 Z",
+     "fill": "#2A62B8",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#1B4387"
+    },
+    {
+     "kind": "path",
+     "d": "M103 180 L137 180 Q143 180 143 186 L143 208 Q143 214 137 214 L103 214 Q97 214 97 208 L97 186 Q97 180 103 180 Z",
+     "fill": "#2A62B8",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#1B4387"
+    },
+    {
+     "kind": "path",
+     "d": "M100 182 L93 164 M140 182 L147 164",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "cap": "round",
+     "tint": "#1B4387"
+    },
+    {
+     "kind": "path",
+     "d": "M100 190 L140 190 L140 195 C140 201.6 131 207 120 207 C109 207 100 201.6 100 195 Z",
+     "fill": "#94B0DC",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#455F88"
+    }
+   ]
+  },
+  {
+   "id": "book",
+   "parent": "upper",
+   "pivot": [
+    120,
+    222
+   ],
+   "when": "holding=book",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M78 198 L120 205 L162 198 L162 240 L120 247 L78 240 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M120 205 L120 247",
+     "stroke": "#B23A26",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M82 196 L120 202 L158 196",
+     "stroke": "#FBF6E9",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 141,
+     "y": 222,
+     "rx": 8,
+     "ry": 8,
+     "fill": "#F4BE2C"
+    }
+   ]
+  },
+  {
+   "id": "arm-left",
+   "parent": "upper",
+   "pivot": [
+    88,
+    178
+   ],
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 34,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left",
+   "parent": "arm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "spring": 170,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 34,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-top",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-top",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "mitten-left",
+   "parent": "forearm-left",
+   "pivot": [
+    50,
+    214
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "arm-right",
+   "parent": "upper",
+   "pivot": [
+    152,
+    178
+   ],
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 34,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right",
+   "parent": "arm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "spring": 170,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 34,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-top",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "wand",
+   "parent": "forearm-right",
+   "pivot": [
+    190,
+    214
+   ],
+   "when": "holding=wand",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M190 214 L208.6 229.1",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 216.4,
+     "y": 235.5,
+     "rx": 10,
+     "ry": 10,
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 8
+    },
+    {
+     "kind": "path",
+     "d": "M190 214 L208.6 229.1",
+     "stroke": "#F4BE2C",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 216.4,
+     "y": 235.5,
+     "rx": 10,
+     "ry": 10,
+     "stroke": "#F4BE2C",
+     "width": 4
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-top",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M186.4 198.1 L173.9 216.2",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "mitten-right",
+   "parent": "forearm-right",
+   "pivot": [
+    190,
+    214
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "scarf",
+   "parent": "upper",
+   "pivot": [
+    120,
+    170
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M148 170 L160 200 L146 204 L138 174 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M148 186 L158 184",
+     "stroke": "#F5BBB1",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150 196 L159 194",
+     "stroke": "#F5BBB1",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "head",
+   "parent": "upper",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": []
+  },
+  {
+   "id": "ear-left",
+   "parent": "head",
+   "pivot": [
+    77.0,
+    62.8
+   ],
+   "spring": 170,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 70.0,
+     "y": 56.0,
+     "rx": 15.0,
+     "ry": 13.0,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    }
+   ]
+  },
+  {
+   "id": "ear-right",
+   "parent": "head",
+   "pivot": [
+    163.0,
+    62.8
+   ],
+   "spring": 170,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 170.0,
+     "y": 56.0,
+     "rx": 15.0,
+     "ry": 13.0,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 6.0,
+     "tint": "#46382D"
+    }
+   ]
+  },
+  {
+   "id": "tuft",
+   "parent": "head",
+   "pivot": [
+    122,
+    54
+   ],
+   "spring": 130,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M103 55 Q100 41 109 35 Q116 41 118 53 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 14.0
+    },
+    {
+     "kind": "path",
+     "d": "M115 53 Q117 37 126 31 Q134 39 133 53 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 14.0
+    },
+    {
+     "kind": "path",
+     "d": "M130 55 Q134 43 141 39 Q146 47 142 57 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 14.0
+    }
+   ],
+   "when": "outfit=night|bare"
+  },
+  {
+   "id": "face",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M96 50 L144 50 Q196 50 196 102 L196 122 Q196 174 144 174 L96 174 Q44 174 44 122 L44 102 Q44 50 96 50 Z",
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#46382D"
+    },
+    {
+     "kind": "ellipse",
+     "x": 68.0,
+     "y": 134.0,
+     "rx": 12,
+     "ry": 7.5,
+     "fill": "#EE9C88"
+    },
+    {
+     "kind": "ellipse",
+     "x": 172.0,
+     "y": 134.0,
+     "rx": 12,
+     "ry": 7.5,
+     "fill": "#EE9C88"
+    },
+    {
+     "kind": "path",
+     "d": "M100 118 Q120 112 140 118 Q147 121 145 131 Q142 145 120 145 Q98 145 95 131 Q93 121 100 118 Z",
+     "fill": "#33302F",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1A1615"
+    },
+    {
+     "kind": "ellipse",
+     "x": 110,
+     "y": 132,
+     "rx": 4,
+     "ry": 3,
+     "fill": "#5B5350"
+    },
+    {
+     "kind": "ellipse",
+     "x": 130,
+     "y": 132,
+     "rx": 4,
+     "ry": 3,
+     "fill": "#5B5350"
+    },
+    {
+     "kind": "path",
+     "d": "M120 146 L120 154",
+     "stroke": "#46382D",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "tuft-top",
+   "parent": "tuft",
+   "pivot": [
+    122,
+    54
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M103 55 Q100 41 109 35 Q116 41 118 53 Z",
+     "fill": "#8C7B6E"
+    },
+    {
+     "kind": "path",
+     "d": "M115 53 Q117 37 126 31 Q134 39 133 53 Z",
+     "fill": "#8C7B6E"
+    },
+    {
+     "kind": "path",
+     "d": "M130 55 Q134 43 141 39 Q146 47 142 57 Z",
+     "fill": "#8C7B6E"
+    }
+   ],
+   "when": "outfit=night|bare"
+  },
+  {
+   "id": "ear-left-top",
+   "parent": "ear-left",
+   "pivot": [
+    77.0,
+    62.8
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 70.0,
+     "y": 56.0,
+     "rx": 12.0,
+     "ry": 10.0,
+     "fill": "#8C7B6E"
+    }
+   ]
+  },
+  {
+   "id": "ear-right-top",
+   "parent": "ear-right",
+   "pivot": [
+    163.0,
+    62.8
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 170.0,
+     "y": 56.0,
+     "rx": 12.0,
+     "ry": 10.0,
+     "fill": "#8C7B6E"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-round-tinted",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=round-tinted",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 106.0,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#E3B063",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 106.0,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#E3B063",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M102.6 106 Q120 97 137.4 106",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M65.4 104 L48.4 98 M174.6 104 L191.6 98",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "eye-left",
+   "parent": "head",
+   "pivot": [
+    84.0,
+    104.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 104.0,
+     "rx": 6.8,
+     "ry": 6.8,
+     "fill": "#3A2A20"
+    }
+   ],
+   "spring": 0,
+   "when": "eyes=open"
+  },
+  {
+   "id": "eye-right",
+   "parent": "head",
+   "pivot": [
+    156.0,
+    104.0
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 104.0,
+     "rx": 6.8,
+     "ry": 6.8,
+     "fill": "#3A2A20"
+    }
+   ],
+   "spring": 0,
+   "when": "eyes=open"
+  },
+  {
+   "id": "eyes-closed",
+   "parent": "head",
+   "pivot": [
+    120,
+    110
+   ],
+   "when": "eyes=closed",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M76 103 Q84 111 92 103",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M148 103 Q156 111 164 103",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-round-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=round-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 106.0,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 106.0,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M102.6 106 Q120 97 137.4 106",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M65.4 104 L48.4 98 M174.6 104 L191.6 98",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-aviator-mirror",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=aviator-mirror",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M101.9 96.5 Q84 92.6 63.5 96.5 Q59.7 115.7 77.6 125.9 Q98.1 127.2 101.9 96.5 Z",
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M138.1 96.5 Q156 92.6 176.5 96.5 Q180.3 115.7 162.4 125.9 Q141.9 127.2 138.1 96.5 Z",
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M101.9 108 Q120 99 138.1 108",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M66.1 106 L49.1 100 M173.9 106 L190.9 100",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M100.6 97.8 L139.4 97.8",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M73.8 110.6 L84 99",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M82.7 114.4 L90.4 105.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M145.8 110.6 L156 99",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M154.7 114.4 L162.4 105.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-aviator-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=aviator-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M101.9 96.5 Q84 92.6 63.5 96.5 Q59.7 115.7 77.6 125.9 Q98.1 127.2 101.9 96.5 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M138.1 96.5 Q156 92.6 176.5 96.5 Q180.3 115.7 162.4 125.9 Q141.9 127.2 138.1 96.5 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M101.9 108 Q120 99 138.1 108",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M66.1 106 L49.1 100 M173.9 106 L190.9 100",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M100.6 97.8 L139.4 97.8",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-round-mirror",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=round-mirror",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 106.0,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 106.0,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M102.6 106 Q120 97 137.4 106",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M65.4 104 L48.4 98 M174.6 104 L191.6 98",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M73.8 108.6 L84 97",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M82.7 112.4 L90.4 103.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M145.8 108.6 L156 97",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M154.7 112.4 L162.4 103.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-square-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=square-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 64.8,
+     "y": 90.0,
+     "w": 38.4,
+     "h": 32.0,
+     "r": 10.2,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "rect",
+     "x": 136.8,
+     "y": 90.0,
+     "w": 38.4,
+     "h": 32.0,
+     "r": 10.2,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M103.2 106 Q120 97 136.8 106",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M64.8 104 L47.8 98 M175.2 104 L192.2 98",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-hearts-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=hearts-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M84 122.6 C55.8 104.7 69.9 84.2 84 98.3 C98.1 84.2 112.2 104.7 84 122.6 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M156 122.6 C127.8 104.7 141.9 84.2 156 98.3 C170.1 84.2 184.2 104.7 156 122.6 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M103.2 106 Q120 97 136.8 106",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M64.8 104 L47.8 98 M175.2 104 L192.2 98",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-flowers-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=flowers-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M66.5 104 L49.5 98 M173.5 104 L190.5 98",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M101.5 106 Q120 99 138.5 106",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 5,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 95.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 94.0,
+     "y": 102.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 90.2,
+     "y": 114.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 77.8,
+     "y": 114.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 74.0,
+     "y": 102.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 95.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 94.0,
+     "y": 102.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 90.2,
+     "y": 114.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 77.8,
+     "y": 114.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 74.0,
+     "y": 102.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 106.0,
+     "rx": 11,
+     "ry": 11,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 3
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 95.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 166.0,
+     "y": 102.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 162.2,
+     "y": 114.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 149.8,
+     "y": 114.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 146.0,
+     "y": 102.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 95.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 166.0,
+     "y": 102.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 162.2,
+     "y": 114.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 149.8,
+     "y": 114.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 146.0,
+     "y": 102.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 106.0,
+     "rx": 11,
+     "ry": 11,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 3
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-sunset",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=big-sunset",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "path",
+     "d": "M59 111 C59 143.5 109 143.5 109 111 Z",
+     "fill": "#F4BE2D"
+    },
+    {
+     "kind": "path",
+     "d": "M59 108 C59 74.5 109 74.5 109 108",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "path",
+     "d": "M131 111 C131 143.5 181 143.5 181 111 Z",
+     "fill": "#F4BE2D"
+    },
+    {
+     "kind": "path",
+     "d": "M131 108 C131 74.5 181 74.5 181 108",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M105 94 L135 94",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-night",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=big-night",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#1B2441"
+    },
+    {
+     "kind": "path",
+     "d": "M59 111 C59 143.5 109 143.5 109 111 Z",
+     "fill": "#3D4F87"
+    },
+    {
+     "kind": "path",
+     "d": "M59 108 C59 74.5 109 74.5 109 108",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#1B2441"
+    },
+    {
+     "kind": "path",
+     "d": "M131 111 C131 143.5 181 143.5 181 111 Z",
+     "fill": "#3D4F87"
+    },
+    {
+     "kind": "path",
+     "d": "M131 108 C131 74.5 181 74.5 181 108",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M105 94 L135 94",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-mirror",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=big-mirror",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M59 111 C59 143.5 109 143.5 109 111 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M59 108 C59 74.5 109 74.5 109 108",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M131 111 C131 143.5 181 143.5 181 111 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M131 108 C131 74.5 181 74.5 181 108",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M105 94 L135 94",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-aviator",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=big-aviator",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M106 93 Q84 88 58 93 Q53 119 75 134 Q102 136 106 93 Z",
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M104 112 L57 112 Q59 124 75 134 Q99 136 104 112 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M106 93 Q84 88 58 93 Q53 119 75 134 Q102 136 106 93 Z",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M134 93 Q156 88 182 93 Q187 119 165 134 Q138 136 134 93 Z",
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M136 112 L183 112 Q181 124 165 134 Q141 136 136 112 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M134 93 Q156 88 182 93 Q187 119 165 134 Q138 136 134 93 Z",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M102 94 L138 94",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-sea",
+   "parent": "head",
+   "pivot": [
+    120,
+    104.0
+   ],
+   "spring": 150,
+   "when": "shades=big-sea",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 84.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#2A62B9"
+    },
+    {
+     "kind": "path",
+     "d": "M59 111 C59 143.5 109 143.5 109 111 Z",
+     "fill": "#BFD9F6"
+    },
+    {
+     "kind": "path",
+     "d": "M59 108 C59 74.5 109 74.5 109 108",
+     "stroke": "#3A2A20",
+     "tint": "#F4BE2D",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 156.0,
+     "y": 109.0,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#2A62B9"
+    },
+    {
+     "kind": "path",
+     "d": "M131 111 C131 143.5 181 143.5 181 111 Z",
+     "fill": "#BFD9F6"
+    },
+    {
+     "kind": "path",
+     "d": "M131 108 C131 74.5 181 74.5 181 108",
+     "stroke": "#3A2A20",
+     "tint": "#F4BE2D",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M105 94 L135 94",
+     "stroke": "#3A2A20",
+     "tint": "#F4BE2D",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "head-2",
+   "parent": "head",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M52 75 Q52 17 120 15 Q188 17 188 75 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#B23A26"
+    },
+    {
+     "kind": "path",
+     "d": "M57 63 L183 63 Q194 63 194 74 L194 74 Q194 85 183 85 L57 85 Q46 85 46 74 L46 74 Q46 63 57 63 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#B23A26"
+    },
+    {
+     "kind": "path",
+     "d": "M120.0 -6.6 L123.0 -2.3 L127.0 -3.8 L128.7 0.0 L133.4 -0.4 L133.0 4.3 L138.1 5.5 L135.3 10.0 L138.2 13.0 L135.3 16.0 L137.6 20.3 L133.0 21.7 L133.9 26.9 L128.7 26.0 L127.0 29.8 L123.0 28.3 L120.0 32.0 L117.0 28.3 L112.5 31.1 L111.3 26.0 L107.1 25.9 L107.0 21.7 L102.4 20.3 L104.7 16.0 L100.4 13.0 L104.7 10.0 L103.2 6.0 L107.0 4.3 L106.6 -0.4 L111.3 0.0 L112.5 -5.1 L117.0 -2.3 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 4
+    }
+   ],
+   "when": "outfit=none|warm"
+  },
+  {
+   "id": "rainhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M26 80 Q30 62 120 60 Q210 62 214 80 Q216 92 198 90 Q120 80 42 90 Q24 92 26 80 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M70 74 Q70 26 120 26 Q170 26 170 74 Q120 84 70 74 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 66 Q120 76 166 66",
+     "stroke": "#B8892A",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M120 28 L120 68",
+     "stroke": "#B8892A",
+     "width": 2.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=sun",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 74,
+     "rx": 92,
+     "ry": 17,
+     "fill": "#EBCB8B",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 74 Q74 30 120 30 Q166 30 166 74 Q120 84 74 74 Z",
+     "fill": "#F2D9A2",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M76 66 Q120 76 164 66",
+     "stroke": "#E5553B",
+     "width": 6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-front",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 34,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-front-top",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M77.8 190 Q74.2 193.8 70.4 197.4",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-front-top",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "mitten-left-front",
+   "parent": "forearm-left",
+   "pivot": [
+    50,
+    214
+   ],
+   "when": "outfit=warm&arms=front",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 34,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-front-top",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M162.2 190 Q165.8 193.8 169.6 197.4",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front-top",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#FBF6E9",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M186.4 198.1 L173.9 216.2",
+     "stroke": "#3A2A20",
+     "tint": "#7E7766",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8C7B6E",
+     "stroke": "#3A2A20",
+     "tint": "#46382D",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "mitten-right-front",
+   "parent": "forearm-right",
+   "pivot": [
+    190,
+    214
+   ],
+   "when": "outfit=warm&arms=front",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 13.5,
+     "ry": 13.5,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    }
+   ]
+  }
+ ],
+ "moves": {
+  "nod": {
+   "about": "An everyday log was saved: one small happy bounce.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "head": {
+       "y": 5,
+       "r": 3
+      },
+      "arm-left": {
+       "r": 8
+      },
+      "arm-right": {
+       "r": -8
+      }
+     }
+    },
+    {
+     "t": 0.16,
+     "pose": {
+      "upper": {
+       "sy": 1.03
+      },
+      "head": {
+       "y": -3
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {}
+    },
+    {
+     "t": 0.62,
+     "pose": {}
+    }
+   ],
+   "length": 0.85
+  },
+  "greet": {
+   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "head": {
+       "r": -5
+      },
+      "body": {
+       "y": -2
+      },
+      "forearm-right": {
+       "r": -33.4
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "head": {
+       "r": -5
+      },
+      "forearm-right": {
+       "r": 0.6
+      }
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "head": {
+       "r": -5
+      },
+      "forearm-right": {
+       "r": -33.4
+      }
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "head": {
+       "r": -5
+      },
+      "forearm-right": {
+       "r": 0.6
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "head": {
+       "r": -5
+      },
+      "forearm-right": {
+       "r": -33.4
+      }
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {}
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    }
+   ],
+   "length": 1.75
+  },
+  "celebrate": {
+   "about": "A milestone: two hops with her arms up. The only big reaction; keep it rare.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "upper": {
+       "sy": 0.93
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      }
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "head": {
+       "r": 5
+      }
+     }
+    },
+    {
+     "t": 0.68,
+     "pose": {
+      "upper": {
+       "sy": 0.94
+      },
+      "arm-left": {
+       "r": 62
+      },
+      "arm-right": {
+       "r": -62
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "head": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    },
+    {
+     "t": 1.9,
+     "pose": {}
+    },
+    {
+     "t": 2.1,
+     "pose": {}
+    }
+   ],
+   "length": 2.4
+  },
+  "wake": {
+   "about": "A sleep ended: a long stretch with her eyes shut, then wide awake.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "head": {
+       "r": 4,
+       "y": 3
+      }
+     }
+    },
+    {
+     "t": 0.2,
+     "pose": {
+      "upper": {
+       "sy": 1.06
+      },
+      "head": {
+       "r": -7,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 58
+      },
+      "arm-right": {
+       "r": -58
+      }
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "upper": {
+       "sy": 0.98
+      },
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.95,
+     "pose": {
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      }
+     }
+    },
+    {
+     "t": 1.2,
+     "pose": {}
+    },
+    {
+     "t": 1.45,
+     "pose": {}
+    }
+   ],
+   "length": 1.7
+  },
+  "walk": {
+   "about": "Walking on the spot, a waddle from side to side. Goes round until told to stop.",
+   "loops": true,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "body": {
+       "r": -3,
+       "x": -2,
+       "y": -2
+      },
+      "foot-left": {
+       "r": -16
+      },
+      "arm-left": {
+       "r": 12
+      },
+      "arm-right": {
+       "r": 12
+      },
+      "head": {
+       "r": 2.5
+      }
+     }
+    },
+    {
+     "t": 0.17,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "foot-left": {
+       "r": 4
+      }
+     }
+    },
+    {
+     "t": 0.32,
+     "pose": {
+      "body": {
+       "r": 3,
+       "x": 2,
+       "y": -2
+      },
+      "foot-right": {
+       "r": 16
+      },
+      "arm-left": {
+       "r": -12
+      },
+      "arm-right": {
+       "r": -12
+      },
+      "head": {
+       "r": -2.5
+      }
+     }
+    },
+    {
+     "t": 0.49,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "foot-right": {
+       "r": -4
+      }
+     }
+    }
+   ],
+   "length": 0.64
+  },
+  "greet-left": {
+   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-left": {
+       "r": 20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-left": {
+       "r": 62.8
+      },
+      "head": {
+       "r": 5
+      },
+      "body": {
+       "y": -2
+      },
+      "forearm-left": {
+       "r": 33.4
+      }
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-left": {
+       "r": 62.8
+      },
+      "head": {
+       "r": 5
+      },
+      "forearm-left": {
+       "r": -0.6
+      }
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-left": {
+       "r": 62.8
+      },
+      "head": {
+       "r": 5
+      },
+      "forearm-left": {
+       "r": 33.4
+      }
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-left": {
+       "r": 62.8
+      },
+      "head": {
+       "r": 5
+      },
+      "forearm-left": {
+       "r": -0.6
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-left": {
+       "r": 62.8
+      },
+      "head": {
+       "r": 5
+      },
+      "forearm-left": {
+       "r": 33.4
+      }
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {}
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    }
+   ],
+   "length": 1.75
+  },
+  "oh": {
+   "about": "Oh! A small start, hands to her cheeks and clear of her bill, eyes wide. The one time her hands are in front of her head.",
+   "exact": true,
+   "length": 1.4,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      }
+     }
+    },
+    {
+     "t": 0.1,
+     "pose": {
+      "arm-left": {
+       "r": 63.2
+      },
+      "forearm-left": {
+       "r": 57.7
+      },
+      "arm-right": {
+       "r": -63.2
+      },
+      "forearm-right": {
+       "r": -57.7
+      },
+      "body": {
+       "y": -7
+      },
+      "upper": {
+       "sy": 1.04
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.26,
+     "pose": {
+      "arm-left": {
+       "r": 63.2
+      },
+      "forearm-left": {
+       "r": 57.7
+      },
+      "arm-right": {
+       "r": -63.2
+      },
+      "forearm-right": {
+       "r": -57.7
+      },
+      "upper": {
+       "sy": 1.02
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.05,
+     "pose": {},
+     "face": {
+      "arms": "front"
+     }
+    }
+   ]
+  },
+  "read": {
+   "about": "Reading: a book held open at her chest, eyes down on it, a page turned now and then. Goes round until stopped.",
+   "exact": true,
+   "loops": true,
+   "length": 7,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 63.0
+      },
+      "head": {
+       "y": 4
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    },
+    {
+     "t": 4.6,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 85.0
+      },
+      "head": {
+       "y": 4,
+       "r": 3
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    },
+    {
+     "t": 4.9,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 63.0
+      },
+      "head": {
+       "y": 4
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    }
+   ]
+  },
+  "bubbles": {
+   "about": "Making bubbles: a wand held up in her right hand and swept slowly through the air, her eyes on it. No blowing: the bubbles come off the wand as it moves. Goes round until stopped.",
+   "exact": true,
+   "loops": true,
+   "length": 3.4,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": 16.6
+      },
+      "head": {
+       "r": 4
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.9,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": -17.4
+      },
+      "head": {
+       "r": 6
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 2.3,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": 16.6
+      },
+      "head": {
+       "r": 4
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    }
+   ]
+  }
+ },
+ "face": {
+  "eyes": "open",
+  "shades": "none"
+ },
+ "wardrobe": {
+  "looks": [
+   {},
+   {
+    "#2A62B8": "#3C9A5F",
+    "#1B4387": "#105F2E",
+    "#94B0DC": "#9ECCAF"
+   },
+   {
+    "#2A62B8": "#F4BE2C",
+    "#1B4387": "#B8892A",
+    "#94B0DC": "#FADE96"
+   }
+  ],
+  "rain": {
+   "#2A62B8": "#F4C95D",
+   "#1B4387": "#B8892A",
+   "#94B0DC": "#FBE7A6"
+  }
+ },
+ "sideroom": 30
+}

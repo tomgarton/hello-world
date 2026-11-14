@@ -1,0 +1,872 @@
+import SwiftUI
+import UIKit
+
+// Potty stamp cards. Each wee, poo or try earns one ink stamp on a kraft
+// paper card; the sixth space takes a shiny sticker. Finished cards are kept
+// in the stamp book. It only ever adds up: an accident never appears here.
+
+/// The colour of an ink pad.
+enum Ink: String, CaseIterable, Identifiable {
+    case red, blue, green, gold, purple, teal, pink, orange
+
+    var id: String { rawValue }
+
+    /// Brighter after dark, so the ink still reads on dimmed paper.
+    var colour: Color {
+        switch self {
+        // After dark, bright pastels, so they read on the darker card.
+        case .red: Color(light: 0xD9482F, dark: 0xFF8D76, night: 0xE07E6A)
+        case .blue: Color(light: 0x2A62B8, dark: 0x8DBBFF, night: 0x7DA6E3)
+        case .green: Color(light: 0x3C8A55, dark: 0x7FE39C, night: 0x70C98A)
+        case .gold: Color(light: 0xC98A0B, dark: 0xFFD666, night: 0xE3BE5B)
+        case .purple: Color(light: 0x7B4FA8, dark: 0xCBA8FF, night: 0xB495E3)
+        case .teal: Color(light: 0x1E8C8C, dark: 0x5FE6DC, night: 0x55CCC3)
+        case .pink: Color(light: 0xD2527F, dark: 0xFFA3C2, night: 0xE391AD)
+        case .orange: Color(light: 0xE0701F, dark: 0xFFB070, night: 0xE39D64)
+        }
+    }
+}
+
+/// An ink stamp. A potty entry saves "stamp:ink", for example "kangaroo:teal".
+///
+/// The offered set is things a toddler anywhere can name, plus a kangaroo and three
+/// Australian items with a clear outline. Nine pictures are from Phosphor Icons, fill
+/// style (MIT; licence in Resources); the kangaroo, duck, thong and surfboard are drawn
+/// for this app. Stamps from earlier sets still draw.
+enum Stamp: String, CaseIterable, Identifiable {
+    case star, heart, sun, moon, duck, fish, butterfly, train, balloon, kangaroo, thong, surfboard, cricket
+    case esky, hoist, lamington, fairybread, pavlova, zinc, clip, leaf, bird, tortoise, ladybird
+
+    static let offered: [Stamp] = [.star, .heart, .sun, .moon, .duck, .fish, .butterfly, .train, .balloon,
+                                   .kangaroo, .thong, .surfboard, .cricket]
+    static let perCard = 5
+
+    var id: String { rawValue }
+
+    /// A one-colour picture that takes the ink's colour.
+    var art: String? {
+        switch self {
+        case .star, .heart, .sun, .moon, .duck, .fish, .butterfly, .train, .balloon, .kangaroo, .thong, .surfboard, .cricket:
+            "stamp-\(rawValue)"
+        default: nil
+        }
+    }
+
+    /// Details cut out of the picture, drawn in paper colour over it.
+    var cutArt: String? {
+        switch self {
+        case .duck, .thong, .surfboard: "stamp-\(rawValue)-cut"
+        default: nil
+        }
+    }
+
+    /// An earlier Australiana picture with its ink colour drawn in.
+    var fixedArt: String? {
+        switch self {
+        case .esky: "stamp-esky"
+        case .hoist: "stamp-hills-hoist"
+        case .lamington: "stamp-lamington"
+        case .fairybread: "stamp-fairy-bread"
+        case .pavlova: "stamp-pavlova"
+        default: nil
+        }
+    }
+
+    /// For the first stamp set.
+    var symbol: String? {
+        switch self {
+        case .leaf: "leaf.fill"
+        case .bird: "bird.fill"
+        case .tortoise: "tortoise.fill"
+        case .ladybird: "ladybug.fill"
+        case .zinc: "cross.vial.fill"
+        default: nil
+        }
+    }
+
+    /// The ink a stamp uses until the child picks a pad.
+    var ink: Ink {
+        switch self {
+        case .star, .duck: .gold
+        case .heart, .balloon, .esky, .lamington, .pavlova, .clip, .ladybird: .red
+        case .sun, .kangaroo: .orange
+        case .moon: .purple
+        case .fish, .thong: .teal
+        case .butterfly: .pink
+        case .train, .surfboard, .hoist, .bird: .blue
+        case .cricket, .fairybread, .zinc, .leaf, .tortoise: .green
+        }
+    }
+
+    var name: String {
+        switch self {
+        case .clip: "Puggle's clip"
+        case .hoist: "Hills Hoist"
+        case .fairybread: "Fairy bread"
+        case .cricket: "Cricket bat"
+        case .zinc: "Zinc stick"
+        default: rawValue.capitalized
+        }
+    }
+}
+
+/// Puggle's hair clip: four round lobes. The app's sparkle and sticker shape.
+struct Quatrefoil: Shape {
+    func path(in rect: CGRect) -> Path {
+        let r = min(rect.width, rect.height) * 0.275, d = r * 0.82
+        let c = CGPoint(x: rect.midX, y: rect.midY)
+        var path = Path()
+        for (dx, dy) in [(-d, 0.0), (d, 0.0), (0.0, -d), (0.0, d), (0.0, 0.0)] {
+            path.addEllipse(in: CGRect(x: c.x + dx - r, y: c.y + dy - r, width: r * 2, height: r * 2))
+        }
+        return path
+    }
+}
+
+/// Grain, drawn once and tiled: paper fibre, and the gaps in a stamp's ink.
+enum Grain {
+    static let image: UIImage = {
+        let size = CGSize(width: 96, height: 96)
+        return UIGraphicsImageRenderer(size: size).image { context in
+            for _ in 0..<1500 {
+                UIColor(white: 0, alpha: .random(in: 0.25...1)).setFill()
+                let side = CGFloat.random(in: 0.6...1.8)
+                context.fill(CGRect(x: .random(in: 0..<96), y: .random(in: 0..<96), width: side, height: side))
+            }
+        }.withRenderingMode(.alwaysTemplate)
+    }()
+
+    /// The tooth of the paper showing through wax crayon: short slanted streaks.
+    static let crayon: UIImage = {
+        let size = CGSize(width: 120, height: 120)
+        return UIGraphicsImageRenderer(size: size).image { context in
+            let cg = context.cgContext
+            cg.setLineCap(.round)
+            for _ in 0..<950 {
+                let x = CGFloat.random(in: -4..<124), y = CGFloat.random(in: -4..<124)
+                let angle = CGFloat.random(in: -0.95 ... -0.35), length = CGFloat.random(in: 1.5...7)
+                cg.setStrokeColor(UIColor(white: 0, alpha: .random(in: 0.3...1)).cgColor)
+                cg.setLineWidth(.random(in: 0.5...1.3))
+                cg.move(to: CGPoint(x: x, y: y))
+                cg.addLine(to: CGPoint(x: x + cos(angle) * length, y: y + sin(angle) * length))
+                cg.strokePath()
+            }
+        }.withRenderingMode(.alwaysTemplate)
+    }()
+}
+
+/// A line drawn in wax crayon: a ragged edge, a solid middle that is not
+/// quite even, and the paper showing through in streaks.
+struct CrayonStroke: View {
+    let path: Path
+    let colour: Color
+    let width: CGFloat
+    let paper: Color
+
+    var body: some View {
+        let solid = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
+        ZStack {
+            // The edge: broken, where the crayon skipped.
+            path.stroke(colour.opacity(0.5), style: StrokeStyle(lineWidth: width + 1.8, lineCap: .round, lineJoin: .round, dash: [1.3, 2.4]))
+            path.stroke(colour.opacity(0.35), style: StrokeStyle(lineWidth: width + 0.8, lineCap: .round, lineJoin: .round, dash: [3.1, 1.7], dashPhase: 2))
+            // The body, and a second pass a hair off it, the way a child goes over a line.
+            path.stroke(colour.opacity(0.92), style: StrokeStyle(lineWidth: width - 0.8, lineCap: .round, lineJoin: .round))
+            path.offsetBy(dx: 0.7, dy: -0.5).stroke(colour.opacity(0.45), style: StrokeStyle(lineWidth: width * 0.55, lineCap: .round, lineJoin: .round))
+            // The paper's tooth.
+            Image(uiImage: Grain.crayon).resizable(resizingMode: .tile)
+                .foregroundStyle(paper)
+                .opacity(0.62)
+                .clipShape(path.strokedPath(StrokeStyle(lineWidth: width + 1.8, lineCap: .round, lineJoin: .round)))
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// A stamp's picture alone, in the current foreground colour.
+struct StampPicture: View {
+    let stamp: Stamp
+
+    var body: some View {
+        Group {
+            if let art = stamp.art {
+                ZStack {
+                    Image(art).resizable().scaledToFit()
+                    if let cut = stamp.cutArt {
+                        Image(cut).resizable().scaledToFit().foregroundStyle(Palette.stampSpace)
+                    }
+                }
+            } else if let fixed = stamp.fixedArt {
+                Image(fixed).resizable().scaledToFit()
+            } else if let symbol = stamp.symbol {
+                Image(systemName: symbol).resizable().scaledToFit()
+            } else {
+                Quatrefoil()
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// A small, repeatable random sequence, so a stamp's wear is the same every time it is drawn.
+struct SeededRandom {
+    private var state: UInt64
+
+    init(_ seed: UInt64) { state = seed }
+
+    mutating func next() -> UInt64 {
+        state &+= 0x9E37_79B9_7F4A_7C15
+        var z = state
+        z = (z ^ (z >> 30)) &* 0xBF58_476D_1CE4_E5B9
+        z = (z ^ (z >> 27)) &* 0x94D0_49BB_1331_11EB
+        return z ^ (z >> 31)
+    }
+
+    mutating func unit() -> Double { Double(next() >> 11) / Double(UInt64(1) << 53) }
+    mutating func range(_ low: Double, _ high: Double) -> Double { low + unit() * (high - low) }
+}
+
+/// How one impression came out. Modelled on real postmarks and hand stamps:
+/// pressure is uneven, so one side prints strongly and the other fades softly;
+/// the paper's tooth leaves fine specks, more where the ink is thin; solid shapes
+/// are lighter in the middle; the ring breaks in places; and now and then the stamp
+/// is over-inked, or rocks and leaves a faint second edge.
+/// `gentle` is for the stamp kept on the card: the same character, but it always reads.
+struct StampWear {
+    enum Kind { case crisp, worn, heavy }
+
+    let seed: UInt64
+    let gentle: Bool
+    let kind: Kind
+    /// A faint second edge, where the stamp rocked. Never on the card.
+    let ghost: CGSize?
+
+    init(seed: UInt64, gentle: Bool) {
+        self.seed = seed
+        self.gentle = gentle
+        var random = SeededRandom(seed)
+        let roll = random.unit()
+        kind = roll < 0.22 ? .crisp : (roll < (gentle ? 0.3 : 0.36) ? .heavy : .worn)
+        let rocked = random.unit() < 0.2
+        ghost = !gentle && kind != .heavy && rocked
+            ? CGSize(width: random.range(-0.9, 0.9), height: random.range(-0.9, 0.9)) : nil
+    }
+}
+
+/// The mask for one impression: opaque where ink took, clear where it missed.
+struct StampWearMask: View {
+    let wear: StampWear
+
+    var body: some View {
+        Canvas { context, size in
+            let unit = size.width / 54
+            let centre = CGPoint(x: size.width / 2, y: size.height / 2)
+            func point(_ x: Double, _ y: Double) -> CGPoint { CGPoint(x: centre.x + x * unit, y: centre.y + y * unit) }
+            var random = SeededRandom(wear.seed &+ 7)
+            let all = Path(CGRect(origin: .zero, size: size))
+            context.fill(all, with: .color(.white))
+            context.blendMode = .destinationOut
+            let gentle = wear.gentle
+
+            if wear.kind == .worn {
+                // One side pressed lighter, fading softly towards it.
+                let angle = random.range(0, 2 * .pi)
+                let floor = gentle ? random.range(0.62, 0.85) : random.range(0.22, 0.7)
+                let reach = random.range(0.35, 0.75)
+                let fade = Gradient(stops: [.init(color: .black.opacity(0), location: 0),
+                                            .init(color: .black.opacity(0), location: reach),
+                                            .init(color: .black.opacity(1 - floor), location: 1)])
+                context.fill(all, with: .linearGradient(fade, startPoint: point(-cos(angle) * 26, -sin(angle) * 26),
+                                                        endPoint: point(cos(angle) * 26, sin(angle) * 26)))
+                // Gaps in the ring, on the weak side.
+                let breaks = gentle ? (random.unit() < 0.5 ? 1 : 0) : Int(random.range(0, 2.999))
+                for _ in 0..<breaks {
+                    let middle = angle + random.range(-0.9, 0.9)
+                    let half = gentle ? random.range(0.08, 0.2) : random.range(0.12, 0.45)
+                    var arc = Path()
+                    arc.addArc(center: centre, radius: 24 * unit, startAngle: .radians(middle - half),
+                               endAngle: .radians(middle + half), clockwise: false)
+                    context.stroke(arc, with: .color(.black.opacity(random.range(0.55, 1))),
+                                   style: StrokeStyle(lineWidth: random.range(2.6, 4) * unit, lineCap: .round))
+                }
+            }
+            if wear.kind != .heavy {
+                // Lighter middles, where the ink was squeezed out to the edges.
+                let blots = Int(random.range(2, gentle ? 3.999 : 5.999))
+                for _ in 0..<blots {
+                    let x = random.range(-10, 10), y = random.range(-12, 8)
+                    let rx = random.range(3, 7), ry = random.range(2.5, 6)
+                    let strength = random.range(0.12, gentle ? 0.24 : 0.34)
+                    let rect = CGRect(x: centre.x + (x - rx) * unit, y: centre.y + (y - ry) * unit,
+                                      width: 2 * rx * unit, height: 2 * ry * unit)
+                    context.fill(Path(ellipseIn: rect),
+                                 with: .radialGradient(Gradient(colors: [.black.opacity(strength), .black.opacity(0)]),
+                                                       center: CGPoint(x: rect.midX, y: rect.midY),
+                                                       startRadius: 0, endRadius: max(rx, ry) * unit))
+                }
+            }
+            // The paper's tooth.
+            let specks: Int
+            switch wear.kind {
+            case .heavy: specks = 14
+            case .crisp: specks = 34
+            case .worn: specks = Int(random.range(60, gentle ? 85 : 130))
+            }
+            let largest = wear.kind == .worn ? 0.75 : 0.5
+            for _ in 0..<specks {
+                let angle = random.range(0, 2 * .pi), distance = sqrt(random.unit()) * 26, radius = random.range(0.18, largest)
+                context.fill(Path(ellipseIn: CGRect(x: centre.x + (cos(angle) * distance - radius) * unit,
+                                                    y: centre.y + (sin(angle) * distance - radius) * unit,
+                                                    width: 2 * radius * unit, height: 2 * radius * unit)),
+                             with: .color(.black))
+            }
+        }
+        .allowsHitTesting(false)
+    }
+}
+
+/// One impression: two rings, the picture and the date, worn the way real stamps are.
+struct StampMark: View {
+    let stamp: Stamp
+    /// The ink pad chosen; nil uses the stamp's own.
+    var ink: Ink?
+    var date: Date?
+    var size: CGFloat = 54
+    /// Nil draws it clean.
+    var wear: StampWear?
+
+    var body: some View {
+        let k = size / 54
+        let heavy = wear?.kind == .heavy
+        // The date runs round the bottom rim, in a gap in the inner ring, so it is never cut off.
+        let letters = date.map { Array($0.formatted(.dateTime.day().month(.abbreviated)).uppercased()) } ?? []
+        let step = 12.5
+        let gap = letters.isEmpty ? 0 : (Double(letters.count) * step / 2 + 5) / 360
+        let colour = (ink ?? stamp.ink).colour
+        ZStack {
+            Circle().stroke(lineWidth: (heavy ? 2.9 : 2.2) * k).frame(width: 48 * k, height: 48 * k)
+            Circle().trim(from: gap, to: 1 - gap)
+                .stroke(style: StrokeStyle(lineWidth: 0.9 * k, lineCap: .round))
+                .rotationEffect(.degrees(90))
+                .frame(width: 41 * k, height: 41 * k)
+            // Drawn large: it should read at a glance from arm's length.
+            StampPicture(stamp: stamp)
+                .scaleEffect(date == nil ? 1.5 : 1.4)
+                .frame(width: 22 * k, height: 22 * k)
+                .offset(y: date == nil ? 0 : -1.5 * k)
+                // Over-inked: the edges spread a little.
+                .shadow(color: heavy ? colour : .clear, radius: 0.5 * k)
+            ForEach(Array(letters.enumerated()), id: \.offset) { index, letter in
+                let angle = (Double(index) - Double(letters.count - 1) / 2) * step
+                let radians = angle * .pi / 180
+                Text(String(letter))
+                    .font(.system(size: 5.4 * k, weight: heavy ? .heavy : .bold))
+                    .rotationEffect(.degrees(-angle))
+                    .offset(x: CGFloat(sin(radians)) * 19.4 * k, y: CGFloat(cos(radians)) * 19.4 * k)
+            }
+        }
+        .foregroundStyle(colour)
+        .frame(width: size, height: size)
+        .mask {
+            if let wear {
+                StampWearMask(wear: wear)
+            } else {
+                Rectangle()
+            }
+        }
+        .accessibilityHidden(true)
+    }
+}
+
+/// How a sticker's surface catches the light.
+enum Foil: CaseIterable {
+    case rainbow, sea, sunset, pearl, gold
+
+    var colours: [Color] {
+        switch self {
+        case .rainbow: [0xF9C6D8, 0xFBE9A6, 0xB9F0D2, 0xB5D8FA, 0xDCC3F7].map { Color(hex: $0) }
+        case .sea: [0xB5F0E4, 0x8FD3F4, 0xC2C7FA, 0xA8EDD0].map { Color(hex: $0) }
+        case .sunset: [0xFFD3A5, 0xFD9BB0, 0xF7B2E0, 0xFFE29A].map { Color(hex: $0) }
+        case .pearl: [0xFFFFFF, 0xF3E3EE, 0xE2EEF9, 0xFBF3E0].map { Color(hex: $0) }
+        case .gold: [0xFBE59A, 0xF4BE2C, 0xFFF1C2, 0xE9A917].map { Color(hex: $0) }
+        }
+    }
+}
+
+/// What a sticker looks like: one of the soft shapes, a surface, and a picture.
+struct StickerStyle {
+    /// A soft shape from the asset catalogue: "shape-quatrefoil", "shape-blossom" and so on.
+    var shape = "shape-quatrefoil"
+    var foil: Foil? = .rainbow
+    /// A flat colour in place of foil.
+    var colour: Color?
+    /// The picture in the middle, if any.
+    var emblem: String?
+
+    // Round shapes only: Puggle's face spilled over the wide, flat scallop.
+    private static let shapes = ["shape-quatrefoil", "shape-blossom", "shape-soft-hexagon", "shape-pebble", "shape-soft-square"]
+
+    /// The shiny sticker for a finished card. Each card's is a different shape and foil, with Puggle on it.
+    static func card(_ index: Int) -> StickerStyle {
+        StickerStyle(shape: shapes[index % shapes.count], foil: Foil.allCases[index % Foil.allCases.count], emblem: "PuggleFace")
+    }
+}
+
+/// A sticker: die-cut white edge, foil or colour inside, sitting on the paper.
+/// The foil carries a faint quatrefoil repeat, the way printed foil has a pattern in it.
+struct StickerView: View {
+    var style = StickerStyle()
+    var size: CGFloat = 62
+
+    private var mask: some View { Image(style.shape).resizable().scaledToFit() }
+
+    var body: some View {
+        ZStack {
+            mask.foregroundStyle(.white)
+            ZStack {
+                if let colour = style.colour {
+                    colour
+                } else {
+                    LinearGradient(colors: (style.foil ?? .rainbow).colours, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    // The repeat pattern, pressed into the foil.
+                    VStack(spacing: size * 0.03) {
+                        ForEach(0..<5, id: \.self) { row in
+                            HStack(spacing: size * 0.03) {
+                                ForEach(0..<5, id: \.self) { _ in
+                                    Quatrefoil().fill(.white.opacity(0.38)).frame(width: size * 0.17, height: size * 0.17)
+                                }
+                            }
+                            .offset(x: row.isMultiple(of: 2) ? 0 : size * 0.1)
+                        }
+                    }
+                    .rotationEffect(.degrees(-20))
+                }
+                LinearGradient(colors: [.white.opacity(0.5), .white.opacity(0)], startPoint: .top, endPoint: .center)
+            }
+            .mask(mask)
+            .scaleEffect(0.86)
+            if let emblem = style.emblem {
+                Group {
+                    if emblem == "sun" {
+                        SunEmblem()
+                    } else {
+                        Image(emblem).resizable().scaledToFit()
+                    }
+                }
+                .frame(width: size * 0.46, height: size * 0.46)
+                // The pictures are drawn for light paper, whatever the phone is set to.
+                .environment(\.colorScheme, .light)
+            }
+        }
+        .frame(width: size, height: size)
+        .shadow(color: .black.opacity(0.28), radius: 2.5, y: 2)
+        .accessibilityHidden(true)
+    }
+}
+
+/// The edge of a card: nearly a rounded rectangle, but cut by hand.
+struct PaperEdge: Shape {
+    func path(in rect: CGRect) -> Path {
+        let count = 150, power = 2.0 / 9.0
+        var points: [CGPoint] = []
+        for i in 0..<count {
+            let angle = Double(i) / Double(count) * 2 * .pi
+            let c = cos(angle), s = sin(angle)
+            // A squircle, with each point nudged in or out a little.
+            let noise = (sin(Double(i) * 12.9898) * 43758.5453).truncatingRemainder(dividingBy: 1)
+            let wobble = 1 - abs(noise) * 0.011 - (i % 23 == 0 ? 0.008 : 0)
+            let x = rect.midX + rect.width / 2 * CGFloat((c < 0 ? -1 : 1) * pow(abs(c), power) * wobble)
+            let y = rect.midY + rect.height / 2 * CGFloat((s < 0 ? -1 : 1) * pow(abs(s), power) * wobble)
+            points.append(CGPoint(x: x, y: y))
+        }
+        var path = Path()
+        path.addLines(points)
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// Paper that moves: a ring running out from a stamp, and a corner that folds over.
+struct PaperEffects: ViewModifier, Animatable {
+    /// Set to false to build without `Design/Paper.metal` (it needs Apple's Metal Toolchain).
+    /// The card then moves as a flat sheet: no ripple and no folded corner.
+    static let shadersBuilt = true
+
+    /// How far the corner is folded in, in points.
+    var curl: CGFloat
+    var corner: CGPoint
+    var rippleOrigin: CGPoint
+    var rippleStart: Date?
+    var size = StampCard.size
+    /// The back of the card, plainer than the front, and dimmed after dark like everything else.
+    var back = PaperEffects.cardBack
+    static let cardBack = Color(light: 0xE6D9B8, dark: 0x4C4232, night: 0x342D22)
+
+    var animatableData: CGFloat {
+        get { curl }
+        set { curl = newValue }
+    }
+
+    @ViewBuilder func body(content: Content) -> some View {
+        if Self.shadersBuilt { moving(content) } else { content }
+    }
+
+    private func moving(_ content: Content) -> some View {
+        let centre = CGPoint(x: size.width / 2, y: size.height / 2)
+        let length = max(hypot(centre.x - corner.x, centre.y - corner.y), 1)
+        let pull = CGPoint(x: (centre.x - corner.x) / length * curl, y: (centre.y - corner.y) / length * curl)
+        return TimelineView(.animation(paused: rippleStart == nil)) { timeline in
+            let elapsed = rippleStart.map { timeline.date.timeIntervalSince($0) } ?? 0
+            content
+                .distortionEffect(ShaderLibrary.paperRipple(.float2(rippleOrigin), .float(elapsed)),
+                                  maxSampleOffset: CGSize(width: 12, height: 12),
+                                  isEnabled: rippleStart != nil)
+                .layerEffect(ShaderLibrary.paperCurl(.float2(size), .float2(corner), .float2(pull), .color(back)),
+                             maxSampleOffset: CGSize(width: 320, height: 320),
+                             isEnabled: curl > 0.5)
+        }
+    }
+}
+
+/// The picture on a card. They take turns.
+enum CardTheme: CaseIterable {
+    case beach, backyard, night
+
+    static func forCard(_ index: Int) -> CardTheme { allCases[index % allCases.count] }
+
+    var name: String {
+        switch self {
+        case .beach: "Beach"
+        case .backyard: "Backyard"
+        case .night: "Night"
+        }
+    }
+
+    var paper: Color {
+        switch self {
+        // Kraft card, dimmed in dark mode and dimmer again at night.
+        case .beach: Color(light: 0xD2BF92, dark: 0x3F3526, night: 0x2C251B)
+        case .backyard: Color(light: 0xCDBB8E, dark: 0x3B3324, night: 0x29231A)
+        case .night: Color(light: 0x1F2A4D, dark: 0x1B2442, night: 0x141B33)
+        }
+    }
+
+    var trail: Color {
+        switch self {
+        case .beach: Color(light: 0x2A62B8, dark: 0x8DBBFF, night: 0x7DA6E3)
+        case .backyard: Color(light: 0x3D7A45, dark: 0x7FE39C, night: 0x70C98A)
+        case .night: Color(light: 0xF3E0B8, dark: 0xF3E0B8, night: 0xD8C59E)
+        }
+    }
+
+    // Lighter after dark, so the drawings stay bright on the darker card.
+    static let red = Color(light: 0xD9482F, dark: 0xFF8D76, night: 0xE07E6A)
+    static let blue = Color(light: 0x2A62B8, dark: 0x8DBBFF, night: 0x7DA6E3)
+    static let green = Color(light: 0x3C8A55, dark: 0x7FE39C, night: 0x70C98A)
+    static let yellow = Color(light: 0xE9AE1C, dark: 0xFFD666, night: 0xE3BE5B)
+    static let pink = Color(light: 0xD9727C, dark: 0xFFA3C2, night: 0xE391AD)
+    static let brown = Color(light: 0x7A4E33, dark: 0xD9A27A, night: 0xBF8E6B)
+    private static let cream = Color(light: 0xF3E0B8, dark: 0xF3E0B8, night: 0xD8C59E)
+
+    private static func lines(_ points: [(CGFloat, CGFloat)], closed: Bool = false) -> Path {
+        var path = Path()
+        path.addLines(points.map { CGPoint(x: $0.0, y: $0.1) })
+        if closed { path.closeSubpath() }
+        return path
+    }
+
+    private static func circle(_ x: CGFloat, _ y: CGFloat, _ r: CGFloat) -> Path {
+        Path(ellipseIn: CGRect(x: x - r, y: y - r, width: r * 2, height: r * 2))
+    }
+
+    private static func grass(_ x: CGFloat) -> Path {
+        lines([(x, 198), (x + 7, 185), (x + 14, 198), (x + 21, 185), (x + 28, 198)])
+    }
+
+    /// A child's crayon drawing, as strokes: the shape, its colour and how thick.
+    var strokes: [(Path, Color, CGFloat)] {
+        switch self {
+        case .beach:
+            var waves = Path()
+            waves.move(to: CGPoint(x: 18, y: 62))
+            for i in 0..<6 {
+                let x = 18 + CGFloat(i) * 26
+                waves.addQuadCurve(to: CGPoint(x: x + 26, y: 62), control: CGPoint(x: x + 13, y: i.isMultiple(of: 2) ? 49 : 75))
+            }
+            // Eight rays all the way round, each a short crayon dash.
+            var rays = Path()
+            for i in 0..<8 {
+                let a = Double(i) / 8 * 2 * .pi
+                rays.move(to: CGPoint(x: 236 + CGFloat(cos(a)) * 20, y: 36 + CGFloat(sin(a)) * 20))
+                rays.addLine(to: CGPoint(x: 236 + CGFloat(cos(a)) * 28, y: 36 + CGFloat(sin(a)) * 28))
+            }
+            return [(waves, Self.blue, 6),
+                    (Self.lines([(58, 48), (102, 48), (93, 60), (67, 60)], closed: true), Self.red, 5),
+                    (Self.lines([(80, 46), (80, 16), (100, 42)], closed: true), Self.red, 5),
+                    (Self.circle(236, 36, 13), Self.yellow, 6), (rays, Self.yellow, 5),
+                    (Self.grass(150), Self.green, 5)]
+        case .backyard:
+            var flower = Path()
+            for i in 0..<5 {
+                let a = Double(i) / 5 * 2 * .pi - .pi / 2
+                flower.addPath(Self.circle(40 + CGFloat(cos(a)) * 12, 42 + CGFloat(sin(a)) * 12, 8))
+            }
+            var leaf = Path()
+            leaf.move(to: CGPoint(x: 236, y: 32))
+            leaf.addQuadCurve(to: CGPoint(x: 272, y: 34), control: CGPoint(x: 254, y: 10))
+            leaf.addQuadCurve(to: CGPoint(x: 236, y: 32), control: CGPoint(x: 254, y: 50))
+            return [(flower, Self.pink, 4), (Self.circle(40, 42, 4), Self.yellow, 5),
+                    (Self.circle(150, 43, 17), Self.yellow, 5), (Self.circle(150, 43, 7), Self.yellow, 5),
+                    (Self.lines([(118, 62), (178, 62), (184, 48)]), Self.red, 5),
+                    (Self.lines([(184, 48), (188, 36)]), Self.red, 4), (Self.lines([(184, 48), (196, 42)]), Self.red, 4),
+                    (leaf, Self.green, 5), (Self.grass(18), Self.green, 5), (Self.grass(200), Self.green, 5)]
+        case .night:
+            var moon = Path()
+            moon.move(to: CGPoint(x: 66, y: 18))
+            moon.addCurve(to: CGPoint(x: 82, y: 56), control1: CGPoint(x: 34, y: 22), control2: CGPoint(x: 42, y: 68))
+            moon.addCurve(to: CGPoint(x: 66, y: 18), control1: CGPoint(x: 62, y: 54), control2: CGPoint(x: 54, y: 34))
+            func twinkle(_ x: CGFloat, _ y: CGFloat, _ s: CGFloat) -> Path {
+                var path = Self.lines([(x - s, y), (x + s, y)])
+                path.addPath(Self.lines([(x, y - s), (x, y + s)]))
+                return path
+            }
+            return [(moon, Self.cream, 5), (twinkle(132, 38, 9), Self.yellow, 4), (twinkle(200, 30, 7), Self.yellow, 4),
+                    (twinkle(250, 48, 5), Self.cream, 4), (twinkle(26, 100, 4), Self.cream, 4)]
+        }
+    }
+}
+
+/// Lays a card out on a fixed 360 by 215 sheet and scales it to the width it is given.
+struct CardCanvas<Content: View>: View {
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .topLeading) { content }
+                .frame(width: StampCard.size.width, height: StampCard.size.height, alignment: .topLeading)
+                .scaleEffect(geometry.size.width / StampCard.size.width, anchor: .topLeading)
+        }
+        .aspectRatio(StampCard.size.width / StampCard.size.height, contentMode: .fit)
+    }
+}
+
+/// One stamp on a card.
+struct Impression: Identifiable {
+    let id: String
+    let stamp: Stamp
+    let ink: Ink?
+    let date: Date?
+    /// Decides how this impression came out. Saved, so it looks the same every time.
+    let seed: UInt64
+    /// How far off the centre of its space it landed, in card points.
+    let offset: CGSize
+
+    init(_ event: Event) {
+        id = event.objectID.uriRepresentation().absoluteString
+        // Saved as "stamp:ink:seed:dx:dy". Older entries have fewer parts.
+        let parts = (event.sticker ?? "").split(separator: ":").map(String.init)
+        stamp = Stamp(rawValue: parts.first ?? "") ?? .clip
+        ink = parts.count > 1 ? Ink(rawValue: parts[1]) : nil
+        date = event.startedAt
+        let fallback = id.unicodeScalars.reduce(UInt64(14_695_981_039_346_656_037)) { ($0 ^ UInt64($1.value)) &* 1_099_511_628_211 }
+        seed = parts.count > 2 ? (UInt64(parts[2]) ?? fallback) : fallback
+        offset = parts.count > 4 ? CGSize(width: Double(parts[3]) ?? 0, height: Double(parts[4]) ?? 0) : .zero
+    }
+
+    /// Each lands a little crooked, and the same way every time it is drawn.
+    var tilt: Double {
+        let sum = id.unicodeScalars.reduce(0) { ($0 &* 31 &+ Int($1.value)) % 1800 }
+        return Double(sum % 180) / 10 - 9
+    }
+}
+
+enum StampCard {
+    static let size = CGSize(width: 360, height: 215)
+    static let spaces: [CGPoint] = [CGPoint(x: 48, y: 165), CGPoint(x: 104, y: 110), CGPoint(x: 162, y: 165),
+                                    CGPoint(x: 220, y: 110), CGPoint(x: 278, y: 165)]
+    static let last = CGPoint(x: 318, y: 86)
+}
+
+/// The card itself: kraft paper, a crayon picture, a trail of five spaces
+/// and a quatrefoil space at the end for the sticker.
+struct StampCardFace: View {
+    let theme: CardTheme
+    let impressions: [Impression]
+    /// The shiny sticker that goes on the last space of this card.
+    var sticker = StickerStyle()
+    var hasSticker = false
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            PaperEdge().fill(theme.paper)
+            // Matte paper: fibres, no sheen.
+            Image(uiImage: Grain.image).resizable(resizingMode: .tile)
+                .foregroundStyle(theme == .night ? Color.white : Color(light: 0x5A4320, dark: 0x1A140D))
+                .opacity(theme == .night ? 0.05 : 0.13)
+                .clipShape(PaperEdge())
+            // The cut edge is a touch darker, as card is.
+            PaperEdge().stroke(.black.opacity(0.14), lineWidth: 1.2)
+
+            CrayonStroke(path: Path { path in
+                path.move(to: CGPoint(x: -10, y: 165))
+                path.addLines(StampCard.spaces + [StampCard.last])
+            }, colour: theme.trail, width: 9, paper: theme.paper)
+            ForEach(Array(theme.strokes.enumerated()), id: \.offset) { _, stroke in
+                CrayonStroke(path: stroke.0, colour: stroke.1, width: stroke.2 + 1, paper: theme.paper)
+            }
+
+            ForEach(Array(StampCard.spaces.enumerated()), id: \.offset) { index, point in
+                Circle().fill(Palette.stampSpace).frame(width: 54, height: 54).position(point)
+                if index < impressions.count {
+                    let impression = impressions[index]
+                    StampMark(stamp: impression.stamp, ink: impression.ink, date: impression.date,
+                              wear: StampWear(seed: impression.seed, gentle: true))
+                        .rotationEffect(.degrees(impression.tilt))
+                        .position(x: point.x + impression.offset.width, y: point.y + impression.offset.height)
+                }
+            }
+            Image(sticker.shape).resizable().scaledToFit().foregroundStyle(Palette.stampSpace)
+                .frame(width: 70, height: 70).position(StampCard.last)
+            if hasSticker {
+                StickerView(style: sticker, size: 68).rotationEffect(.degrees(-8)).position(StampCard.last)
+            }
+        }
+        .frame(width: StampCard.size.width, height: StampCard.size.height)
+        .clipShape(PaperEdge())
+        .accessibilityElement()
+        .accessibilityLabel("\(theme.name) card, \(impressions.count) of \(Stamp.perCard) stamps\(hasSticker ? ", with its shiny sticker" : "")")
+    }
+}
+
+extension Palette {
+    /// The blank spaces on a card, and the sheet the stamps sit on. Paper, dimmed after dark.
+    static let stampSpace = Color(light: 0xF4ECDA, dark: 0x5A4E3E, night: 0x3E362B)
+    /// Scrap paper for trying a stamp.
+    static let scrap = Color(light: 0xFBF6E9, dark: 0x302923, night: 0x1E1916)
+}
+
+extension FamilyStore {
+    /// A child's stamps in order, split into cards of five. The last may be part filled.
+    func stampCards(for child: Child) -> [[Impression]] {
+        let all = stickers(for: child).map(Impression.init)
+        guard !all.isEmpty else { return [] }
+        return stride(from: 0, to: all.count, by: Stamp.perCard).map { Array(all[$0..<min($0 + Stamp.perCard, all.count)]) }
+    }
+}
+
+/// The back of a stamp card: Puggle, drawn in crayon by a child. Found by
+/// folding over every corner, or the same corner three times.
+struct CardBack: View {
+    let theme: CardTheme
+
+    private static func oval(_ x: CGFloat, _ y: CGFloat, _ rx: CGFloat, _ ry: CGFloat) -> Path {
+        Path(ellipseIn: CGRect(x: x - rx, y: y - ry, width: rx * 2, height: ry * 2))
+    }
+
+    var strokes: [(Path, Color, CGFloat)] {
+        // Head and a round body, a little wonky, as a child draws them.
+        var head = Path()
+        head.move(to: CGPoint(x: 180, y: 34))
+        head.addCurve(to: CGPoint(x: 232, y: 92), control1: CGPoint(x: 214, y: 32), control2: CGPoint(x: 234, y: 60))
+        head.addCurve(to: CGPoint(x: 178, y: 140), control1: CGPoint(x: 230, y: 124), control2: CGPoint(x: 206, y: 141))
+        head.addCurve(to: CGPoint(x: 128, y: 90), control1: CGPoint(x: 148, y: 139), control2: CGPoint(x: 126, y: 120))
+        head.addCurve(to: CGPoint(x: 182, y: 36), control1: CGPoint(x: 130, y: 58), control2: CGPoint(x: 150, y: 35))
+        // The bill: a wide, flat oval across the bottom of the face.
+        let bill = Self.oval(180, 122, 40, 16)
+        var nostrils = Self.oval(172, 117, 1.5, 1.5)
+        nostrils.addPath(Self.oval(188, 117, 1.5, 1.5))
+        var eyes = Self.oval(162, 86, 3, 3.5)
+        eyes.addPath(Self.oval(198, 86, 3, 3.5))
+        // Cheeks: a quick scribble each.
+        var cheeks = Path()
+        for x in [146.0, 214.0] {
+            cheeks.move(to: CGPoint(x: x - 6, y: 104))
+            cheeks.addLine(to: CGPoint(x: x + 2, y: 98))
+            cheeks.addLine(to: CGPoint(x: x - 2, y: 108))
+            cheeks.addLine(to: CGPoint(x: x + 6, y: 102))
+        }
+        // Her flower, on the top of her head.
+        var flower = Path()
+        for i in 0..<4 {
+            let a = Double(i) / 4 * 2 * .pi + .pi / 4
+            flower.addPath(Self.oval(216 + CGFloat(cos(a)) * 7, 42 + CGFloat(sin(a)) * 7, 6, 6))
+        }
+        // Dress: a triangle with a scribbled hem, then two stick legs.
+        let dress = CardTheme.linesPath([(166, 142), (194, 142), (214, 196), (146, 196)], closed: true)
+        var hem = Path()
+        hem.move(to: CGPoint(x: 152, y: 186))
+        for i in 0..<6 { hem.addLine(to: CGPoint(x: 158 + CGFloat(i) * 9, y: i.isMultiple(of: 2) ? 180 : 190)) }
+        var legs = CardTheme.linesPath([(166, 198), (166, 210)])
+        legs.addPath(CardTheme.linesPath([(194, 198), (194, 210)]))
+        // A tail poking out behind, and a heart and a sun in the corners.
+        var tail = Path()
+        tail.move(to: CGPoint(x: 212, y: 186))
+        tail.addQuadCurve(to: CGPoint(x: 246, y: 196), control: CGPoint(x: 236, y: 178))
+        var heart = Path()
+        heart.move(to: CGPoint(x: 52, y: 70))
+        heart.addCurve(to: CGPoint(x: 52, y: 46), control1: CGPoint(x: 28, y: 56), control2: CGPoint(x: 38, y: 34))
+        heart.addCurve(to: CGPoint(x: 52, y: 70), control1: CGPoint(x: 66, y: 34), control2: CGPoint(x: 76, y: 56))
+        var sun = Self.oval(306, 52, 13, 13)
+        for i in 0..<8 {
+            let a = Double(i) / 8 * 2 * .pi
+            sun.move(to: CGPoint(x: 306 + CGFloat(cos(a)) * 20, y: 52 + CGFloat(sin(a)) * 20))
+            sun.addLine(to: CGPoint(x: 306 + CGFloat(cos(a)) * 27, y: 52 + CGFloat(sin(a)) * 27))
+        }
+        return [(head, CardTheme.brown, 6), (bill, CardTheme.blue, 6), (nostrils, CardTheme.blue, 3),
+                (eyes, Palette.ink, 5), (cheeks, CardTheme.pink, 3), (flower, CardTheme.red, 5),
+                (Self.oval(216, 42, 2, 2), CardTheme.yellow, 4), (dress, CardTheme.blue, 5), (hem, CardTheme.blue, 3),
+                (legs, CardTheme.brown, 5), (tail, CardTheme.brown, 6), (heart, CardTheme.pink, 5),
+                (sun, CardTheme.yellow, 5)]
+    }
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            PaperEdge().fill(PaperEffects.cardBack)
+            Image(uiImage: Grain.image).resizable(resizingMode: .tile)
+                .foregroundStyle(Color(light: 0x5A4320, dark: 0x1A140D))
+                .opacity(0.13)
+                .clipShape(PaperEdge())
+            PaperEdge().stroke(.black.opacity(0.14), lineWidth: 1.2)
+            ForEach(Array(strokes.enumerated()), id: \.offset) { _, stroke in
+                CrayonStroke(path: stroke.0, colour: stroke.1, width: stroke.2, paper: PaperEffects.cardBack)
+            }
+        }
+        .frame(width: StampCard.size.width, height: StampCard.size.height)
+        .clipShape(PaperEdge())
+        .accessibilityElement()
+        .accessibilityLabel("The back of the card: a crayon drawing of Puggle")
+    }
+}
+
+extension CardTheme {
+    static func linesPath(_ points: [(CGFloat, CGFloat)], closed: Bool = false) -> Path {
+        var path = Path()
+        path.addLines(points.map { CGPoint(x: $0.0, y: $0.1) })
+        if closed { path.closeSubpath() }
+        return path
+    }
+}
+
+/// A sun in the same line style as the activity icons: an ink outline, a
+/// wattle middle and rounded rays. For dry days.
+struct SunEmblem: View {
+    var body: some View {
+        GeometryReader { g in
+            let w = g.size.width, c = CGPoint(x: w / 2, y: w / 2), line = w * 0.075
+            ZStack {
+                Circle().fill(Palette.wattle).frame(width: w * 0.42, height: w * 0.42)
+                Circle().stroke(Palette.fixedInk, lineWidth: line).frame(width: w * 0.42, height: w * 0.42)
+                Path { p in
+                    for i in 0..<8 {
+                        let a = Double(i) / 8 * 2 * .pi
+                        p.move(to: CGPoint(x: c.x + CGFloat(cos(a)) * w * 0.32, y: c.y + CGFloat(sin(a)) * w * 0.32))
+                        p.addLine(to: CGPoint(x: c.x + CGFloat(cos(a)) * w * 0.44, y: c.y + CGFloat(sin(a)) * w * 0.44))
+                    }
+                }
+                .stroke(Palette.fixedInk, style: StrokeStyle(lineWidth: line, lineCap: .round))
+            }
+            .frame(width: w, height: w)
+        }
+        .aspectRatio(1, contentMode: .fit)
+        .accessibilityHidden(true)
+    }
+}

@@ -1,0 +1,5510 @@
+{
+ "name": "Puggle",
+ "size": [
+  240,
+  300
+ ],
+ "about": "Puggle's parts, where each turns, and her moves. Shapes paint in the order listed. 'stroke' is the dark outline; 'tint' is the outline in the coloured line style. Angles are degrees, clockwise. She has no mouth: her eyes, eyebrows, cheeks, the tilt of her head and her tail show the feeling. Borrowed from comics: marks on her cheeks when she is pleased, eyes squeezed shut (> <), and sparkles or Zs in the air. Her feet are webbed, each on its own ankle so it can lift and flap. What she wears follows the weather: boots, a coat and a rain hat for rain, a scarf and beanie for cold, a straw hat and zinc for heat. Indoors at bedtime she is in her pyjamas.",
+ "parts": [
+  {
+   "id": "body",
+   "pivot": [
+    120,
+    290
+   ],
+   "shapes": []
+  },
+  {
+   "id": "tail",
+   "parent": "body",
+   "pivot": [
+    162,
+    239
+   ],
+   "spring": 70,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152.2 234.9 Q166.8 215.9 186.5 206.5 Q212.5 195.0 219.6 208.2 Q226.6 221.4 202.5 236.5 Q183.7 247.7 159.8 249.1 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M188.8 215.5 Q196.5 220.5 196.4 229.6 M201.8 209.7 Q209.0 213.8 208.4 222.1",
+     "stroke": "#5E3A24",
+     "width": 2.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "leg-left",
+   "parent": "body",
+   "pivot": [
+    100,
+    246
+   ],
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 86,
+     "y": 244,
+     "w": 28,
+     "h": 34,
+     "r": 11,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    }
+   ]
+  },
+  {
+   "id": "leg-right",
+   "parent": "body",
+   "pivot": [
+    140,
+    246
+   ],
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 126,
+     "y": 244,
+     "w": 28,
+     "h": 34,
+     "r": 11,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    }
+   ]
+  },
+  {
+   "id": "foot-left",
+   "parent": "leg-left",
+   "pivot": [
+    100,
+    274
+   ],
+   "spring": 200,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M91 273 L109 273 Q120 277 119 285 Q119 292 112.5 291 Q109.5 287 106.3 291 Q100 294 93.7 291 Q90.5 287 87.5 291 Q81 292 81 285 Q80 277 91 273 Z",
+     "x": 100,
+     "y": 274,
+     "rotate": 7,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M93.7 290 L95.275 283",
+     "x": 100,
+     "y": 274,
+     "rotate": 7,
+     "stroke": "#465668",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M106.3 290 L104.725 283",
+     "x": 100,
+     "y": 274,
+     "rotate": 7,
+     "stroke": "#465668",
+     "width": 2.4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "foot-right",
+   "parent": "leg-right",
+   "pivot": [
+    140,
+    274
+   ],
+   "spring": 200,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M131 273 L149 273 Q160 277 159 285 Q159 292 152.5 291 Q149.5 287 146.3 291 Q140 294 133.7 291 Q130.5 287 127.5 291 Q121 292 121 285 Q120 277 131 273 Z",
+     "x": 140,
+     "y": 274,
+     "rotate": -7,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M133.7 290 L135.27499999999998 283",
+     "x": 140,
+     "y": 274,
+     "rotate": -7,
+     "stroke": "#465668",
+     "width": 2.4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M146.3 290 L144.72500000000002 283",
+     "x": 140,
+     "y": 274,
+     "rotate": -7,
+     "stroke": "#465668",
+     "width": 2.4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "boot-left",
+   "parent": "foot-left",
+   "pivot": [
+    100,
+    274
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 86,
+     "y": 255,
+     "w": 28,
+     "h": 26,
+     "r": 6,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 79,
+     "y": 271,
+     "w": 42,
+     "h": 23,
+     "r": 10,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 88.5,
+     "y": 258,
+     "w": 23,
+     "h": 14,
+     "r": 3,
+     "fill": "#F4C95D"
+    },
+    {
+     "kind": "path",
+     "d": "M90 261 L110 261",
+     "stroke": "#FBE7A6",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "boot-right",
+   "parent": "foot-right",
+   "pivot": [
+    140,
+    274
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 126,
+     "y": 255,
+     "w": 28,
+     "h": 26,
+     "r": 6,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 119,
+     "y": 271,
+     "w": 42,
+     "h": 23,
+     "r": 10,
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 5
+    },
+    {
+     "kind": "rect",
+     "x": 128.5,
+     "y": 258,
+     "w": 23,
+     "h": 14,
+     "r": 3,
+     "fill": "#F4C95D"
+    },
+    {
+     "kind": "path",
+     "d": "M130 261 L150 261",
+     "stroke": "#FBE7A6",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "parent": "body",
+   "pivot": [
+    120,
+    252
+   ],
+   "shapes": []
+  },
+  {
+   "id": "dress",
+   "parent": "upper",
+   "pivot": [
+    120,
+    252
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L180 244 Q182 254 170 254 L70 254 Q58 254 60 244 Z",
+     "fill": "#2A62B8",
+     "stroke": "#3A2A20",
+     "width": 7,
+     "tint": "#1B4387"
+    },
+    {
+     "kind": "path",
+     "d": "M100 210 L140 210 L140 219 C140 240.3 100 240.3 100 219 Z",
+     "stroke": "#3A2A20",
+     "width": 5,
+     "tint": "#1B4387",
+     "fill": "#8FB4E3"
+    }
+   ]
+  },
+  {
+   "id": "coat",
+   "parent": "upper",
+   "pivot": [
+    120,
+    252
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L180 244 Q182 254 170 254 L70 254 Q58 254 60 244 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "width": 7,
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "path",
+     "d": "M100 210 L140 210 L140 219 C140 240.3 100 240.3 100 219 Z",
+     "stroke": "#3A2A20",
+     "width": 5,
+     "tint": "#B8892A"
+    },
+    {
+     "kind": "path",
+     "d": "M120 168 L120 204",
+     "stroke": "#B8892A",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 180,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBE7A6"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 195,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBE7A6"
+    }
+   ]
+  },
+  {
+   "id": "pyjamas",
+   "parent": "upper",
+   "pivot": [
+    120,
+    252
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 166 Q120 156 152 166 L180 244 Q182 254 170 254 L70 254 Q58 254 60 244 Z",
+     "fill": "#CDBFEA",
+     "stroke": "#3A2A20",
+     "width": 7,
+     "tint": "#7E6BB0"
+    },
+    {
+     "kind": "path",
+     "d": "M120 168 L120 204",
+     "stroke": "#7E6BB0",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 180,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 195,
+     "rx": 3,
+     "ry": 3,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 96,
+     "y": 222,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 144,
+     "y": 226,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 238,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 80,
+     "y": 244,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 246,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#FBF3E2"
+    }
+   ]
+  },
+  {
+   "id": "rabbit",
+   "parent": "upper",
+   "pivot": [
+    120,
+    220
+   ],
+   "when": "holding=rabbit",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 112,
+     "y": 186,
+     "rx": 5,
+     "ry": 13,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4,
+     "rotate": -8
+    },
+    {
+     "kind": "ellipse",
+     "x": 128,
+     "y": 186,
+     "rx": 5,
+     "ry": 13,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4,
+     "rotate": 10
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 232,
+     "rx": 15,
+     "ry": 15,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 207,
+     "rx": 16,
+     "ry": 14,
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 114,
+     "y": 205,
+     "rx": 1.9,
+     "ry": 1.9,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 126,
+     "y": 205,
+     "rx": 1.9,
+     "ry": 1.9,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 210,
+     "rx": 2,
+     "ry": 1.5,
+     "fill": "#F2A48E"
+    }
+   ]
+  },
+  {
+   "id": "book",
+   "parent": "upper",
+   "pivot": [
+    120,
+    222
+   ],
+   "when": "holding=book",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M78 198 L120 205 L162 198 L162 240 L120 247 L78 240 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M120 205 L120 247",
+     "stroke": "#B23A26",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M82 196 L120 202 L158 196",
+     "stroke": "#FBF6E9",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 141,
+     "y": 222,
+     "rx": 8,
+     "ry": 8,
+     "fill": "#F4BE2C"
+    }
+   ]
+  },
+  {
+   "id": "arm-left",
+   "parent": "upper",
+   "pivot": [
+    88,
+    178
+   ],
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left",
+   "parent": "arm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "spring": 170,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-top",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-top",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-left",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-left-top",
+   "parent": "coat-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left-top",
+   "parent": "coat-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-left",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-left-top",
+   "parent": "pyjama-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 178 Q79.9 188.4 70.4 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left-top",
+   "parent": "pyjama-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "arm-right",
+   "parent": "upper",
+   "pivot": [
+    152,
+    178
+   ],
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right",
+   "parent": "arm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "spring": 170,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-top",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "wand",
+   "parent": "forearm-right",
+   "pivot": [
+    190,
+    214
+   ],
+   "when": "holding=wand",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M190 214 L208.6 229.1",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 216.4,
+     "y": 235.5,
+     "rx": 10,
+     "ry": 10,
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 8
+    },
+    {
+     "kind": "path",
+     "d": "M190 214 L208.6 229.1",
+     "stroke": "#F4BE2C",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 216.4,
+     "y": 235.5,
+     "rx": 10,
+     "ry": 10,
+     "stroke": "#F4BE2C",
+     "width": 4
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-top",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-right",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-right-top",
+   "parent": "coat-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right-top",
+   "parent": "coat-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-right",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-right-top",
+   "parent": "pyjama-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M152 178 Q160.1 188.4 169.6 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right-top",
+   "parent": "pyjama-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "scarf",
+   "parent": "upper",
+   "pivot": [
+    120,
+    170
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M148 170 L160 200 L146 204 L138 174 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M84 166 Q120 180 156 166 L158 178 Q120 194 82 178 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M148 186 L158 184",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150 196 L159 194",
+     "stroke": "#F7B9A8",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "head",
+   "parent": "upper",
+   "pivot": [
+    120,
+    166
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 108,
+     "rx": 70,
+     "ry": 60,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 7
+    }
+   ]
+  },
+  {
+   "id": "lick",
+   "parent": "head",
+   "pivot": [
+    111,
+    58
+   ],
+   "when": "outfit=none|night|bare",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M103 58 Q99 44 107 37 Q118 31 124 39 Q117 40 116 47 Q116 53 120 57 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 7
+    },
+    {
+     "kind": "path",
+     "d": "M104 58 Q111 50 119 57 L121 74 L102 74 Z",
+     "fill": "#8A5A3C"
+    }
+   ],
+   "spring": 110
+  },
+  {
+   "id": "blush",
+   "parent": "head",
+   "pivot": [
+    120,
+    132
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 70,
+     "y": 132,
+     "rx": 12,
+     "ry": 7.5,
+     "fill": "#C27C66"
+    },
+    {
+     "kind": "ellipse",
+     "x": 170,
+     "y": 132,
+     "rx": 12,
+     "ry": 7.5,
+     "fill": "#C27C66"
+    }
+   ]
+  },
+  {
+   "id": "bill",
+   "parent": "head",
+   "pivot": [
+    120,
+    151
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 151,
+     "rx": 47,
+     "ry": 19,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 6
+    },
+    {
+     "kind": "ellipse",
+     "x": 114,
+     "y": 143,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 126,
+     "y": 143,
+     "rx": 1.8,
+     "ry": 1.8,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "zinc",
+   "parent": "bill",
+   "pivot": [
+    120,
+    151
+   ],
+   "when": "outfit=sun",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M107 139.5 Q120 136.5 133 139.5",
+     "stroke": "#FF9CC0",
+     "width": 5.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-round-tinted",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=round-tinted",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 119,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#E3B063",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 119,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#E3B063",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M106.6 119 Q120 110 133.4 119",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M69.4 117 L52.4 111 M170.6 117 L187.6 111",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "eye-left",
+   "parent": "head",
+   "pivot": [
+    88,
+    117
+   ],
+   "spring": 0,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 117,
+     "rx": 6.8,
+     "ry": 6.8,
+     "fill": "#3A2A20"
+    }
+   ],
+   "when": "eyes=open"
+  },
+  {
+   "id": "eye-right",
+   "parent": "head",
+   "pivot": [
+    152,
+    117
+   ],
+   "spring": 0,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 117,
+     "rx": 6.8,
+     "ry": 6.8,
+     "fill": "#3A2A20"
+    }
+   ],
+   "when": "eyes=open"
+  },
+  {
+   "id": "eyes-happy",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "when": "eyes=happy",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M80 120 Q88 111 96 120",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M144 120 Q152 111 160 120",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "eyes-closed",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "when": "eyes=closed",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M80 116 Q88 123 96 116",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M144 116 Q152 123 160 116",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "brow-left",
+   "parent": "head",
+   "pivot": [
+    88,
+    101
+   ],
+   "when": "brows=on",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M80 102 Q88 97 96 102",
+     "stroke": "#5E3A24",
+     "width": 4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "brow-right",
+   "parent": "head",
+   "pivot": [
+    152,
+    101
+   ],
+   "when": "brows=on",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M144 102 Q152 97 160 102",
+     "stroke": "#5E3A24",
+     "width": 4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "shy",
+   "parent": "blush",
+   "pivot": [
+    120,
+    132
+   ],
+   "when": "cheeks=shy",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M63 136 L67 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M68 136 L72 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M73 136 L77 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M163 136 L167 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M168 136 L172 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173 136 L177 128",
+     "stroke": "#F2A892",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "eyes-squeeze",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "when": "eyes=squeeze",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M82 111 L93 117 L82 123",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M158 111 L147 117 L158 123",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-round-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=round-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 119,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 119,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M106.6 119 Q120 110 133.4 119",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M69.4 117 L52.4 111 M170.6 117 L187.6 111",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-aviator-mirror",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=aviator-mirror",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M105.9 109.5 Q88 105.6 67.5 109.5 Q63.7 128.7 81.6 138.9 Q102.1 140.2 105.9 109.5 Z",
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M134.1 109.5 Q152 105.6 172.5 109.5 Q176.3 128.7 158.4 138.9 Q137.9 140.2 134.1 109.5 Z",
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M105.9 121 Q120 112 134.1 121",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M70.1 119 L53.1 113 M169.9 119 L186.9 113",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M104.6 110.8 L135.4 110.8",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M77.8 123.6 L88 112",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M86.7 127.4 L94.4 118.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M141.8 123.6 L152 112",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150.7 127.4 L158.4 118.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-aviator-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=aviator-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M105.9 109.5 Q88 105.6 67.5 109.5 Q63.7 128.7 81.6 138.9 Q102.1 140.2 105.9 109.5 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M134.1 109.5 Q152 105.6 172.5 109.5 Q176.3 128.7 158.4 138.9 Q137.9 140.2 134.1 109.5 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M105.9 121 Q120 112 134.1 121",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M70.1 119 L53.1 113 M169.9 119 L186.9 113",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M104.6 110.8 L135.4 110.8",
+     "stroke": "#3A2A20",
+     "tint": "#D9A442",
+     "width": 4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-round-mirror",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=round-mirror",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 119,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 119,
+     "rx": 18.6,
+     "ry": 18.6,
+     "fill": "#C5D2DF",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M106.6 119 Q120 110 133.4 119",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M69.4 117 L52.4 111 M170.6 117 L187.6 111",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M77.8 121.6 L88 110",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M86.7 125.4 L94.4 116.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M141.8 121.6 L152 110",
+     "stroke": "#F3F7FB",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M150.7 125.4 L158.4 116.4",
+     "stroke": "#F3F7FB",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-square-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=square-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "rect",
+     "x": 68.8,
+     "y": 103.0,
+     "w": 38.4,
+     "h": 32.0,
+     "r": 10.2,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "rect",
+     "x": 132.8,
+     "y": 103.0,
+     "w": 38.4,
+     "h": 32.0,
+     "r": 10.2,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5
+    },
+    {
+     "kind": "path",
+     "d": "M107.2 119 Q120 110 132.8 119",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M68.8 117 L51.8 111 M171.2 117 L188.2 111",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-hearts-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=hearts-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M88 135.6 C59.8 117.7 73.9 97.2 88 111.3 C102.1 97.2 116.2 117.7 88 135.6 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M152 135.6 C123.8 117.7 137.9 97.2 152 111.3 C166.1 97.2 180.2 117.7 152 135.6 Z",
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5
+    },
+    {
+     "kind": "path",
+     "d": "M107.2 119 Q120 110 132.8 119",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M68.8 117 L51.8 111 M171.2 117 L188.2 111",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-flowers-dark",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=flowers-dark",
+   "lift": 44,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.5 117 L53.5 111 M169.5 117 L186.5 111",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M105.5 119 Q120 112 134.5 119",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 5,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 88.0,
+     "y": 108.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 98.0,
+     "y": 115.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 94.2,
+     "y": 127.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 81.8,
+     "y": 127.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 78.0,
+     "y": 115.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 88.0,
+     "y": 108.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 98.0,
+     "y": 115.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 94.2,
+     "y": 127.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 81.8,
+     "y": 127.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 78.0,
+     "y": 115.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 119,
+     "rx": 11,
+     "ry": 11,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 3
+    },
+    {
+     "kind": "ellipse",
+     "x": 152.0,
+     "y": 108.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 162.0,
+     "y": 115.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 158.2,
+     "y": 127.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 145.8,
+     "y": 127.5,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 142.0,
+     "y": 115.8,
+     "rx": 9.0,
+     "ry": 9.0,
+     "fill": "#E5553C",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 4
+    },
+    {
+     "kind": "ellipse",
+     "x": 152.0,
+     "y": 108.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 162.0,
+     "y": 115.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 158.2,
+     "y": 127.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 145.8,
+     "y": 127.5,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 142.0,
+     "y": 115.8,
+     "rx": 7.5,
+     "ry": 7.5,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 119,
+     "rx": 11,
+     "ry": 11,
+     "fill": "#1B2441",
+     "stroke": "#3A2A20",
+     "tint": "#9B3928",
+     "width": 3
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-sunset",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=big-sunset",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "path",
+     "d": "M63 124 C63 156.5 113 156.5 113 124 Z",
+     "fill": "#F4BE2D"
+    },
+    {
+     "kind": "path",
+     "d": "M63 121 C63 87.5 113 87.5 113 121",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#E5553C"
+    },
+    {
+     "kind": "path",
+     "d": "M127 124 C127 156.5 177 156.5 177 124 Z",
+     "fill": "#F4BE2D"
+    },
+    {
+     "kind": "path",
+     "d": "M127 121 C127 87.5 177 87.5 177 121",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M109 107 L131 107",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-night",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=big-night",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#1B2441"
+    },
+    {
+     "kind": "path",
+     "d": "M63 124 C63 156.5 113 156.5 113 124 Z",
+     "fill": "#3D4F87"
+    },
+    {
+     "kind": "path",
+     "d": "M63 121 C63 87.5 113 87.5 113 121",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#1B2441"
+    },
+    {
+     "kind": "path",
+     "d": "M127 124 C127 156.5 177 156.5 177 124 Z",
+     "fill": "#3D4F87"
+    },
+    {
+     "kind": "path",
+     "d": "M127 121 C127 87.5 177 87.5 177 121",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M109 107 L131 107",
+     "stroke": "#3A2A20",
+     "tint": "#E5553C",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-mirror",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=big-mirror",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M63 124 C63 156.5 113 156.5 113 124 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M63 121 C63 87.5 113 87.5 113 121",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M127 124 C127 156.5 177 156.5 177 124 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M127 121 C127 87.5 177 87.5 177 121",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M109 107 L131 107",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-aviator",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=big-aviator",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M110 106 Q88 101 62 106 Q57 132 79 147 Q106 149 110 106 Z",
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M108 125 L61 125 Q63 137 79 147 Q103 149 108 125 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M110 106 Q88 101 62 106 Q57 132 79 147 Q106 149 110 106 Z",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M130 106 Q152 101 178 106 Q183 132 161 147 Q134 149 130 106 Z",
+     "fill": "#9DB2C7"
+    },
+    {
+     "kind": "path",
+     "d": "M132 125 L179 125 Q177 137 161 147 Q137 149 132 125 Z",
+     "fill": "#DDE7F0"
+    },
+    {
+     "kind": "path",
+     "d": "M130 106 Q152 101 178 106 Q183 132 161 147 Q134 149 130 106 Z",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M106 107 L134 107",
+     "stroke": "#3A2A20",
+     "tint": "#8491A1",
+     "width": 4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunnies-big-sea",
+   "parent": "head",
+   "pivot": [
+    120,
+    117
+   ],
+   "spring": 150,
+   "when": "shades=big-sea",
+   "lift": 52,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 88,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#2A62B9"
+    },
+    {
+     "kind": "path",
+     "d": "M63 124 C63 156.5 113 156.5 113 124 Z",
+     "fill": "#BFD9F6"
+    },
+    {
+     "kind": "path",
+     "d": "M63 121 C63 87.5 113 87.5 113 121",
+     "stroke": "#3A2A20",
+     "tint": "#F4BE2D",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 152,
+     "y": 122,
+     "rx": 25.0,
+     "ry": 25.0,
+     "fill": "#2A62B9"
+    },
+    {
+     "kind": "path",
+     "d": "M127 124 C127 156.5 177 156.5 177 124 Z",
+     "fill": "#BFD9F6"
+    },
+    {
+     "kind": "path",
+     "d": "M127 121 C127 87.5 177 87.5 177 121",
+     "stroke": "#3A2A20",
+     "tint": "#F4BE2D",
+     "width": 8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M109 107 L131 107",
+     "stroke": "#3A2A20",
+     "tint": "#F4BE2D",
+     "width": 8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "beanie",
+   "parent": "head",
+   "pivot": [
+    120,
+    60
+   ],
+   "when": "outfit=warm",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M120.0 13.4 L122.8 17.7 L126.6 16.1 L128.1 19.9 L132.7 19.3 L132.1 23.9 L137.2 24.9 L134.3 29.2 L137.2 32.0 L134.3 34.8 L136.6 38.9 L132.1 40.1 L133.2 45.2 L128.1 44.1 L126.6 47.9 L122.8 46.3 L120.0 50.0 L117.2 46.3 L112.9 49.2 L111.9 44.1 L107.8 44.2 L107.9 40.1 L103.4 38.9 L105.7 34.8 L101.4 32.0 L105.7 29.2 L104.1 25.4 L107.9 23.9 L107.3 19.3 L111.9 19.9 L112.9 14.8 L117.2 17.7 Z",
+     "fill": "#FBF3E2",
+     "stroke": "#3A2A20",
+     "tint": "#B9AE98",
+     "width": 4
+    },
+    {
+     "kind": "path",
+     "d": "M56 88 Q58 40 120 40 Q182 40 184 88 Q120 74 56 88 Z",
+     "fill": "#7FB48F",
+     "stroke": "#3A2A20",
+     "tint": "#4E8060",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M60 80 Q120 64 180 80",
+     "stroke": "#4E8060",
+     "width": 3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sunhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=sun",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 74,
+     "rx": 92,
+     "ry": 17,
+     "fill": "#EBCB8B",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 74 Q74 30 120 30 Q166 30 166 74 Q120 84 74 74 Z",
+     "fill": "#F2D9A2",
+     "stroke": "#3A2A20",
+     "tint": "#B08A4E",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M76 66 Q120 76 164 66",
+     "stroke": "#E5553B",
+     "width": 6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "rainhat",
+   "parent": "head",
+   "pivot": [
+    120,
+    66
+   ],
+   "when": "outfit=rain",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M26 80 Q30 62 120 60 Q210 62 214 80 Q216 92 198 90 Q120 80 42 90 Q24 92 26 80 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M70 74 Q70 26 120 26 Q170 26 170 74 Q120 84 70 74 Z",
+     "fill": "#F4C95D",
+     "stroke": "#3A2A20",
+     "tint": "#B8892A",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M74 66 Q120 76 166 66",
+     "stroke": "#B8892A",
+     "width": 3,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M120 28 L120 68",
+     "stroke": "#B8892A",
+     "width": 2.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "clip",
+   "parent": "head",
+   "pivot": [
+    160,
+    60
+   ],
+   "spring": 90,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 151.2,
+     "y": 56,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 168.8,
+     "y": 56,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 47.2,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 64.8,
+     "rx": 12.6,
+     "ry": 12.6,
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 5
+    },
+    {
+     "kind": "ellipse",
+     "x": 151.2,
+     "y": 56,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 168.8,
+     "y": 56,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 47.2,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 64.8,
+     "rx": 10.1,
+     "ry": 10.1,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 56,
+     "rx": 9.9,
+     "ry": 9.9,
+     "fill": "#E5553B"
+    },
+    {
+     "kind": "ellipse",
+     "x": 153,
+     "y": 44,
+     "rx": 4.2,
+     "ry": 2.4,
+     "rotate": -35,
+     "fill": "#F58A70"
+    },
+    {
+     "kind": "ellipse",
+     "x": 146.5,
+     "y": 53,
+     "rx": 2.2,
+     "ry": 3.6,
+     "rotate": -10,
+     "fill": "#F58A70"
+    },
+    {
+     "kind": "ellipse",
+     "x": 160,
+     "y": 56,
+     "rx": 4.6,
+     "ry": 4.6,
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-front",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-left-front-top",
+   "parent": "arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M77.8 190 Q74.2 193.8 70.4 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-left-front-top",
+   "parent": "forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left-front",
+   "parent": "coat-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-left-front-top",
+   "parent": "coat-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M77.8 190 Q74.2 193.8 70.4 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-left-front-top",
+   "parent": "coat-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left-front",
+   "parent": "pyjama-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q63.8 203.8 56.4 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-left-front-top",
+   "parent": "pyjama-arm-left",
+   "pivot": [
+    88,
+    178
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M77.8 190 Q74.2 193.8 70.4 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-left-front-top",
+   "parent": "pyjama-forearm-left",
+   "pivot": [
+    70.4,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M70.4 197.4 Q60.9 206.4 50 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M53.6 198.1 L66.1 216.2",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 50,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#1B4387",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "arm-right-front-top",
+   "parent": "arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M162.2 190 Q165.8 193.8 169.6 197.4",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "forearm-right-front-top",
+   "parent": "forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#2A62B8",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#1B4387",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right-front",
+   "parent": "coat-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#B8892A",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-arm-right-front-top",
+   "parent": "coat-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M162.2 190 Q165.8 193.8 169.6 197.4",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "coat-forearm-right-front-top",
+   "parent": "coat-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=rain&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#F4C95D",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#B8892A",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right-front",
+   "parent": "pyjama-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q176.2 203.8 183.6 209.3",
+     "stroke": "#3A2A20",
+     "width": 34,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-arm-right-front-top",
+   "parent": "pyjama-arm-right",
+   "pivot": [
+    152,
+    178
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M162.2 190 Q165.8 193.8 169.6 197.4",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "pyjama-forearm-right-front-top",
+   "parent": "pyjama-forearm-right",
+   "pivot": [
+    169.6,
+    197.4
+   ],
+   "when": "outfit=night&arms=front",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M169.6 197.4 Q179.1 206.4 190 214",
+     "stroke": "#CDBFEA",
+     "width": 22,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M173.9 216.2 L186.4 198.1",
+     "stroke": "#3A2A20",
+     "width": 4,
+     "tint": "#7E6BB0",
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 190,
+     "y": 214,
+     "rx": 12.5,
+     "ry": 12.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 5
+    }
+   ]
+  },
+  {
+   "id": "sparkle-a",
+   "parent": "body",
+   "pivot": [
+    38,
+    62
+   ],
+   "when": "air=sparkle",
+   "spring": 120,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M38 51 Q40.42 59.58 49 62 Q40.42 64.42 38 73 Q35.58 64.42 27 62 Q35.58 59.58 38 51 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "sparkle-b",
+   "parent": "body",
+   "pivot": [
+    212,
+    104
+   ],
+   "when": "air=sparkle",
+   "spring": 90,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M212 96 Q213.76 102.24 220 104 Q213.76 105.76 212 112 Q210.24 105.76 204 104 Q210.24 102.24 212 96 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "sparkle-c",
+   "parent": "body",
+   "pivot": [
+    66,
+    22
+   ],
+   "when": "air=sparkle",
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M66 15.5 Q67.43 20.57 72.5 22 Q67.43 23.43 66 28.5 Q64.57 23.43 59.5 22 Q64.57 20.57 66 15.5 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "zed-a",
+   "parent": "body",
+   "pivot": [
+    196,
+    46
+   ],
+   "when": "air=zzz",
+   "spring": 40,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M190 40 L201 40 L190 51 L201 51",
+     "stroke": "#8FA3D6",
+     "width": 3.3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "zed-b",
+   "parent": "body",
+   "pivot": [
+    214,
+    24
+   ],
+   "when": "air=zzz",
+   "spring": 30,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M210 20 L218 20 L210 28 L218 28",
+     "stroke": "#8FA3D6",
+     "width": 2.4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "drop-a",
+   "parent": "body",
+   "pivot": [
+    86,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 86,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
+    }
+   ]
+  },
+  {
+   "id": "drop-b",
+   "parent": "body",
+   "pivot": [
+    106,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 106,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
+    }
+   ]
+  },
+  {
+   "id": "drop-c",
+   "parent": "body",
+   "pivot": [
+    134,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 134,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
+    }
+   ]
+  },
+  {
+   "id": "drop-d",
+   "parent": "body",
+   "pivot": [
+    154,
+    284
+   ],
+   "when": "air=splash",
+   "spring": 240,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 154,
+     "y": 284,
+     "rx": 6,
+     "ry": 8,
+     "fill": "#A9C6E0"
+    }
+   ]
+  }
+ ],
+ "moves": {
+  "nod": {
+   "about": "An everyday log was saved: one small happy bounce.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "head": {
+       "y": 5,
+       "r": 3
+      },
+      "arm-left": {
+       "r": 8
+      },
+      "arm-right": {
+       "r": -8
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.16,
+     "pose": {
+      "upper": {
+       "sy": 1.03
+      },
+      "head": {
+       "y": -3
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.62,
+     "pose": {}
+    }
+   ],
+   "length": 0.85
+  },
+  "greet": {
+   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "arm-right": {
+       "r": -20
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "arm-right": {
+       "r": -58
+      },
+      "head": {
+       "r": -5
+      },
+      "body": {
+       "y": -2
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "forearm-right": {
+       "r": -42
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "arm-right": {
+       "r": -58
+      },
+      "head": {
+       "r": -5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "forearm-right": {
+       "r": -8
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "arm-right": {
+       "r": -58
+      },
+      "head": {
+       "r": -5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "forearm-right": {
+       "r": -42
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.7,
+     "pose": {
+      "arm-right": {
+       "r": -58
+      },
+      "head": {
+       "r": -5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "forearm-right": {
+       "r": -8
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "arm-right": {
+       "r": -58
+      },
+      "head": {
+       "r": -5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "forearm-right": {
+       "r": -42
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.5,
+     "pose": {}
+    }
+   ],
+   "length": 1.75
+  },
+  "proud": {
+   "about": "A potty success: ta-da, arms out and tail straight up, held, then a soft look to end on.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      },
+      "arm-left": {
+       "r": -10
+      },
+      "arm-right": {
+       "r": 10
+      },
+      "tail": {
+       "r": 8
+      }
+     }
+    },
+    {
+     "t": 0.14,
+     "pose": {
+      "body": {
+       "y": -12
+      },
+      "upper": {
+       "sy": 1.04
+      },
+      "arm-left": {
+       "r": 72
+      },
+      "arm-right": {
+       "r": -72
+      },
+      "tail": {
+       "r": -42
+      },
+      "clip": {
+       "r": -10
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 0.3,
+       "sy": 0.3
+      },
+      "sparkle-b": {
+       "sx": 0.3,
+       "sy": 0.3
+      },
+      "sparkle-c": {
+       "sx": 0.3,
+       "sy": 0.3
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.32,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      },
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "tail": {
+       "r": -42
+      },
+      "clip": {
+       "r": 8
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.44,
+     "pose": {
+      "arm-left": {
+       "r": 70
+      },
+      "arm-right": {
+       "r": -70
+      },
+      "tail": {
+       "r": -42
+      },
+      "head": {
+       "r": -4
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "sparkle-a": {
+       "r": 20
+      },
+      "sparkle-b": {
+       "r": -25
+      },
+      "sparkle-c": {
+       "r": 30
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 1.25,
+     "pose": {
+      "tail": {
+       "r": -20
+      },
+      "head": {
+       "r": -4
+      },
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "sparkle-a": {
+       "r": 45,
+       "sx": 0.6,
+       "sy": 0.6
+      },
+      "sparkle-b": {
+       "r": -50,
+       "sx": 0.6,
+       "sy": 0.6
+      },
+      "sparkle-c": {
+       "r": 60,
+       "sx": 0.5,
+       "sy": 0.5
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 1.7,
+     "pose": {
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.95,
+     "pose": {}
+    }
+   ],
+   "length": 2.2
+  },
+  "celebrate": {
+   "about": "A milestone: two hops with her arms up. The only big reaction; keep it rare.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.92
+      },
+      "head": {
+       "y": 4
+      }
+     }
+    },
+    {
+     "t": 0.12,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "leg-left": {
+       "r": 10
+      },
+      "leg-right": {
+       "r": -10
+      },
+      "tail": {
+       "r": -36
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.34,
+     "pose": {
+      "upper": {
+       "sy": 0.93
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      },
+      "tail": {
+       "r": -10
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "body": {
+       "y": -16
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "leg-left": {
+       "r": 10
+      },
+      "leg-right": {
+       "r": -10
+      },
+      "tail": {
+       "r": -36
+      },
+      "head": {
+       "r": 5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.68,
+     "pose": {
+      "upper": {
+       "sy": 0.94
+      },
+      "arm-left": {
+       "r": 62
+      },
+      "arm-right": {
+       "r": -62
+      },
+      "tail": {
+       "r": -30
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "tail": {
+       "r": -30
+      },
+      "head": {
+       "r": -4
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 1.5,
+     "pose": {
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 1.9,
+     "pose": {
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 2.1,
+     "pose": {}
+    }
+   ],
+   "length": 2.4
+  },
+  "wake": {
+   "about": "A sleep ended: a long stretch with her eyes shut, then wide awake.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "head": {
+       "r": 4,
+       "y": 3
+      },
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.2,
+     "pose": {
+      "upper": {
+       "sy": 1.06
+      },
+      "head": {
+       "r": -7,
+       "y": -2
+      },
+      "arm-left": {
+       "r": 58
+      },
+      "arm-right": {
+       "r": -58
+      },
+      "tail": {
+       "r": -12
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "upper": {
+       "sy": 0.98
+      },
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      },
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.95,
+     "pose": {
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.2,
+     "pose": {
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.45,
+     "pose": {}
+    }
+   ],
+   "length": 1.7
+  },
+  "wag": {
+   "about": "A happy tail, on its own track so it can go with anything.",
+   "track": "tail",
+   "keys": [
+    {
+     "t": 0.0,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.11,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.22,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.33,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.44,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.55,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.66,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 0.77,
+     "pose": {
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "tail": {
+       "r": -26
+      }
+     }
+    },
+    {
+     "t": 1.0,
+     "pose": {}
+    }
+   ],
+   "length": 1.1
+  },
+  "walk": {
+   "about": "Walking on the spot, a waddle from side to side. Goes round until told to stop.",
+   "loops": true,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "body": {
+       "r": -3,
+       "x": -2,
+       "y": -2
+      },
+      "leg-left": {
+       "y": -8
+      },
+      "foot-left": {
+       "r": -16
+      },
+      "arm-left": {
+       "r": 12
+      },
+      "arm-right": {
+       "r": 12
+      },
+      "head": {
+       "r": 2.5
+      },
+      "tail": {
+       "r": -14
+      },
+      "clip": {
+       "r": 4
+      }
+     }
+    },
+    {
+     "t": 0.17,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "foot-left": {
+       "r": 4
+      },
+      "tail": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.32,
+     "pose": {
+      "body": {
+       "r": 3,
+       "x": 2,
+       "y": -2
+      },
+      "leg-right": {
+       "y": -8
+      },
+      "foot-right": {
+       "r": 16
+      },
+      "arm-left": {
+       "r": -12
+      },
+      "arm-right": {
+       "r": -12
+      },
+      "head": {
+       "r": -2.5
+      },
+      "tail": {
+       "r": 10
+      },
+      "clip": {
+       "r": -4
+      }
+     }
+    },
+    {
+     "t": 0.49,
+     "pose": {
+      "upper": {
+       "sy": 0.97
+      },
+      "foot-right": {
+       "r": -4
+      },
+      "tail": {
+       "r": 2
+      }
+     }
+    }
+   ],
+   "length": 0.64
+  },
+  "splash": {
+   "about": "In the rain: a jump into the puddle she is standing in.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.9
+      },
+      "head": {
+       "y": 4
+      },
+      "arm-left": {
+       "r": -12
+      },
+      "arm-right": {
+       "r": 12
+      },
+      "tail": {
+       "r": 8
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.14,
+     "pose": {
+      "body": {
+       "y": -24
+      },
+      "upper": {
+       "sy": 1.05
+      },
+      "arm-left": {
+       "r": 60
+      },
+      "arm-right": {
+       "r": -60
+      },
+      "leg-left": {
+       "y": -5
+      },
+      "leg-right": {
+       "y": -5
+      },
+      "foot-left": {
+       "r": -14
+      },
+      "foot-right": {
+       "r": 14
+      },
+      "tail": {
+       "r": -34
+      },
+      "brow-left": {
+       "y": -4
+      },
+      "brow-right": {
+       "y": -4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.38,
+     "pose": {
+      "upper": {
+       "sy": 0.88
+      },
+      "head": {
+       "y": 5
+      },
+      "arm-left": {
+       "r": 30
+      },
+      "arm-right": {
+       "r": -30
+      },
+      "tail": {
+       "r": -10
+      },
+      "drop-a": {
+       "sx": 0.2,
+       "sy": 0.2
+      },
+      "drop-b": {
+       "sx": 0.2,
+       "sy": 0.2
+      },
+      "drop-c": {
+       "sx": 0.2,
+       "sy": 0.2
+      },
+      "drop-d": {
+       "sx": 0.2,
+       "sy": 0.2
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "splash"
+     }
+    },
+    {
+     "t": 0.46,
+     "pose": {
+      "upper": {
+       "sy": 1.02
+      },
+      "arm-left": {
+       "r": 40
+      },
+      "arm-right": {
+       "r": -40
+      },
+      "drop-a": {
+       "x": -40,
+       "y": -34
+      },
+      "drop-b": {
+       "x": -16,
+       "y": -58
+      },
+      "drop-c": {
+       "x": 16,
+       "y": -58
+      },
+      "drop-d": {
+       "x": 40,
+       "y": -34
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "splash",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.6,
+     "pose": {
+      "arm-left": {
+       "r": 34
+      },
+      "arm-right": {
+       "r": -34
+      },
+      "drop-a": {
+       "x": -40,
+       "y": -34
+      },
+      "drop-b": {
+       "x": -16,
+       "y": -58
+      },
+      "drop-c": {
+       "x": 16,
+       "y": -58
+      },
+      "drop-d": {
+       "x": 40,
+       "y": -34
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "splash",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.78,
+     "pose": {
+      "arm-left": {
+       "r": 20
+      },
+      "arm-right": {
+       "r": -20
+      },
+      "drop-a": {
+       "x": -54,
+       "y": 0,
+       "sx": 0.5,
+       "sy": 0.5
+      },
+      "drop-b": {
+       "x": -24,
+       "y": 2,
+       "sx": 0.5,
+       "sy": 0.5
+      },
+      "drop-c": {
+       "x": 24,
+       "y": 2,
+       "sx": 0.5,
+       "sy": 0.5
+      },
+      "drop-d": {
+       "x": 54,
+       "y": 0,
+       "sx": 0.5,
+       "sy": 0.5
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "splash",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.0,
+     "pose": {},
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.3,
+     "pose": {}
+    }
+   ],
+   "length": 1.5
+  },
+  "celebrate-refined": {
+   "about": "The milestone hops with weight: a dip that widens as it shortens, a stretch going up, a landing that squashes the body and never the head, then a settle. Proposed; not used by the app yet.",
+   "length": 2.5,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sx": 1.05,
+       "sy": 0.9
+      },
+      "head": {
+       "sx": 0.952,
+       "sy": 1.111,
+       "y": 3
+      },
+      "arm-left": {
+       "r": -10
+      },
+      "arm-right": {
+       "r": 10
+      }
+     }
+    },
+    {
+     "t": 0.16,
+     "pose": {
+      "body": {
+       "y": -20
+      },
+      "upper": {
+       "sx": 0.97,
+       "sy": 1.06
+      },
+      "head": {
+       "sx": 1.031,
+       "sy": 0.943
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "leg-left": {
+       "r": 10
+      },
+      "leg-right": {
+       "r": -10
+      },
+      "tail": {
+       "r": -36
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.38,
+     "pose": {
+      "upper": {
+       "sx": 1.07,
+       "sy": 0.9
+      },
+      "head": {
+       "sx": 0.935,
+       "sy": 1.111,
+       "y": 2
+      },
+      "arm-left": {
+       "r": 34
+      },
+      "arm-right": {
+       "r": -34
+      },
+      "tail": {
+       "r": 12
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.52,
+     "pose": {
+      "body": {
+       "y": -20
+      },
+      "upper": {
+       "sx": 0.97,
+       "sy": 1.06
+      },
+      "head": {
+       "sx": 1.031,
+       "sy": 0.943,
+       "r": 5
+      },
+      "arm-left": {
+       "r": 78
+      },
+      "arm-right": {
+       "r": -78
+      },
+      "leg-left": {
+       "r": 10
+      },
+      "leg-right": {
+       "r": -10
+      },
+      "tail": {
+       "r": -36
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "squeeze",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.74,
+     "pose": {
+      "upper": {
+       "sx": 1.07,
+       "sy": 0.9
+      },
+      "head": {
+       "sx": 0.935,
+       "sy": 1.111,
+       "y": 2
+      },
+      "arm-left": {
+       "r": 50
+      },
+      "arm-right": {
+       "r": -50
+      },
+      "tail": {
+       "r": 12
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 0.88,
+     "pose": {
+      "upper": {
+       "sx": 0.985,
+       "sy": 1.025
+      },
+      "head": {
+       "sx": 1.015,
+       "sy": 0.976
+      },
+      "arm-left": {
+       "r": 64
+      },
+      "arm-right": {
+       "r": -64
+      },
+      "tail": {
+       "r": -24
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 1.0,
+     "pose": {
+      "arm-left": {
+       "r": 66
+      },
+      "arm-right": {
+       "r": -66
+      },
+      "tail": {
+       "r": -30
+      },
+      "head": {
+       "r": -4
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 1.6,
+     "pose": {
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on",
+      "air": "sparkle"
+     }
+    },
+    {
+     "t": 2.0,
+     "pose": {
+      "brow-left": {
+       "y": 1,
+       "r": -14
+      },
+      "brow-right": {
+       "y": 1,
+       "r": 14
+      }
+     },
+     "face": {
+      "brows": "on"
+     }
+    },
+    {
+     "t": 2.2,
+     "pose": {}
+    }
+   ]
+  },
+  "oh": {
+   "about": "Oh! A small start, hands to her cheeks and clear of her bill, eyes wide. The one time her hands are in front of her head.",
+   "exact": true,
+   "length": 1.4,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "upper": {
+       "sy": 0.95
+      }
+     }
+    },
+    {
+     "t": 0.1,
+     "pose": {
+      "arm-left": {
+       "r": 63.2
+      },
+      "forearm-left": {
+       "r": 57.7
+      },
+      "arm-right": {
+       "r": -63.2
+      },
+      "forearm-right": {
+       "r": -57.7
+      },
+      "body": {
+       "y": -7
+      },
+      "upper": {
+       "sy": 1.04
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.26,
+     "pose": {
+      "arm-left": {
+       "r": 63.2
+      },
+      "forearm-left": {
+       "r": 57.7
+      },
+      "arm-right": {
+       "r": -63.2
+      },
+      "forearm-right": {
+       "r": -57.7
+      },
+      "upper": {
+       "sy": 1.02
+      },
+      "eye-left": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "eye-right": {
+       "sx": 1.18,
+       "sy": 1.18
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "arms": "front",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 1.05,
+     "pose": {},
+     "face": {
+      "arms": "front"
+     }
+    }
+   ]
+  },
+  "read": {
+   "about": "Reading: a book held open at her chest, eyes down on it, a page turned now and then. Goes round until stopped.",
+   "exact": true,
+   "loops": true,
+   "length": 7,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 63.0
+      },
+      "head": {
+       "y": 4
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    },
+    {
+     "t": 4.6,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 85.0
+      },
+      "head": {
+       "y": 4,
+       "r": 3
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    },
+    {
+     "t": 4.9,
+     "pose": {
+      "arm-left": {
+       "r": -5.1
+      },
+      "forearm-left": {
+       "r": -63.0
+      },
+      "arm-right": {
+       "r": 5.1
+      },
+      "forearm-right": {
+       "r": 63.0
+      },
+      "head": {
+       "y": 4
+      },
+      "eye-left": {
+       "y": 3.5
+      },
+      "eye-right": {
+       "y": 3.5
+      }
+     },
+     "face": {
+      "holding": "book"
+     }
+    }
+   ]
+  },
+  "hug": {
+   "about": "A hug for her rabbit: both arms round it, a squeeze, and a sway from side to side.",
+   "exact": true,
+   "length": 2.8,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": -5
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.5,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": -7
+      },
+      "upper": {
+       "sx": 0.97,
+       "sy": 1.02
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.2,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": 5
+      },
+      "upper": {
+       "r": 2
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.9,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "head": {
+       "r": -5
+      },
+      "upper": {
+       "r": -2
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 2.5,
+     "pose": {
+      "arm-left": {
+       "r": -36.7
+      },
+      "forearm-left": {
+       "r": -47.7
+      },
+      "arm-right": {
+       "r": 36.7
+      },
+      "forearm-right": {
+       "r": 47.7
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     },
+     "face": {
+      "holding": "rabbit",
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    }
+   ]
+  },
+  "bubbles": {
+   "about": "Making bubbles: a wand held up in her right hand and swept slowly through the air, her eyes on it. No blowing: the bubbles come off the wand as it moves. Goes round until stopped.",
+   "exact": true,
+   "loops": true,
+   "length": 3.4,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": 16.6
+      },
+      "head": {
+       "r": 4
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.9,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": -17.4
+      },
+      "head": {
+       "r": 6
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 2.3,
+     "pose": {
+      "arm-right": {
+       "r": -62.8
+      },
+      "forearm-right": {
+       "r": 16.6
+      },
+      "head": {
+       "r": 4
+      },
+      "eye-left": {
+       "x": 3,
+       "y": -2.5
+      },
+      "eye-right": {
+       "x": 3,
+       "y": -2.5
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      }
+     },
+     "face": {
+      "holding": "wand",
+      "brows": "on"
+     }
+    }
+   ]
+  }
+ },
+ "face": {
+  "eyes": "open",
+  "brows": "off",
+  "cheeks": "plain",
+  "air": "none",
+  "outfit": "none",
+  "shades": "none"
+ },
+ "sideroom": 30
+}
