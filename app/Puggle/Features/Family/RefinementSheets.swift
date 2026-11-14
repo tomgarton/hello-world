@@ -211,6 +211,54 @@ enum RefinementSheets {
             }
         }
         save(blended, as: "grey-blend.png")
+
+        // Third sheet: short dashes scattered through the hair, all much the same length and leaning the same way,
+        // as a speckled coat is drawn. Our own marks: fanned out from the middle of the head, in our own colours.
+        func dash(_ x: Double, _ y: Double, long: Double = 6.5, lean: Double? = nil) -> String {
+            let angle = (lean ?? (x - 120) / 120 * 32) * .pi / 180
+            let dx = sin(angle) * long / 2, dy = cos(angle) * long / 2
+            func n(_ v: Double) -> String { "\((v * 10).rounded() / 10)" }
+            return "M\(n(x - dx)) \(n(y + dy)) L\(n(x + dx)) \(n(y - dy))"
+        }
+        func dashed(_ rig: Rig, _ marks: [String: [String]], colour: String, second: String? = nil) -> Rig {
+            var copy = rig
+            for (id, lines) in marks {
+                guard let index = copy.parts.firstIndex(where: { $0.id == id }) else { continue }
+                copy.parts[index].shapes += lines.enumerated().map { i, d in
+                    Rig.Shape(kind: "path", d: d, stroke: second != nil && i % 3 == 1 ? second! : colour, width: 3, cap: "round")
+                }
+            }
+            return copy
+        }
+        // Nan: three staggered rows across her curls; then two thinner rows running down onto her head.
+        var crown: [String] = []
+        for x in stride(from: 90.0, through: 150, by: 15) { crown.append(dash(x, 101)) }
+        for x in stride(from: 80.0, through: 160, by: 16) { crown.append(dash(x, 111)) }
+        for x in stride(from: 74.0, through: 166, by: 15.4) { crown.append(dash(x, 121)) }
+        var thinning = crown
+        for x in stride(from: 84.0, through: 156, by: 24) { thinning.append(dash(x, 132, long: 5.5)) }
+        for x in [98.0, 142] { thinning.append(dash(x, 142, long: 4.5)) }
+        let nanSide = [dash(46, 187, long: 5, lean: -50), dash(50, 197, long: 4.5, lean: -70)]
+        func nanMarks(_ top: [String]) -> [String: [String]] { ["curls-top": top, "curl-left-top": nanSide, "curl-right-top": nanSide.map(mirrored)] }
+        // Pop: along each spike of the tuft; then a few more on the side of his head, under the brim.
+        let popSpikes = [dash(50, 120.5, long: 5.5, lean: -82), dash(47, 130, long: 5.5, lean: -90), dash(51, 140, long: 5.5, lean: -98)]
+        let popTemple = popSpikes + [dash(63, 100, long: 5, lean: -30), dash(58, 109, long: 5, lean: -40), dash(66, 112, long: 4.5, lean: -30)]
+        func popMarks(_ left: [String]) -> [String: [String]] { ["tuft-left-top": left, "tuft-right-top": left.map(mirrored)] }
+        let dashes = VStack(alignment: .leading, spacing: 16) {
+            row("Nan: short dashes through the hair") {
+                column("2. Locks, from the last sheet", drawn(nan, locks: ["curls-top": nanLocks, "curl-left-top": nanSideLock, "curl-right-top": both(nanSideLock)]))
+                column("5. Dashes, grey-brown", dashed(nan, nanMarks(crown), colour: mid))
+                column("6. Dashes, silver", dashed(nan, nanMarks(crown), colour: silver))
+                column("7. Two tones, thinning down", dashed(nan, nanMarks(thinning), colour: mid, second: silver))
+            }
+            row("Pop") {
+                column("2. Locks, from the last sheet", drawn(pop, locks: ["tuft-left-top": popLocks, "tuft-right-top": both(popLocks)]))
+                column("5. Dashes, grey-brown", dashed(pop, popMarks(popSpikes), colour: mid))
+                column("6. Dashes, silver", dashed(pop, popMarks(popSpikes), colour: silver))
+                column("7. Two tones, onto his temples", dashed(pop, popMarks(popTemple), colour: mid, second: silver))
+            }
+        }
+        save(dashes, as: "grey-dashes.png")
     }
 
     /// Arms that bend at the elbow: Puggle's new poses, the same on everyone, and in her other clothes.
