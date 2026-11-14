@@ -963,10 +963,11 @@ def spectacles(name, parts):
     def frame(d): return {'kind': 'path', 'd': d, 'stroke': INK, 'tint': colour, 'width': 6.5, 'cap': 'round'}
     if name == 'nan':
         # Flat across the top, round below. The bridge sits above her nostrils.
-        y = 132
-        glasses['shapes'] = [frame(f'M{x - 15} {y - 5} L{x + 15} {y - 5} C{x + 15} {y + 17} {x - 15} {y + 17} {x - 15} {y - 5} Z') for x in (93, 147)] + [
-            frame(f'M108 {y - 4} Q120 {y - 10} 132 {y - 4}'),
-            frame(f'M78 {y - 5} L56 {y - 10} M162 {y - 5} L184 {y - 10}')]
+        y = 133
+        # A fifth larger than first drawn (Tom: they read too small): each lens 36 wide, where Pop's are 30.
+        glasses['shapes'] = [frame(f'M{x - 18} {y - 6} L{x + 18} {y - 6} C{x + 18} {y + 21} {x - 18} {y + 21} {x - 18} {y - 6} Z') for x in (91, 149)] + [
+            frame(f'M109 {y - 5} Q120 {y - 11} 131 {y - 5}'),
+            frame(f'M73 {y - 6} L54 {y - 11} M167 {y - 6} L186 {y - 11}')]
         return parts
     kept = []
     for shape in glasses['shapes']:

@@ -92,7 +92,7 @@ PATTERNS = {
 # ---------- Outline patterns: the cast's heads and the app's line icons, drawn in one line ----------
 RIGS = os.path.join(HERE, '..', '..', 'app', 'Puggle', 'Resources', 'Rigs')
 ICONS = os.path.join(HERE, '..', '..', 'app', 'Puggle', 'Resources', 'Assets.xcassets')
-CAST = ['puggle', 'kip', 'quill', 'digby', 'sunny', 'dad', 'mum', 'pop']    # the eight that differ most in outline
+CAST = ['puggle', 'kip', 'quill', 'digby', 'sunny', 'mum', 'dad', 'nan', 'pop']    # everyone but Pebble, who is too like Mum in line
 THINGS = ['bottle', 'sleep', 'nappy', 'bath', 'solids', 'potty', 'play', 'milestone']
 INK = '#3A2A20'
 
@@ -121,10 +121,15 @@ def head(name, line, field):
         if not on_head(part) or not shown(part) or part['id'].startswith('sunnies'): continue
         for shape in part['shapes']:
             fill, stroke = shape.get('fill', '').upper(), shape.get('stroke', '').upper()
-            if fill == '#C27C66' and not stroke: continue                     # cheeks: left out of a line drawing
-            if stroke and stroke != INK: continue                              # grey in the hair, a shine: left out
-            paint = f'fill="{line if fill == INK else field if fill else "none"}"'
-            if stroke: paint += f' stroke="{line}" stroke-width="{round(shape.get("width", 1) * 1.3, 1)}" stroke-linejoin="round" stroke-linecap="{shape.get("cap", "butt")}"'
+            if fill in ('#C27C66', '#EE9C88') and not stroke: continue           # cheeks: left out of a line drawing
+            if stroke in ('#B79F8A', '#D6CDBE', '#FFFFFF'): continue             # grey in the hair, a shine: left out
+            # Every other line is kept, whatever its colour: the short line under a nose is a friend's mouth.
+            def dark(colour):
+                value = int(colour[1:], 16)
+                return (0.299 * (value >> 16) + 0.587 * (value >> 8 & 255) + 0.114 * (value & 255)) / 255 < 0.25
+            # Eyes, nostrils and noses are solid; everything else is the field's colour, so it still sits in front.
+            paint = f'fill="{line if fill and dark(fill) else field if fill else "none"}"'
+            if stroke: paint += f' stroke="{line}" stroke-width="{round(shape.get("width", 1) * 1.3, 1)}" stroke-linejoin="round" stroke-linecap="{shape.get("cap", "round")}"'
             turn = f' transform="rotate({shape["rotate"]} {shape["x"]} {shape["y"]})"' if shape.get('rotate') else ''
             if shape['kind'] == 'ellipse':
                 out += f'<ellipse cx="{shape["x"]}" cy="{shape["y"]}" rx="{shape["rx"]}" ry="{shape.get("ry", shape["rx"])}" {paint}{turn}/>'
@@ -157,9 +162,9 @@ def grid(cell, corners, middles, cols=4, rows=2):
 HEADS = [(f'face:{n}', 0.32, 'dd') for n in CAST]
 ITEMS = [(f'icon:{n}', 1.9, 'dd') for n in THINGS]
 PATTERNS.update({
-    'faces': named(grid(104, HEADS[:4], HEADS[4:]), 'The cast\'s heads in one line, taken from the app\'s own drawings.', 'shell'),
+    'faces': named(grid(104, HEADS[:5], HEADS[5:]), 'Nine of the cast\'s heads in one line, taken from the app\'s own drawings.', 'shell'),
     'things': named(grid(84, ITEMS[:4], ITEMS[4:]), 'The app\'s line icons: bottle, sleep, nappy, bath, solids, potty, play, a first.', 'sun'),
-    'friends': named(grid(104, HEADS, ITEMS), 'Heads and things in turn.', 'mint'),
+    'friends': named(grid(104, HEADS[:8], ITEMS), 'Heads and things in turn.', 'mint'),
     'lines': named(grid(84, [(f'line:{n}', 2.1, 'dd') for n in ('quatrefoil', 'pebble', 'square', 'blossom')],
                         [(f'line:{n}', 2.1, 'dd') for n in ('pill', 'hexagon', 'halfpill', 'scallop')]),
                    'The eight soft shapes as outlines.', 'sky'),
