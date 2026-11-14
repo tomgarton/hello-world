@@ -16,6 +16,11 @@ import html, os, re, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, '..', '..'))
 ASSETS, OUT = sys.argv[1], sys.argv[2]
+# Page numbers for the contents come from a first pass: build once, read which page each marker landed on, build again.
+import json
+PAGES = json.load(open(sys.argv[3])) if len(sys.argv) > 3 else None
+def mark(anchor): return f'<a id="{anchor}"></a>' + ('' if PAGES else f'<span class="mark">@@{anchor}@@</span>')
+def page_of(anchor): return str(PAGES.get(anchor, '')) if PAGES else '00'
 
 INK, PAPER, SAND, MOON = '#3A2A20', '#FBF6E9', '#F2ECDD', '#F3E0B8'
 WATTLE, HARBOUR, WARATAH, GUM, NIGHT = '#F4BE2C', '#2A62B8', '#E5553B', '#3C9A5F', '#1B2440'
@@ -90,7 +95,13 @@ SECTIONS = [
     (3, 'Every day', HARBOUR, PAPER, 'The core loop. Feeds, sleeps, nappies, the potty and health, for one child or several at once.', [2, 3, 4, 11, 14]),
     (4, 'Looking back', GUM, PAPER, 'What was logged, seen as days, weeks and firsts.', [5, 8]),
     (5, 'Around the edges', NIGHT, MOON, 'Children and characters, settings, the things that go wrong, calm and privacy, access, and life outside the app.', [7, 9, 10, 15, 16, 17]),
+    (6, 'Reference', SKY, INK, 'The words this document uses, and where everything in it comes from.', []),
 ]
+def entries(number, flow_numbers):
+    """What is inside a section: (label, anchor) pairs."""
+    if number == 1: return [('Who it is for', 'who'), ('Personas', 'personas'), ('The app at a glance', 'glance')]
+    if number == 6: return [('Glossary', 'glossary'), ('References', 'references')]
+    return [(by_number[n].split('. ', 1)[1], f'flow-{n:02d}') for n in flow_numbers]
 by_number = {int(t.split('.')[0]): t for t in flows if t[0].isdigit()}
 
 PERSONAS = [
@@ -120,15 +131,17 @@ def tag(label): return f'<div class="tag">{html.escape(label)}</div>'
 def callout(label, text): return f'<div class="callout">{tag(label)}<p>{inline(text)}</p></div>'
 
 def divider(number, title, colour, on, line, contents):
+    # contents: (label, anchor) pairs
     decor = {
         1: shape('quatrefoil', WATTLE, 96, -40, 190, 12) + shape('pill', PAPER, -40, 196, 150, -24, 0.9) + shape('pebble', NIGHT, 128, 206, 110, 10, 0.25),
         2: shape('blossom', WARATAH, 100, -52, 200, 0) + shape('half', HARBOUR, -46, 190, 150, 18) + shape('square', PAPER, 130, 214, 96, 14, 0.9),
         3: shape('scallop', WATTLE, 88, -64, 210, 8) + shape('pebble', SKY, -50, 188, 160, -10) + shape('quatrefoil', WARATAH, 136, 206, 104, 0),
         4: shape('square', WATTLE, 108, -50, 180, 16) + shape('blossom', MINT, -54, 184, 170, 0) + shape('pill', WARATAH, 110, 222, 130, -14),
         5: shape('pebble', HARBOUR, 96, -46, 196, 0) + shape('quatrefoil', MOON, -44, 198, 140, 10) + shape('half', WARATAH, 132, 210, 104, -20),
+        6: shape('blossom', WATTLE, 100, -50, 196, 0) + shape('scallop', HARBOUR, -52, 186, 160, -8) + shape('pebble', WARATAH, 132, 210, 100, 0),
     }[number]
-    items = ''.join(f'<li>{html.escape(c)}</li>' for c in contents)
-    return (f'<section class="divider" style="background:{colour};color:{on}">{decor}'
+    items = ''.join(f'<li><a href="#{a}">{html.escape(c)}<span>{page_of(a)}</span></a></li>' for c, a in contents)
+    return (f'<section class="divider" style="background:{colour};color:{on}">{mark(f"sec-{number}")}{decor}'
             f'<div class="num">{number:02d}</div><h1>{html.escape(title)}</h1><p class="line">{html.escape(line)}</p><ol class="toc">{items}</ol></section>')
 
 def flow_block(number, colour):
@@ -137,13 +150,14 @@ def flow_block(number, colour):
     text = flows[title]
     first, _, rest = text.partition('\n')
     shots = SCREENS.get(number, [])
-    figures = ''.join(f'<figure><img src="img/{f}.jpg"><span class="chip" style="background:{colour}">{i}</span></figure>' for i, (f, _) in enumerate(shots, 1))
+    figures = ''.join(f'<figure><img src="img/{f}.jpg"><span class="chip">{i}</span></figure>' for i, (f, _) in enumerate(shots, 1))
     captions = ''.join(f'<li><b>{i}</b> {html.escape(c)}</li>' for i, (_, c) in enumerate(shots, 1))
+    anchor = f'flow-{number:02d}'
     spine = f'<div class="flowno" style="color:{colour}">{number:02d}</div>{tag("In short")}<p class="intent">{inline(first)}</p>'
     spine += (tag('Screens') + f'<ul class="captions">{captions}</ul>') if shots else callout('Screens', 'None pictured for this flow.')
     if number in NOTES: spine += callout('Note', NOTES[number])
     spine += callout('Source', f'`docs/flows.md`, journey {number}. The text is the design; the app does not yet do every step.')
-    main = f'<h2>{html.escape(name)}</h2>' + (f'<div class="shots">{figures}</div>' if shots else '') + md(rest)
+    main = f'{mark(anchor)}<h2>{html.escape(name)}</h2>' + (f'<div class="shots">{figures}</div>' if shots else '') + md(rest)
     return spread(spine, main, 'flow')
 
 parts = []
@@ -157,27 +171,29 @@ parts.append(f'''<section class="cover">
 <div class="what">App screens,<br>flows and<br>the people<br>it is for</div>
 </section>''')
 
-# Contents
+# Contents: every page, each line a link, with its page number.
 rows = ''
 for number, title, colour, on, line, flow_numbers in SECTIONS:
-    inside = ['Who it is for', 'Personas', 'The app at a glance'] if number == 1 else [by_number[n].split('. ', 1)[1] for n in flow_numbers]
-    rows += (f'<div class="row"><div class="swatch" style="background:{colour};color:{on}">{number:02d}</div>'
-             f'<div><h3>{html.escape(title)}</h3><p>{html.escape(line)}</p><p class="inside">{html.escape(" · ".join(inside))}</p></div></div>')
+    lines = ''.join(f'<a class="line" href="#{anchor}"><span class="what">{html.escape(label)}</span><span class="dots"></span><span class="pg">{page_of(anchor)}</span></a>'
+                    for label, anchor in entries(number, flow_numbers))
+    rows += (f'<div class="row"><a class="swatch" href="#sec-{number}" style="background:{colour};color:{on}">{number:02d}</a>'
+             f'<div><a class="line head" href="#sec-{number}"><span class="what">{html.escape(title)}</span><span class="dots"></span><span class="pg">{page_of(f"sec-{number}")}</span></a>{lines}</div></div>')
 parts.append('<section class="page front">' + spread(
     tag('About') + '<p class="intent">Screens are from the app as built on 14 November 2026, running a made-up sample family. No real family\'s data appears.</p>'
     + callout('Read this first', 'The flow text is the design. The app does not yet do every step described, and ten flows have no screens pictured.')
+    + callout('Finding your way', 'Every line here is a link. The PDF also carries bookmarks, so the same list sits in your reader\'s sidebar.')
     + callout('The grid', 'Twelve columns. This spine, columns 1 to 3, carries captions, notes and sources. Text and screens sit in columns 4 to 12.')
-    + callout('Colour', 'Each section has a brand colour: on its divider, in the running head, and on the number chips that tie a screen to its caption.'),
+    + callout('Colour', 'Each section has a brand colour: on its divider, in the running head and on its flow numbers. Words in the glossary are explained on the last pages.'),
     f'<h2>Contents</h2><div class="contents">{rows}</div>') + '</section>')
 
 # Section 1
 number, title, colour, on, line, _ = SECTIONS[0]
-parts.append(divider(number, title, colour, on, line, ['Who it is for', 'Personas', 'The app at a glance']))
+parts.append(divider(number, title, colour, on, line, entries(number, [])))
 people = spread(
     f'<div class="flowno" style="color:{colour}">A</div>' + tag('In short') + '<p class="intent">Families with more than one child, and everyone who helps look after them.</p>'
     + callout('First household', 'A bottle-fed six-month-old and a potty-training two-and-a-half-year-old. Twins are an explicit design target.')
     + callout('Source', '`docs/baby-tracker-spec.md`, sections 1 and 4.'),
-    '''<h2>Who it is for</h2>
+    mark('who') + '''<h2>Who it is for</h2>
 <p class="lead">Every leading tracker is built around one baby and one subscription. Real families have a newborn and a toddler, or twins, plus a partner, grandparents and a nanny. Puggle is family-first: several children logged at once without switching profiles, properly native to iPhone, fairly priced, and calm.</p>
 <div class="three">
 <div><h4>Primary</h4><p>Parents of a newborn who also have an older child, and parents of twins or more.</p></div>
@@ -193,23 +209,90 @@ personas = spread(
     + callout('Not user testing', 'Both rounds were run by AI agents acting as a particular parent or carer. No real parent has used the app. They are good at finding gaps and unclear wording.')
     + callout('Read the verdicts as', 'A judgement on the design as it stood on 11 November. Many of the gaps have been worked on since.')
     + callout('Source', '`docs/persona-testing.md` and `docs/usability-findings.md`.'),
-    f'<h2>Personas</h2><h3>Round 1: eight personas walk the flows</h3><p class="dim">11 November 2026. Under each: who they are, then whether they would keep using it.</p><div class="personas">{cards}</div>'
+    f'{mark("personas")}<h2>Personas</h2><h3>Round 1: eight personas walk the flows</h3><p class="dim">11 November 2026. Under each: who they are, then whether they would keep using it.</p><div class="personas">{cards}</div>'
     f'<h3>Round 2: six testers on the built app</h3><p class="dim">13 November 2026.</p><ol>{"".join(f"<li>{html.escape(t)}</li>" for t in TESTERS)}</ol>')
 glance = spread(
     f'<div class="flowno" style="color:{colour}">C</div>' + tag('In short') + '<p class="intent">Four tabs, a first run, and a few things outside the app.</p>'
     + callout('Source', '`docs/flows.md`, app map.'),
-    '<h2>The app at a glance</h2>' + md(flows['App map']))
+    mark('glance') + '<h2>The app at a glance</h2>' + md(flows['App map']))
 parts.append(f'<section class="page s1">{people}</section><section class="page s1">{personas}</section><section class="page s1">{glance}</section>')
 
 # Flow sections
-for number, title, colour, on, line, flow_numbers in SECTIONS[1:]:
-    parts.append(divider(number, title, colour, on, line, [by_number[n].split('. ', 1)[1] for n in flow_numbers]))
+for number, title, colour, on, line, flow_numbers in SECTIONS[1:5]:
+    parts.append(divider(number, title, colour, on, line, entries(number, flow_numbers)))
     for n in flow_numbers:
         parts.append(f'<section class="page s{number}">{flow_block(n, colour)}</section>')
 
+GLOSSARY = [
+    ('Backup', 'A copy of the whole family kept on the phone. One is taken each day and before anything risky, and a parent can go back to one.'),
+    ('Cast', 'Puggle\'s family and friends: Pebble, Mum, Dad, Nan, Pop, Kip, Quill, Digby and Sunny.'),
+    ('Dynamic Type', 'The iPhone setting for larger or smaller text. The app follows it.'),
+    ('Entry', 'One thing logged: a bottle, a sleep, a nappy.'),
+    ('First run', 'The screens from installing the app to reaching Today. Also called onboarding.'),
+    ('Flow', 'One path through the app, such as logging a feed. `docs/flows.md` calls these journeys and numbers them 1 to 17.'),
+    ('Helper', 'The middle level in a family. Logs the day, and can change only their own entries.'),
+    ('Holder', 'The person whose iCloud holds the family. Only they can invite people, remove them or change their level.'),
+    ('Invite', 'How someone joins a family. It is sent through iCloud; nobody makes an account.'),
+    ('Just logging', 'A setting that hides counters, totals and Insights, for a parent who wants to log and nothing more.'),
+    ('Last saved', 'The bar on Today after a save, with Undo and Change. It stays until the next save.'),
+    ('Live Activity', 'The iPhone feature that shows a running timer on the Lock Screen.'),
+    ('Log sheet', 'The panel that opens from a tile, where an entry\'s details are set and saved.'),
+    ('Night look', 'Darker, dimmer colours, on by default from 21:00 to 06:00.'),
+    ('Parent', 'The top level in a family. Can do everything.'),
+    ('Patterns', 'The part of Insights that shows how a child\'s days have changed with age. It needs five days with entries in a month before it says anything.'),
+    ('Persona', 'An invented parent or carer, used to critique the design. Not a real user.'),
+    ('Play pad', 'A full-screen pad for a child to stamp and draw on. It is held to close.'),
+    ('Puggle', 'The app, and its character: a platypus, a girl, two and a half.'),
+    ('Reduce Motion', 'The iPhone setting that asks apps to stop animation. The app shows still pictures.'),
+    ('Room', 'Where Puggle is after 18:00: the tea table, the living room, the play room or her bedroom.'),
+    ('Sample family', 'A made-up family, Ollie and Bea, for looking around. Its entries never mix with a real family\'s.'),
+    ('Scene', 'The picture at the top of Today: hills, beach, backyard or bush, at the real time of day.'),
+    ('Soft shapes', 'The brand\'s eight rounded shapes: quatrefoil, pill, scallop, soft square, soft hexagon, pebble, half pill and blossom.'),
+    ('Spine', 'In this document, the narrow left column for captions, notes and sources.'),
+    ('Stamp card', 'Potty rewards. Five stamps on a card earn a sticker.'),
+    ('The tin, the box', 'The table on a formula tin or a medicine box, read from a photo, checked row by row by a parent, and shared with the family.'),
+    ('Tile', 'A large button on Today that opens a log sheet: Feeding, Nappy, Potty.'),
+    ('Today', 'The first tab. Every child at once, with tiles to log.'),
+    ('Viewer', 'The lowest level in a family. Sees the day, cannot log.'),
+    ('VoiceOver', 'The iPhone screen reader, for people who cannot see the screen.'),
+    ('Widget', 'A small panel on the Home Screen or Lock Screen showing the family\'s day.'),
+]
+PROJECT_REFS = [
+    ('`docs/flows.md`', 'The seventeen journeys and the app map. The flow text in this document.'),
+    ('`docs/baby-tracker-spec.md`', 'The product specification: the thesis, who it is for, scope and design decisions.'),
+    ('`docs/persona-testing.md`', 'Round 1: eight personas walk the flows, 11 November 2026.'),
+    ('`docs/usability-findings.md`', 'Round 2: six testers on the built app, 13 November 2026, and what has been fixed since.'),
+    ('`docs/app-vs-flows.md`', 'Where the app differs from the flows, 13 November 2026. Partly out of date.'),
+    ('`docs/brand/Puggle-brand-2026-11-14.pdf`', 'The brand book: name, colour, type, Puggle, the cast, icons and the world.'),
+    ('`docs/previews/reference/brief-for-chatgpt.md`', 'The handover brief: fixed rules, what is newer than the brand book, and what is open.'),
+    ('`reports/Cartoon character craft for Puggle.md`', 'Research on character design and animation, 14 November 2026.'),
+    ('`docs/for-review-tips-and-links.md`', 'The health links the app shows, and the rules for when, written for a GP to review.'),
+    ('`docs/previews/screens/`', 'The screens pictured here, saved from the app on 14 November 2026.'),
+]
+OUTSIDE_REFS = [
+    ('NHS website', 'The app links to NHS pages on sleep and weaning, credited "Information from the NHS website". It never rewords them.'),
+    ('NASA Graphics Standards Manual, 1975', 'Danne & Blackburn. The model for this document\'s numbered sections and large numerals.'),
+    ('Josef Müller-Brockmann, Grid Systems in Graphic Design', 'The asymmetric page with a narrow column for captions. Cited from memory, not checked.'),
+    ('New York City Transit Authority Graphics Standards Manual, 1970', 'Unimark. Colour-coded sections. Cited from memory, not checked.'),
+]
+number, title, colour, on, line, _ = SECTIONS[5]
+parts.append(divider(number, title, colour, on, line, entries(number, [])))
+terms = ''.join(f'<div class="term"><dt>{html.escape(t)}</dt><dd>{inline(d)}</dd></div>' for t, d in GLOSSARY)
+parts.append(f'<section class="page s6">' + spread(
+    f'<div class="flowno" style="color:{HARBOUR}">A</div>' + tag('In short') + f'<p class="intent">{len(GLOSSARY)} words this document and the app use, in alphabetical order.</p>'
+    + callout('App words', 'Parent, Helper, Viewer, Today, tile and the rest are the app\'s own words, as a parent sees them.')
+    + callout('iPhone words', 'Dynamic Type, VoiceOver, Reduce Motion, Live Activity and widget are Apple\'s.'),
+    f'{mark("glossary")}<h2>Glossary</h2><dl class="glossary">{terms}</dl>') + '</section>')
+def reflist(items): return '<dl class="refs">' + ''.join(f'<div class="term"><dt>{inline(t)}</dt><dd>{inline(d)}</dd></div>' for t, d in items) + '</dl>'
+parts.append(f'<section class="page s6">' + spread(
+    f'<div class="flowno" style="color:{HARBOUR}">B</div>' + tag('In short') + '<p class="intent">Where everything in this document comes from.</p>'
+    + callout('Paths', 'File paths are inside the project folder, `hello-world`.')
+    + callout('Checked or not', 'Two of the design references are cited from memory and say so.'),
+    f'{mark("references")}<h2>References</h2><h3>In the project</h3>{reflist(PROJECT_REFS)}<h3>Outside the project</h3>{reflist(OUTSIDE_REFS)}') + '</section>')
+
 named = ''.join(f'''
 @page s{number} {{ @top-left {{ content: "{number:02d}   {title}"; color: {colour if colour != WATTLE else '#B8892A'}; font: 700 8pt "Bricolage"; letter-spacing: 0.04em; vertical-align: bottom; padding-bottom: 3mm; }} }}'''
-                for number, title, colour, *_ in SECTIONS)
+                for number, title, colour, *_ in [(n, t, HARBOUR if n == 6 else c) for n, t, c, *_ in SECTIONS])
 
 css = f'''
 @font-face {{ font-family: "Bricolage"; src: url("BricolageGrotesque-Variable.ttf"); font-weight: 200 800; }}
@@ -251,9 +334,14 @@ code {{ font: 7.6pt ui-monospace, Menlo, monospace; background: {SAND}; padding:
 .shots {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 3mm; margin: 0 0 6mm; }}
 figure {{ margin: 0; position: relative; break-inside: avoid; }}
 figure img {{ width: 100%; display: block; border-radius: 3.4mm; border: 0.4pt solid #CFC3AC; }}
-.chip {{ position: absolute; left: -1.4mm; top: -1.4mm; width: 5mm; height: 5mm; border-radius: 50%; color: #fff; font: 800 7pt "Bricolage"; text-align: center; line-height: 5mm; }}
-section.s2 .chip {{ color: {INK}; }}
+.chip {{ position: absolute; left: -1.6mm; top: -1.6mm; width: 5.4mm; height: 5.4mm; border-radius: 50%; background: {INK}; color: {PAPER}; border: 0.9pt solid #fff; font: 800 7pt "Bricolage"; text-align: center; line-height: 4.9mm; }}
+.mark {{ font-size: 1pt; color: transparent; position: absolute; }}
+a {{ color: inherit; text-decoration: none; }}
 
+.glossary {{ columns: 2; column-gap: 6mm; margin: 0; }}
+.term {{ break-inside: avoid; border-top: 0.4pt solid #CFC3AC; padding: 1.6mm 0 1.8mm; }}
+dt {{ font: 800 9.5pt "Bricolage"; margin: 0 0 0.4mm; }} dd {{ margin: 0; font-size: 8.6pt; line-height: 11.8pt; }}
+.refs {{ margin: 0 0 4mm; }} .refs dt {{ font: 600 8.6pt -apple-system, "Helvetica Neue", sans-serif; }}
 .three {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 3mm; margin: 4mm 0; }}
 .three div {{ background: {PAPER}; border: 0.4pt solid #CFC3AC; border-radius: 3mm; padding: 3mm; }} .three h4 {{ margin-top: 0; }}
 .personas {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0 5mm; }}
@@ -261,9 +349,12 @@ section.s2 .chip {{ color: {INK}; }}
 .persona h4 {{ margin: 0 0 0.6mm; }} .persona p {{ margin-bottom: 1.2mm; font-size: 8.6pt; line-height: 11.5pt; }}
 .pn {{ position: absolute; left: 0; top: 1.4mm; font: 800 17pt "Bricolage"; }}
 
-.contents .row {{ display: grid; grid-template-columns: 22mm 1fr; gap: 5mm; border-top: 0.4pt solid #CFC3AC; padding: 4mm 0; break-inside: avoid; }}
-.swatch {{ height: 22mm; border-radius: 4mm; font: 800 22pt "Bricolage"; display: flex; align-items: flex-end; padding: 0 0 1.5mm 2.4mm; }}
-.contents h3 {{ margin: 0 0 1mm; font-size: 15pt; }} .contents p {{ margin: 0 0 1mm; }} .inside {{ color: #6B5E52; font-size: 8.4pt; }}
+.contents .row {{ display: grid; grid-template-columns: 13mm 1fr; gap: 4mm; border-top: 0.4pt solid #CFC3AC; padding: 2.6mm 0 2mm; break-inside: avoid; }}
+.swatch {{ height: 13mm; border-radius: 3mm; font: 800 13pt "Bricolage"; display: flex; align-items: flex-end; padding: 0 0 1mm 1.6mm; }}
+.line {{ display: flex; align-items: baseline; gap: 1.5mm; font-size: 9pt; line-height: 13pt; }}
+.line.head {{ font: 800 12.5pt/16pt "Bricolage"; margin-bottom: 0.6mm; }}
+.dots {{ flex: 1; border-bottom: 0.6pt dotted #9A8C7A; transform: translateY(-1mm); }}
+.pg {{ font: 700 9pt "Bricolage"; min-width: 6mm; text-align: right; }} .line.head .pg {{ font-size: 12.5pt; }}
 
 /* Dividers and the cover: full bleed. */
 .divider .num {{ position: absolute; left: 14mm; top: 16mm; font-size: 150pt; line-height: 120pt; letter-spacing: -0.05em; }}
@@ -271,6 +362,7 @@ section.s2 .chip {{ color: {INK}; }}
 .divider .line {{ position: absolute; left: 14mm; top: 150mm; width: 96mm; font-size: 12pt; line-height: 16.5pt; margin: 0; }}
 .divider .toc {{ position: absolute; left: 14mm; top: 186mm; width: 96mm; margin: 0; padding: 0; list-style: none; font: 700 11pt/16pt "Bricolage"; counter-reset: none; }}
 .divider .toc li {{ border-top: 0.5pt solid currentColor; padding: 1.4mm 0; margin: 0; }}
+.divider .toc a {{ display: flex; justify-content: space-between; }}
 .cover {{ background: {WATTLE}; }}
 .cover .word {{ position: absolute; left: 12mm; top: 14mm; font-size: 150pt; line-height: 118pt; letter-spacing: -0.055em; color: {INK}; }}
 .cover .what {{ position: absolute; left: 14mm; top: 70mm; font: 800 30pt/31pt "Bricolage"; letter-spacing: -0.02em; color: {INK}; }}
