@@ -24,7 +24,7 @@ Run `python3 docs/tools/make_icons.py` from the repo: it writes docs/previews/ic
 docs/previews/icons/refined.html. With `--install` it also writes each icon's three files in the app's asset
 catalogue (light, dark and plain); poo and wee are new and are not installed.
 """
-import math, os, sys
+import math, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'previews', 'icons')
@@ -40,6 +40,25 @@ def rr(x, y, w, h, r):
 
 def circle(cx, cy, r):
     return f'M{cx - r} {cy}A{r} {r} 0 1 0 {cx + r} {cy}A{r} {r} 0 1 0 {cx - r} {cy}Z'
+
+
+def scale(d, k=2):
+    """A path at k times the size. Arc flags and rotation are left alone."""
+    counts = {'M': 2, 'L': 2, 'H': 1, 'V': 1, 'C': 6, 'S': 4, 'Q': 4, 'T': 2, 'A': 7, 'Z': 0}
+    out, tokens, i = '', re.findall(r'[A-Za-z]|-?\d*\.?\d+', d), 0
+    while i < len(tokens):
+        cmd = tokens[i]; i += 1
+        n = counts[cmd.upper()]
+        out += cmd
+        first = True
+        while first or (n and i < len(tokens) and not tokens[i].isalpha()):
+            first = False
+            nums = [float(t) for t in tokens[i:i + n]]; i += n
+            if cmd.upper() == 'A': nums = [nums[0] * k, nums[1] * k, nums[2], nums[3], nums[4], nums[5] * k, nums[6] * k]
+            else: nums = [v * k for v in nums]
+            out += ' '.join(f'{v:g}' for v in nums) + ' '
+            if not n: break
+    return out.strip()
 
 
 def sparkle(cx, cy, r):
@@ -62,6 +81,16 @@ BREAST = 'M5.5 2.5C11 5 20.5 8.5 20.5 14A8 8 0 0 1 12.5 22C8.5 22 5.5 19.5 5.5 1
 POTTY = ('M12 4C9 4 7.5 6.5 7 10C5 10.8 3.6 12.5 3 14.5C2.3 17 2 18.5 2 19.5A2.5 2.5 0 0 0 4.5 22H19.5A2.5 2.5 0 0 0 22 19.5'
          'C22 18.5 21.7 17 21 14.5C20.4 12.5 19 10.8 17 10C16.5 6.5 15 4 12 4Z')
 FRONT = 'M3 14.5C5 16.5 7 17.1 8.3 17.2C8.6 15.2 10 14 12 14C14 14 15.4 15.2 15.7 17.2C17 17.1 19 16.5 21 14.5'
+# The large tummy-time body at half size: see make_icons_large.py.
+TUMMY = ('M11.25 11C9 10.8 7.25 11.6 6.4 13.1C4.5 12.7 2.5 13.9 2.5 15.65C2.5 17.2 3.75 18.25 5.25 18.25H19.25'
+         'C20.5 18.25 21.25 17.5 21.25 16.6C21.25 15.6 20.5 15 19.5 15C18.25 15 17.25 14.25 16.5 12.75')
+FRINGE24 = 'M10.8 6.9C13.5 7.5 16.5 6.75 18 5.15'
+# Three blocks with depth, on a 48 canvas: each shows its front, its top and its right side, and the top block
+# sits across the two below. Lines hidden behind a nearer block are left out by hand.
+BLOCKS48 = [rr(4, 26, 16, 16, 3), rr(20, 26, 16, 16, 3), rr(12, 8, 16, 16, 3),
+            'M5 26.8L8.6 23.2C9.2 22.4 10 22 11 22H12', 'M20 26L22.5 24',
+            'M29 22H38.5C40 22 41 23 41 24.5V35.5C41 36.5 40.6 37.3 40 37.9L35.2 41.2', 'M35.2 26.8L40.2 22.7',
+            'M13 8.8L16.6 5.2C17.2 4.4 18 4 19 4H30.5C32 4 33 5 33 6.5V17.5C33 18.5 32.6 19.3 32 19.9L27.2 23.2', 'M27.2 8.8L32.2 4.7']
 MOUND24 = 'M5 11C5 9 6.5 8 8 8.3C8.7 6.5 11 6 12.3 7.3C13.5 6.3 15.5 6.8 16 8.5C17.8 8.3 19 9.5 19 11'
 SCALE24 = 'M7 11H17C18 11 18.7 11.6 19 12.5L20.8 18.5C21.2 20 20.2 21.5 18.5 21.5H5.5C3.8 21.5 2.8 20 3.2 18.5L5 12.5C5.3 11.6 6 11 7 11Z'
 # A shallow inner curve (radius 9.5), so the crescent is thick through the middle.
@@ -81,9 +110,9 @@ ICONS = {
                    note='A teat, a collar and a body with shoulders. Two measure marks; three will not fit.'),
     'breastfeed': icon([BREAST], tint=[(BREAST, '#F3D9C9'), (circle(16, 15, 2.5), '#C27C66', True)],
                        note='A breast, in place of the two heads. In Shell, a brand colour: see the two versions below.'),
-    'pump': icon(['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5', rr(12, 9.5, 6, 4, 1.5), rr(10, 13.5, 10, 8.5, 3)],
+    'pump': icon(['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5', rr(12, 9.5, 6, 4, 1.5), rr(10, 13.5, 10, 8.5, 3), 'M16 9.5C16 6.5 18 5 19.7 5.8C21.5 6.7 21 9.5 22 12.5'],
                  sky=['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5Z'], wattle=['M10 17.5H20V19A3 3 0 0 1 17 22H13A3 3 0 0 1 10 19Z'],
-                 note='A cupped funnel, tilted up, sitting on its bottle.'),
+                 note='A cupped funnel, a lever and a bottle.'),
     'solids': icon(['M2.5 11H21.5C21.5 15.5 18 19 13.5 19H10.5C6 19 2.5 15.5 2.5 11Z', MOUND24, 'M15.5 8L20 3', 'M9 21.5H15'],
                    wattle=[MOUND24 + 'Z'], note='A bowl on a foot, a mound of food and a spoon.'),
     'sleep': icon([MOON], wattle=[MOON], ink=[sparkle(18.5, 5, 3)], note='A filled moon, thick through the middle.'),
@@ -111,8 +140,9 @@ ICONS = {
     'teeth': icon([TOOTH], wattle=[sparkle(16, 8.5, 2.6)], note='Wider roots, so they do not close up. A sparkle for a new tooth.'),
     'milestone': icon([BIG_SPARKLE], wattle=[BIG_SPARKLE], ink=[sparkle(19, 5.5, 3)],
                       note='Sparkles, not a five-point star: the brand\'s own star is the four-point one.'),
-    'tummy-time': icon([rr(2.5, 13, 12.5, 6, 3), circle(17.5, 9, 3.5), 'M14 19H21.5'], wattle=[circle(17.5, 9, 3.5)], note='As before, heavier.'),
-    'play': icon([rr(8, 2.5, 8, 8, 2.5), rr(2.5, 14, 7.5, 7.5, 2.5), rr(14, 14, 7.5, 7.5, 2.5)], wattle=[rr(8, 2.5, 8, 8, 2.5)], sky=[rr(14, 14, 7.5, 7.5, 2.5)], note='Three blocks, two of them coloured.'),
+    # Only the hair is filled: a whole yellow head read as a ball.
+    'tummy-time': icon([circle(15, 8.5, 4.5), FRINGE24, TUMMY], wattle=[FRINGE24 + 'A4.5 4.5 0 0 0 10.8 6.9Z'], note='A baby on its front, head up, with its back and bottom behind.'),
+    'play': icon([rr(7.5, 3, 9, 9, 2.5), rr(3, 12, 9, 9, 2.5), rr(12, 12, 9, 9, 2.5)], wattle=[rr(7.5, 3, 9, 9, 2.5)], note='Three blocks, stacked.'),
     'walk': icon(['M3.5 10.5A6.5 6.5 0 0 1 10 4V10.5Z', 'M3.5 10.5H16.5C16.5 13.5 13.6 15.5 10 15.5C6.4 15.5 3.5 13.5 3.5 10.5Z', 'M16.5 10.5L18.5 5H21.5', circle(6.5, 20, 1.5), circle(13.5, 20, 1.5)],
                  wattle=['M3.5 10.5A6.5 6.5 0 0 1 10 4V10.5Z'], sky=['M3.5 10.5H16.5C16.5 13.5 13.6 15.5 10 15.5C6.4 15.5 3.5 13.5 3.5 10.5Z'], note='A pram with a hood.'),
     'note': icon(['M7 3H14L18.5 7.5V19A2 2 0 0 1 16.5 21H7A2 2 0 0 1 5 19V5A2 2 0 0 1 7 3Z', 'M14 3V7.5H18.5', 'M8.5 12.5H15M8.5 16.5H12.5'], wattle=['M14 3L18.5 7.5H14Z'], note='As before, heavier.'),
@@ -315,7 +345,7 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 MILK = 'M5.9 14.5H18.1C18.4 15.3 18.5 16.1 18.5 17V19A3 3 0 0 1 15.5 22H8.5A3 3 0 0 1 5.5 19V17C5.5 16.1 5.6 15.3 5.9 14.5Z'
 DETAIL = {
     'bottle': dict(drop=[3], fine=['M5.9 14.5H18.1', 'M8.5 16.5H10.5M8.5 18.5H11.5M8.5 20.3H10.5'], note='Milk in the bottle, and three measure marks.'),
-    'pump': dict(fine=['M10 17.5H20', 'M17.8 15.5H20'], note='The milk has a surface, and the bottle a mark.'),
+    'pump': dict(fine=['M10 17.5H20', 'M12.5 15.5H15'], note='The milk has a surface, and the bottle a mark.'),
     'solids': dict(fine=['M4.5 13.5H19.5', 'M4.5 6.5L3.5 5M7 5.3L6.4 3.5M9.5 5V3'], note='A rim on the bowl, and steam.'),
     'sleep': dict(ink=[sparkle(15, 10, 1.5), sparkle(21, 10.5, 1.2)], note='Two more stars.'),
     'nappy': dict(fine=['M8.5 7.3H15.5', 'M12 12.5V16.5'], note='A waistband seam and a centre fold.'),
@@ -328,18 +358,21 @@ DETAIL = {
     'vaccine': dict(fine=['M13 9.5H15M13 12H15M13 14.5H15'], note='Marks on the barrel.'),
     'teeth': dict(fine=['M6.5 8C6.5 6.8 7.2 6 8.3 6'], note='A highlight and a sparkle.'),
     'milestone': dict(ink=[sparkle(20, 17.5, 1.7)], note='A third sparkle.'),
-    'tummy-time': dict(fine=['M16.9 9.1A1.3 1.3 0 0 0 19.5 9.1', 'M5.5 16H10'], note='A closed eye, and a fold in the blanket.'),
-    'play': dict(fine=[circle(12, 6.5, 1.5), 'M4.8 17.8H7.8M6.3 16.3V19.3', 'M17.8 19.3L16 16.3H19.6Z'], note='A shape on each block.'),
+    'tummy-time': dict(fine=['M15.6 8.4A1.1 1.1 0 0 0 17.8 8.4', 'M13.5 18.25C13.5 16.6 14.5 15.5 15.75 15.2', 'M6.4 13.1C7 13.7 7.4 14.5 7.4 15.4'], note='A closed eye, an elbow and a crease.'),
+    'play': dict(fine=[scale(sparkle(20, 16, 4.6), .5), 'M6 15.6L7.8 18.6H4.2Z', circle(14, 17, 1.7)],
+                 spec=dict(lines=[scale(d, .5) for d in BLOCKS48],
+                           wattle=[rr(6, 4, 8, 8, 1.5)], sky=[], ink=[], tint=[], turn=0), note='The blocks have depth, and a shape on each.'),
     'walk': dict(fine=['M10 10.5L5.4 5.9', 'M6.5 15.5V18.5M13.5 15.5V18.5'], note='A rib in the hood, and legs to the wheels.'),
     'note': dict(fine=['M8.5 8.5H11'], note='A third line of writing.'),
     'photo': dict(fine=['M10.6 13.2A1.6 1.6 0 0 1 12 11.9'], ink=[circle(18, 10, .9)], note='A flash, and a glint on the lens.'),
     'wee': dict(fine=['M9 14.5C9 16.5 10 17.8 11.5 18.3'], note='A highlight.'),
-    'poo': dict(fine=['M14 17.5H17'], note='One more fold.'),
+    'poo': dict(fine=['M14 17.5H17', 'M16.8 4.5L17.8 2.8M18.3 6.3L20 5.3'], note='One more fold, and shine.'),
 }
 
 
 def regular(name):
-    spec, more = ICONS[name], DETAIL.get(name, {})
+    more = DETAIL.get(name, {})
+    spec = dict(ICONS[name], **more['spec']) if 'spec' in more else ICONS[name]
     out = dict(spec, weight=1.65, fineweight=1.125, fine=list(more.get('fine', [])))
     out['lines'] = [d for i, d in enumerate(spec['lines']) if i not in more.get('drop', [])]
     for key in ('sky', 'wattle', 'ink'):

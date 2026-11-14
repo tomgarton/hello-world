@@ -11,7 +11,7 @@ Run `python3 docs/tools/make_icons_large.py` from the repo: it writes docs/previ
 sheet docs/previews/icons/large.html. Nothing here is in the app.
 """
 import os, re
-from make_icons import ICONS, OUT, DARK, POO, circle, rr, sparkle, icon, svg, regular
+from make_icons import ICONS, OUT, DARK, POO, BLOCKS48, circle, rr, sparkle, icon, svg, regular
 
 LINE, FINE = 2.4, 1.6
 ARGS = {'M': 2, 'L': 2, 'H': 1, 'V': 1, 'C': 6, 'S': 4, 'Q': 4, 'T': 2, 'A': 7, 'Z': 0}
@@ -79,16 +79,20 @@ BEAK = 'M28.3 8L24.8 9.5L28.3 11'
 FUNNEL = 'M15 5L25 16.5C27 16.5 29 18 29 20.5V24.5M20 24.5V21.5L7 19'
 MOUTH = 'M14.5 4.5C17 6 15 12 12 15.5C9.5 18.5 7 19.5 6 18.5C4 17 6 11 9 7.5C11 5 13.3 3.8 14.5 4.5Z'
 JAR = 'M17 30C14.5 31.5 13 34 13 37V39.5C13 42 15 44 17.5 44H30.5C33 44 35 42 35 39.5V37C35 34 33.5 31.5 31 30'
-# Tummy time: a baby on its front, head up, an arm out in front and a foot kicked up behind.
-BODY = ('M22.5 22C18 22.5 15 24.5 13 27.5C11.5 26 9.5 23 7.5 21.5C6 20.5 4.5 22 5.5 23.5C7 26 8 29 8 31.5C8 34.5 10 36.5 13 36.5H38.5C41 36.5 42.5 35 42.5 33.2'
+# Tummy time: a baby on its front, head up, an arm out in front, its back and bottom behind. Only the hair is filled.
+BODY = ('M22.5 22C18 21.6 14.5 23.2 12.8 26.2C9 25.4 5 27.8 5 31.3C5 34.4 7.5 36.5 10.5 36.5H38.5C41 36.5 42.5 35 42.5 33.2'
         'C42.5 31.2 41 30 39 30C36.5 30 34.5 28.5 33 25.5')
+HAIR = 'M21.6 13.8C27 15 33 13.5 36 10.3'
+# The pump's lever: a handle with its own thickness, arcing over and hanging down.
+LEVER = ('M27 16C28 11.5 31.5 9 35.2 10C39.5 11.2 40.8 15.5 41.3 20C41.7 23.5 42.6 26 43.5 27.8A1.8 1.8 0 0 1 40.3 29.3'
+         'C39.3 27 38.7 24.3 38.2 20.6C37.8 17.5 37.3 14.1 34.8 13.3C32.6 12.6 30.6 14.5 30 17.5')
 POO2 = scale(POO)
 
 LARGE = {
     'bottle': (doubled('bottle'), False),
     'breastfeed': (doubled('breastfeed'), False),
-    'pump': (drawn([MOUTH, FUNNEL, 'M27 17.5C28 13 31.5 10.5 35 11.5C39 12.5 40 16.5 40.5 20.5C41 24 42 26.5 43 28', rr(15, 24.5, 18, 5.5, 2.5), JAR],
-                   fine=['M13.2 36H34.8', 'M21 33H27M21 40H27'],
+    'pump': (drawn([MOUTH, FUNNEL, LEVER, rr(15, 24.5, 18, 5.5, 2.5), JAR],
+                   fine=['M13.2 36H34.8', 'M21 32.5H27M21 39H27M21 41.8H25'],
                    sky=['M15 5L25 16.5C27 16.5 29 18 29 20.5V24.5H20V21.5L7 19C4.5 17 6 11 9 7.5C11 5 13.3 3.8 15 5Z'],
                    wattle=['M13.2 36H34.8C35 36.3 35 36.7 35 37V39.5C35 42 33 44 30.5 44H17.5C15 44 13 42 13 39.5V37C13 36.7 13 36.3 13.2 36Z']), True),
     'solids': (drawn([BOWL, 'M17.5 39.5V41A2 2 0 0 0 19.5 43H28.5A2 2 0 0 0 30.5 41V39.5', MOUND_A, MOUND_B, SPOON,
@@ -114,17 +118,10 @@ LARGE = {
     'vaccine': (doubled('vaccine'), False),
     'teeth': (doubled('teeth'), False),
     'milestone': (doubled('milestone'), False),
-    'tummy-time': (drawn([circle(30, 17, 9), 'M21.6 13.8C27 15 33 13.5 36 10.3', BODY],
-                         fine=[eye(31.5, 19.5), 'M24 18.5q-1.8 1.7 0 3.4', 'M27 36.5C27 33.2 29 31 31.5 30.4'],
-                         sky=[BODY + 'A9 9 0 0 1 22.5 22Z'], wattle=[circle(30, 17, 9)]), True),
-    # Three blocks with depth, as in ChatGPT's sheet: each shows its front, its top and its right side. The top
-    # block sits across the two below. Lines hidden behind a nearer block are left out by hand.
-    'play': (drawn([rr(4, 26, 16, 16, 3), rr(20, 26, 16, 16, 3), rr(12, 8, 16, 16, 3),
-                    'M5 26.8L8.6 23.2C9.2 22.4 10 22 11 22H12', 'M20 26L22.5 24',
-                    'M29 22H38.5C40 22 41 23 41 24.5V35.5C41 36.5 40.6 37.3 40 37.9L35.2 41.2', 'M35.2 26.8L40.2 22.7',
-                    'M13 8.8L16.6 5.2C17.2 4.4 18 4 19 4H30.5C32 4 33 5 33 6.5V17.5C33 18.5 32.6 19.3 32 19.9L27.2 23.2', 'M27.2 8.8L32.2 4.7',
-                    sparkle(20, 16, 4.6), 'M12 30.8L16 37.5H8Z', circle(28, 34, 3.6)],
-                   wattle=[rr(12, 8, 16, 16, 3)], sky=[rr(20, 26, 16, 16, 3)]), True),
+    'tummy-time': (drawn([circle(30, 17, 9), HAIR, BODY],
+                         fine=[eye(33.5, 16.8, 2), 'M27 36.5C27 33.2 29 31 31.5 30.4', 'M12.8 26.2C14 27.4 14.8 29 14.8 30.8'],
+                         wattle=[HAIR + 'A9 9 0 0 0 21.6 13.8Z']), True),
+    'play': (drawn(BLOCKS48 + [sparkle(20, 16, 4.6), 'M12 30.8L16 37.5H8Z', circle(28, 34, 3.6)], wattle=[rr(12, 8, 16, 16, 3)]), True),
     'walk': (doubled('walk', fine=['M20 21L9 16.5']), False),
     'note': (doubled('note'), False),
     'photo': (doubled('photo'), False),

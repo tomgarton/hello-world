@@ -1127,3 +1127,11 @@ Second pass on four icons (14 November 2026), after Tom: the flat-sided breast l
 - **All sizes:** the small and regular drawings of these three now follow the same designs (a bowl with a mound and spoon; a tub with a bubble and a duck's head; a tray, base and dial), so they are in the app too. Before this they were the older designs: a plain bowl, a tub with bubbles, a scale seen from above.
 
 Close-up: `docs/previews/icons/second-pass-four.png`. Still to carry down to the smaller sizes: pump, tummy time, play and poo.
+
+The last four carried down, and a second pass on two (14 November 2026).
+
+- **Carried down** to the small and regular sizes, and so into the app: the pump has its lever; play is three stacked blocks, with depth and a shape on each at the regular size; poo has shine at the regular size. Every icon is now one design at three levels of detail.
+- **Tummy time, second pass.** Tom: the ear was odd, and only the hair should be yellow. The ear is gone, the face is plain, and the hair above the fringe carries the fill. The body is the baby's back and bottom as two soft humps with an arm out in front; the kicked-up foot read as a tail and is in git (commit 14a14f2).
+- **Pump, second pass.** The lever is a handle with its own thickness, arcing over and hanging down, and the bottle has three marks.
+
+Close-up: `docs/previews/icons/second-pass-four-more.png`. 51 tests pass.
