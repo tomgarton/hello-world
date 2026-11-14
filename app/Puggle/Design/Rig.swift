@@ -354,13 +354,17 @@ enum RigRenderer {
 /// ear and the spines on that side only, for noticing something.
 struct RigFeeling {
     let name: String, ears: Double, lift: Double, spines: Double, tall: Double, lean: Double, one: Bool
+    /// The tail: how far it turns from rest (up is negative), how long it is drawn, and whether it wags.
+    var tail = 0.0, reach = 1.0, wags = false
 
-    static let happy = RigFeeling(name: "Happy", ears: 12, lift: 2, spines: 1.14, tall: 1.18, lean: 0, one: false)
-    static let surprised = RigFeeling(name: "Surprised", ears: 22, lift: 5, spines: 1.38, tall: 1.4, lean: -14, one: false)
-    static let shy = RigFeeling(name: "Shy", ears: -30, lift: 0, spines: 0.66, tall: 0.68, lean: 16, one: false)
-    static let sleepy = RigFeeling(name: "Sleepy", ears: -18, lift: 0, spines: 0.84, tall: 0.82, lean: 26, one: false)
-    static let curious = RigFeeling(name: "Curious", ears: 20, lift: 3, spines: 1.24, tall: 1.1, lean: -18, one: true)
-    static let all = [happy, surprised, shy, sleepy, curious]
+    static let happy = RigFeeling(name: "Happy", ears: 12, lift: 2, spines: 1.14, tall: 1.18, lean: 0, one: false, tail: -16, wags: true)
+    // Seen from the front, a tail straight up is hidden behind her: proud is as high as it can go and still show.
+    static let proud = RigFeeling(name: "Proud", ears: 14, lift: 3, spines: 1.18, tall: 1.24, lean: -6, one: false, tail: -34, reach: 1.18)
+    static let surprised = RigFeeling(name: "Surprised", ears: 22, lift: 5, spines: 1.38, tall: 1.4, lean: -14, one: false, tail: 26, reach: 1.1)
+    static let shy = RigFeeling(name: "Shy", ears: -30, lift: 0, spines: 0.66, tall: 0.68, lean: 16, one: false, tail: 74, reach: 0.72)
+    static let sleepy = RigFeeling(name: "Sleepy", ears: -18, lift: 0, spines: 0.84, tall: 0.82, lean: 26, one: false, tail: 44, reach: 0.9)
+    static let curious = RigFeeling(name: "Curious", ears: 20, lift: 3, spines: 1.24, tall: 1.1, lean: -18, one: true, tail: -12)
+    static let all = [happy, proud, surprised, shy, sleepy, curious]
 
     /// The poses to hold, by part. `amount` is how much of the feeling: 1 in full, 0.5 at night.
     func held(_ amount: Double = 1) -> [String: PartState] {
@@ -377,6 +381,12 @@ struct RigFeeling {
         held["ear-right"] = one ? .rest : pose(r: -ears, y: -lift)
         for index in 1...8 { held["spine-\(index)"] = pose(size: one && index > 4 ? 1 : spines) }
         for hair in ["lick", "curl", "tuft", "crest", "sweep"] { held[hair] = pose(r: lean, tall: tall) }
+        // Her tail: calm at rest, up and wagging when happy, straight up when proud, stiff and straight out
+        // when surprised, tucked in when shy, drooping when sleepy.
+        var tailPose = PartState()
+        tailPose.r = tail * amount
+        tailPose.sx = 1 + (reach - 1) * amount
+        held["tail"] = tailPose
         return held
     }
 }
@@ -402,6 +412,9 @@ final class RigRuntime {
     var tiltAt: (start: Date, side: Double)?
     /// Poses held on top of everything else, by part: how ears, spines and hair show a feeling.
     var held: [String: PartState] = [:]
+    /// A feeling asked for, for a moment: shy at a first tap.
+    private var felt: (feeling: RigFeeling, until: Date)?
+    func feel(_ feeling: RigFeeling, for seconds: Double) { felt = (feeling, Date.now.addingTimeInterval(seconds)) }
     /// Eyes in the middle of a quick move, drawn stretched along the way for a moment.
     private var smears: [String: (from: [Double], start: Date)] = [:]
     private var eyesWere: [String: [Double]] = [:]
@@ -518,6 +531,7 @@ final class RigRuntime {
             change("brow-left") { $0.y = 1; $0.r = -14 }
             change("brow-right") { $0.y = 1; $0.r = 14 }
         }
+        var tailMoved = false
         // Each track's current pose, held until its next one.
         for (track, now) in playing.sorted(by: { $0.key < $1.key }) {
             guard let script = rig.moves?[now.name] else { continue }
@@ -528,6 +542,7 @@ final class RigRuntime {
             } else if let key = script.keys.last(where: { $0.t <= into }) {
                 for (id, pose) in key.pose {
                     change(id) { $0.add(pose, amount: energy) }
+                    if id == "tail" { tailMoved = true }
                 }
                 for (feature, shape) in key.face ?? [:] { showing[feature] = shape }
             }
@@ -537,13 +552,23 @@ final class RigRuntime {
         if refined {
             var mood: (feeling: RigFeeling, amount: Double)?
             if asleep { mood = (.sleepy, 1) }
+            else if let felt, date < felt.until { mood = (felt.feeling, 1) }
             else if let move = playing["body"]?.name {
                 if move.hasPrefix("wake") { mood = (.surprised, 1) }
+                else if move.hasPrefix("proud") { mood = (.proud, 1) }
                 else if move.hasPrefix("nod") { mood = (.happy, 0.6) }
                 else if !move.hasPrefix("walk") { mood = (.happy, 1) }
             } else if abs(look.x) + abs(look.y) > 0.3 { mood = (.curious, 1) }
             if let mood {
+                if mood.feeling.name == "Shy" { showing["cheeks"] = "shy" }
                 for (id, pose) in mood.feeling.held(mood.amount * energy) {
+                    // A move that places her tail itself keeps it; the feeling places it otherwise.
+                    if id == "tail" {
+                        if tailMoved || asleep { continue }
+                        let wag = mood.feeling.wags ? 7 * sin(t * 2 * .pi / 0.42) * mood.amount * energy : 0
+                        change(id) { $0.r += pose.r + wag; $0.sx *= pose.sx }
+                        continue
+                    }
                     change(id) { $0.r += pose.r; $0.x += pose.x; $0.y += pose.y; $0.sx *= pose.sx; $0.sy *= pose.sy }
                 }
             }

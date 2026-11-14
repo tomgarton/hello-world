@@ -40,7 +40,7 @@ def dressed(svg, kind, outfit, c):
     def cord(d, col, w=6): return f'<path d="{d}" stroke="{INK}" stroke-width="{w + 6}" stroke-linecap="round"></path><path d="{d}" stroke="{col}" stroke-width="{w}" stroke-linecap="round"></path>'
     collar = P('M97 169 Q99 187 117 181 L119 171 Z', t, 5) + P('M143 169 Q141 187 123 181 L121 171 Z', t, 5)
     top = 'M86 168 Q120 158 154 168 L166 300 L74 300 Z'
-    trousers = 'M72 296 H168 L166 428 H126 L120 346 L114 428 H74 Z'
+    trousers = 'M72 296 H168 L167 352 H73 Z'               # the hips only: each trouser leg is added to its own leg (see trouser_legs)
     hem = 'M72 298 L168 298 L169 320 Q120 329 71 320 Z'
     coat = 'M86 168 Q120 158 154 168 L180 380 Q182 390 170 390 L70 390 Q58 390 60 380 Z'
     buttons = ''.join(f'<circle cx="128" cy="{y}" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle>' for y in (200, 250, 300, 350))
@@ -55,7 +55,7 @@ def dressed(svg, kind, outfit, c):
         ('dad', ''): P('M84 168 Q120 158 156 168 L166 330 L74 330 Z', c) + P('M74 326 H166 L170 384 H126 L120 366 L114 384 H70 Z', t) + collar,
         ('dad', 'jumper'): P('M84 168 Q120 158 156 168 L168 318 Q120 326 72 318 Z', c) + P(trousers, t) + P(hem, c)
                            + flat('M84 222 L156 222 L158 246 L82 246 Z', t),
-        ('dad', 'overalls'): P(top, c) + P('M96 216 H144 V290 H170 L168 428 H126 L120 346 L114 428 H72 L70 290 H96 Z', t)
+        ('dad', 'overalls'): P(top, c) + P('M96 216 H144 V290 H170 L169 352 H71 L70 290 H96 Z', t)
                              + cord('M100 218 L93 176', t) + cord('M140 218 L147 176', t)
                              + f'<circle cx="101" cy="222" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle><circle cx="139" cy="222" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle>',
         # Nan: her cardigan, with a collar and pockets; a dress under an apron; a jumper and a skirt.
@@ -841,7 +841,7 @@ def babygro(parts):
     def piece(d, w=None): return {'kind': 'path', 'd': d, 'fill': suit['fill'], 'stroke': suit['stroke'], 'tint': suit.get('tint'), 'width': w or suit['width']}
     def seam(d, w=3): return {'kind': 'path', 'd': d, 'stroke': suit.get('tint') or INK, 'width': w, 'cap': 'round'}
     # A thigh each side, coming forward and out from the hip, with a fold where it meets the body.
-    leg = 'M98 220 Q112 236 105 252 Q98 266 76 265 Q52 263 51 243 Q53 224 76 220 Q88 218 98 220 Z'
+    leg = 'M98 221 Q111 236 104 250 Q98 262 80 261 Q65 258 65 244 Q66 228 80 223 Q90 219 98 221 Z'   # its outer edge is inside the sole: one line there, not two
     fold = 'M99 222 Q108 237 102 251'
     cuff = 'M63 240 Q59 250 66 259'
     body = 'M92 166 Q120 158 148 166 Q168 194 168 222 Q168 247 146 248 L94 248 Q72 247 72 222 Q72 194 92 166 Z'
@@ -870,7 +870,28 @@ def babygro(parts):
         next(p for p in parts if p['id'] == f'foot-{side}')['shapes'] = []
     return parts
 
-def build(name, svg, height, about, shade, moves, puggle):
+
+# Outfits with trousers. The hips are drawn with the body; each trouser leg is part of its own leg, over
+# the fur, so it swings with the leg in a walk.
+TROUSERED = {('mum', 'trousers'), ('dad', 'jumper'), ('dad', 'overalls'), ('pop', 'waistcoat'), ('pop', 'jumper')}
+
+def trouser_legs(name, parts, shade):
+    colour = TRIM[name]
+    upper = next(i for i, p in enumerate(parts) if p['id'] == 'upper')
+    over = []
+    for side in ('left', 'right'):
+        leg = next(p for p in parts if p['id'] == f'leg-{side}')
+        cx = leg['pivot'][0]
+        left, right = (cx - 20, cx + 18) if side == 'left' else (cx - 18, cx + 20)
+        leg['shapes'].append({'kind': 'path', 'd': f'M{left:g} 288 L{right:g} 288 L{right:g} 354 L{left:g} 354 Z',
+                              'fill': colour, 'stroke': INK, 'tint': shade(colour), 'width': 7})
+        # The same leg again, without its line and over the hips, so hips and leg read as one garment.
+        over.append({'id': f'trouser-{side}', 'parent': leg['id'], 'pivot': leg['pivot'], 'shapes': [
+            {'kind': 'path', 'd': f'M{left + 3.5:g} 291.5 L{right - 3.5:g} 291.5 L{right - 3.5:g} 350.5 L{left + 3.5:g} 350.5 Z', 'fill': colour}]})
+    parts[upper + 1:upper + 1] = over
+    return parts
+
+def build(name, svg, height, about, shade, moves, puggle, variant=''):
     grown = height > 400
     if grown:
         # The tail's marks were left at a child's height on the canvas: put them on the tail.
@@ -1007,6 +1028,7 @@ def build(name, svg, height, about, shade, moves, puggle):
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
     parts = regrow_tail(parts, grown, sitting=name == 'pebble')
+    if (name, variant) in TROUSERED: parts = trouser_legs(name, parts, shade)
     if name == 'pebble': parts = babygro(parts)
     parts = join_to_head(name, parts)
     parts = grow_hair(name, parts)
@@ -1051,7 +1073,7 @@ def main():
         # In the rain the garment is a raincoat's yellow, unless they are under an umbrella.
         wardrobe = {'looks': [{}] + [swap(c) for c in others], 'rain': {} if name in UMBRELLA else swap('#F4C95D', '#FBE7A6', '#F4C95D')}
         for variant, svg in variants.items():
-            rig = build(name, svg, height, about, shade, moves, puggle)
+            rig = build(name, svg, height, about, shade, moves, puggle, variant)
             rig['wardrobe'] = wardrobe
             if name in UMBRELLA: rig = lowered(rig, HEADROOM)
             if name in UMBRELLA: rig['sideroom'] = SIDEROOM

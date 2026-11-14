@@ -84,6 +84,47 @@ enum RefinementSheets {
         smear(puggle)
         curlOptions()
         tailInMotion(puggle)
+        looseEnds(puggle)
+    }
+
+    /// The tail for each feeling, shy on Puggle, and trousers in a walk.
+    private static func looseEnds(_ puggle: Rig) {
+        func feelingRow(_ rig: Rig) -> some View {
+            HStack(alignment: .bottom, spacing: 8) {
+                ForEach(RigFeeling.all.indices, id: \.self) { i in
+                    VStack(spacing: 4) {
+                        RigFrame(rig: rig, states: RigFeeling.all[i].held(), face: RigFeeling.all[i].name == "Shy" ? ["eyes": "open", "cheeks": "shy"] : nil)
+                            .frame(width: 120 * rig.size[0] / 300, height: 120 * rig.size[1] / 300)
+                        Text(RigFeeling.all[i].name).font(.system(size: 12, weight: .medium)).foregroundStyle(note)
+                    }
+                }
+            }
+        }
+        func walk(_ rig: Rig) -> some View {
+            let runtime = RigRuntime(rig: rig)
+            runtime.blinkAt = .distantPast
+            let start = Date.now
+            _ = runtime.advance(to: start)
+            runtime.play("walk", at: start)
+            var frames: [[String: PartState]] = [], t = 0.0
+            for until in [0.15, 0.4, 0.65, 0.9] {
+                while t < until { t += 0.016; _ = runtime.advance(to: start.addingTimeInterval(t)) }
+                frames.append(runtime.advance(to: start.addingTimeInterval(until)))
+            }
+            return HStack(alignment: .bottom, spacing: 8) {
+                ForEach(frames.indices, id: \.self) { i in
+                    RigFrame(rig: rig, states: frames[i], face: nil).frame(width: 120 * rig.size[0] / 300, height: 120 * rig.size[1] / 300)
+                }
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 16) {
+            row("Puggle's tail, lick and cheeks for each feeling") { feelingRow(puggle) }
+            if let dad = Rig.load("dad") { row("Dad's tail and crest for each feeling") { feelingRow(dad) } }
+            if let dad = Rig.load("dad-overalls"), let mum = Rig.load("mum-trousers") {
+                row("Trousers in a walk: Dad in overalls, Mum in trousers") { walk(dad); walk(mum) }
+            }
+        }
+        save(sheet, as: "loose-ends.png")
     }
 
     /// The hooray and the wave, frame by frame, to see the new tail move about its new pivot.

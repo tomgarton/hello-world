@@ -349,6 +349,7 @@ struct PuggleHeader: View {
     @State private var walkStart: CGFloat?
     /// True for a moment after a walk, so letting go of her is not taken for a tap.
     @State private var justWalked = false
+    @State private var lastTap: Date?
     /// Counts her reactions to a tap, so whoever is with her can answer.
     @State private var reactions = 0
 
@@ -452,7 +453,13 @@ struct PuggleHeader: View {
                     .id("\(company.member.rawValue)-\(wearing)")
             }
             Button {
-                if justWalked { justWalked = false } else { react(); reactions += 1 }
+                if justWalked { justWalked = false } else {
+                    // The first tap in a while takes her by surprise: she is shy for a moment, then herself.
+                    let first = lastTap.map { Date.now.timeIntervalSince($0) > 600 } ?? true
+                    lastTap = .now
+                    if first { controller.rig?.feel(.shy, for: 1.3) } else { react() }
+                    reactions += 1
+                }
             } label: {
                 PuggleView(controller: controller)
                     .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
