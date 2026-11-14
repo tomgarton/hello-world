@@ -44,7 +44,9 @@ def dressed(svg, kind, outfit, c):
     def cord(d, col, w=6): return f'<path d="{d}" stroke="{INK}" stroke-width="{w + 6}" stroke-linecap="round"></path><path d="{d}" stroke="{col}" stroke-width="{w}" stroke-linecap="round"></path>'
     collar = P('M97 169 Q99 187 117 181 L119 171 Z', t, 5) + P('M143 169 Q141 187 123 181 L121 171 Z', t, 5)
     top = 'M86 168 Q120 158 154 168 L166 300 L74 300 Z'
-    trousers = 'M72 296 H168 L167 352 H73 Z'               # the hips only: each trouser leg is added to its own leg (see trouser_legs)
+    # The hips only: each trouser leg is added to its own leg (see trouser_legs). The seat curves in to meet the legs,
+    # which are narrower than the hips, so there is no corner sticking out at the bottom of the bum.
+    trousers = 'M72 296 H168 L168 318 Q168 346 156 353 H84 Q72 346 72 318 Z'
     hem = 'M72 298 L168 298 L169 320 Q120 329 71 320 Z'
     coat = 'M86 168 Q120 158 154 168 L180 380 Q182 390 170 390 L70 390 Q58 390 60 380 Z'
     buttons = ''.join(f'<circle cx="128" cy="{y}" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle>' for y in (200, 250, 300, 350))
@@ -59,7 +61,7 @@ def dressed(svg, kind, outfit, c):
         ('dad', ''): P('M84 168 Q120 158 156 168 L166 330 L74 330 Z', c) + P('M74 326 H166 L170 384 H126 L120 366 L114 384 H70 Z', t) + collar,
         ('dad', 'jumper'): P('M84 168 Q120 158 156 168 L168 318 Q120 326 72 318 Z', c) + P(trousers, t) + P(hem, c)
                            + flat('M84 222 L156 222 L158 246 L82 246 Z', t),
-        ('dad', 'overalls'): P(top, c) + P('M96 216 H144 V290 H170 L169 352 H71 L70 290 H96 Z', t)
+        ('dad', 'overalls'): P(top, c) + P('M96 216 H144 V290 H170 L170 318 Q170 346 157 353 H83 Q70 346 70 318 L70 290 H96 Z', t)
                              + cord('M100 218 L93 176', t) + cord('M140 218 L147 176', t)
                              + f'<circle cx="101" cy="222" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle><circle cx="139" cy="222" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle>',
         # Nan: her cardigan, with a collar and pockets; a dress under an apron; a jumper and a skirt.

@@ -344,6 +344,17 @@ enum RefinementSheets {
                     }
                 }
             }
+            row("Everyone in trousers: the seat rounds into the legs") {
+                HStack(alignment: .bottom, spacing: 0) {
+                    ForEach(["pop", "pop-waistcoat", "dad-jumper", "dad-overalls", "mum-trousers"], id: \.self) { name in
+                        if let rig = Rig.load(name) {
+                            RigFrame(rig: rig, states: [:], face: nil)
+                                .frame(width: 230, height: 230 * rig.size[1] / 240)
+                                .frame(height: 250, alignment: .bottom).clipped()
+                        }
+                    }
+                }
+            }
             row("Hats off, in the cold, in the rain") {
                 HStack(alignment: .bottom, spacing: 0) { small("pop", outfit: "bare"); small("nan", outfit: "warm"); small("pop", outfit: "warm"); small("nan", outfit: "rain"); small("pop", outfit: "rain") }
             }
