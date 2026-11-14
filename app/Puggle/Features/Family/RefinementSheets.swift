@@ -88,6 +88,118 @@ enum RefinementSheets {
         bendingArms(puggle)
         // greyHair() drew the options for Nan's and Pop's grey on the rigs as they were before it was built in.
         goingGrey()
+        glassesOptions()
+    }
+
+    /// Frames for Nan (red) and Pop (green) in other shapes, with no glass in them; and sunglasses for anyone.
+    private static func glassesOptions() {
+        func n(_ v: Double) -> String { "\((v * 10).rounded() / 10)" }
+        /// One lens outline, centred on (x, y). `out` is -1 for the left lens and 1 for the right, for shapes with an outer corner.
+        func lens(_ shape: String, _ x: Double, _ y: Double, out: Double) -> Rig.Shape {
+            switch shape {
+            case "oval": return Rig.Shape(kind: "ellipse", x: x, y: y, rx: 17, ry: 12)
+            case "square": return Rig.Shape(kind: "rect", x: x - 15, y: y - 12.5, w: 30, h: 25, r: 8)
+            case "half": return Rig.Shape(kind: "path", d: "M\(n(x - 15)) \(n(y - 5)) L\(n(x + 15)) \(n(y - 5)) C\(n(x + 15)) \(n(y + 17)) \(n(x - 15)) \(n(y + 17)) \(n(x - 15)) \(n(y - 5)) Z")
+            case "cat":
+                let o = out
+                return Rig.Shape(kind: "path", d: "M\(n(x - o * 13)) \(n(y - 8)) L\(n(x + o * 8)) \(n(y - 10)) L\(n(x + o * 19)) \(n(y - 15)) Q\(n(x + o * 19)) \(n(y + 8)) \(n(x + o * 6)) \(n(y + 11)) L\(n(x - o * 6)) \(n(y + 11)) Q\(n(x - o * 15)) \(n(y + 9)) \(n(x - o * 13)) \(n(y - 8)) Z")
+            default: return Rig.Shape(kind: "ellipse", x: x, y: y, rx: 14.5, ry: 14.5)
+            }
+        }
+        func half(_ shape: String) -> Double { shape == "oval" ? 17 : shape == "cat" ? 15 : 15 }
+        /// A pair of glasses: two lenses, a bridge and two arms. `glass` fills the lenses; `raised` lifts the arms' far ends.
+        func frames(_ shape: String, x: Double, y: Double, colour: String, glass: String? = nil, wide: Double = 5) -> [Rig.Shape] {
+            let w = half(shape), other = 240 - x
+            var shapes: [Rig.Shape] = []
+            for (cx, out) in [(x, -1.0), (other, 1.0)] {
+                var one = lens(shape, cx, y, out: out)
+                one.fill = glass; one.stroke = dark; one.tint = colour; one.width = wide
+                shapes.append(one)
+            }
+            shapes.append(Rig.Shape(kind: "path", d: "M\(n(x + w)) \(n(y)) Q120 \(n(y - 7)) \(n(other - w)) \(n(y))", stroke: dark, tint: colour, width: wide, cap: "round"))
+            shapes.append(Rig.Shape(kind: "path", d: "M\(n(x - w)) \(n(y - 2)) L\(n(x - w - 22)) \(n(y - 8)) M\(n(other + w)) \(n(y - 2)) L\(n(other + w + 22)) \(n(y - 8))", stroke: dark, tint: colour, width: wide, cap: "round"))
+            return shapes
+        }
+        func wearing(_ rig: Rig, _ shapes: [Rig.Shape], part: String = "head-2") -> Rig {
+            var copy = rig
+            if let index = copy.parts.firstIndex(where: { $0.id == part }) { copy.parts[index].shapes = shapes }
+            return copy
+        }
+        func column(_ name: String, _ rig: Rig, outfit: String = "none") -> some View {
+            VStack(spacing: 6) {
+                RigFrame(rig: rig, states: [:], face: nil)
+                    .frame(width: 200 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 200 * rig.size[1] / 240)
+                    .frame(width: 216, height: 236, alignment: .top).clipped()
+                RigFrame(rig: rig, states: [:], face: nil)
+                    .frame(width: 60 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 60 * rig.size[1] / 240)
+                Text(name).font(.system(size: 12, weight: .medium)).foregroundStyle(note)
+            }
+            .environment(\.outfit, outfit)
+        }
+        guard let nan = Rig.load("nan"), let pop = Rig.load("pop") else { return }
+        let red = "#E5553B", green = "#3C9A5F"
+        let sheet = VStack(alignment: .leading, spacing: 16) {
+            row("Nan: red frames, no glass. Her reading glasses rest on her bill") {
+                column("As now: blue-grey, with glass", nan)
+                column("A. Round", wearing(nan, frames("round", x: 93, y: 196, colour: red)))
+                column("B. Half-moon", wearing(nan, frames("half", x: 93, y: 194, colour: red)))
+                column("C. Oval", wearing(nan, frames("oval", x: 93, y: 196, colour: red)))
+                column("D. Cat-eye", wearing(nan, frames("cat", x: 93, y: 196, colour: red)))
+                column("E. Soft square", wearing(nan, frames("square", x: 93, y: 196, colour: red)))
+            }
+            row("Pop: green frames. His go round his eyes") {
+                column("As now: blue-grey", pop)
+                column("A. Round", wearing(pop, frames("round", x: 88, y: 117, colour: green)))
+                column("B. Half-moon", wearing(pop, frames("half", x: 88, y: 115, colour: green)))
+                column("C. Oval", wearing(pop, frames("oval", x: 88, y: 117, colour: green)))
+                column("E. Soft square", wearing(pop, frames("square", x: 88, y: 117, colour: green)))
+                column("A, with a thicker frame", wearing(pop, frames("round", x: 88, y: 117, colour: green, wide: 6.5)))
+            }
+        }
+        save(sheet, as: "glasses-frames.png")
+
+        // Sunglasses, three ways, given the rule that glasses never hide the eyes.
+        let cast: [(String, String)] = [("puggle", "#E5553B"), ("kip", "#2A62B8"), ("digby", "#F4BE2C"), ("sunny", "#E5553B"), ("mum", "#F4BE2C"), ("dad", "#3C9A5F")]
+        func shaded(_ name: String, _ colour: String, _ way: Int) -> Rig? {
+            guard var rig = Rig.load(name), let eye = rig.parts.first(where: { $0.id == "eye-left" }), let at = rig.parts.firstIndex(where: { $0.id == "eye-left" }) else { return nil }
+            let x = Double(eye.pivot[0]), y = Double(eye.pivot[1])
+            switch way {
+            case 0:
+                // Dark lenses over the eyes: drawn after them.
+                let last = rig.parts.lastIndex(where: { $0.id.hasPrefix("eye") }) ?? at
+                rig.parts.insert(Rig.Part(id: "sunnies", parent: "head", pivot: [120, CGFloat(y)], shapes: frames("oval", x: x, y: y, colour: colour, glass: "#1B2440")), at: last + 1)
+            case 1:
+                // Tinted lenses she can be seen through: drawn before the eyes, so the eyes sit on top.
+                rig.parts.insert(Rig.Part(id: "sunnies", parent: "head", pivot: [120, CGFloat(y)], shapes: frames("oval", x: x, y: y, colour: colour, glass: "#E3B062")), at: at)
+            default:
+                // Pushed up onto her forehead: her eyes are clear.
+                let last = rig.parts.lastIndex(where: { $0.id.hasPrefix("eye") }) ?? at
+                var up = frames("oval", x: x + 4, y: y - 27, colour: colour, glass: "#1B2440")
+                up.removeLast()
+                rig.parts.insert(Rig.Part(id: "sunnies", parent: "head", pivot: [120, CGFloat(y)], shapes: up), at: last + 1)
+            }
+            return rig
+        }
+        func line(_ title: String, _ way: Int, outfit: String) -> some View {
+            row(title) {
+                HStack(alignment: .bottom, spacing: 4) {
+                    ForEach(cast, id: \.0) { who in
+                        if let rig = shaded(who.0, who.1, way) {
+                            RigFrame(rig: rig, states: [:], face: nil)
+                                .frame(width: 150 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 150 * rig.size[1] / 240)
+                        }
+                    }
+                }
+                .environment(\.outfit, outfit)
+            }
+        }
+        let sunnies = VStack(alignment: .leading, spacing: 16) {
+            line("1. Dark lenses: the classic, but her eyes are hidden", 0, outfit: "none")
+            line("2. Tinted lenses: her eyes show through", 1, outfit: "none")
+            line("3. Pushed up on the forehead: eyes clear", 2, outfit: "none")
+            line("2 again, in the heat: with sun hats and zinc", 1, outfit: "sun")
+        }
+        save(sunnies, as: "sunglasses.png")
     }
 
     /// Nan and Pop as built: warmer, lighter fur with a lighter line, and grey dashes scattered through their hair.
