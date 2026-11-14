@@ -88,7 +88,7 @@ enum RefinementSheets {
     private static func dummy() {
         guard let pebble = Rig.load("pebble") else { return }
         let looks = pebble.wardrobe?.looks ?? [[:]]
-        let names = ["Gum, his own", "Sky", "Mint", "Shell", "Waratah"]
+        let names = ["Mint, his own", "Sky", "Shell", "Gum", "Waratah"]
         func column(_ name: String, _ rig: Rig) -> some View {
             VStack(spacing: 6) {
                 RigFrame(rig: rig, states: [:], face: nil).frame(width: 150, height: 150 * rig.size[1] / rig.size[0])

@@ -97,8 +97,8 @@ def drawings():
         'dad': (grown('dad', '#2A62B8', ['', 'jumper', 'overalls']), 456, '#2A62B8', PAIRS['dad'], "Dad: a shirt and shorts."),
         'pop': (grown('pop', '#BFD9F5', ['', 'waistcoat', 'jumper']), 456, '#BFD9F5', PAIRS['pop'],
                 "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan."),
-        'pebble': ({'': baby('neutral', '#3C9A5F')}, 270, '#3C9A5F', ['#BFD9F5', '#CFE5D2', '#F3D9C9', '#E5553B'],
-                   "Pebble: Puggle's baby brother, about six months, sitting in a gum-green babygro with a bottle, or a dummy when he sleeps. A round curl."),
+        'pebble': ({'': baby('neutral', '#CFE5D2')}, 270, '#CFE5D2', ['#BFD9F5', '#F3D9C9', '#3C9A5F', '#E5553B'],
+                   "Pebble: Puggle's baby brother, about six months, sitting in a mint babygro with a bottle, or a dummy when he sleeps. A round curl."),
         'quill': ({'': quill('dungarees'), 'jumper': quill('jumper'), 'tee': quill('tee')}, 300, '#E5553B', ['#2A62B8', '#3C9A5F', '#F4BE2C'],
                   "Quill: an echidna, Puggle's friend. The spines are the signature."),
         'kip': ({'': kip('dress'), 'dungarees': kip('dungarees'), 'jumper': kip('jumper')}, 300, '#F4BE2C', ['#E5553B', '#3C9A5F', '#F3D9C9'],
@@ -679,10 +679,12 @@ def join_to_head(name, parts):
         top = by_id['head-2']
         top.update(id='curl', pivot=[118, 54], spring=110)
         top['shapes'][:2] = [
-            {'kind': 'path', 'd': 'M108 56 Q102 38 110 26 Q118 12 134 14 Q147 17 146 31 Q143 43 131 42 Q125 41 125 35 Q123 46 128 56 Z',
+            # A slim stem that narrows at the neck and rolls into a round end set off to one side, with a
+            # spiral of a turn and a quarter inside it: a curl, not a knob.
+            {'kind': 'path', 'd': 'M111 56 Q109 45 115 37 Q111 24 122 15 Q135 8 144 18 Q151 29 143 38 Q135 45 126 41 Q124 48 127 56 Z',
              'fill': fur, 'stroke': INK, 'tint': line, 'width': skull['width']},
-            {'kind': 'path', 'd': 'M110 43 L120 43 L123 53 L132 55 L132 70 L104 70 L104 55 L109 53 Z', 'fill': fur},
-            {'kind': 'path', 'd': 'M133 33 Q139 32 139 26 Q136 21 130 23', 'stroke': line, 'width': 3.5, 'cap': 'round'}]
+            {'kind': 'path', 'd': 'M113 46 L123 46 L125 53 L132 55 L132 70 L106 70 L106 55 L112 53 Z', 'fill': fur},
+            {'kind': 'path', 'd': 'M124 31 Q123 22 131 20 Q139 21 139 28 Q138 34 132 34 Q127 33 129 28', 'stroke': line, 'width': 3, 'cap': 'round'}]
         return parts
     back = by_id.get('head-back')
     shapes, extras = (back['shapes'] if back else []), {}
@@ -845,18 +847,21 @@ def babygro(parts):
     suit = upper['shapes'][0]
     def piece(d, w=None): return {'kind': 'path', 'd': d, 'fill': suit['fill'], 'stroke': suit['stroke'], 'tint': suit.get('tint'), 'width': w or suit['width']}
     def seam(d, w=3): return {'kind': 'path', 'd': d, 'stroke': suit.get('tint') or INK, 'width': w, 'cap': 'round'}
-    leg = 'M86 224 Q106 230 102 249 Q98 264 77 262 Q58 259 60 244 Q64 227 86 224 Z'
+    # A thigh each side, coming forward and out from the hip, with a fold where it meets the body.
+    leg = 'M98 220 Q112 236 105 252 Q98 266 76 265 Q52 263 51 243 Q53 224 76 220 Q88 218 98 220 Z'
+    fold = 'M99 222 Q108 237 102 251'
     cuff = 'M63 240 Q59 250 66 259'
     body = 'M92 166 Q120 158 148 166 Q168 194 168 222 Q168 247 146 248 L94 248 Q72 247 72 222 Q72 194 92 166 Z'
     poppers = [{'kind': 'ellipse', 'x': x, 'y': y, 'rx': 2.8, 'ry': 2.8, 'fill': '#FBF6E9', 'stroke': INK, 'tint': suit.get('tint'), 'width': 1.8}
-               for x, y in ((99, 238), (109, 243), (120, 245), (131, 243), (141, 238))]
+               for x, y in ((110, 240), (120, 243), (130, 240))]
     # He is sitting with his legs out towards us, so what we see of each foot is its sole, and the babygro
     # has feet: a rounded sole in the suit's colour with a paler pad on it, turned out a little.
     def sole(x, turn):
-        return [{'kind': 'ellipse', 'x': x, 'y': 246, 'rx': 17, 'ry': 20, 'rotate': turn, 'fill': suit['fill'], 'stroke': suit['stroke'], 'tint': suit.get('tint'), 'width': suit['width']},
-                {'kind': 'ellipse', 'x': x, 'y': 248, 'rx': 9, 'ry': 11, 'rotate': turn, 'fill': lighten(suit['fill'])}]
-    upper['shapes'] = ([piece(leg), piece(mirrored(leg)), piece(body), seam('M120 172 L120 240'), seam('M102 169 Q120 181 138 169', 3.5)]
-                       + poppers + sole(76, -14) + sole(164, 14) + upper['shapes'][1:])
+        return [{'kind': 'ellipse', 'x': x, 'y': 243, 'rx': 20, 'ry': 23, 'rotate': turn, 'fill': suit['fill'], 'stroke': suit['stroke'], 'tint': suit.get('tint'), 'width': suit['width']},
+                {'kind': 'ellipse', 'x': x, 'y': 246, 'rx': 11, 'ry': 13, 'rotate': turn, 'fill': lighten(suit['fill'])}]
+    upper['shapes'] = ([piece(body), piece(leg), piece(mirrored(leg)), seam(fold, 3.5), seam(mirrored(fold), 3.5),
+                        seam('M120 172 L120 240'), seam('M102 169 Q120 181 138 169', 3.5)]
+                       + poppers + sole(72, -12) + sole(168, 12) + upper['shapes'][1:])
     # A bottle or a dummy, never both: the bottle while he is awake, a wattle-yellow dummy while he sleeps,
     # when his hands rest together. The dummy is a shield and a ring resting on the front of his closed
     # bill; the bill itself does not change.
