@@ -642,9 +642,10 @@ HAIR = {   # part, pivot, when it shows (None: always), shapes
             ('tuft-left', [59, 130], None, [TUFT]), ('tuft-right', [181, 130], None, [mirrored(TUFT)])],
     'nan': [('curl-left', [58, 126], None, [CURL]), ('curl-right', [182, 126], None, [mirrored(CURL)])],
     'pop': [('tuft-left', [59, 130], None, [BUSHY]), ('tuft-right', [181, 130], None, [mirrored(BUSHY)])],
-    # Under their hats, for when the hats come off: Digby a coarse, stubby tuft between his ears, Sunny a soft fluff.
+    # Under their hats, for when the hats come off: Digby a coarse, stubby tuft between his ears, Sunny two small
+    # pointed wisps: small and pointed, so they are not read as a third ear beside her round ones.
     'digby': [('tuft', [122, 54], HATLESS, ['M103 55 Q100 41 109 35 Q116 41 118 53 Z', 'M115 53 Q117 37 126 31 Q134 39 133 53 Z', 'M130 55 Q134 43 141 39 Q146 47 142 57 Z'])],
-    'sunny': [('tuft', [120, 54], HATLESS, ['M104 56 Q98 39 109 33 Q119 30 121 42 Q124 32 134 34 Q144 40 136 56 Z'])],
+    'sunny': [('tuft', [120, 54], HATLESS, ['M109 55 Q107 44 114 39 Q118 44 119 50 Q122 41 129 38 Q133 46 130 56 Z'])],
 }
 
 def grow_hair(name, parts):

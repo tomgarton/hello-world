@@ -107,7 +107,7 @@ One signature item each. Children share one head size; grown-ups have the same h
 | Quill | Echidna, 2½ | Spines |
 | Kip | Koala, 3; her best friend; falls asleep anywhere | Blue bow |
 | Digby | Wombat, 3½; loves digging | Red beanie; a stubby tuft of hair under it |
-| Sunny | Quokka, 4; always cheerful | Sun hat; a soft fluff of hair under it |
+| Sunny | Quokka, 4; always cheerful | Sun hat; two small pointed wisps of hair under it |
 
 Glasses never hide the eyes.
 
