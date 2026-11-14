@@ -74,7 +74,8 @@ def main():
     global ICON, OUT
     ICON, OUT = option('--icon', ICON), option('--out', OUT)
     light, dark = GROUNDS[option('--ground', 'wattle')]
-    flat = '--flat' in sys.argv
+    # Flat is Tom's choice: glass washed her outline out. `--glass` puts it back on the head, bill and clip.
+    flat = '--glass' not in sys.argv
     parts = {p['id']: p for p in json.load(open(RIG))['parts']}
     assets = os.path.join(ICON, 'Assets')
     os.makedirs(assets, exist_ok=True)
