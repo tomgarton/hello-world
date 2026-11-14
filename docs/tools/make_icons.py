@@ -57,7 +57,8 @@ def icon(lines, wattle=(), sky=(), ink=(), tint=(), turn=0, note='', fine=(), bo
 
 TEAT = 'M9 8C9 6.5 10 6 10 4.5A2 2 0 0 1 14 4.5C14 6 15 6.5 15 8'
 NAPPY = 'M6 4.5H18A4 4 0 0 1 22 8.5V12C22 17 18.5 20.5 14 20.5H10C5.5 20.5 2 17 2 12V8.5A4 4 0 0 1 6 4.5Z'
-BREAST = 'M7.5 2.5C13 5 20.5 8.5 20.5 14A8 8 0 0 1 12.5 22C7.5 22 3.5 18.5 3.5 13.5C3.5 9.5 5.5 6 7.5 2.5Z'
+# In profile: flat down the left, where it meets the chest, and full to the right.
+BREAST = 'M5.5 3C6.5 7 12 8.5 16.5 10.5C19 11.7 20.5 13.5 20.5 15.5A6 6 0 0 1 14.5 21.5H7.5A2 2 0 0 1 5.5 19.5Z'
 POTTY = ('M12 4C9 4 7.5 6.5 7 10C5 10.8 3.6 12.5 3 14.5C2.3 17 2 18.5 2 19.5A2.5 2.5 0 0 0 4.5 22H19.5A2.5 2.5 0 0 0 22 19.5'
          'C22 18.5 21.7 17 21 14.5C20.4 12.5 19 10.8 17 10C16.5 6.5 15 4 12 4Z')
 FRONT = 'M3 14.5C5 16.5 7 17.1 8.3 17.2C8.6 15.2 10 14 12 14C14 14 15.4 15.2 15.7 17.2C17 17.1 19 16.5 21 14.5'
@@ -76,7 +77,7 @@ ICONS = {
     'bottle': icon([TEAT, rr(7, 8, 10, 3.5, 1.75), 'M8 11.5C6.5 13 5.5 14.5 5.5 17V19A3 3 0 0 0 8.5 22H15.5A3 3 0 0 0 18.5 19V17C18.5 14.5 17.5 13 16 11.5', 'M9.5 15.5H12.5M9.5 18.5H12.5'],
                    wattle=[TEAT + 'Z'], sky=[rr(7, 8, 10, 3.5, 1.75)],
                    note='A teat, a collar and a body with shoulders. Two measure marks; three will not fit.'),
-    'breastfeed': icon([BREAST], tint=[(BREAST, '#F3D9C9'), (circle(16, 15, 2.5), '#C27C66', True)],
+    'breastfeed': icon([BREAST], tint=[(BREAST, '#F3D9C9'), (circle(16.3, 15.8, 2.4), '#C27C66', True)],
                        note='A breast, in place of the two heads. In Shell, a brand colour: see the two versions below.'),
     'pump': icon(['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5', rr(12, 9.5, 6, 4, 1.5), rr(10, 13.5, 10, 8.5, 3)],
                  sky=['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5Z'], wattle=['M10 17.5H20V19A3 3 0 0 1 17 22H13A3 3 0 0 1 10 19Z'],
@@ -105,7 +106,8 @@ ICONS = {
                         note='The reading is a filled column, not a second line.'),
     'medicine': icon([rr(2.5, 8, 19, 8, 4), 'M12 8V16'], wattle=['M6.5 8H12V16H6.5A4 4 0 0 1 6.5 8Z'], turn=-45, note='A capsule.'),
     'vaccine': icon([rr(9, 7.5, 6, 9.5, 1.5), 'M12 7.5V3.5M9.5 3.5H14.5', 'M12 17V21.5'], wattle=[rr(9, 11.5, 6, 5.5, 1.5)], turn=45, note='A syringe, with nothing on the barrel.'),
-    'teeth': icon([TOOTH], wattle=[circle(16.5, 8, 1.5)], note='Wider roots, so they do not close up.'),
+    # A sparkle, not a dot: a yellow dot on a tooth reads as a cavity.
+    'teeth': icon([TOOTH], wattle=[sparkle(16, 8.5, 2.6)], note='Wider roots, so they do not close up. A sparkle for a new tooth.'),
     'milestone': icon([BIG_SPARKLE], wattle=[BIG_SPARKLE], ink=[sparkle(19, 5.5, 3)],
                       note='Sparkles, not a five-point star: the brand\'s own star is the four-point one.'),
     'tummy-time': icon([rr(2.5, 13, 12.5, 6, 3), circle(17.5, 9, 3.5), 'M14 19H21.5'], wattle=[circle(17.5, 9, 3.5)], note='As before, heavier.'),
@@ -185,7 +187,7 @@ def from_file(path):
 
 
 # The breast again with no skin colour, to compare. Shell is a brand colour, and one skin tone.
-PLAIN_BREAST = icon([BREAST], wattle=[circle(16, 15, 2.5)], ink=[circle(16, 15, 1)])
+PLAIN_BREAST = icon([BREAST], wattle=[circle(16.3, 15.8, 2.4)], ink=[circle(16.3, 15.8, 1)])
 
 
 # Other ways to draw breastfeeding (14 November 2026). The app is meant for families anywhere, and a bare breast
@@ -195,7 +197,7 @@ TONES = [('#F3D9C9', '#C27C66'), ('#E9C4A2', '#B0704F'), ('#CF9B6E', '#8E5637'),
 
 
 def breast(tone, areola):
-    return icon([BREAST32], box=32, weight=2.2, tint=[(BREAST32, tone), (circle(21.5, 20, 3.3), areola, True)])
+    return icon([BREAST32], box=32, weight=2.2, tint=[(BREAST32, tone), (circle(21.8, 21, 3.2), areola, True)])
 
 
 # The four with a baby in them are drawn on a 32 canvas, not 24. That is the room a closed eye, an ear, hair and
@@ -221,7 +223,7 @@ def ear(x, y, side=1):
     return f'M{x} {y - .8}q{1.3 * side} .8 0 1.6'
 
 
-SIDE = 'M8 3.5C13 5.5 16.5 10 17.5 15.5C18 21.5 15 28.5 10 28.5C6 28.5 3 24.5 3 19.5C3 13.5 6.5 8.5 8 3.5Z'
+SIDE = 'M5 3.5C10 5.5 16.5 10 17.5 15.5C18.3 21.5 15.5 28.5 10.5 28.5H7A2 2 0 0 1 5 26.5Z'
 WRAP = 'M27 17.5C27.5 24 24 28.5 19.5 28.5C17 28.5 14.8 28 13.3 27.3'
 
 
@@ -238,7 +240,7 @@ TORSO = 'M8 13.5C5.2 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H21C24.5 28.5 27 
 FRINGE = 'M6.7 11C11 11 15 9 17 5.5'
 BUN = 'M9.1 4.6A2.4 2.4 0 1 0 6.8 7.7'
 ARM = 'M8.5 20.5C10 24 14.5 26.5 20 26.2C22.5 26 24.8 25.2 26.2 23.8'
-BREAST32 = 'M10 3.5C17.5 7 27.5 11.5 27.5 18.5A10.5 10.5 0 0 1 17 29.5C10 29.5 4.5 24.5 4.5 18C4.5 12.5 7.5 8 10 3.5Z'
+BREAST32 = 'M7.5 4C9 9.5 16 11.5 22 14C25.5 15.6 27.5 18 27.5 20.5A8 8 0 0 1 19.5 28.5H10A2.5 2.5 0 0 1 7.5 26Z'
 LAP = 'M4.58 17.3C8.5 16 12.5 22 18.5 22C22 22 24.5 18 27.42 17.3'
 DROP32 = 'M16 2.5C21.5 9 26.5 14 26.5 19.5A10.5 10.5 0 0 1 5.5 19.5C5.5 14 10.5 9 16 2.5Z'
 HEART32 = 'M16 28C9.5 23.5 3 18.5 3 11.5A6.5 6.5 0 0 1 16 9A6.5 6.5 0 0 1 29 11.5C29 18.5 22.5 23.5 16 28Z'
@@ -323,7 +325,7 @@ DETAIL = {
     'temperature': dict(fine=['M17.5 5.5H19.5M17.5 8.5H19.5M17.5 11.5H19.5'], note='A scale beside the tube.'),
     'medicine': dict(fine=['M14.5 10.5H17'], note='A highlight on the capsule.'),
     'vaccine': dict(fine=['M13 9.5H15M13 12H15M13 14.5H15'], note='Marks on the barrel.'),
-    'teeth': dict(fine=['M6.5 8C6.5 6.8 7.2 6 8.3 6'], note='A highlight.'),
+    'teeth': dict(fine=['M6.5 8C6.5 6.8 7.2 6 8.3 6'], note='A highlight and a sparkle.'),
     'milestone': dict(ink=[sparkle(20, 17.5, 1.7)], note='A third sparkle.'),
     'tummy-time': dict(fine=['M16.9 9.1A1.3 1.3 0 0 0 19.5 9.1', 'M5.5 16H10'], note='A closed eye, and a fold in the blanket.'),
     'play': dict(fine=[circle(12, 6.5, 1.5), 'M4.8 17.8H7.8M6.3 16.3V19.3', 'M17.8 19.3L16 16.3H19.6Z'], note='A shape on each block.'),
