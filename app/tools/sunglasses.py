@@ -1,7 +1,7 @@
 """Sunglasses for every rig, as parts that can be switched.
 
-Each style is one part, shown while the face has `shades=<style>` ("none" is no sunglasses). They are drawn just
-after the eyes, so eyebrows and hats stay on top of them. Each part has a `lift`: how far it slides up onto the
+Each style is one part, shown while the face has `shades=<style>` ("none" is no sunglasses). They are drawn over
+the whole face (eyes, eyebrows, shy cheeks), and under hats. Each part has a `lift`: how far it slides up onto the
 forehead while she is reacting, so that her eyes, which carry her feelings, are never hidden when it matters.
 
 Eight at an ordinary size and five big ones:
@@ -22,7 +22,7 @@ INK = '#3A2A20'
 STYLES = ['round-dark', 'aviator-mirror', 'aviator-dark', 'round-mirror', 'square-dark', 'hearts-dark', 'flowers-dark', 'round-tinted',
           'big-sunset', 'big-night', 'big-mirror', 'big-aviator', 'big-sea']
 K = 1.28           # the ordinary ones: a little bigger than a pair of spectacles
-LIFT, BIG_LIFT = 38, 43
+LIFT, BIG_LIFT = 44, 52   # far enough that a pushed-up pair clears raised eyebrows
 
 
 def off(colour):
@@ -143,10 +143,15 @@ def wear(parts, accent):
     def part(style):
         return {'id': f'sunnies-{style}', 'parent': 'head', 'pivot': [120, y], 'spring': 150, 'when': f'shades={style}',
                 'lift': BIG_LIFT if style.startswith('big-') else LIFT, 'shapes': drawn[style]}
-    # Tinted lenses go under the eyes, so the eyes show through; every other pair goes straight over them.
-    under = next(i for i, p in enumerate(parts) if p['id'] == 'eye-left')
-    parts = parts[:under] + [part('round-tinted')] + parts[under:]
-    over = next(i for i, p in enumerate(parts) if p['id'] == 'eye-right') + 1
+    def feature(p): return p['id'].startswith(('eye-', 'eyes-', 'brow-')) or p['id'] == 'shy'
+    # Everything on the face stays behind the glasses: eyes, closed and happy eyes, eyebrows, the marks on shy cheeks.
+    # Where a drawing has some of those after other things (a hat), they are brought forward to sit with the eyes.
+    first = next(i for i, p in enumerate(parts) if p['id'] == 'eye-left')
+    face = [p for p in parts[first:] if feature(p)]
+    parts = parts[:first] + face + [p for p in parts[first:] if not feature(p)]
+    # Tinted lenses are the one pair under the eyes, so the eyes show through; every other pair goes over the whole face.
+    parts = parts[:first] + [part('round-tinted')] + parts[first:]
+    over = first + 1 + len(face)
     return parts[:over] + [part(s) for s in STYLES if s != 'round-tinted'] + parts[over:]
 
 

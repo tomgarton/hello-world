@@ -800,7 +800,7 @@
    ],
    "spring": 150,
    "when": "shades=round-tinted",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "ellipse",
@@ -883,6 +883,31 @@
    "when": "eyes=open"
   },
   {
+   "id": "eyes-closed",
+   "parent": "head",
+   "pivot": [
+    120,
+    172
+   ],
+   "when": "eyes=closed",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M80 161 Q88 169 96 161",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M144 161 Q152 169 160 161",
+     "stroke": "#3A2A20",
+     "width": 4.5,
+     "cap": "round"
+    }
+   ]
+  },
+  {
    "id": "sunnies-round-dark",
    "parent": "head",
    "pivot": [
@@ -891,7 +916,7 @@
    ],
    "spring": 150,
    "when": "shades=round-dark",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "ellipse",
@@ -942,7 +967,7 @@
    ],
    "spring": 150,
    "when": "shades=aviator-mirror",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "path",
@@ -1023,7 +1048,7 @@
    ],
    "spring": 150,
    "when": "shades=aviator-dark",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "path",
@@ -1076,7 +1101,7 @@
    ],
    "spring": 150,
    "when": "shades=round-mirror",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "ellipse",
@@ -1155,7 +1180,7 @@
    ],
    "spring": 150,
    "when": "shades=square-dark",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "rect",
@@ -1208,7 +1233,7 @@
    ],
    "spring": 150,
    "when": "shades=hearts-dark",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "path",
@@ -1253,7 +1278,7 @@
    ],
    "spring": 150,
    "when": "shades=flowers-dark",
-   "lift": 38,
+   "lift": 44,
    "shapes": [
     {
      "kind": "path",
@@ -1494,7 +1519,7 @@
    ],
    "spring": 150,
    "when": "shades=big-sunset",
-   "lift": 43,
+   "lift": 52,
    "shapes": [
     {
      "kind": "ellipse",
@@ -1557,7 +1582,7 @@
    ],
    "spring": 150,
    "when": "shades=big-night",
-   "lift": 43,
+   "lift": 52,
    "shapes": [
     {
      "kind": "ellipse",
@@ -1620,7 +1645,7 @@
    ],
    "spring": 150,
    "when": "shades=big-mirror",
-   "lift": 43,
+   "lift": 52,
    "shapes": [
     {
      "kind": "ellipse",
@@ -1683,7 +1708,7 @@
    ],
    "spring": 150,
    "when": "shades=big-aviator",
-   "lift": 43,
+   "lift": 52,
    "shapes": [
     {
      "kind": "path",
@@ -1738,7 +1763,7 @@
    ],
    "spring": 150,
    "when": "shades=big-sea",
-   "lift": 43,
+   "lift": 52,
    "shapes": [
     {
      "kind": "ellipse",
@@ -1892,31 +1917,6 @@
      "stroke": "#3A2A20",
      "tint": "#978B56",
      "width": 5.0,
-     "cap": "round"
-    }
-   ]
-  },
-  {
-   "id": "eyes-closed",
-   "parent": "head",
-   "pivot": [
-    120,
-    172
-   ],
-   "when": "eyes=closed",
-   "shapes": [
-    {
-     "kind": "path",
-     "d": "M80 161 Q88 169 96 161",
-     "stroke": "#3A2A20",
-     "width": 4.5,
-     "cap": "round"
-    },
-    {
-     "kind": "path",
-     "d": "M144 161 Q152 169 160 161",
-     "stroke": "#3A2A20",
-     "width": 4.5,
      "cap": "round"
     }
    ]
