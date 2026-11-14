@@ -1,8 +1,9 @@
+#if DEBUG
 import SwiftUI
 
 /// Mock-ups for the refinements proposed in reports/Cartoon character craft for Puggle.md, drawn with
 /// the real rigs so each shows what would actually change. Written by "-debugSheet 1"; nothing here
-/// is used by the app itself.
+/// is used by the app itself, so it is left out of release builds.
 @MainActor
 enum RefinementSheets {
     private static let paper = Color(hex: 0xF2ECDD), ink = Color(hex: 0x3A2A20), note = Color(hex: 0x6B5E52)
@@ -1507,3 +1508,4 @@ enum RefinementSheets {
         save(sheet, as: "refine-7-pair.png")
     }
 }
+#endif

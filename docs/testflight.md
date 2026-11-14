@@ -32,3 +32,11 @@ then the build shows in TestFlight on the phone.
 
 - Before external testers, Apple reviews the first build. It needs a privacy
   policy link.
+
+## Checked on 14 November 2026
+
+- The release archive builds and signs (version 0.1.0, build 1, 9.3 MB). It had stopped building: a
+  debug-only mock-up file (`RefinementSheets.swift`) was being compiled into release. It is now
+  left out of release builds.
+- Nothing has been uploaded from this check. Whether an earlier build reached App Store Connect is
+  not something the project can show: look under TestFlight in App Store Connect.
