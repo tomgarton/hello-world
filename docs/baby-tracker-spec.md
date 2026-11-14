@@ -975,3 +975,5 @@ The options that are only on sheets live in debug code. Before a builder, each n
 - **For checking:** `-debugShades big-sunset` puts any pair on whatever the weather; `-debugWeather hot` for a hot day.
 - Not built: choosing a pair (the Character Builder), and sunglasses in the books.
 - Sheets: `docs/previews/sunglasses-built.png` (every style on everyone, in the heat, and pushed up), `sunglasses-on-today.png`.
+
+**First-run demo: no banner (Tom, 2026-11-14).** The yellow "Demo. Nothing here is kept." banner is removed from the first-run demo while the flow is being refined; Tom found it distracting. A small faint cross in the bottom-left corner, below the main button, closes the demo. The current flow as built is on `docs/previews/onboarding/current-flow-1.png` and `current-flow-2.png`.
