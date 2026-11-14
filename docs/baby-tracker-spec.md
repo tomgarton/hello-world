@@ -1027,3 +1027,17 @@ Prototype: `docs/previews/onboarding/animated.html` (open with `#2.5` to freeze 
 - **Settings:** units as two-way pills (ml or oz), switches of their own design, and a paragraph under most settings saying why. Apple Health: the parent's own nursing and pumping go to their Health record; nothing about the baby does.
 - **Worth taking:** a line pattern behind a card (it supports our outline repeats); the one-line sharing promise on Today; import from other trackers and a PDF for the doctor (check against ours); Apple Health for the parent's own feeding, which is a real use of Health that needs nothing from a monitor.
 - **Not for us:** faces on objects (moon, star, bowl), which our brand rules out; an account and sign-in; em dashes and long paragraphs of explanation (one runs off the screen); nine cards and five tabs on the home screen.
+
+**Gaia: a second batch of reference screens (Tom, 2026-11-14).** Sixteen more: the foot of Settings, the privacy policy on its website, Language, Import, Export, "Connect your AI", Report a problem, the share sheet, the review prompt and two App Store screenshots. Not saved in the repo (real names and contacts). What they show, against what Puggle has today (checked in the code):
+
+| | Gaia | Puggle today |
+|---|---|---|
+| Import | Nara, Huckleberry (recognised) and any CSV, with columns shown to correct before anything is written; safe to run twice | One source: the "Baby Tracker" app's CSV export. A preview, a backup first, undo, and repeats are skipped |
+| Export | CSV of the whole log; a PDF for the doctor over 7, 14 or 30 days with feeds, sleep, nappies by day, growth with WHO percentiles, medicines and temperatures | Export exists; a summary PDF exists (`SummaryView.swift`). Not checked: whether it has a choice of days or percentiles |
+| Report a problem | An email with the version, device and the last few screens opened | An email with version, iOS and device. No recent activity |
+| Languages | Eight | English only |
+| Connect an AI | A read-only connection (MCP) so an AI app can answer from the log | None. It needs a server and an account, which Puggle does not have |
+| Privacy | A policy on a website; an account with email and password; optional analytics and marketing email | No account, no analytics, nothing leaves iCloud |
+| App Store | A headline over a phone, with a small line drawing: "Who fed her last? Everyone knows." | Not made yet |
+
+Worth taking: import from the trackers people are most likely leaving (Huckleberry, Nara), and a column-matching step for any CSV; a choice of 7, 14 or 30 days on the doctor's PDF; the last few screens in a problem report; App Store screenshots as one plain claim over one screen. Not for us: an account, analytics, marketing email. The AI connection is interesting but only possible with a server.
