@@ -16,8 +16,11 @@ h2 b{color:var(--red)}
 .scene{display:block;width:306px;height:188px;object-fit:cover;object-position:top}
 .strip{display:block;width:306px;height:138px;object-fit:cover;object-position:50% 78%}
 .body{padding:14px 18px 0}
-.big{font-size:27px;line-height:1.1;font-weight:800;letter-spacing:-.02em;margin:12px 0 6px}
-.sub{color:var(--muted);font-size:15.5px;margin:0}
+.big{font-size:25px;line-height:1.12;font-weight:800;letter-spacing:-.02em;margin:0;height:58px;display:flex;align-items:flex-start}
+.sub{color:var(--muted);font-size:15px;margin:6px 0 0;height:42px}
+.slot{position:absolute;left:18px;right:18px;top:346px;height:232px}
+.text{position:absolute;left:18px;right:18px;top:226px}
+.guide{position:absolute;left:0;right:0;border-top:1px dashed #C9583F;opacity:.55}
 .piece{display:block;width:270px;border-radius:16px;margin:0 auto}
 .crop{width:270px;margin:0 auto;overflow:hidden;border-radius:16px}
 .crop img{display:block;width:306px;margin-left:-18px}
@@ -43,82 +46,53 @@ h2 b{color:var(--red)}
 .box{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:18px 20px;width:640px}
 .box h3{margin:0 0 8px;font-size:17px}.box ul{margin:0;padding-left:20px}.box li{margin:0 0 6px}
 </style></head><body>
-<h1>First run, revised</h1>
-<p class="lede">A mock-up, not built. The scenes and pieces of the app are real screenshots from today's build; the layout and words are the proposal. There is no sign-in in Puggle, so "before sign-in" here means before any setup question.</p>
-
-<h2><b>Before setup:</b> what it does, one feature a page, a different scene and companion each time</h2>
-<div class="row">
- <div class="col"><p class="cap"><span>0</span>Welcome</p><div class="phone">
+<h1>First run, revised: one layout</h1>
+<p class="lede">A mock-up, not built. Scenes and pieces of the app are real screenshots; layout and words are the proposal. Every page now shares one skeleton, so the heading and text never move.</p>
+<h2><b>Before setup:</b> what it does</h2><div class="row"><div class="col"><p class="cap"><span>0</span>Welcome</p><div class="phone">
   <div class="body top"><img class="piece" src="img2/hatch.png" style="border-radius:22px">
-  <div class="word">puggle</div><p class="sub center" style="margin-top:2px">Baby tracker for the whole family</p></div>
+  <div class="word">puggle</div><p class="sub center" style="margin-top:2px;height:auto">Baby tracker for the whole family</p></div>
   <div class="under" style="bottom:120px;color:var(--muted);font-weight:500">Takes a minute. No account.</div>
   <div class="under">I've been invited &nbsp;·&nbsp; Look around first</div><div class="cta">Start a new family</div></div>
-  <p class="note">As now, plus one line that sets expectations, and the invite route always visible.</p></div>
-
- <div class="col"><p class="cap"><span>1</span>Logging</p><div class="phone">
-  <img class="scene" src="img2/scene-yard.png"><div class="bar"><i class="on"></i><i></i><i></i><i></i><i></i><em>Skip</em></div>
-  <div class="body" style="padding-top:26px"><div class="try"><small>Try it</small><div class="amt"><span class="dot">−</span><b>160 <small>ml</small></b><span class="dot">+</span></div></div>
-  <div class="crop" style="margin-top:8px"><img src="img2/tiles.png"></div>
-  <div class="big">Log it in a tap or two</div><p class="sub">Feeds, sleeps, nappies and the potty. One hand is enough.</p></div>
-  <div class="cta">Next</div></div>
-  <p class="note">Kept, with the real tiles under it. Puggle is doing something, not standing.</p></div>
-
- <div class="col"><p class="cap"><span>2</span>Every child</p><div class="phone">
-  <img class="scene" src="img2/scene-hills.png"><div class="bar"><i class="on"></i><i class="on"></i><i></i><i></i><i></i><em>Skip</em></div>
-  <div class="body" style="padding-top:26px"><div class="crop"><img src="img2/cards.png"></div>
-  <div class="big">Every child on one screen</div><p class="sub">A baby and a toddler side by side. Sleep timers run for each.</p></div>
-  <div class="cta">Next</div></div>
-  <p class="note">New. This is what sets Puggle apart, and today's flow never shows it.</p></div>
-
- <div class="col"><p class="cap"><span>3</span>Together</p><div class="phone">
-  <img class="scene" src="img2/scene-rain.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i><em>Skip</em></div>
-  <div class="body" style="padding-top:26px"><div class="crop" style="height:176px"><img src="img2/history.png"></div>
-  <div class="big">Everyone who helps, in step</div><p class="sub">Invite a partner, Nan or a carer. You choose what each can do.</p></div>
-  <div class="cta">Next</div></div>
-  <p class="note">Replaces the text-only page. The list shows who logged what.</p></div>
-
- <div class="col"><p class="cap"><span>4</span>Looking back</p><div class="phone">
-  <img class="scene" src="img2/scene-bush.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i><em>Skip</em></div>
-  <div class="body" style="padding-top:26px"><div class="crop" style="height:180px"><img src="img2/chart.png"></div>
-  <div class="big">See the week at a glance</div><p class="sub">Totals and patterns, when you want them. Never a score.</p></div>
-  <div class="cta">Next</div></div>
-  <p class="note">Kept, with the real chart.</p></div>
-
- <div class="col"><p class="cap"><span>5</span>Calm and private</p><div class="phone">
+  <p class="note">The one screen with its own layout: it is the cover.</p></div><div class="col"><p class="cap"><span>1</span>Logging</p><div class="phone">
+  <img class="scene" src="img2/scene-yard.png"><div class="bar"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i><em>Skip</em></div>
+  <div class="text"><div class="big">Log the day in a tap or two</div><p class="sub">Feeds, sleeps, nappies and the potty. One hand is enough.</p></div>
+  <div class="slot"><div class="try"><small>Try it</small><div class="amt"><span class="dot">−</span><b>160 <small>ml</small></b><span class="dot">+</span></div></div><div class="crop" style="margin-top:8px"><img src="img2/tiles.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Next</div></div><p class="note">Heading, text, then the piece of the app: the same order and the same place on every page.</p></div><div class="col"><p class="cap"><span>2</span>Every child</p><div class="phone">
+  <img class="scene" src="img2/scene-hills.png"><div class="bar"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><em>Skip</em></div>
+  <div class="text"><div class="big">Every child on one screen</div><p class="sub">A baby and a toddler side by side, each with a sleep timer.</p></div>
+  <div class="slot"><div class="crop"><img src="img2/cards.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Next</div></div><p class="note">New. What sets Puggle apart.</p></div><div class="col"><p class="cap"><span>3</span>Together</p><div class="phone">
+  <img class="scene" src="img2/scene-rain.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><em>Skip</em></div>
+  <div class="text"><div class="big">Everyone who helps, in step</div><p class="sub">Invite a partner, Nan or a carer. You choose what each can do.</p></div>
+  <div class="slot"><div class="crop" style="height:176px"><img src="img2/history.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Next</div></div><p class="note">Replaces the text-only page.</p></div><div class="col"><p class="cap"><span>4</span>Looking back</p><div class="phone">
+  <img class="scene" src="img2/scene-bush.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><em>Skip</em></div>
+  <div class="text"><div class="big">See the whole week at a glance</div><p class="sub">Totals and patterns, when you want them. Never a score.</p></div>
+  <div class="slot"><div class="crop" style="height:180px"><img src="img2/chart.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Next</div></div><p class="note">The real chart.</p></div><div class="col"><p class="cap"><span>5</span>Calm and private</p><div class="phone">
   <img class="scene" src="img2/scene-night.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><em>Skip</em></div>
-  <div class="body" style="padding-top:30px">
-  <div class="big">Quiet at night, and yours</div><p class="sub">After dark everything dims and slows. Your entries stay on your iPhone and in your iCloud. No account, no ads.</p>
-  <p class="sub" style="margin-top:14px;color:var(--ink);font-weight:650">How your data is kept</p></div>
-  <div class="cta">Set up your family</div></div>
-  <p class="note">New. Puggle's day follows yours, and the privacy promise gets a picture.</p></div>
-</div>
-
-<h2><b>Setup:</b> the same questions, each under a strip of scene, on one progress bar</h2>
-<div class="row">
- <div class="col"><p class="cap"><span>6</span>You</p><div class="phone">
-  <img class="strip" src="img2/scene-room.png"><div class="bar low"><i class="on"></i><i></i><i></i><em>Skip</em></div>
-  <div class="body" style="padding-top:26px"><div class="big">Who's this?</div><p class="sub">Your name shows beside what you log.</p>
-  <div class="field">Your name</div><div class="field">Family name (optional)</div></div><div class="cta">Continue</div></div>
-  <p class="note">One short question as the heading, in place of "Set up your family".</p></div>
- <div class="col"><p class="cap"><span>7</span>First child</p><div class="phone">
-  <img class="strip" src="img2/scene-hills.png"><div class="bar low"><i class="on"></i><i class="on"></i><i></i><em>Skip</em></div>
-  <div class="body" style="padding-top:26px"><div class="big">Who are we looking after?</div>
-  <div class="field set">Harry</div><div class="field">Birth date</div>
-  <div class="chips"><u style="background:#BFD9F5;outline:3px solid var(--ink);outline-offset:2px"></u><u style="background:#F3D9C9"></u><u style="background:#CFE5D2"></u><u style="background:#F4E7B0"></u><u style="background:#E0D3EE"></u><u style="background:#F5CEDB"></u></div>
-  <p class="sub" style="margin-top:12px;font-size:14px">Their age decides what shows on Today.</p></div><div class="cta">Add Harry</div></div>
-  <p class="note">Colours on one line. "Anyone else?" and inviting follow as now.</p></div>
- <div class="col"><p class="cap"><span>8</span>Your family</p><div class="phone">
-  <div class="body top center"><div class="big" style="margin-top:20px">Your family</div><p class="sub">Harry and Sam</p></div>
+  <div class="text"><div class="big">Quiet at night, and yours</div><p class="sub">Everything dims after dark. Your entries stay in your iCloud.</p></div>
+  <div class="slot"><div class="try" style="display:grid;gap:10px"><div><b>No account</b><br><span style="color:var(--muted)">No email and no password.</span></div><div><b>No ads</b><br><span style="color:var(--muted)">Nothing is sold or shared.</span></div><div style="font-weight:650">How your data is kept ›</div></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Set up your family</div></div><p class="note">The promise gets the same slot as the app pieces.</p></div></div>
+<h2><b>Setup:</b> the same skeleton</h2><div class="row"><div class="col"><p class="cap"><span>6</span>You</p><div class="phone">
+  <img class="scene" src="img2/scene-room.png"><div class="bar"><i class="on"></i><i class=""></i><i class=""></i><em>Skip</em></div>
+  <div class="text"><div class="big">What should we call you?</div><p class="sub">Your name shows beside what you log.</p></div>
+  <div class="slot"><div class="field" style="margin-top:0">Your name</div><div class="field">Family name (optional)</div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Continue</div></div><p class="note">Setup keeps the same skeleton, so nothing moves when the questions start.</p></div><div class="col"><p class="cap"><span>7</span>First child</p><div class="phone">
+  <img class="scene" src="img2/scene-hills.png"><div class="bar"><i class="on"></i><i class="on"></i><i class=""></i><em>Skip</em></div>
+  <div class="text"><div class="big">Who are we looking after?</div><p class="sub">Their age decides what shows on Today.</p></div>
+  <div class="slot"><div class="field set" style="margin-top:0">Harry</div><div class="field">Birth date</div><div class="chips"><u style="background:#BFD9F5;outline:3px solid var(--ink);outline-offset:2px"></u><u style="background:#F3D9C9"></u><u style="background:#CFE5D2"></u><u style="background:#F4E7B0"></u><u style="background:#E0D3EE"></u><u style="background:#F5CEDB"></u></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Add Harry</div></div><p class="note">Colours on one line.</p></div><div class="col"><p class="cap"><span>8</span>Anyone else</p><div class="phone">
+  <img class="scene" src="img2/scene-yard.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><em>Skip</em></div>
+  <div class="text"><div class="big">Any brothers or sisters to add?</div><p class="sub">Twins and siblings share one Today.</p></div>
+  <div class="slot"><div class="try" style="display:flex;align-items:center;gap:12px"><span class="dot" style="background:#BFD9F5;font-size:16px;font-weight:700">H</span><div><b>Harry</b><br><span style="color:var(--muted)">2½ years</span></div></div><div class="field" style="color:var(--ink);font-weight:650;justify-content:center">Add another child</div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="cta">Continue</div></div><p class="note">Then inviting, as now.</p></div><div class="col"><p class="cap"><span>9</span>Your family</p><div class="phone">
+  <div class="text" style="top:60px;text-align:center"><div class="big" style="justify-content:center">Your family</div><p class="sub">Harry and Sam</p></div>
   <img src="img2/heap.png" style="position:absolute;left:0;bottom:86px;width:306px">
-  <div class="cta">Open Today</div></div>
-  <p class="note">The heap stays as the finish.</p></div>
- <div class="box"><h3>What changes, and why</h3><ul>
-  <li><b>Five feature pages, not three</b>, each with a real piece of the app. Adds "every child" and "calm and private".</li>
-  <li><b>A different scene and companion on every page</b>, so the cast and the weather are part of the pitch.</li>
-  <li><b>The scene runs edge to edge</b> at the top, larger than the inset card today.</li>
-  <li><b>One progress bar</b> for the pages, then one for setup. Skip stays on every page.</li>
-  <li><b>All features come before any question.</b> Someone who skips still lands on setup; someone unsure can open the sample family.</li>
-  <li><b>Not shown:</b> Siri and widgets, medicine reminders, Play. They fit better as tips on Today after a few days.</li>
- </ul></div>
-</div>
-</body></html>
+  <div class="cta">Open Today</div></div><p class="note">The finish, like the cover, has its own layout.</p></div><div class="box" style="width:420px"><h3>The layout rule</h3><ul>
+  <li><b>One skeleton for every page:</b> scene, progress, heading, text, piece, button. The dashed lines mark where the heading starts and where the piece starts.</li>
+  <li><b>Heading:</b> always two lines, starting at the same height. The words are written to fit.</li>
+  <li><b>Text:</b> two lines of room, one or two sentences.</li>
+  <li><b>Piece of the app:</b> always below the words, never above.</li>
+  <li><b>Button:</b> always in the same place.</li>
+  <li>Reference: Duolingo keeps its mascot, question and button in the same spots on every screen; only the middle changes.</li></ul></div></div></body></html>
