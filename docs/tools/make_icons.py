@@ -24,7 +24,7 @@ Run `python3 docs/tools/make_icons.py` from the repo: it writes docs/previews/ic
 docs/previews/icons/refined.html. With `--install` it also writes each icon's three files in the app's asset
 catalogue (light, dark and plain); poo and wee are new and are not installed.
 """
-import os, sys
+import math, os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'previews', 'icons')
@@ -51,8 +51,8 @@ def sparkle(cx, cy, r):
             f'C{cx - r * .45} {cy - k} {cx - k} {cy - r * .45} {cx} {cy - r}Z')
 
 
-def icon(lines, wattle=(), sky=(), ink=(), tint=(), turn=0, note='', fine=(), box=24):
-    return {'fine': list(fine), 'box': box, 'lines': list(lines), 'wattle': list(wattle), 'sky': list(sky), 'ink': list(ink), 'tint': list(tint), 'turn': turn, 'note': note}
+def icon(lines, wattle=(), sky=(), ink=(), tint=(), turn=0, note='', fine=(), box=24, weight=W):
+    return {'fine': list(fine), 'box': box, 'weight': weight, 'lines': list(lines), 'wattle': list(wattle), 'sky': list(sky), 'ink': list(ink), 'tint': list(tint), 'turn': turn, 'note': note}
 
 
 TEAT = 'M9 8C9 6.5 10 6 10 4.5A2 2 0 0 1 14 4.5C14 6 15 6.5 15 8'
@@ -128,7 +128,7 @@ def svg(name, ink=INK, plain=False, size=24, spec=None):
     # A tint marked strong lies on another (the areola on the breast): in one colour it is a stronger tint, so it still shows.
     inner += ''.join(fill(t[0], t[1]).replace('0.16', '0.4' if len(t) > 2 else '0.16') for t in spec['tint'])
     stroke = '#000000' if plain else ink
-    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{W}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec['lines'])
+    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{spec.get("weight", W)}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec['lines'])
     # Fine lines (1.5 points) are for a closed eye inside a small head, and nothing else.
     inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec.get('fine', []))
     inner += ''.join(fill(d, ink, solid=True) for d in spec['ink'])
@@ -159,46 +159,70 @@ def breast(tone, areola):
     return icon([BREAST], tint=[(BREAST, tone), (circle(16, 15, 2.5), areola, True)])
 
 
-# The four with a baby in them are drawn on a 32 canvas, not 24, with the same 2 point line. That is the room a
-# closed eye, hair and a blanket need: on 24 the line fills them in. Fluent does the same, with more detail in its
-# larger sizes. On a tile they sit at the same size as the rest, with a line a quarter lighter.
-EYE = lambda x, y: f'M{x - 1.6} {y}Q{x} {y + 1.8} {x + 1.6} {y}'
+# The four with a baby in them are drawn on a 32 canvas, not 24. That is the room a closed eye, an ear, hair and
+# a blanket need: on 24 the line fills them in. Fluent does the same, with more detail in its larger sizes.
+# The line is 2.2 there, a little heavier than the first try, so a row of tiles looks more even. Each also has a small
+# drawing for lists: the same shapes with no eye, ear or fold, and a line as heavy as the rest of the set.
+BIG, SMALL = 2.2, 2.67
+
+
+def head(cx, cy, r, toward):
+    """A head. `toward` is where it faces, and only the eye shows it: a nose on the outline was tried, and at this
+    weight it read as a beak on the baby and a jaw on the parent."""
+    return circle(cx, cy, r)
+
+
+def eye(x, y, w=1.3):
+    return f'M{x - w} {y}Q{x} {y + w} {x + w} {y}'
+
+
+def ear(x, y, side=1):
+    return f'M{x} {y - .8}q{1.3 * side} .8 0 1.6'
+
+
 SIDE = 'M8 3.5C13 5.5 16.5 10 17.5 15.5C18 21.5 15 28.5 10 28.5C6 28.5 3 24.5 3 19.5C3 13.5 6.5 8.5 8 3.5Z'
-WRAP = 'M28.2 18C28.5 24 24.5 28.5 19.5 28.5C17 28.5 14.8 28 13.3 27.3'
+WRAP = 'M27 17.5C27.5 24 24 28.5 19.5 28.5C17 28.5 14.8 28 13.3 27.3'
 
 
 def nursing(tone, areola):
-    head = circle(23, 16, 5.5)
-    return icon([SIDE, head, WRAP], fine=[EYE(23.6, 16.6), 'M18.5 24.6C20.5 25 23 24.2 24.6 22.6'], box=32,
-                sky=[WRAP + 'C15.5 25 17 21.5 17.7 17.5A5.5 5.5 0 0 0 28.2 18Z'],
-                tint=[(SIDE, tone), (circle(15, 16, 2.6), areola, True), (head, tone)])
+    # The baby faces the breast, and its nose and mouth press into it: that is the latch.
+    bub = head(22, 15.8, 5, 180)
+    return icon([SIDE, bub, WRAP], fine=[eye(20.6, 15.2), 'M18.5 24.6C20.5 25 22.5 24.2 24 22.6'], box=32, weight=BIG,
+                sky=[WRAP + 'C15.5 25 17 21.5 17.5 18.5L18 18.3A5 5 0 0 0 27 17.5Z'],
+                tint=[(SIDE, tone), (circle(15.3, 15.8, 2.8), areola, True), (bub, tone)])
 
 
-MUM, BUB = circle(13, 9.5, 6), circle(21.5, 21, 5)
-TORSO = 'M8.5 13.5C5.5 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H21C24.5 28.5 27 26.5 26.3 22.4'
-FRINGE = 'M7.2 11C11.5 11 15.5 9 17.5 5.5'
-BUN = 'M9.4 4.7A3 3 0 1 0 7.1 8.4'
+MUM, BUB = head(12.5, 9.5, 6, 40), head(21.5, 21, 5, 205)
+TORSO = 'M8 13.5C5.2 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H21C24.5 28.5 27 26.5 26.3 22.4'
+FRINGE = 'M6.7 11C11 11 15 9 17 5.5'
+BUN = 'M8.9 4.7A3 3 0 1 0 6.6 8.4'
 DROP32 = 'M16 2.5C21.5 9 26.5 14 26.5 19.5A10.5 10.5 0 0 1 5.5 19.5C5.5 14 10.5 9 16 2.5Z'
-WAVE = 'M5.8 22C10 19.5 13 26 18.5 24.8C22 24 24 21 26.3 21.5'
 HEART32 = 'M16 28C9.5 23.5 3 18.5 3 11.5A6.5 6.5 0 0 1 16 9A6.5 6.5 0 0 1 29 11.5C29 18.5 22.5 23.5 16 28Z'
-LAP = 'M5.5 18.5C9.5 16.5 12.5 22.5 17.5 22C21.5 21.5 23.5 18 26.5 18'
+# A swaddled body: it leaves the head and tapers away to a rounded end.
+POD_DROP = 'M21.6 19.6C21.8 23.5 17.5 26.5 13.2 25.8C10.5 25.3 9.6 22.8 11 21C12 19.7 13.5 18.3 14.6 16.3'
+POD_HEART = 'M22.6 17.6C22.7 20.8 19 23.2 15.4 22.6C13.1 22.2 12.3 20.1 13.5 18.5C14.3 17.4 14.9 16 15.6 14.3'
 
 ALTERNATES = {
     'breast': (ICONS['breastfeed'], 'Breast', 'As now. The plainest, and the one most likely to be unwelcome somewhere.'),
-    'nursing': (nursing(*TONES[0]), 'Breast and baby', 'A sleepy baby at the breast, wrapped in a blanket. A little of the areola shows.'),
-    'held': (icon([MUM, BUN, BUB, TORSO, FRINGE, 'M17.4 13.6C18 15 18 16.5 17.6 17.9', 'M17.2 23.6C14.5 24.3 13 26 12.5 28.5'],
-                  fine=[EYE(14.6, 12), EYE(20.8, 21.6)], box=32,
-                  sky=['M8.5 13.5C5.5 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H12.5C13 26 14.5 24.3 17.2 23.6A5 5 0 0 1 17.6 17.9C18 16.5 18 15 17.4 13.6A6 6 0 0 1 8.5 13.5Z'],
-                  wattle=[FRINGE + 'A6 6 0 0 0 7.2 11Z', BUN + 'A6 6 0 0 1 9.4 4.7Z',
+    'nursing': (nursing(*TONES[0]), 'Breast and baby', 'The baby is tucked against the breast, eye closed, wrapped in a blanket. A little of the areola shows.'),
+    'held': (icon([MUM, BUN, BUB, TORSO, FRINGE, 'M14 15.3C15.5 16.5 17.5 16.8 19 16.7', 'M17.2 23.6C14.5 24.3 13 26 12.5 28.5'],
+                  fine=[eye(14.4, 10.8), eye(20.6, 20.2, 1.2)], box=32, weight=BIG,
+                  sky=['M8 13.5C5.2 15.5 3.5 19 3.5 23V25.5A3 3 0 0 0 6.5 28.5H12.5C13 26 14.5 24.3 17.2 23.6A5 5 0 0 1 19 16.7C17.5 16.8 15.5 16.5 14 15.3A6 6 0 0 1 8 13.5Z'],
+                  wattle=[FRINGE + 'A6 6 0 0 0 6.7 11Z', BUN + 'A6 6 0 0 1 8.9 4.7Z',
                           'M12.5 28.5C13 26 14.5 24.3 17.2 23.6A5 5 0 0 0 26.3 22.4C27 26.5 24.5 28.5 21 28.5Z']),
-             'Parent and baby', 'A parent with hair in a bun and a closed eye, holding a wrapped baby. No breast and no skin colour.'),
-    'drop': (icon([DROP32, circle(17.5, 16, 4.5), WAVE], fine=[EYE(16.2, 17)], box=32,
-                  sky=[WAVE + 'A10.5 10.5 0 0 1 5.8 22Z'], wattle=[circle(17.5, 16, 4.5)]),
-             'Milk drop', 'A sleeping baby tucked up inside a drop of milk. No breast and no skin colour.'),
-    'heart': (icon([HEART32, circle(17, 14, 4.5), LAP], fine=[EYE(15.7, 15)], box=32,
-                   sky=[LAP + 'C24 22 20 25.2 16 28C12 25.2 8 22 5.5 18.5Z'], wattle=[circle(17, 14, 4.5)]),
-              'Heart', 'The same, in a heart. Reads as love more than feeding.'),
+             'Parent and baby', 'The parent looks down at the baby, and the baby turns in to the parent. No breast and no skin colour.'),
+    'drop': (icon([DROP32, head(18.5, 17, 4, 195), POD_DROP], fine=[eye(17.6, 16.6, 1.1), 'M13.5 23C15.3 23.3 17.3 22.5 18.4 21.2'], box=32, weight=BIG,
+                  sky=[POD_DROP + 'A4 4 0 0 0 21.6 19.6Z'], wattle=[head(18.5, 17, 4, 195)]),
+             'Milk drop', 'A swaddled, sleeping baby inside a drop of milk. No breast and no skin colour.'),
+    'heart': (icon([HEART32, head(19.5, 15, 4, 195), POD_HEART], fine=[eye(18.6, 14.6, 1.1)], box=32, weight=BIG,
+                   sky=[POD_HEART + 'A4 4 0 0 0 22.6 17.6Z'], wattle=[head(19.5, 15, 4, 195)]),
+              'Heart', 'The same baby, in a heart. Reads as love more than feeding.'),
 }
+
+
+def small(spec):
+    """The drawing for lists and anything under 24 points: no eye, ear or fold, and a heavier line."""
+    return spec if spec['box'] == 24 else dict(spec, fine=[], weight=SMALL)
 
 
 def alternates():
@@ -208,8 +232,9 @@ def alternates():
     cells = ''
     for key, (spec, title, text) in ALTERNATES.items():
         open(os.path.join(folder, f'icon-breastfeed-{key}.svg'), 'w').write(art(spec))
-        row = ''.join(art(spec, size=s) for s in (32, 24, 17))
-        plain = art(spec, plain=True, size=22).replace('#000000', '#3A2A20')
+        open(os.path.join(folder, f'icon-breastfeed-{key}-small.svg'), 'w').write(art(small(spec)))
+        row = art(spec, size=32) + ''.join(art(small(spec), size=s) for s in (24, 17))
+        plain = art(small(spec), plain=True, size=22).replace('#000000', '#3A2A20')
         cells += (f'<div class="c"><div class="big">{art(spec, size=190)}</div><div class="r">{row}'
                   f'<span class="dk">{art(spec, ink=DARK, size=30)}</span><span class="pl">{plain}</span></div>'
                   f'<div class="tile">{art(spec, size=34)}<b>Breastfeed</b><span>12:10</span></div>'
@@ -226,7 +251,7 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 .tile b{{font-size:14px;margin-top:4px}}.tile span{{color:#6B5E52;font-size:12px}}
 .tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
-<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32, 24 and 17 points, in dark, in one colour for lists, and on a Today tile.</p>
+<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile.</p>
 <div class="g">{cells}</div>
 <h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
     open(os.path.join(OUT, 'breastfeeding.html'), 'w').write(html)
