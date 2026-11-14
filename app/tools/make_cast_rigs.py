@@ -692,8 +692,8 @@ def finish_hats(name, parts):
     if name == 'digby':
         hat = by_id['head-2']
         ball = next(s for s in hat['shapes'] if s['kind'] == 'ellipse')
-        hat['shapes'][hat['shapes'].index(ball)] = {'kind': 'path', 'd': fuzzy(ball['x'], ball['y'], ball['rx']), 'fill': ball['fill'],
-                                                    'stroke': ball['stroke'], 'tint': ball.get('tint'), 'width': 3.5}
+        hat['shapes'][hat['shapes'].index(ball)] = {'kind': 'path', 'd': fuzzy(ball['x'], ball['y'] + 4, ball['rx'] + 4, tufts=16), 'fill': ball['fill'],   # bigger, its top where it was
+                                                    'stroke': ball['stroke'], 'tint': ball.get('tint'), 'width': 4}
     if name == 'sunny':
         hat = by_id['head-2']
         brim = hat['shapes'][0]
