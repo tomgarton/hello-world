@@ -839,7 +839,7 @@ def regrow_tail(parts, grown, sitting=False):
 
 # Pebble's babygro (Tom, 14 November 2026). The canvas drew a flared triangle, which read as a dress. A
 # babygro is close to the body: a rounded suit with a leg each side, poppers round the inside of the legs,
-# a seam down the front and a neckband. His feet come out of the ends of the legs.
+# a seam down the front, a neckband, and feet: sitting, he shows us their soles.
 def babygro(parts):
     upper = next(p for p in parts if p['id'] == 'upper')
     suit = upper['shapes'][0]
@@ -850,15 +850,16 @@ def babygro(parts):
     body = 'M92 166 Q120 158 148 166 Q168 194 168 222 Q168 247 146 248 L94 248 Q72 247 72 222 Q72 194 92 166 Z'
     poppers = [{'kind': 'ellipse', 'x': x, 'y': y, 'rx': 2.8, 'ry': 2.8, 'fill': '#FBF6E9', 'stroke': INK, 'tint': suit.get('tint'), 'width': 1.8}
                for x, y in ((99, 238), (109, 243), (120, 245), (131, 243), (141, 238))]
-    upper['shapes'] = ([piece(leg), piece(mirrored(leg)), seam(cuff, 3.5), seam(mirrored(cuff), 3.5), piece(body),
-                        seam('M120 172 L120 240'), seam('M102 169 Q120 181 138 169', 3.5)] + poppers + upper['shapes'][1:])
-    # His feet, out at the ends of the legs.
-    for side, dx in (('left', -20), ('right', 20)):
-        foot = next(p for p in parts if p['id'] == f'foot-{side}')
-        for shp in foot['shapes']:
-            if 'd' in shp: shp['d'] = moved(shp['d'], dx, 1)
-            if 'x' in shp: shp['x'] += dx; shp['y'] += 1
-        foot['pivot'] = [foot['pivot'][0] + dx, foot['pivot'][1] + 1]
+    # He is sitting with his legs out towards us, so what we see of each foot is its sole, and the babygro
+    # has feet: a rounded sole in the suit's colour with a paler pad on it, turned out a little.
+    def sole(x, turn):
+        return [{'kind': 'ellipse', 'x': x, 'y': 246, 'rx': 17, 'ry': 20, 'rotate': turn, 'fill': suit['fill'], 'stroke': suit['stroke'], 'tint': suit.get('tint'), 'width': suit['width']},
+                {'kind': 'ellipse', 'x': x, 'y': 248, 'rx': 9, 'ry': 11, 'rotate': turn, 'fill': lighten(suit['fill'])}]
+    upper['shapes'] = ([piece(leg), piece(mirrored(leg)), piece(body), seam('M120 172 L120 240'), seam('M102 169 Q120 181 138 169', 3.5)]
+                       + poppers + sole(76, -14) + sole(164, 14) + upper['shapes'][1:])
+    # His own feet are inside it.
+    for side in ('left', 'right'):
+        next(p for p in parts if p['id'] == f'foot-{side}')['shapes'] = []
     return parts
 
 def build(name, svg, height, about, shade, moves, puggle):
