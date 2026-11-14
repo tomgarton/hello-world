@@ -16,17 +16,9 @@
     {
       "layers": [
         {
+          "image-name": "clip.svg",
           "name": "clip",
-          "glass": true,
-          "image-name-specializations": [
-            {
-              "value": "clip.svg"
-            },
-            {
-              "appearance": "dark",
-              "value": "clip-dark.svg"
-            }
-          ]
+          "glass": true
         }
       ],
       "shadow": {
@@ -41,17 +33,9 @@
     {
       "layers": [
         {
+          "image-name": "features.svg",
           "name": "features",
-          "glass": false,
-          "image-name-specializations": [
-            {
-              "value": "features.svg"
-            },
-            {
-              "appearance": "dark",
-              "value": "features-dark.svg"
-            }
-          ]
+          "glass": false
         }
       ],
       "shadow": {
@@ -66,17 +50,9 @@
     {
       "layers": [
         {
+          "image-name": "bill.svg",
           "name": "bill",
-          "glass": true,
-          "image-name-specializations": [
-            {
-              "value": "bill.svg"
-            },
-            {
-              "appearance": "dark",
-              "value": "bill-dark.svg"
-            }
-          ]
+          "glass": true
         }
       ],
       "shadow": {
@@ -91,17 +67,9 @@
     {
       "layers": [
         {
+          "image-name": "head.svg",
           "name": "head",
-          "glass": true,
-          "image-name-specializations": [
-            {
-              "value": "head.svg"
-            },
-            {
-              "appearance": "dark",
-              "value": "head-dark.svg"
-            }
-          ]
+          "glass": true
         }
       ],
       "shadow": {

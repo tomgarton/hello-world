@@ -11,7 +11,8 @@ Four groups, front to back, so each part still reads when iOS takes the colour a
     bill
     head      the head and the lick of hair
 
-In dark, the ground goes deep brown and her outline lightens, so she does not sink into it.
+Her outline is the coloured one the app uses: each shape edged in a darker shade of itself, not in ink.
+In dark, the ground goes deep brown.
 
 Run `python3 tools/make_app_icon.py` from app/. With `--render` it also asks Apple's ictool (inside Xcode's
 Icon Composer) to draw every look into docs/previews/app-icon/.
@@ -24,7 +25,6 @@ ICON = os.path.join(HERE, '..', 'Puggle', 'Resources', 'AppIcon.icon')
 OUT = os.path.join(HERE, '..', '..', 'docs', 'previews', 'app-icon')
 ICTOOL = '/Applications/Xcode.app/Contents/Applications/Icon Composer.app/Contents/Executables/ictool'
 BOX = '25 7 190 190'   # the head, with room for the flower
-INK, DARK_LINE = '#3A2A20', '#1C1512'
 # The ground: its colour, and what it becomes in dark. `--ground sky` or `--ground blue` tries another.
 GROUNDS = {'wattle': ('#F4BE2C', '#3A2A20'), 'sky': ('#BFD9F5', '#1F3246'), 'blue': ('#2A62B8', '#16284A')}
 # Icon Composer cuts an outline off at the edge of the shape it belongs to. Two specks in the corners, too faint
@@ -41,12 +41,14 @@ GROUPS = [   # front to back: name, the rig's parts, glass
 
 
 def draw(shape, line):
-    """One of the rig's shapes as SVG. The outline is drawn in `line`."""
-    stroke = shape.get('stroke')
-    if stroke == INK: stroke = line
+    """One of the rig's shapes as SVG. An outline is drawn as the app draws it: in the shape's own darker colour
+    (its `tint`), not in ink, and about three-quarters as heavy. `line` 'ink' gives the old dark outline."""
+    stroke, width = shape.get('stroke'), shape.get('width', 1)
+    if stroke and shape.get('tint') and line != 'ink':
+        stroke, width = shape['tint'], round(width * 0.74, 2)
     paint = f'fill="{shape.get("fill", "none")}"'
     if stroke:
-        paint += f' stroke="{stroke}" stroke-width="{shape.get("width", 1)}" stroke-linejoin="round"'
+        paint += f' stroke="{stroke}" stroke-width="{width}" stroke-linejoin="round"'
         if shape.get('cap'): paint += f' stroke-linecap="{shape["cap"]}"'
     if shape['kind'] == 'ellipse':
         return f'<ellipse cx="{shape["x"]}" cy="{shape["y"]}" rx="{shape["rx"]}" ry="{shape["ry"]}" {paint}/>'
@@ -55,7 +57,7 @@ def draw(shape, line):
     raise ValueError(shape['kind'])
 
 
-def layer(parts, ids, line=INK):
+def layer(parts, ids, line='tint'):
     inner = ''.join(f'<g id="{pid}">' + ''.join(draw(s, line) for s in parts[pid]['shapes']) + '</g>' for pid in ids)
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="{BOX}" width="1024" height="1024">{SPECKS}{inner}</svg>'
 
@@ -79,13 +81,11 @@ def main():
     for old in os.listdir(assets): os.remove(os.path.join(assets, old))
     groups = []
     for name, ids, glass in GROUPS:
-        open(os.path.join(assets, f'{name}.svg'), 'w').write(layer(parts, ids))
-        open(os.path.join(assets, f'{name}-dark.svg'), 'w').write(layer(parts, ids, DARK_LINE))
+        open(os.path.join(assets, f'{name}.svg'), 'w').write(layer(parts, ids, option('--line', 'tint')))
         glass = glass and not flat
         # A property that changes with the look is a list: the plain value first, then one for each look.
         groups.append({
-            'layers': [{'name': name, 'glass': glass,
-                        'image-name-specializations': [{'value': f'{name}.svg'}, {'appearance': 'dark', 'value': f'{name}-dark.svg'}]}],
+            'layers': [{'image-name': f'{name}.svg', 'name': name, 'glass': glass}],
             'shadow': {'kind': 'neutral', 'opacity': 0.5 if glass else 0.0},
             'translucency': {'enabled': False, 'value': 0.5},
         })
