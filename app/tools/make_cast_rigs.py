@@ -594,11 +594,23 @@ def dress_for_weather(name, parts, puggle, shade):
     if name in UMBRELLA:
         hx, hy = hand['right']['x'], hand['right']['y']
         when = 'outfit=rain|sun' if name == 'nan' else 'outfit=rain'
-        # The stick comes up from their hand behind their head. It stands above the drawing's own top, so
-        # these four have headroom added (see HEADROOM).
+        # A proper umbrella: a slim shaft up from their hand, behind their head, and below the hand a wooden
+        # handle that hooks round. Their hand is drawn again over the shaft, so they are holding it. It stands
+        # above the drawing's own top, so these four have headroom added (see HEADROOM).
+        tx, ty = 138, -30
+        length = math.hypot(hx - tx, hy - ty)
+        ux, uy = (hx - tx) / length, (hy - ty) / length
+        nx, ny = (uy, -ux) if uy > 0 else (-uy, ux)          # the side the hook turns to: outwards
+        def along(a, b=0): return f'{hx + ux * a + nx * b:.1f} {hy + uy * a + ny * b:.1f}'
+        r = 11
+        hook = f'M{along(2)} L{along(20)} Q{along(20 + r)} {along(20 + r, r)} Q{along(20 + r, 2 * r)} {along(20, 2 * r)} L{along(14, 2 * r)}'
+        shaft = f'M{along(4)} L{tx} {ty}'
         parts.insert(at('head'), {'id': 'umbrella', 'parent': 'upper', 'pivot': [hx, hy], 'spring': 120, 'when': when, 'shapes': [
-            {'kind': 'path', 'd': f'M{hx:g} {hy - 4:g} L138 -30', 'stroke': INK, 'width': 8, 'cap': 'round'},
-            {'kind': 'path', 'd': f'M{hx:g} {hy - 4:g} L138 -30', 'stroke': '#D9B48A', 'width': 3.5, 'cap': 'round'}]})
+            {'kind': 'path', 'd': shaft, 'stroke': INK, 'width': 7, 'cap': 'round'},
+            {'kind': 'path', 'd': shaft, 'stroke': '#C9CED3', 'width': 2.5, 'cap': 'round'},
+            {'kind': 'path', 'd': hook, 'stroke': INK, 'width': 11, 'cap': 'round'},
+            {'kind': 'path', 'd': hook, 'stroke': '#C58F5A', 'width': 5.5, 'cap': 'round'},
+            dict(hand['right'])]})
         # The canopy is the last thing drawn, over hair, ears, spines, bows and hats, and its edge is kept
         # above the tallest of them. It is the umbrella's child, so it sways with the stick.
         parts.append({'id': 'umbrella-top', 'parent': 'umbrella', 'pivot': [hx, hy], 'when': when, 'shapes': [
