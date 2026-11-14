@@ -192,7 +192,7 @@ enum RefinementSheets {
     }
 
     private static func tuftAndPoses(_ puggle: Rig) {
-        let tufted = withTuft(puggle)
+        let tufted = withTuft(puggle, 3)   // the single leaning lick
         func mark(_ text: String) -> some View {
             Text(text).font(.system(size: 30, weight: .heavy, design: .rounded)).foregroundStyle(Color(hex: 0xF4BE2C))
         }
@@ -210,23 +210,23 @@ enum RefinementSheets {
         let sheet = VStack(alignment: .leading, spacing: 20) {
             row("A tuft of hair: does it help her stand apart from Mum and Dad?") {
                 figure(puggle, [:], "Now")
-                figure(tufted, [:], "With a tuft")
+                figure(tufted, [:], "With one lick")
                 figure(silhouette(puggle), [:], "Now, as a shape")
-                figure(silhouette(tufted), [:], "With a tuft, as a shape")
+                figure(silhouette(tufted), [:], "With one lick, as a shape")
             }
-            row("Arms that bend: what she could do, in her own style. No mouth, always facing you") {
-                figure(posed(tufted, left: nil, right: (p(204, 206), p(163, 176)), overHead: true),
+            row("Arms that bend: what she could do, in her own style. No mouth; hands never over her face or bill") {
+                figure(posed(tufted, left: nil, right: (p(204, 214), p(150, 192))),
                        ["head": state(r: 6), "eye-left": state(x: 3, y: -3), "eye-right": state(x: 3, y: -3), "clip": state(r: 5)],
-                       "Thinking: a hand to her chin", mark: "?")
+                       "Thinking: a hand under her chin, on her dress", mark: "?")
                 figure(posed(tufted, left: (p(52, 228), p(100, 226)), right: (p(188, 228), p(140, 226)), held: rabbit),
                        ["head": state(r: -5), "blush": state(sx: 1.14, sy: 1.14)], face: ["eyes": "happy", "cheeks": "shy"],
                        "Hugging her rabbit")
                 figure(posed(tufted, left: (p(56, 206), p(80, 224)), right: (p(184, 206), p(160, 224)), held: book),
                        ["head": state(y: 4), "eye-left": state(y: 3.5), "eye-right": state(y: 3.5)],
                        "Reading: eyes down on the book")
-                figure(posed(tufted, left: (p(38, 196), p(62, 154)), right: (p(202, 196), p(178, 154)), overHead: true),
+                figure(posed(tufted, left: (p(26, 190), p(52, 140)), right: (p(214, 190), p(188, 140)), overHead: true),
                        ["eye-left": wide, "eye-right": wide, "brow-left": state(y: -4), "brow-right": state(y: -4), "upper": state(sy: 1.03)],
-                       face: ["eyes": "open", "brows": "on"], "Surprised: hands to her cheeks", mark: "!!")
+                       face: ["eyes": "open", "brows": "on"], "Oh! Hands to her cheeks, clear of her bill", mark: "!")
             }
         }
         save(sheet, as: "refine-8-tuft-and-arms.png")
@@ -261,14 +261,15 @@ enum RefinementSheets {
                 Text("Puggle, by numbers").font(.system(size: 17, weight: .bold)).foregroundStyle(ink)
                 ForEach(["Head 140 × 120. Never squashes.", "Eyes: dots of radius 6.8, on one line, 64 apart, below the head's middle.",
                          "Bill 94 × 38, never opens, never tilts.", "Cheeks: ovals 24 × 15 at the ends of the bill. No marks at rest.",
-                         "Eyebrows: only with a feeling. Rise 4 at most.", "Body one head tall; legs a third of a head.",
+                         "Eyebrows: only with a feeling. Rise 4 at most.", "About 2½ heads tall: head 1, body ¾, legs ⅓.",
                          "Outline 7 on the head and dress, 6 on bill and limbs, 5 on small things. The same on screen at any size.",
                          "One accessory: the clip, top right."], id: \.self) { line in
                     Text("•  " + line).font(.system(size: 13)).foregroundStyle(ink).frame(width: 300, alignment: .leading)
                 }
                 Text("Never").font(.system(size: 15, weight: .bold)).foregroundStyle(Color(hex: 0xB23A26)).padding(.top, 8)
-                ForEach(["A mouth.", "A profile, or a smooth turn of the head.", "Crossed eyes, or eyes at different heights.",
-                         "Angry, sad or worried eyebrows.", "A second accessory.", "An outline on the world behind her."], id: \.self) { line in
+                ForEach(["A mouth, or an open or bent bill.", "Frowning, sad or worried eyebrows.", "Recolouring her fur, bill or clip.",
+                         "A black line.", "Hands hidden in her outline, or over her face or bill.", "Dark patches on her face.",
+                         "An outline on the world behind her."], id: \.self) { line in
                     Text("✕  " + line).font(.system(size: 13)).foregroundStyle(ink).frame(width: 300, alignment: .leading)
                 }
             }
