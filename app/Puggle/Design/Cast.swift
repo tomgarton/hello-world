@@ -205,6 +205,7 @@ struct CompanyView: View {
     let dark: Bool
     @StateObject private var controller: CastController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.outfit) private var outfit
 
     init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool, rain: Bool = false) {
         self.company = company
@@ -217,6 +218,11 @@ struct CompanyView: View {
     }
 
     private var sleeps: Bool { company.activity == .dozing || (quiet && !company.member.grownUp) }
+
+    /// They are holding an umbrella: in the rain, or Nan's as a parasol in the heat.
+    private var umbrellaUp: Bool {
+        controller.rig?.rig.sideroom != nil && (outfit == "rain" || (outfit == "sun" && company.member == .nan))
+    }
 
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -239,6 +245,9 @@ struct CompanyView: View {
             }
             CastView(controller: controller)
                 .frame(height: company.member.height)
+                // An umbrella is held out to one side. Standing to her right, they are turned round so it is
+                // on the side nearer her, and its canopy stays clear of the edge of the screen.
+                .scaleEffect(x: umbrellaUp && company.x > 0 ? -1 : 1, y: 1)
         }
         .offset(y: appeared ? 0 : 50)
         .opacity(appeared ? 1 : 0)

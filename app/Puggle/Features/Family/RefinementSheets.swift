@@ -83,6 +83,41 @@ enum RefinementSheets {
         dummy()
         smear(puggle)
         curlOptions()
+        tailInMotion(puggle)
+    }
+
+    /// The hooray and the wave, frame by frame, to see the new tail move about its new pivot.
+    private static func tailInMotion(_ puggle: Rig) {
+        func frames(_ rig: Rig, _ move: String, _ times: [Double]) -> [[String: PartState]] {
+            let runtime = RigRuntime(rig: rig)
+            runtime.blinkAt = .distantPast
+            let start = Date.now
+            _ = runtime.advance(to: start)
+            runtime.play(move, at: start)
+            var out: [[String: PartState]] = [], t = 0.0
+            for until in times {
+                while t < until { t += 0.016; _ = runtime.advance(to: start.addingTimeInterval(t)) }
+                out.append(runtime.advance(to: start.addingTimeInterval(until)))
+            }
+            return out
+        }
+        let times = [0.1, 0.3, 0.5, 0.7, 0.9, 1.2, 1.6]
+        func strip(_ title: String, _ rig: Rig, _ move: String) -> some View {
+            let states = frames(rig, move, times)
+            return row(title) {
+                ForEach(states.indices, id: \.self) { i in
+                    RigFrame(rig: rig, states: states[i], face: nil).frame(width: 110 * rig.size[0] / 300, height: 110 * rig.size[1] / 300)
+                        .frame(width: 120, height: 190, alignment: .bottom)
+                }
+            }
+        }
+        let sheet = VStack(alignment: .leading, spacing: 14) {
+            Text("Tails in motion: frames at 0.1 to 1.6 seconds").font(.system(size: 15, weight: .bold)).foregroundStyle(ink)
+            strip("Puggle: hooray", puggle, "celebrate")
+            strip("Puggle: wave", puggle, "greet")
+            if let dad = Rig.load("dad") { strip("Dad: hooray", dad, "celebrate") }
+        }
+        save(sheet, as: "tail-motion.png")
     }
 
     /// Other ways to draw Pebble's curl.
