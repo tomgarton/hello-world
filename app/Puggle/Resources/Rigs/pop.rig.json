@@ -4,7 +4,7 @@
   240,
   385
  ],
- "about": "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
+ "about": "Pop: Puggle's grandfather. Round green glasses, a green bucket hat, a button-up shirt and chinos. Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.",
  "parts": [
   {
    "id": "body",
@@ -55,6 +55,14 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#73523E"
+    },
+    {
+     "kind": "path",
+     "d": "M81 288 L119 288 L119 354 L81 354 Z",
+     "fill": "#D3BE97",
+     "stroke": "#3A2A20",
+     "tint": "#836F49",
+     "width": 7
     }
    ]
   },
@@ -115,6 +123,14 @@
      "stroke": "#3A2A20",
      "width": 6.0,
      "tint": "#73523E"
+    },
+    {
+     "kind": "path",
+     "d": "M121 288 L159 288 L159 354 L121 354 Z",
+     "fill": "#D3BE97",
+     "stroke": "#3A2A20",
+     "tint": "#836F49",
+     "width": 7
     }
    ]
   },
@@ -165,12 +181,12 @@
    "parent": "body",
    "pivot": [
     120,
-    327.28
+    262.48
    ],
    "shapes": [
     {
      "kind": "path",
-     "d": "M86 167.4 Q120 158 154 167.4 L180 320.1 Q182 327.3 170 327.3 L70 327.3 Q58 327.3 60 320.1 Z",
+     "d": "M86 167.4 Q120 158 154 167.4 L166 262.5 L74 262.5 Z",
      "fill": "#BFD9F5",
      "stroke": "#3A2A20",
      "width": 7.0,
@@ -178,14 +194,30 @@
     },
     {
      "kind": "path",
-     "d": "M120 166 L120 325.8",
+     "d": "M120 168.9 L120 256.7",
      "stroke": "#3A2A20",
      "width": 5.0,
      "tint": "#4E637A"
     },
     {
+     "kind": "path",
+     "d": "M72 259.6 L168 259.6 L167 299.9 L73 299.9 Z",
+     "fill": "#D3BE97",
+     "stroke": "#3A2A20",
+     "width": 7.0,
+     "tint": "#836F49"
+    },
+    {
+     "kind": "path",
+     "d": "M72 256.7 L168 256.7 L168 268.2 L72 268.2 Z",
+     "fill": "#40A064",
+     "stroke": "#3A2A20",
+     "width": 5.0,
+     "tint": "#126330"
+    },
+    {
      "kind": "ellipse",
-     "x": 128.0,
+     "x": 120.0,
      "y": 190.48,
      "rx": 4.5,
      "ry": 4.5,
@@ -196,8 +228,8 @@
     },
     {
      "kind": "ellipse",
-     "x": 128.0,
-     "y": 226.48,
+     "x": 120.0,
+     "y": 213.51999999999998,
      "rx": 4.5,
      "ry": 4.5,
      "fill": "#FBF6E9",
@@ -207,19 +239,8 @@
     },
     {
      "kind": "ellipse",
-     "x": 128.0,
-     "y": 262.48,
-     "rx": 4.5,
-     "ry": 4.5,
-     "fill": "#FBF6E9",
-     "stroke": "#3A2A20",
-     "width": 2.5,
-     "tint": "#7E7766"
-    },
-    {
-     "kind": "ellipse",
-     "x": 128.0,
-     "y": 298.48,
+     "x": 120.0,
+     "y": 236.56,
      "rx": 4.5,
      "ry": 4.5,
      "fill": "#FBF6E9",
@@ -230,26 +251,56 @@
     {
      "kind": "path",
      "d": "M97 168.2 Q99 181.1 117 176.8 L119 169.6 Z",
-     "fill": "#40A064",
+     "fill": "#BFD9F5",
      "stroke": "#3A2A20",
      "width": 5.0,
-     "tint": "#126330"
+     "tint": "#4E637A"
     },
     {
      "kind": "path",
      "d": "M143 168.2 Q141 181.1 123 176.8 L121 169.6 Z",
-     "fill": "#40A064",
+     "fill": "#BFD9F5",
      "stroke": "#3A2A20",
      "width": 5.0,
-     "tint": "#126330"
+     "tint": "#4E637A"
     },
     {
      "kind": "path",
      "d": "M84 206.3 L106 206.3 L106 220.7 Q106 225 100 225 L90 225 Q84 225 84 220.7 Z",
-     "fill": "#40A064",
+     "fill": "#BFD9F5",
      "stroke": "#3A2A20",
      "width": 5.0,
-     "tint": "#126330"
+     "tint": "#4E637A"
+    }
+   ]
+  },
+  {
+   "id": "trouser-left",
+   "parent": "leg-left",
+   "pivot": [
+    101.0,
+    314.88
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M84.5 291.5 L115.5 291.5 L115.5 350.5 L84.5 350.5 Z",
+     "fill": "#D3BE97"
+    }
+   ]
+  },
+  {
+   "id": "trouser-right",
+   "parent": "leg-right",
+   "pivot": [
+    139.0,
+    314.88
+   ],
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M124.5 291.5 L155.5 291.5 L155.5 350.5 L124.5 350.5 Z",
+     "fill": "#D3BE97"
     }
    ]
   },

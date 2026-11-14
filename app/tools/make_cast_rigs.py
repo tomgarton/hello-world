@@ -28,6 +28,7 @@ INK = '#3A2A20'
 # that contrasts with it (a collar, a hem, a skirt, trousers, an apron), as their weather things
 # contrast with their clothes. Each outfit comes in four pairs of colours.
 TRIM = {'mum': '#F2BA30', 'dad': '#F1E1C2', 'nan': '#BBD6F4', 'pop': '#40A064'}      # as drawn; one off a brand colour, so a swap finds only the trim
+CHINO = '#D3BE97'    # Pop's trousers: a sand that no colour swap touches
 PAIRS = {   # the other three pairs: garment, trim
     'mum': [('#E5553B', '#BFD9F5'), ('#F4BE2C', '#2A62B8'), ('#2A62B8', '#F3D9C9')],
     'dad': [('#3C9A5F', '#F4E7B0'), ('#E5553B', '#2A62B8'), ('#F4BE2C', '#3C9A5F')],
@@ -68,8 +69,13 @@ def dressed(svg, kind, outfit, c):
                           + cord('M104 208 L98 176', t, 5) + cord('M136 208 L142 176', t, 5),
         ('nan', 'skirt'): P('M72 262 L168 262 L180 380 Q182 390 170 390 L70 390 Q58 390 60 380 Z', t)
                           + P('M86 168 Q120 158 154 168 L170 274 Q120 283 70 274 Z', c) + collar,
-        # Pop: his cardigan, with a collar and a breast pocket; a shirt under a waistcoat; a jumper with diamonds.
-        ('pop', ''): P(coat, c) + f'<path d="M120 166V388" stroke="{INK}" stroke-width="5"></path>' + buttons + collar + P('M84 222 H106 V242 Q106 248 100 248 H90 Q84 248 84 242 Z', t, 5),
+        # Pop: a button-up shirt tucked into chinos, with a belt; a shirt under a waistcoat; a jumper with diamonds.
+        # The shirt's collar and breast pocket are the shirt's own colour; the belt is the trim; the chinos stay sand.
+        ('pop', ''): P(top, c) + f'<path d="M120 170V292" stroke="{INK}" stroke-width="5"></path>'    # the placket, in the shirt's own line
+                     + P(trousers, CHINO) + P('M72 292 H168 V308 H72 Z', t, 5)
+                     + ''.join(f'<circle cx="120" cy="{y}" r="4.500" fill="#FBF6E9" stroke="{INK}" stroke-width="2.500"></circle>' for y in (200, 232, 264))
+                     + P('M97 169 Q99 187 117 181 L119 171 Z', c, 5) + P('M143 169 Q141 187 123 181 L121 171 Z', c, 5)
+                     + P('M84 222 H106 V242 Q106 248 100 248 H90 Q84 248 84 242 Z', c, 5),
         ('pop', 'waistcoat'): P(top, c) + P(trousers, t) + P('M89 171 L113 176 L118 262 L110 300 L78 300 L81 214 Z', t) + P('M151 171 L127 176 L122 262 L130 300 L162 300 L159 214 Z', t)
                               + collar,
         ('pop', 'jumper'): P('M84 168 Q120 158 156 168 L168 318 Q120 326 72 318 Z', c) + P(trousers, t) + P(hem, c)
@@ -99,7 +105,7 @@ def drawings():
         'mum': (grown('mum', '#3C9A5F', ['', 'skirt', 'trousers']), 456, '#3C9A5F', PAIRS['mum'], "Mum: a daisy on her head, a dress."),
         'dad': (grown('dad', '#2A62B8', ['', 'jumper', 'overalls']), 456, '#2A62B8', PAIRS['dad'], "Dad: a shirt and shorts."),
         'pop': (grown('pop', '#BFD9F5', ['', 'waistcoat', 'jumper']), 456, '#BFD9F5', PAIRS['pop'],
-                "Pop: Puggle's grandfather. Round glasses, a green bucket hat, a cardigan."),
+                "Pop: Puggle's grandfather. Round green glasses, a green bucket hat, a button-up shirt and chinos."),
         'pebble': ({'': baby('neutral', '#CFE5D2')}, 270, '#CFE5D2', ['#BFD9F5', '#F3D9C9', '#3C9A5F', '#E5553B'],
                    "Pebble: Puggle's baby brother, about six months, sitting in a mint babygro with a bottle, or a dummy when he sleeps. A round curl."),
         'quill': ({'': quill('dungarees'), 'jumper': quill('jumper'), 'tee': quill('tee')}, 300, '#E5553B', ['#2A62B8', '#3C9A5F', '#F4BE2C'],
@@ -876,10 +882,10 @@ def babygro(parts):
 
 # Outfits with trousers. The hips are drawn with the body; each trouser leg is part of its own leg, over
 # the fur, so it swings with the leg in a walk.
-TROUSERED = {('mum', 'trousers'), ('dad', 'jumper'), ('dad', 'overalls'), ('pop', 'waistcoat'), ('pop', 'jumper')}
+TROUSERED = {('mum', 'trousers'), ('dad', 'jumper'), ('dad', 'overalls'), ('pop', ''), ('pop', 'waistcoat'), ('pop', 'jumper')}
 
-def trouser_legs(name, parts, shade):
-    colour = TRIM[name]
+def trouser_legs(name, parts, shade, variant=''):
+    colour = CHINO if (name, variant) == ('pop', '') else TRIM[name]
     upper = next(i for i, p in enumerate(parts) if p['id'] == 'upper')
     over = []
     for side in ('left', 'right'):
@@ -1107,7 +1113,7 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
             closed.append({'kind': 'path', 'd': f'M{x - r:g} {y - 1:g} Q{x:g} {y + r - 1:g} {x + r:g} {y - 1:g}', 'stroke': INK, 'width': 4.5, 'cap': 'round'})
         parts.append({'id': 'eyes-closed', 'parent': 'head', 'pivot': [120, 110], 'when': 'eyes=closed', 'shapes': closed})
     parts = regrow_tail(parts, grown, sitting=name == 'pebble')
-    if (name, variant) in TROUSERED: parts = trouser_legs(name, parts, shade)
+    if (name, variant) in TROUSERED: parts = trouser_legs(name, parts, shade, variant)
     if name == 'pebble': parts = babygro(parts)
     parts = join_to_head(name, parts)
     parts = grow_hair(name, parts)

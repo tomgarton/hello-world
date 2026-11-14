@@ -333,6 +333,17 @@ enum RefinementSheets {
             row("With the family, at app size") {
                 HStack(alignment: .bottom, spacing: 0) { small("mum"); small("nan"); small("dad"); small("pop"); small("nan-apron"); small("pop-jumper") }
             }
+            row("Pop's three outfits; and his shirt and chinos in its four colour pairs") {
+                HStack(alignment: .bottom, spacing: 0) {
+                    small("pop"); small("pop-waistcoat"); small("pop-jumper")
+                    if let pop = Rig.load("pop") {
+                        ForEach(1..<(pop.wardrobe?.looks.count ?? 1), id: \.self) { i in
+                            let rig = pop.wearing(pop.wardrobe?.looks[i] ?? [:])
+                            RigFrame(rig: rig, states: [:], face: nil).frame(width: 110, height: 110 * rig.size[1] / 240)
+                        }
+                    }
+                }
+            }
             row("Hats off, in the cold, in the rain") {
                 HStack(alignment: .bottom, spacing: 0) { small("pop", outfit: "bare"); small("nan", outfit: "warm"); small("pop", outfit: "warm"); small("nan", outfit: "rain"); small("pop", outfit: "rain") }
             }
