@@ -6,12 +6,15 @@ struct AppearanceSettingsView: View {
     @AppStorage(Setting.nightMode) private var nightMode = Setting.nightModeDefault
     @AppStorage(Setting.nightFrom) private var nightFrom = Setting.nightFromDefault
     @AppStorage(Setting.nightUntil) private var nightUntil = Setting.nightUntilDefault
+    @AppStorage(Setting.iconColour) private var iconColour = IconColour.yellow.rawValue
+    @AppStorage(Setting.iconColourOwn) private var iconOwn = IconColour.ownDefault
 
     private var usesHours: Bool { nightMode == "hours" || nightMode == "both" }
 
     var body: some View {
         List {
             appearanceSection
+            iconSection
             nightSection
             if usesHours { hoursSection }
         }
@@ -32,6 +35,51 @@ struct AppearanceSettingsView: View {
             Text("How the app looks during the day.")
         }
         .listRowBackground(Palette.paper)
+    }
+
+    private var iconSection: some View {
+        Section {
+            Picker("Icon colour", selection: $iconColour) {
+                ForEach(IconColour.allCases) { Text($0.title).tag($0.rawValue) }
+            }
+            if iconColour == IconColour.own.rawValue {
+                ColorPicker("Colour", selection: ownColour, supportsOpacity: false)
+            }
+            HStack(spacing: 14) {
+                ForEach([EventKind.bottle, .sleep, .nappy, .solids, .potty, .breastfeed]) { kind in
+                    ActivityIcon(kind, size: 36)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 4)
+            .environment(\.iconChildColour, Palette.childColour(0))
+            .accessibilityHidden(true)
+        } header: {
+            Text("Icons")
+        } footer: {
+            Text(iconFooter)
+        }
+        .listRowBackground(Palette.paper)
+    }
+
+    private var iconFooter: String {
+        switch IconColour(rawValue: iconColour) ?? .yellow {
+        case .yellow: "The colour inside each icon. Skin tones stay as they are."
+        case .own: "Choose any colour. Skin tones stay as they are."
+        case .child: "Each child's icons take that child's colour. Anything that is not one child's stays yellow."
+        }
+    }
+
+    /// The person's own colour for the picker, kept as 0xRRGGBB.
+    private var ownColour: Binding<Color> {
+        Binding(get: {
+            Color(hex: UInt32(truncatingIfNeeded: iconOwn))
+        }, set: { colour in
+            var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+            UIColor(colour).getRed(&r, green: &g, blue: &b, alpha: &a)
+            let byte = { (v: CGFloat) in Int((min(max(v, 0), 1) * 255).rounded()) }
+            iconOwn = byte(r) << 16 | byte(g) << 8 | byte(b)
+        })
     }
 
     private var nightSection: some View {

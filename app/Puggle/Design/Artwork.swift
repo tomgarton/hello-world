@@ -1,12 +1,16 @@
 import SwiftUI
 
-/// The Puggle line icons for activities: one ink line and one Wattle accent.
-/// Drawn in `design/canvas/gen/iconsys3.py`; each has a dark twin in the asset catalogue.
+/// The Puggle icons for activities: an ink line and one fill.
+/// Drawn in `docs/tools/make_icons.py`, which writes each as parts: the line, the fill and,
+/// for the breast, any colour that never changes. The fill is yellow unless Settings says otherwise.
 struct ActivityIcon: View {
     let name: String
     var size: CGFloat = 36
-    /// One colour, for lists: the line in ink and the accent a faint tint of it.
+    /// One colour, for lists: the line in ink and the fill a faint tint of it.
     var plain = false
+    @AppStorage(Setting.iconColour) private var mode = IconColour.yellow.rawValue
+    @AppStorage(Setting.iconColourOwn) private var own = IconColour.ownDefault
+    @Environment(\.iconChildColour) private var childColour
 
     init(_ kind: EventKind, size: CGFloat = 36, plain: Bool = false) {
         self.name = kind.iconName
@@ -19,12 +23,34 @@ struct ActivityIcon: View {
         self.size = size
     }
 
+    /// The drawing with more detail, from 32 points up.
+    private var parts: String { size >= 32 && UIImage(named: name + "-reg-line") != nil ? name + "-reg" : name }
+
+    private var fill: Color {
+        switch IconColour(rawValue: mode) ?? .yellow {
+        case .yellow: Palette.wattle
+        case .own: Color(hex: UInt32(truncatingIfNeeded: own))
+        // Pumping is the parent's, not a child's.
+        case .child: name == EventKind.pump.iconName ? Palette.wattle : childColour ?? Palette.wattle
+        }
+    }
+
     var body: some View {
         Group {
             if plain, let trimmed = TrimmedIcon.image(name + "-plain") {
                 Image(uiImage: trimmed).resizable().renderingMode(.template).foregroundStyle(Palette.ink)
             } else if plain {
                 Image(name + "-plain").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
+            } else if UIImage(named: parts + "-line") != nil {
+                ZStack {
+                    if UIImage(named: parts + "-fill") != nil {
+                        Image(parts + "-fill").resizable().renderingMode(.template).foregroundStyle(fill)
+                    }
+                    if UIImage(named: parts + "-fixed") != nil {
+                        Image(parts + "-fixed").resizable()
+                    }
+                    Image(parts + "-line").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
+                }
             } else {
                 Image(name).resizable()
             }
@@ -32,6 +58,34 @@ struct ActivityIcon: View {
         .scaledToFit()
         .frame(width: size, height: size)
         .accessibilityHidden(true)
+    }
+}
+
+/// What colours the fill in an icon. Some colours never change: skin on the breast.
+enum IconColour: String, CaseIterable, Identifiable {
+    case yellow, own, child
+    var id: String { rawValue }
+    /// Wattle, until the person picks their own.
+    static let ownDefault = 0xF4BE2C
+
+    var title: String {
+        switch self {
+        case .yellow: "Yellow"
+        case .own: "Your own colour"
+        case .child: "Each child's colour"
+        }
+    }
+}
+
+private struct IconChildColourKey: EnvironmentKey {
+    static let defaultValue: Color? = nil
+}
+
+extension EnvironmentValues {
+    /// The colour of the child an icon belongs to, where it belongs to one.
+    var iconChildColour: Color? {
+        get { self[IconChildColourKey.self] }
+        set { self[IconChildColourKey.self] = newValue }
     }
 }
 

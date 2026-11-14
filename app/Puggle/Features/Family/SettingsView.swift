@@ -14,6 +14,10 @@ enum Setting {
     static let tilesMain = "tilesMain"
     static let tilesHidden = "tilesHidden"
     static let appLock = "appLock"
+    /// The fill in the activity icons: "yellow", "own" or "child". See `IconColour`.
+    static let iconColour = "iconColour"
+    /// The person's own colour for the icons, as 0xRRGGBB.
+    static let iconColourOwn = "iconColourOwn"
     /// Set by the "Night look" Focus filter, not by a switch in the app.
     static let focusNight = "focusNight"
 

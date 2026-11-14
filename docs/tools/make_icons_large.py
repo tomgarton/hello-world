@@ -129,6 +129,12 @@ LARGE = {
 }
 
 
+# One fill each, as in make_icons.py: the Sky fills go, and so does a tint in Sky (the potty's guard).
+for _spec, _ in LARGE.values():
+    _spec['sky'] = []
+    _spec['tint'] = [t for t in _spec['tint'] if t[1] != '#BFD9F5']
+
+
 def art(spec, **k):
     text = svg('x', spec=spec, **k)
     return text.replace('rotate(%s 12 12)' % spec['turn'], 'rotate(%s 24 24)' % spec['turn']) if spec['turn'] else text

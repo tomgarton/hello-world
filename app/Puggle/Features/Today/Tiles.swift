@@ -120,6 +120,8 @@ struct TileButton: View {
                 }
             }
         }
+        // With one child chosen, the icon can take that child's colour.
+        .environment(\.iconChildColour, children.count == 1 ? Palette.childColour(children[0].colourIndex) : nil)
         .accessibilityLabel("Log \(tile.title.lowercased())")
         .accessibilityValue(latest)
     }

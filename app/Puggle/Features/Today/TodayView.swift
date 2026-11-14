@@ -760,6 +760,7 @@ struct DaySoFarView: View {
             .buttonStyle(PressStyle(scale: 0.96))
             .accessibilityLabel("Add a past sleep for \(child.displayName)")
         }
+        .environment(\.iconChildColour, Palette.childColour(child.colourIndex))
     }
     @AppStorage(Setting.justLog) private var justLog = false
 

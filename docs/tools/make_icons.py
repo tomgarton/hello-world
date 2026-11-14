@@ -114,13 +114,23 @@ ICONS = {
     'photo': icon([rr(2, 6.5, 20, 14.5, 3.5), 'M8 6.5L9.5 3.5H14.5L16 6.5', circle(12, 13.5, 3.5)], wattle=[circle(12, 13.5, 3.5)], note='As before, heavier.'),
     # New, for the kinds of nappy. Not in the app.
     'poo': icon([POO, 'M8.5 10H12M6.2 15.5H11'], tint=[(POO, '#C99668')], note='New. The one icon with a colour of its own.'),
-    'wee': icon([DROP], wattle=[DROP], note='New. A drop.'),
+    'wee': icon([DROP], tint=[(DROP, WATTLE)], note='New. A drop, always yellow.'),
 }
 NEW = ['poo', 'wee']
 
+# One fill each (14 November 2026). Tom: yellow by default, a colour of your choosing or each child's colour in
+# Settings, and the fixed colours stay (the breast, poo, wee). So an icon has one accent, which the app tints,
+# and the Sky fills go. Three icons had no Wattle at all: their Sky part becomes the accent.
+for _name, _spec in ICONS.items():
+    if _name == 'nappy': _spec['wattle'] += _spec['sky'][:2]      # the fastening tabs
+    if _name in ('potty', 'bath'): _spec['wattle'] += _spec['sky']  # the base; the tub
+    _spec['sky'] = []
 
-def svg(name, ink=INK, plain=False, size=24, spec=None):
+
+def svg(name, ink=INK, plain=False, size=24, spec=None, layer=None):
+    """`layer` draws one part alone, in black, for the app to tint: 'line', 'fill' (the accent) or 'fixed' (in its own colours)."""
     spec = spec or ICONS[name]
+    if layer: return layered(spec, layer, size)
     def fill(d, colour, solid=False):
         if plain: return f'<path d="{d}" fill="#000000"{"" if solid else " fill-opacity=" + chr(34) + "0.16" + chr(34)}/>'
         return f'<path d="{d}" fill="{colour}"/>'
@@ -135,6 +145,33 @@ def svg(name, ink=INK, plain=False, size=24, spec=None):
     if spec['turn']: inner = f'<g transform="rotate({spec["turn"]} 12 12)">{inner}</g>'
     box = spec.get('box', 24)
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {box} {box}" width="{size}" height="{size}">{inner}</svg>'
+
+
+def layered(spec, layer, size):
+    path = lambda d, more: f'<path d="{d}" {more}/>'
+    if layer == 'fill': inner = ''.join(path(d, 'fill="#000000"') for d in spec['wattle'])
+    elif layer == 'fixed': inner = ''.join(path(t[0], f'fill="{t[1]}"') for t in spec['tint'])
+    else:
+        stroke = 'fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" stroke-width='
+        inner = ''.join(path(d, f'{stroke}"{spec.get("weight", W)}"') for d in spec['lines'])
+        inner += ''.join(path(d, f'{stroke}"{spec.get("fineweight", 1.2)}"') for d in spec.get('fine', []))
+        inner += ''.join(path(d, 'fill="#000000"') for d in spec['ink'])
+    if not inner: return ''
+    box = spec.get('box', 24)
+    if spec['turn']: inner = f'<g transform="rotate({spec["turn"]} {box / 2} {box / 2})">{inner}</g>'
+    return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {box} {box}" width="{size}" height="{size}">{inner}</svg>'
+
+
+def imageset(name, text, template):
+    """One vector image in the app's catalogue."""
+    import json
+    folder = os.path.join(ASSETS, f'{name}.imageset')
+    os.makedirs(folder, exist_ok=True)
+    open(os.path.join(folder, f'{name}.svg'), 'w').write(text)
+    props = {'preserves-vector-representation': True}
+    if template: props['template-rendering-intent'] = 'template'
+    json.dump({'images': [{'idiom': 'universal', 'filename': f'{name}.svg'}], 'info': {'author': 'xcode', 'version': 1}, 'properties': props},
+              open(os.path.join(folder, 'Contents.json'), 'w'), indent=2)
 
 
 def inner_of(text):
@@ -272,7 +309,7 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 # DETAIL holds what the regular drawing adds to the small one. `drop` removes small-drawing lines it replaces.
 MILK = 'M5.9 14.5H18.1C18.4 15.3 18.5 16.1 18.5 17V19A3 3 0 0 1 15.5 22H8.5A3 3 0 0 1 5.5 19V17C5.5 16.1 5.6 15.3 5.9 14.5Z'
 DETAIL = {
-    'bottle': dict(drop=[3], sky=[MILK], fine=['M5.9 14.5H18.1', 'M8.5 16.5H10.5M8.5 18.5H11.5M8.5 20.3H10.5'], note='Milk in the bottle, and three measure marks.'),
+    'bottle': dict(drop=[3], fine=['M5.9 14.5H18.1', 'M8.5 16.5H10.5M8.5 18.5H11.5M8.5 20.3H10.5'], note='Milk in the bottle, and three measure marks.'),
     'pump': dict(fine=['M10 17.5H20', 'M17.8 15.5H20'], note='The milk has a surface, and the bottle a mark.'),
     'solids': dict(fine=['M5.5 15.5C9 17.2 15 17.2 18.5 15.5'], note='A stripe round the bowl.'),
     'sleep': dict(ink=[sparkle(15, 10, 1.5), sparkle(21, 10.5, 1.2)], note='Two more stars.'),
@@ -348,6 +385,11 @@ def main():
             open(os.path.join(folder, f'icon-{name}.svg'), 'w').write(svg(name))
             open(os.path.join(folder, f'icon-{name}-dark.svg'), 'w').write(svg(name, ink=DARK))
             open(os.path.join(ASSETS, f'icon-{name}-plain.imageset', f'icon-{name}-plain.svg'), 'w').write(svg(name, plain=True))
+            # The parts the app tints: the small drawing, and the regular one (`-reg`) for 32 points and up.
+            for tag, spec in (('', ICONS[name]), ('-reg', regular(name))):
+                for layer in ('line', 'fill', 'fixed'):
+                    text = svg(name, spec=spec, layer=layer)
+                    if text: imageset(f'icon-{name}{tag}-{layer}', text, template=layer != 'fixed')
         print('installed', len(ICONS) - len(NEW), 'icons')
     grid = ''.join(f'<path d="M{i} 0V24M0 {i}H24" stroke="#C9583F" stroke-width="0.03" opacity=".45"/>' for i in range(25))
     keys = ('<rect x="1" y="1" width="22" height="22" fill="none" stroke="#2A62B8" stroke-width="0.06" stroke-dasharray=".3 .3"/>'

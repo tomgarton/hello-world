@@ -252,6 +252,9 @@ struct RootView: View {
             let invite = Invite(inviter: "Alex", familyTitle: "Ollie and Bea's family", lookOnly: join == "viewer")
             JoinView(invite: invite,
                      stage: join == "joined" ? .joined : JoinProblem(rawValue: join).map { .failed($0) } ?? .asking)
+        } else if UserDefaults.standard.string(forKey: "debugAppearance") == "1" {
+            // For checking the icon colour setting: "-debugAppearance 1" (with "-iconColour own" or child).
+            NavigationStack { AppearanceSettingsView() }
         } else if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
         } else if UserDefaults.standard.string(forKey: "debugMoves") == "1" {

@@ -1100,3 +1100,14 @@ Icon colour, under question (14 November 2026). Tom is not sure the icons need t
 Icon colour from the child's colour (14 November 2026). Tom's idea: the fill in an icon takes the colour chosen for that child. Mocked in `docs/previews/icons/child-colour.png`: one fill per icon, in the child's colour, with Wattle for anything that is not one child's (pump, first run, Settings). Claude's view: yes, and it needs each icon to have one good-sized fill, since the child colours are pale and several icons (nappy, potty, bath) have no fill at all once the blue goes. Not decided.
 
 Play, large drawing (14 November 2026): Tom asked for the blocks to follow ChatGPT's sheet. They now have depth: each shows its front, top and right side, the top block sits across the two below, and the faces carry a sparkle, a triangle and a circle. Close-up: `docs/previews/icons/play-blocks.png`. The regular and small drawings are still flat. Also settled the same day: wee stays yellow whatever the child's colour, like brown for poo and skin for the breast.
+
+### Icon colour: yellow by default, yours to change (14 November 2026)
+
+Tom decided: yellow is the default; Settings can change it to a colour of your choosing, or to each child's colour; the fixed colours stay. Built:
+
+- **One fill each.** The Sky fills are gone from all three sizes. The nappy's tabs, the potty's base and the bath's tub, which had no yellow, carry the fill. Fixed colours: skin on the breast, brown for poo, yellow for wee.
+- **In the app.** `make_icons.py --install` now writes each icon as parts the app tints (`icon-x-line`, `icon-x-fill`, `icon-x-fixed`), for the small drawing and the regular one (`-reg`, used from 32 points up). `ActivityIcon` puts them together. So the second-pass drawings are now in the app. The large drawings are not: nothing in the app shows an icon above 44 points yet.
+- **The setting.** Settings, Appearance and night, Icons: Yellow, Your own colour (the iOS colour picker) or Each child's colour, with a row of icons that shows the choice. Keys `iconColour` and `iconColourOwn`.
+- **Each child's colour** applies where an icon belongs to one child: a Today tile when one child uses it, and the log buttons in a child's panel. Anything else stays yellow, and so does pumping, which is the parent's. Lists keep the one-colour drawing.
+- For checking: `-debugAppearance 1` opens the screen; `-iconColour own -iconColourOwn <number>` or `-iconColour child` sets the choice.
+- Not done: the breastfeeding choices still use blue for blankets and are not in the app; poo and wee are not in the app; the seven new large designs have not been carried down to the smaller sizes.
