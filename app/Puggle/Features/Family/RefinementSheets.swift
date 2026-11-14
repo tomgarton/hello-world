@@ -89,6 +89,48 @@ enum RefinementSheets {
         // greyHair() drew the options for Nan's and Pop's grey on the rigs as they were before it was built in.
         goingGrey()
         glassesOptions()
+        glassesColours()
+    }
+
+    /// Which colour should Nan's and Pop's frames be? Shown against every colour their clothes come in.
+    private static func glassesColours() {
+        guard let nan = Rig.load("nan"), let pop = Rig.load("pop") else { return }
+        func framed(_ rig: Rig, look: Int, _ colour: String) -> Rig {
+            var copy = rig.wearing(rig.wardrobe?.looks[look] ?? [:])
+            if let index = copy.parts.firstIndex(where: { $0.id == "head-2" }) {
+                for shape in copy.parts[index].shapes.indices { copy.parts[index].shapes[shape].tint = colour }
+            }
+            return copy
+        }
+        func close(_ rig: Rig) -> some View {
+            RigFrame(rig: rig, states: [:], face: nil)
+                .frame(width: 170 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 170 * rig.size[1] / 240)
+                .frame(width: 190, height: 215, alignment: .top).clipped()
+        }
+        func small(_ rig: Rig) -> some View {
+            RigFrame(rig: rig, states: [:], face: nil)
+                .frame(width: 84 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 84 * rig.size[1] / 240)
+        }
+        let red = "#E5553B", green = "#3C9A5F", wattle = "#F4BE2C", harbour = "#2A62B8"
+        let options: [(String, String, String)] = [
+            ("A. As now: Nan red, Pop green. Each matches their own things", red, green),
+            ("B. Swapped: Nan green, Pop red. Each is the opposite of their own colour", green, red),
+            ("C. Nan wattle, Pop red", wattle, red),
+            ("D. Nan harbour blue, Pop wattle", harbour, wattle),
+        ]
+        let sheet = VStack(alignment: .leading, spacing: 12) {
+            ForEach(options.indices, id: \.self) { i in
+                row(options[i].0) {
+                    HStack(alignment: .bottom, spacing: 0) {
+                        close(framed(nan, look: 0, options[i].1))
+                        close(framed(pop, look: 0, options[i].2))
+                        ForEach(0..<4, id: \.self) { look in small(framed(nan, look: look, options[i].1)) }
+                        ForEach(0..<4, id: \.self) { look in small(framed(pop, look: look, options[i].2)) }
+                    }
+                }
+            }
+        }
+        save(sheet, as: "glasses-colours.png")
     }
 
     /// Frames for Nan (red) and Pop (green) in other shapes, with no glass in them; and sunglasses for anyone.
