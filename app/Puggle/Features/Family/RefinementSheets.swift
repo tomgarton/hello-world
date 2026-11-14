@@ -74,6 +74,20 @@ enum RefinementSheets {
         pair(puggle)
         tuftAndPoses(puggle)
         tuftOptions(puggle)
+        heroes(puggle)
+    }
+
+    /// Puggle on a clear background, for covers and documents: standing, and waving.
+    private static func heroes(_ puggle: Rig) {
+        func write(_ name: String, _ states: [String: PartState], _ face: [String: String]?) {
+            let renderer = ImageRenderer(content: RigFrame(rig: puggle, states: states, face: face).frame(width: 720, height: 900).environment(\.lineStyle, .chosen))
+            renderer.scale = 2
+            guard let data = renderer.uiImage?.pngData() else { return }
+            try? data.write(to: FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name))
+        }
+        write("hero-standing.png", [:], nil)
+        write("hero-waving.png", ["arm-right": state(r: -80), "head": state(r: -5), "blush": state(sx: 1.14, sy: 1.14),
+                                  "brow-left": state(r: -6, y: -4), "brow-right": state(r: 6, y: -4)], ["eyes": "happy", "brows": "on"])
     }
 
     // MARK: 8. A tuft of hair, and arms that bend
