@@ -253,6 +253,59 @@ enum RefinementSheets {
             }
         }
         save(looks, as: "sunglasses-styles.png")
+
+        // Big sunglasses, after the pair Tom showed: far too large for the face, a heavy bar across the brow and
+        // nothing round the bottom, and lenses in two flat bands, darker above and lighter below. Our own shapes and colours.
+        struct Big { let name: String; let top: String; let bottom: String; let bar: String?; let shape: String }
+        let bigs = [
+            Big(name: "Sunset lenses, bar in their own colour", top: "#E5553B", bottom: "#F4BE2C", bar: nil, shape: "round"),
+            Big(name: "Night lenses", top: "#1B2440", bottom: "#3D4F86", bar: nil, shape: "round"),
+            Big(name: "Mirror lenses, silver bar", top: "#9DB2C6", bottom: "#DDE7EF", bar: "#8491A0", shape: "round"),
+            Big(name: "Big aviators, mirror", top: "#9DB2C6", bottom: "#DDE7EF", bar: "#8491A0", shape: "aviator"),
+            Big(name: "Sea lenses, wattle bar", top: "#2A62B8", bottom: "#BFD9F5", bar: "#F4BE2C", shape: "round"),
+        ]
+        func big(_ name: String, _ accent: String, _ style: Big) -> Rig? {
+            guard var rig = Rig.load(name), let eye = rig.parts.first(where: { $0.id == "eye-left" }) else { return nil }
+            let x = Double(eye.pivot[0]), y = Double(eye.pivot[1]) + 5, other = 240 - x, r = 25.0, colour = style.bar ?? accent
+            var shapes: [Rig.Shape] = []
+            for (cx, out) in [(x, -1.0), (other, 1.0)] {
+                if style.shape == "aviator" {
+                    // A teardrop, drooping towards the cheek, with the lower band following its bottom edge.
+                    let o = out
+                    let whole = "M\(n(cx - o * 22)) \(n(y - 16)) Q\(n(cx)) \(n(y - 21)) \(n(cx + o * 26)) \(n(y - 16)) Q\(n(cx + o * 31)) \(n(y + 10)) \(n(cx + o * 9)) \(n(y + 25)) Q\(n(cx - o * 18)) \(n(y + 27)) \(n(cx - o * 22)) \(n(y - 16)) Z"
+                    let lower = "M\(n(cx - o * 20)) \(n(y + 3)) L\(n(cx + o * 27)) \(n(y + 3)) Q\(n(cx + o * 25)) \(n(y + 15)) \(n(cx + o * 9)) \(n(y + 25)) Q\(n(cx - o * 15)) \(n(y + 27)) \(n(cx - o * 20)) \(n(y + 3)) Z"
+                    shapes.append(Rig.Shape(kind: "path", d: whole, fill: style.top))
+                    shapes.append(Rig.Shape(kind: "path", d: lower, fill: style.bottom))
+                    shapes.append(Rig.Shape(kind: "path", d: whole, stroke: dark, tint: colour, width: 4))
+                } else {
+                    shapes.append(Rig.Shape(kind: "ellipse", x: cx, y: y, rx: r, ry: r, fill: style.top))
+                    shapes.append(Rig.Shape(kind: "path", d: "M\(n(cx - r)) \(n(y + 2)) C\(n(cx - r)) \(n(y + 2 + r * 1.3)) \(n(cx + r)) \(n(y + 2 + r * 1.3)) \(n(cx + r)) \(n(y + 2)) Z", fill: style.bottom))
+                    // The heavy bar across the brow; the bottom of the lens has no rim.
+                    shapes.append(Rig.Shape(kind: "path", d: "M\(n(cx - r)) \(n(y - 1)) C\(n(cx - r)) \(n(y - 1 - r * 1.34)) \(n(cx + r)) \(n(y - 1 - r * 1.34)) \(n(cx + r)) \(n(y - 1))", stroke: dark, tint: colour, width: 8, cap: "round"))
+                }
+            }
+            let reach = style.shape == "aviator" ? 22.0 : r
+            shapes.append(Rig.Shape(kind: "path", d: "M\(n(x + reach - 4)) \(n(y - 15)) L\(n(other - reach + 4)) \(n(y - 15))", stroke: dark, tint: colour, width: style.shape == "aviator" ? 4 : 8, cap: "round"))
+            let last = rig.parts.lastIndex(where: { $0.id.hasPrefix("eye") }) ?? 0
+            rig.parts.insert(Rig.Part(id: "sunnies", parent: "head", pivot: [120, CGFloat(y)], shapes: shapes), at: last + 1)
+            return rig
+        }
+        let bigSheet = VStack(alignment: .leading, spacing: 10) {
+            ForEach(bigs.indices, id: \.self) { i in
+                row(bigs[i].name) {
+                    HStack(alignment: .bottom, spacing: 0) {
+                        ForEach(wearers, id: \.0) { who in
+                            if let rig = big(who.0, who.1, bigs[i]) {
+                                RigFrame(rig: rig, states: [:], face: nil)
+                                    .frame(width: 128 * (rig.size[0] + 2 * (rig.sideroom ?? 0)) / 240, height: 128 * rig.size[1] / 240)
+                                    .frame(height: 128 * 300 / 240 + 6, alignment: .top).clipped()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        save(bigSheet, as: "sunglasses-big.png")
     }
 
     /// Nan and Pop as built: warmer, lighter fur with a lighter line, and grey dashes scattered through their hair.
