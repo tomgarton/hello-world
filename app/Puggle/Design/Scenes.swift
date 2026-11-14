@@ -428,16 +428,11 @@ struct SceneFrame: View {
                     else { Rainbow().frame(width: w * 0.72, height: w * 0.36) }
                 }
             case .backyard:
-                // Bubbles, a paper plane and dandelion seeds. After dark: fireflies, a shooting star and a lantern let go.
-                turnsUp(first, x: w * 0.3, y: pull - 56) {
+                // A balloon that got away, a paper plane, and seeds or leaves on the wind. After dark: fireflies, a shooting star
+                // and a lantern let go. Bubbles are kept for when Puggle or a friend is making them.
+                turnsUp(first, x: w * 0.3 + (starry ? 0 : CGFloat(sin(t * 0.7)) * 8), y: pull - 60 + (starry ? 0 : CGFloat(sin(t * 1.3)) * 4)) {
                     if starry { Fireflies(t: t).frame(width: 90, height: 64) }
-                    else { Bubbles(t: t).frame(width: 96, height: 84) }
-                }
-                // By day the bubbles keep rising, right up and off the top of the sky.
-                if !starry, first {
-                    let tall = pull + 40
-                    Bubbles(t: t, rising: true).frame(width: 110, height: tall)
-                        .position(x: w * 0.3, y: pull - 98 - tall / 2)
+                    else { LostBalloon(t: t).frame(width: 40, height: 84) }
                 }
                 turnsUp(second, x: w * 0.68 + CGFloat(sin(t * 0.8)) * (starry ? 4 : 14), y: pull - 124 + CGFloat(sin(t * 1.6)) * (starry ? 3 : 6), from: starry ? .zero : CGSize(width: -w * 0.8, height: 30)) {
                     if starry { SkyLantern(t: t).frame(width: 44, height: 64) }
@@ -1723,28 +1718,41 @@ struct Fireworks: View {
     }
 }
 
+/// Soap bubbles rising. Not in the sky by themselves: they belong to whoever is blowing them.
 struct Bubbles: View {
     var t = 0.0
-    /// The ones that got away: fewer, climbing a tall column of sky at a steady pace and leaving by the top.
-    var rising = false
     var body: some View {
         Canvas { context, size in
-            // About one bubble for every 60 points of sky, so a long pull is not empty.
-            let count = rising ? min(14, max(3, Int(size.height / 60))) : 7
-            for i in 0..<count {
-                var random = SeededRandom(UInt64(i) &* 613 &+ (rising ? 41 : 5))
-                let radius = CGFloat(random.range(5, 12)), pace = random.range(0.1, 0.17), start = random.unit(), x0 = random.range(0.12, 0.88)
-                // The same points a second whatever the height.
-                let speed = rising ? pace * 150 / Double(max(size.height, 1)) : pace
+            for i in 0..<7 {
+                var random = SeededRandom(UInt64(i) &* 613 &+ 5)
+                let radius = CGFloat(random.range(5, 12)), speed = random.range(0.1, 0.17), start = random.unit(), x0 = random.range(0.12, 0.88)
                 let rise = (t * speed + start).truncatingRemainder(dividingBy: 1)
-                let centre = CGPoint(x: size.width * x0 + CGFloat(sin(rise * (rising ? 7 * Double(size.height) / 84 : 7) + Double(i))) * 6, y: size.height * (1 - rise))
+                let centre = CGPoint(x: size.width * x0 + CGFloat(sin(rise * 7 + Double(i))) * 6, y: size.height * (1 - rise))
                 let round = Path(ellipseIn: CGRect(x: centre.x - radius, y: centre.y - radius, width: radius * 2, height: radius * 2))
-                // The column ends above the screen, so nothing needs to fade at its top.
-                let fade = rising ? min(1, rise * Double(size.height) / 16) : (rise > 0.88 ? (1 - rise) / 0.12 : min(1, rise / 0.08))
+                let fade = rise > 0.88 ? (1 - rise) / 0.12 : min(1, rise / 0.08)
                 context.fill(round, with: .color(Color.white.opacity(0.22 * fade)))
                 context.stroke(round, with: .color(Color.white.opacity(0.85 * fade)), lineWidth: 1.4)
                 dot(&context, centre.x - radius * 0.35, centre.y - radius * 0.4, radius * 0.2, Color.white.opacity(0.9 * fade))
             }
+        }
+    }
+}
+
+/// A party balloon that has slipped out of a hand, its string trailing. Flat, no outline, like the rest of the sky.
+struct LostBalloon: View {
+    var t = 0.0
+    var body: some View {
+        Canvas { context, size in
+            let cx = size.width / 2, lean = CGFloat(sin(t * 0.7)) * 3
+            context.fill(Path(ellipseIn: CGRect(x: cx - 15, y: 2, width: 30, height: 37)), with: .color(Color(hex: 0xE5553B)))
+            var knot = Path()
+            knot.move(to: CGPoint(x: cx, y: 37)); knot.addLine(to: CGPoint(x: cx - 4.5, y: 44)); knot.addLine(to: CGPoint(x: cx + 4.5, y: 44)); knot.closeSubpath()
+            context.fill(knot, with: .color(Color(hex: 0xE5553B)))
+            // The string swings behind it as it drifts.
+            var string = Path()
+            string.move(to: CGPoint(x: cx, y: 44))
+            string.addCurve(to: CGPoint(x: cx - lean, y: size.height - 2), control1: CGPoint(x: cx + 6 - lean, y: 56), control2: CGPoint(x: cx - 7 - lean, y: 68))
+            context.stroke(string, with: .color(Color(hex: 0xB23A26).opacity(0.8)), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
         }
     }
 }

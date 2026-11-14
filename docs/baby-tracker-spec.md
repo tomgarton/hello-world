@@ -921,3 +921,5 @@ Privacy and technical
 - Sheet: `docs/previews/bending-arms.png`. In motion: `docs/previews/refinements/bending-arms.mp4` (the first part of "-debugAnimTest 1").
 
 **Switches: back to the standard iOS one (Tom, 2026-11-14).** The app's own switch (ink track, paper knob with a tick) is removed. Every switch is now the system one in its usual green; the green is set explicitly because the app's ink tint would otherwise turn it brown. Known cost: in the night look the green track and white knob are brighter than everything else on the screen.
+
+**Bubbles are not for the sky (Tom, 2026-11-14).** The bubbles in the pulled-down backyard sky are removed: loose bubbles with nobody making them looked random, and the set that rose off the top moved oddly as the page scrolled. Bubbles are kept for when Puggle or a friend is making them (not built). In their place in the backyard sky: a red balloon that got away, drifting with its string. `docs/previews/backyard-sky.png`.
