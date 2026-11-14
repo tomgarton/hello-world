@@ -18,7 +18,7 @@ h2 b{color:var(--red)}
 .strip{display:block;width:306px;height:138px;object-fit:cover;object-position:50% 78%}
 .body{padding:14px 18px 0}
 .big{font-family:'SF Rounded',ui-rounded,system-ui;font-size:25px;line-height:1.12;font-weight:800;letter-spacing:-.01em;margin:0;height:58px;display:flex;align-items:flex-start}
-.sub{color:var(--muted);font-size:15px;margin:6px 0 0;height:42px}
+.sub{color:var(--muted);font-size:15px;margin:6px 0 0;height:42px;text-wrap:balance}
 .slot{position:absolute;left:18px;right:18px;top:346px;height:232px}
 .text{position:absolute;left:18px;right:18px;top:226px}
 .skip{position:absolute;top:40px;right:10px;height:40px;padding:0 15px;border-radius:20px;background:var(--paper);display:grid;place-items:center;font-weight:650;font-size:15px;box-shadow:0 1px 3px rgba(58,42,32,.12)}
@@ -53,48 +53,49 @@ h2 b{color:var(--red)}
 <h2><b>Before setup:</b> what it does</h2><div class="row"><div class="col"><p class="cap"><span>0</span>Welcome</p><div class="phone">
   <div class="body top"><img class="piece" src="img2/hatch.png" style="border-radius:22px">
   <div class="word">puggle</div><p class="sub center" style="margin-top:2px;height:auto">Baby tracker for the whole family</p></div>
-  <div class="under" style="bottom:120px;color:var(--muted);font-weight:500">Takes a minute. No account.</div>
-  <div class="under">I've been invited &nbsp;·&nbsp; Look around first</div><div class="cta">Start a new family</div></div>
+  <div class="under" style="bottom:120px;color:var(--muted);font-weight:500">It takes about a minute.</div>
+  <div class="under">Join with an invite &nbsp;·&nbsp; Look around first</div><div class="cta">Start a new family</div></div>
   <p class="note">The one screen with its own layout: it is the cover.</p></div><div class="col"><p class="cap"><span>1</span>Logging</p><div class="phone">
   <img class="scene" src="img2/scene-yard.png"><div class="bar"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i><i class=""></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">Log the day in a tap or two</div><p class="sub">Feeds, sleeps, nappies and the potty. One hand is enough.</p></div>
+  <div class="text"><div class="big">Log the day<br>in a tap or two</div><p class="sub">Feeds, sleeps, nappies and the potty, with&nbsp;one&nbsp;hand.</p></div>
   <div class="slot"><div class="try"><small>Try it</small><div class="amt"><span class="dot">−</span><b>160 <small>ml</small></b><span class="dot">+</span></div></div><div class="crop" style="margin-top:8px"><img src="img2/tiles.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
-  <div class="cta">Next</div></div><p class="note">Heading, text, then the piece of the app: the same order and the same place on every page.</p></div><div class="col"><p class="cap"><span>2</span>Every child</p><div class="phone">
+  <div class="cta">Continue</div></div><p class="note">Heading, text, then the piece of the app: the same order and the same place on every page.</p></div><div class="col"><p class="cap"><span>2</span>Every child</p><div class="phone">
   <img class="scene" src="img2/scene-hills.png"><div class="bar"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">Every child on one screen</div><p class="sub">A baby and a toddler side by side, each with a sleep timer.</p></div>
+  <div class="text"><div class="big">Every child<br>on one screen</div><p class="sub">A baby and a toddler side by side, each&nbsp;with their own sleep&nbsp;timer.</p></div>
   <div class="slot"><div class="crop"><img src="img2/cards.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
-  <div class="cta">Next</div></div><p class="note">New. What sets Puggle apart.</p></div><div class="col"><p class="cap"><span>3</span>Together</p><div class="phone">
+  <div class="cta">Continue</div></div><p class="note">New. What sets Puggle apart.</p></div><div class="col"><p class="cap"><span>3</span>Together</p><div class="phone">
   <img class="scene" src="img2/scene-rain.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">Everyone who helps, in step</div><p class="sub">Invite a partner, Nan or a carer. You choose what each can do.</p></div>
+  <div class="text"><div class="big">Share the day<br>with your family</div><p class="sub">Invite a partner, a grandparent or a carer. You&nbsp;choose what each&nbsp;can&nbsp;do.</p></div>
   <div class="slot"><div class="crop" style="height:176px"><img src="img2/history.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
-  <div class="cta">Next</div></div><p class="note">Replaces the text-only page.</p></div><div class="col"><p class="cap"><span>4</span>Looking back</p><div class="phone">
+  <div class="cta">Continue</div></div><p class="note">Replaces the text-only page.</p></div><div class="col"><p class="cap"><span>4</span>Looking back</p><div class="phone">
   <img class="scene" src="img2/scene-bush.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">See the whole week at a glance</div><p class="sub">Totals and patterns, when you want them. Never a score.</p></div>
+  <div class="text"><div class="big">Look back<br>over the week</div><p class="sub">Totals and patterns for each child, whenever&nbsp;you&nbsp;want&nbsp;them.</p></div>
   <div class="slot"><div class="crop" style="height:180px"><img src="img2/chart.png"></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
-  <div class="cta">Next</div></div><p class="note">The real chart.</p></div><div class="col"><p class="cap"><span>5</span>Calm and private</p><div class="phone">
+  <div class="cta">Continue</div></div><p class="note">The real chart.</p></div><div class="col"><p class="cap"><span>5</span>Calm and private</p><div class="phone">
   <img class="scene" src="img2/scene-night.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">Quiet at night, and yours</div><p class="sub">Everything dims after dark. Your entries stay in your iCloud.</p></div>
-  <div class="slot"><div class="try" style="display:grid;gap:10px"><div><b>No account</b><br><span style="color:var(--muted)">No email and no password.</span></div><div><b>No ads</b><br><span style="color:var(--muted)">Nothing is sold or shared.</span></div><div style="font-weight:650">How your data is kept ›</div></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="text"><div class="big">Your entries<br>stay private</div><p class="sub">Kept on this iPhone and&nbsp;in&nbsp;your&nbsp;iCloud.</p></div>
+  <div class="slot"><div class="try" style="display:grid;gap:10px"><div><b>No account</b><br><span style="color:var(--muted)">No email or password to set up.</span></div><div><b>No ads</b><br><span style="color:var(--muted)">Nothing is sold or shared.</span></div><div style="font-weight:650">See how your data is kept</div></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
   <div class="cta">Set up your family</div></div><p class="note">The promise gets the same slot as the app pieces.</p></div></div>
 <h2><b>Setup:</b> the same skeleton</h2><div class="row"><div class="col"><p class="cap"><span>6</span>You</p><div class="phone">
   <img class="scene" src="img2/scene-room.png"><div class="bar"><i class="on"></i><i class=""></i><i class=""></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">What should we call you?</div><p class="sub">Your name shows beside what you log.</p></div>
-  <div class="slot"><div class="field" style="margin-top:0">Your name</div><div class="field">Family name (optional)</div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
+  <div class="text"><div class="big">Who's logging<br>on this iPhone?</div><p class="sub">Your name shows beside what&nbsp;you&nbsp;log.</p></div>
+  <div class="slot"><div class="field" style="margin-top:0">Your name</div><div class="field">Family name, if you like</div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
   <div class="cta">Continue</div></div><p class="note">Setup keeps the same skeleton, so nothing moves when the questions start.</p></div><div class="col"><p class="cap"><span>7</span>First child</p><div class="phone">
   <img class="scene" src="img2/scene-hills.png"><div class="bar"><i class="on"></i><i class="on"></i><i class=""></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">Who are we looking after?</div><p class="sub">Their age decides what shows on Today.</p></div>
+  <div class="text"><div class="big">Add your<br>first child</div><p class="sub">Their age sets what shows on Today.</p></div>
   <div class="slot"><div class="field set" style="margin-top:0">Harry</div><div class="field">Birth date</div><div class="chips"><u style="background:#BFD9F5;outline:3px solid var(--ink);outline-offset:2px"></u><u style="background:#F3D9C9"></u><u style="background:#CFE5D2"></u><u style="background:#F4E7B0"></u><u style="background:#E0D3EE"></u><u style="background:#F5CEDB"></u></div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
   <div class="cta">Add Harry</div></div><p class="note">Colours on one line.</p></div><div class="col"><p class="cap"><span>8</span>Anyone else</p><div class="phone">
   <img class="scene" src="img2/scene-yard.png"><div class="bar"><i class="on"></i><i class="on"></i><i class="on"></i></div><div class="skip">Skip</div>
-  <div class="text"><div class="big">Any brothers or sisters to add?</div><p class="sub">Twins and siblings share one Today.</p></div>
+  <div class="text"><div class="big">Anyone else<br>to add?</div><p class="sub">Twins and siblings share&nbsp;one&nbsp;Today.</p></div>
   <div class="slot"><div class="try" style="display:flex;align-items:center;gap:12px"><span class="dot" style="background:#BFD9F5;font-size:16px;font-weight:700">H</span><div><b>Harry</b><br><span style="color:var(--muted)">2½ years</span></div></div><div class="field" style="color:var(--ink);font-weight:650;justify-content:center">Add another child</div></div><div class="guide" style="top:226px"></div><div class="guide" style="top:346px"></div>
   <div class="cta">Continue</div></div><p class="note">Then inviting, as now.</p></div><div class="col"><p class="cap"><span>9</span>Your family</p><div class="phone">
   <div class="text" style="top:60px;text-align:center"><div class="big" style="justify-content:center">Your family</div><p class="sub">Harry and Sam</p></div>
   <img src="img2/heap.png" style="position:absolute;left:0;bottom:86px;width:306px">
   <div class="cta">Open Today</div></div><p class="note">The finish, like the cover, has its own layout.</p></div><div class="box" style="width:420px"><h3>The layout rule</h3><ul>
   <li><b>One skeleton for every page:</b> scene, progress, heading, text, piece, button. The dashed lines mark where the heading starts and where the piece starts.</li>
-  <li><b>Heading:</b> always two lines, starting at the same height. The words are written to fit.</li>
-  <li><b>Text:</b> two lines of room, one or two sentences.</li>
+  <li><b>Heading:</b> always two lines, broken by hand so neither line is a single word.</li>
+  <li><b>Text:</b> two lines of room. The last three words are kept together, so no line ends on one word.</li>
+  <li><b>Words:</b> to the writing guide. Plain, no "we", no "should", buttons start with a verb, one message a page.</li>
   <li><b>Piece of the app:</b> always below the words, never above.</li>
   <li><b>Button:</b> always in the same place.</li>
   <li><b>Skip:</b> top right, where the profile button sits on Today. The progress bar runs the full width.</li>
