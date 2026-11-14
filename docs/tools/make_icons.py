@@ -1,28 +1,36 @@
-"""Puggle's activity icons, redrawn to one set of rules.
+"""Puggle's activity icons, second pass (the first is kept in make_icons_v1.py and docs/previews/icons/v1).
 
-The rules (drawn from how SF Symbols, Fluent System Icons and Lucide are made; see docs/baby-tracker-spec.md):
+What changed from the first pass, after Tom's notes and the ideas ChatGPT drew for him (14 November 2026):
+
+  - A heavier line: 2 points, as Lucide draws and as those sheets specify. It holds at 17 points.
+  - Fuller, rounder shapes that fill their keyline, drawn as the whole object and not a diagram of it.
+  - Two fills, not one: Wattle for what the icon is about, and Sky for the part that holds or supports it.
+    Still flat, still one line colour (Ink). Poo is the one icon with a colour of its own.
+  - The nappy is a closed, padded shape with fastening tabs and leg openings inside it, so it is not a pair of pants.
+  - Breastfeeding is a breast.
+  - Two new ones, for the kinds of nappy: poo and wee.
+
+The rules:
 
   1. A 24 by 24 canvas. Nothing nearer the edge than 1 point, line included.
-  2. One line: 1.5 points, centred on its path, round caps and round joins. Never two weights in one icon.
-  3. Every point on the half-point grid. Corners 2 points round on big shapes, 1 to 1.5 on small ones.
-  4. Keylines, so icons carry the same weight: a 20 circle, an 18 square, a 16 by 20 upright, a 20 by 16 landscape.
-  5. Room to breathe: at least 1.5 points clear between two lines. If a detail does not fit, it goes.
-  6. One accent: a single filled shape in Wattle (a matched pair counts as one). It marks what the icon is about.
-     No second colour.
-  7. Few parts: five strokes at most. Named for the object (bottle, not feeding).
-  8. No faces. Faces belong to characters.
+  2. One line: 2 points, centred, round caps and joins.
+  3. Points on the half-point grid where the shape allows.
+  4. Keylines for even weight: a 20 circle, an 18 square, a 16 by 20 upright, a 20 by 16 landscape.
+  5. At least 1 point clear between two lines, and 1.5 where it can be had. If a detail does not fit, it goes.
+  6. Wattle and Sky fills only (poo aside). A small solid mark may be Ink.
+  7. Few parts. Named for the object. No faces.
 
-Run `python3 docs/tools/make_icons.py` from the repo. It writes docs/previews/icons/after/*.svg and the sheet
-docs/previews/icons/refined.html. With `--install` it also writes the three files each icon has in the app's
-asset catalogue (light, dark and plain).
+Run `python3 docs/tools/make_icons.py` from the repo: it writes docs/previews/icons/v2/*.svg and the sheet
+docs/previews/icons/refined.html. With `--install` it also writes each icon's three files in the app's asset
+catalogue (light, dark and plain); poo and wee are new and are not installed.
 """
-import math, os, re, sys
+import os, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'previews', 'icons')
 ASSETS = os.path.join(HERE, '..', '..', 'app', 'Puggle', 'Resources', 'Assets.xcassets')
-INK, DARK, ACCENT = '#3A2A20', '#EBDDC4', '#F4BE2C'
-W = 1.5
+INK, DARK, WATTLE, SKY = '#3A2A20', '#EBDDC4', '#F4BE2C', '#BFD9F5'
+W = 2
 
 
 def rr(x, y, w, h, r):
@@ -34,134 +42,171 @@ def circle(cx, cy, r):
     return f'M{cx - r} {cy}A{r} {r} 0 1 0 {cx + r} {cy}A{r} {r} 0 1 0 {cx - r} {cy}Z'
 
 
-def star(cx, cy, outer, inner):
-    pts = [(cx + (outer if i % 2 == 0 else inner) * math.cos(math.radians(-90 + i * 36)),
-            cy + (outer if i % 2 == 0 else inner) * math.sin(math.radians(-90 + i * 36))) for i in range(10)]
-    return 'M' + 'L'.join(f'{x:.2f} {y:.2f}' for x, y in pts) + 'Z'
+def sparkle(cx, cy, r):
+    """A four-point sparkle, the brand's star."""
+    k = r * 0.12
+    return (f'M{cx} {cy - r}C{cx + k} {cy - r * .45} {cx + r * .45} {cy - k} {cx + r} {cy}'
+            f'C{cx + r * .45} {cy + k} {cx + k} {cy + r * .45} {cx} {cy + r}'
+            f'C{cx - k} {cy + r * .45} {cx - r * .45} {cy + k} {cx - r} {cy}'
+            f'C{cx - r * .45} {cy - k} {cx - k} {cy - r * .45} {cx} {cy - r}Z')
 
 
-# name: (accent fills, lines, a turn about the centre in degrees, a note on what changed)
+def icon(lines, wattle=(), sky=(), ink=(), tint=(), turn=0, note=''):
+    return {'lines': list(lines), 'wattle': list(wattle), 'sky': list(sky), 'ink': list(ink), 'tint': list(tint), 'turn': turn, 'note': note}
+
+
+TEAT = 'M9 8C9 6.5 10.5 6 10.5 4.5A1.5 1.5 0 0 1 13.5 4.5C13.5 6 15 6.5 15 8'
+NAPPY = 'M6 4.5H18A4 4 0 0 1 22 8.5V12C22 17 18.5 20.5 14 20.5H10C5.5 20.5 2 17 2 12V8.5A4 4 0 0 1 6 4.5Z'
+BREAST = 'M7.5 2.5C13 5 20.5 8.5 20.5 14A8 8 0 0 1 12.5 22C7.5 22 3.5 18.5 3.5 13.5C3.5 9.5 5.5 6 7.5 2.5Z'
+POTTY = ('M12 4C9 4 7.5 6.5 7 10C5 10.8 3.6 12.5 3 14.5C2.3 17 2 18.5 2 19.5A2.5 2.5 0 0 0 4.5 22H19.5A2.5 2.5 0 0 0 22 19.5'
+         'C22 18.5 21.7 17 21 14.5C20.4 12.5 19 10.8 17 10C16.5 6.5 15 4 12 4Z')
+MOON = 'M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5A7.5 7.5 0 0 0 20.5 14.5Z'
+TOOTH = ('M7 3C8.5 3 10 4 12 4C14 4 15.5 3 17 3C19.5 3 21 5 21 7.5C21 10 20 11.5 19.5 14L18.5 19C18.2 20.5 17.5 21.5 16.3 21.5'
+         'C15 21.5 14.5 20.5 14.3 19L14 16.5C13.8 15.3 13.1 14.5 12 14.5C10.9 14.5 10.2 15.3 10 16.5L9.7 19C9.5 20.5 9 21.5 7.7 21.5'
+         'C6.5 21.5 5.8 20.5 5.5 19L4.5 14C4 11.5 3 10 3 7.5C3 5 4.5 3 7 3Z')
+POO = ('M12.5 2.5C13 4.5 11.5 5.5 10 6.5C8.5 7.5 8 8.5 8.5 10C6.5 10.5 5.5 11.8 5.5 13.5C5.5 14.3 5.8 15 6.2 15.5'
+       'C4.5 16.3 3 17.5 3 19.3C3 21 4.5 22 6.5 22H17.5C19.5 22 21 21 21 19.3C21 17.5 19.5 16.3 17.8 15.5'
+       'C18.3 15 18.5 14.3 18.5 13.5C18.5 11.8 17.3 10.5 15.5 10C16 8.5 15.2 7.5 14.5 6.8C13.5 5.8 12.8 4.5 12.5 2.5Z')
+DROP = 'M12 2.5C15 6.5 18.5 10 18.5 14.5A6.5 6.5 0 0 1 5.5 14.5C5.5 10 9 6.5 12 2.5Z'
+BIG_SPARKLE = sparkle(10.5, 13, 8.5)
+
 ICONS = {
-    'bottle': ([f'M7.5 15h9v4a3 3 0 0 1-3 3h-3a3 3 0 0 1-3-3z'],
-               ['M10 6V4.5a2 2 0 0 1 4 0V6', rr(8.5, 6, 7, 2.5, 1), rr(7.5, 8.5, 9, 13.5, 3)], 0,
-               'Straight body, no waist and no tick marks: they closed up when small.'),
-    'breastfeed': ([circle(16, 12.5, 2.5)],
-                   [circle(9, 6.5, 3), circle(16, 12.5, 2.5), 'M3 21c0-5 2.5-8.5 6-8.5', 'M7.5 17c3 3 8.5 3 11.5 0'], 0,
-                   'Same idea, on the grid.'),
-    'pump': (['M13 15h6v3.5a2.5 2.5 0 0 1-2.5 2.5h-1a2.5 2.5 0 0 1-2.5-2.5z'],
-             ['M3 5.5l7 2.5v4l-7 2.5z', 'M10 10h3', rr(13, 6, 6, 15, 2.5)], 0,
-             'The funnel is one plain shape; the bottle is bigger.'),
-    'solids': (['M7.5 11a4.5 4.5 0 0 1 9 0z'],
-               ['M7.5 11a4.5 4.5 0 0 1 9 0', 'M3 11h18a9 9 0 0 1-18 0z', 'M16.5 7.5l4-4'], 0,
-               'A full half-circle bowl, to the keyline.'),
-    'sleep': (['M17.5 3q.5 2.500 3 3q-2.500.5-3 3q-.5-2.500-3-3q2.500-.5 3-3z'],
-              ['M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5a7.5 7.5 0 0 0 11 11z'], 0,
-              'A bigger moon. The sparkle is a filled shape, with no line of its own.'),
-    'nappy': ([rr(5, 8.5, 3, 1.5, .75), rr(16, 8.5, 3, 1.5, .75)],
-              ['M4.5 6.5h15a1.5 1.5 0 0 1 1.5 1.5v2.500c-3.500.5-5.500 2.500-6 5.500a3 3 0 0 1-6 0c-.5-3-2.500-5-6-5.500V8a1.500 1.500 0 0 1 1.500-1.500z'], 0,
-              'The waistband line is gone; the tabs carry it.'),
-    'potty': ([f'M10 13.5a3.5 1.5 0 1 0 7 0a3.5 1.5 0 1 0-7 0z'],
-              [rr(3.5, 18, 17, 3, 1.5), 'M5.5 18c-.5-5 0-8 1-10a3 3 0 0 1 5.500-.5c.5 1.500 1.500 2.500 3 2.500h1.500a2.500 2.500 0 0 1 2.500 2.500V18',
-               'M10 13.5a3.5 1.5 0 1 0 7 0a3.5 1.5 0 1 0-7 0z'], 0,
-              'Fewer curves, on the grid.'),
-    'bath': ([circle(9, 6, 2.5)],
-             ['M3 11.5h18v2a5.500 5.500 0 0 1-5.500 5.500h-7A5.500 5.500 0 0 1 3 13.500z', 'M7 19.500l-1 2M17 19.500l1 2',
-              circle(9, 6, 2.5), circle(15.5, 7, 1.5)], 0,
-             'Two bubbles, not three, with room between.'),
-    'growth': ([rr(4, 18.5, 7, 2.5, 1.25)],
-               [rr(14.5, 3, 5, 18, 1.5), 'M14.5 7.500h2M14.5 12h2.500M14.5 16.500h2', rr(4, 18.5, 7, 2.5, 1.25), 'M7.5 18.500V5.500M4 9l3.500-3.500L11 9'], 0,
-               'Three marks on the ruler, not four.'),
-    'weight': ([rr(9.5, 17.75, 5, 1.5, .75)],
-               ['M3.5 6.500h17c0 4.500-3.500 7-8.500 7s-8.500-2.500-8.500-7z', 'M12 13.500V16', rr(5, 16, 14, 5.5, 2)], 0,
-               'Taller, to fill its space: it was the smallest of the set.'),
-    'temperature': ([circle(12, 17.5, 2)],
-                    ['M9.5 13.500V5a2.500 2.500 0 0 1 5 0v8.500a4.500 4.500 0 1 1-5 0z', 'M12 15.500V8'], 0,
-                    'A wider tube, so the line inside has room.'),
-    'medicine': (['M7 8h5v8H7a4 4 0 0 1 0-8z'],
-                 [rr(3, 8, 18, 8, 4), 'M12 8v8'], -45,
-                 'A capsule in place of the dropper bottle, which looked like the feeding bottle.'),
-    'vaccine': ([rr(9, 12, 6, 5, 1.5)],
-                [rr(9, 7, 6, 10, 1.5), 'M12 7V3M9.5 3h5', 'M12 17v4.500'], 45,
-                'No marks on the barrel.'),
-    'teeth': ([circle(16, 8, 1.25)],
-              ['M7.5 3.500c1.500 0 2.500 1 4.500 1s3-1 4.500-1c2.500 0 4 2 4 4.500 0 3-1.500 4.500-2 7.500-.4 2.500-.8 5-2.300 5s-1.700-2.200-2.200-4c-.3-1.200-1-2-2-2s-1.700.8-2 2c-.5 1.800-.7 4-2.200 4s-1.900-2.500-2.300-5c-.5-3-2-4.500-2-7.500 0-2.500 1.500-4.500 4-4.500z'], 0,
-              'The shine is a dot.'),
-    'milestone': ([star(12, 12.8, 9.6, 4.7)], [star(12, 12.8, 9.6, 4.7)], 0,
-                  'One star, filled; the star inside a star is gone.'),
-    'tummy-time': ([circle(17.5, 9.5, 3)],
-                   [rr(2.5, 13.5, 12, 5.5, 2.75), circle(17.5, 9.5, 3), 'M14 19h7.500'], 0,
-                   'One colour. The blue ground line is gone.'),
-    'play': ([rr(8.5, 3, 7, 7, 2)],
-             [rr(8.5, 3, 7, 7, 2), rr(3, 13.5, 7.5, 7.5, 2), rr(13.5, 13.5, 7.5, 7.5, 2)], 0,
-             'Clear gaps between the blocks.'),
-    'walk': (['M4.5 10.500A6.500 6.500 0 0 1 11 4v6.500z'],
-             ['M4.5 10.500A6.500 6.500 0 0 1 11 4v6.500z', 'M4.5 10.500h12.500c0 3.500-2.800 6-6.300 6s-6.200-2.500-6.200-6z', 'M17 10.500l2-5h2.500',
-              circle(7.5, 20, 1.5), circle(14.5, 20, 1.5)], 0,
-             'A plain hood, with no spokes.'),
-    'note': (['M14 3l4.500 4.500H14z'],
-             ['M7 3h7l4.500 4.500V19a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z', 'M14 3v4.500h4.500', 'M8.5 12.500h6.500M8.5 16.500h4'], 0,
-             'Two lines of writing, not three.'),
-    'photo': ([circle(12, 13.5, 3.5)],
-              [rr(2.5, 7, 19, 13.5, 3), 'M8.5 7l1.500-2.500h4L15.500 7', circle(12, 13.5, 3.5)], 0,
-              'No flash dot.'),
+    'bottle': icon([TEAT, rr(7, 8, 10, 3.5, 1.75), 'M8 11.5C6.5 13 5.5 14.5 5.5 17V19A3 3 0 0 0 8.5 22H15.5A3 3 0 0 0 18.5 19V17C18.5 14.5 17.5 13 16 11.5', 'M9.5 15.5H12.5M9.5 18.5H12.5'],
+                   wattle=[TEAT + 'Z'], sky=[rr(7, 8, 10, 3.5, 1.75)],
+                   note='A teat, a collar and a body with shoulders. Two measure marks; three will not fit.'),
+    'breastfeed': icon([BREAST], tint=[(BREAST, '#F3D9C9'), (circle(16, 15, 2.5), '#C27C66')],
+                       note='A breast, in place of the two heads. In Shell, a brand colour: see the two versions below.'),
+    'pump': icon(['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5', rr(12, 9.5, 6, 4, 1.5), rr(10, 13.5, 10, 8.5, 3)],
+                 sky=['M14 8.5L9.5 2.5C6 1.5 3 4.5 4.5 8L12 10.5Z'], wattle=['M10 17.5H20V19A3 3 0 0 1 17 22H13A3 3 0 0 1 10 19Z'],
+                 note='A cupped funnel, tilted up, sitting on its bottle.'),
+    'solids': icon(['M7 11A5 5 0 0 1 17 11', 'M2.5 11H21.5A9.5 9.5 0 0 1 2.5 11Z', 'M15.5 7.5L20.5 2.5'],
+                   wattle=['M7 11A5 5 0 0 1 17 11Z'], sky=['M2.5 11H21.5A9.5 9.5 0 0 1 2.5 11Z'], note='A filled bowl.'),
+    'sleep': icon([MOON], wattle=[MOON], ink=[sparkle(18, 5.5, 3)], note='A filled moon.'),
+    # The tabs are flat and wide and sit right above the leg openings, so each side reads as one band of the
+    # garment and the four patches are not two eyes and a mouth. The leg openings are big, which narrows the crotch.
+    'nappy': icon([NAPPY, rr(2, 7.5, 5.5, 3.5, 1.75), rr(16.5, 7.5, 5.5, 3.5, 1.75), 'M14 20.5C14 16 18 12 22 12', 'M10 20.5C10 16 6 12 2 12'],
+                  sky=[rr(2, 7.5, 5.5, 3.5, 1.75), rr(16.5, 7.5, 5.5, 3.5, 1.75), 'M22 12C22 17 18.5 20.5 14 20.5C14 16 18 12 22 12Z', 'M2 12C2 17 5.5 20.5 10 20.5C10 16 6 12 2 12Z'],
+                  note='One closed, padded shape. The tabs and the leg openings sit inside it, which is what says nappy and not pants.'),
+    'potty': icon([POTTY, 'M3 14.5C5 16.6 8.5 17.5 12 17.5C15.5 17.5 19 16.6 21 14.5'],
+                  sky=['M3 14.5C5 16.6 8.5 17.5 12 17.5C15.5 17.5 19 16.6 21 14.5C21.7 17 22 18.5 22 19.5A2.5 2.5 0 0 1 19.5 22H4.5A2.5 2.5 0 0 1 2 19.5C2 18.5 2.3 17 3 14.5Z'],
+                  ink=['M8.5 13A3.5 1.5 0 1 0 15.5 13A3.5 1.5 0 1 0 8.5 13Z'],
+                  note='A small backrest, a wide seat with its opening, and a base.'),
+    'bath': icon(['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z', 'M6.5 19.5L5.5 22M17.5 19.5L18.5 22', circle(8.5, 5.5, 2.5), circle(15, 6.5, 1.5)],
+                 sky=['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z'], note='A filled tub and two bubbles.'),
+    'growth': icon([rr(7.5, 2, 9, 20, 2.5), 'M7.5 6.5H10.5M7.5 10.5H12M7.5 14.5H10.5M7.5 18.5H12'], wattle=[rr(7.5, 2, 9, 20, 2.5)],
+                   note='A height chart by itself. The arrow is gone.'),
+    'weight': icon(['M3 6H21C21 10.5 17.5 13.5 12 13.5C6.5 13.5 3 10.5 3 6Z', 'M12 13.5V16', rr(5, 16, 14, 6, 2.5)],
+                   sky=['M3 6H21C21 10.5 17.5 13.5 12 13.5C6.5 13.5 3 10.5 3 6Z'], wattle=[rr(9.5, 18.25, 5, 1.5, .75)], note='A baby scale: tray, base and readout.'),
+    'temperature': icon(['M9 13V5A3 3 0 0 1 15 5V13A5 5 0 1 1 9 13Z'], wattle=[circle(12, 17, 2.5), rr(11, 7.5, 2, 9, 1)],
+                        note='The reading is a filled column, not a second line.'),
+    'medicine': icon([rr(2.5, 8, 19, 8, 4), 'M12 8V16'], wattle=['M6.5 8H12V16H6.5A4 4 0 0 1 6.5 8Z'], turn=-45, note='A capsule.'),
+    'vaccine': icon([rr(9, 7.5, 6, 9.5, 1.5), 'M12 7.5V3.5M9.5 3.5H14.5', 'M12 17V21.5'], wattle=[rr(9, 11.5, 6, 5.5, 1.5)], turn=45, note='A syringe, with nothing on the barrel.'),
+    'teeth': icon([TOOTH], wattle=[circle(16.5, 8, 1.5)], note='Wider roots, so they do not close up.'),
+    'milestone': icon([BIG_SPARKLE], wattle=[BIG_SPARKLE], ink=[sparkle(19, 5.5, 3)],
+                      note='Sparkles, not a five-point star: the brand\'s own star is the four-point one.'),
+    'tummy-time': icon([rr(2.5, 13, 12.5, 6, 3), circle(17.5, 9, 3.5), 'M14 19H21.5'], wattle=[circle(17.5, 9, 3.5)], note='As before, heavier.'),
+    'play': icon([rr(8, 2.5, 8, 8, 2.5), rr(2.5, 14, 7.5, 7.5, 2.5), rr(14, 14, 7.5, 7.5, 2.5)], wattle=[rr(8, 2.5, 8, 8, 2.5)], sky=[rr(14, 14, 7.5, 7.5, 2.5)], note='Three blocks, two of them coloured.'),
+    'walk': icon(['M3.5 10.5A6.5 6.5 0 0 1 10 4V10.5Z', 'M3.5 10.5H16.5C16.5 13.5 13.6 15.5 10 15.5C6.4 15.5 3.5 13.5 3.5 10.5Z', 'M16.5 10.5L18.5 5H21.5', circle(6.5, 20, 1.5), circle(13.5, 20, 1.5)],
+                 wattle=['M3.5 10.5A6.5 6.5 0 0 1 10 4V10.5Z'], sky=['M3.5 10.5H16.5C16.5 13.5 13.6 15.5 10 15.5C6.4 15.5 3.5 13.5 3.5 10.5Z'], note='A pram with a hood.'),
+    'note': icon(['M7 3H14L18.5 7.5V19A2 2 0 0 1 16.5 21H7A2 2 0 0 1 5 19V5A2 2 0 0 1 7 3Z', 'M14 3V7.5H18.5', 'M8.5 12.5H15M8.5 16.5H12.5'], wattle=['M14 3L18.5 7.5H14Z'], note='As before, heavier.'),
+    'photo': icon([rr(2, 6.5, 20, 14.5, 3.5), 'M8 6.5L9.5 3.5H14.5L16 6.5', circle(12, 13.5, 3.5)], wattle=[circle(12, 13.5, 3.5)], note='As before, heavier.'),
+    # New, for the kinds of nappy. Not in the app.
+    'poo': icon([POO, 'M8.5 10H12M6.2 15.5H11'], tint=[(POO, '#C99668')], note='New. The one icon with a colour of its own.'),
+    'wee': icon([DROP], wattle=[DROP], note='New. A drop.'),
 }
+NEW = ['poo', 'wee']
 
 
-def svg(name, ink=INK, accent=ACCENT, plain=False, size=24):
-    fills, lines, turn, _ = ICONS[name]
-    inner = ''.join(f'<path d="{d}" fill="{"#000000" if plain else accent}"{" fill-opacity=" + chr(34) + "0.16" + chr(34) if plain else ""}/>' for d in fills)
+def svg(name, ink=INK, plain=False, size=24, spec=None):
+    spec = spec or ICONS[name]
+    def fill(d, colour, solid=False):
+        if plain: return f'<path d="{d}" fill="#000000"{"" if solid else " fill-opacity=" + chr(34) + "0.16" + chr(34)}/>'
+        return f'<path d="{d}" fill="{colour}"/>'
+    inner = ''.join(fill(d, SKY) for d in spec['sky']) + ''.join(fill(d, WATTLE) for d in spec['wattle']) + ''.join(fill(d, c) for d, c in spec['tint'][:1])
+    # A second tint lies on the first (the areola on the breast): in one colour it is a stronger tint, so it still shows.
+    inner += ''.join(fill(d, c).replace('0.16', '0.4') for d, c in spec['tint'][1:])
     stroke = '#000000' if plain else ink
-    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{W}" stroke-linecap="round" stroke-linejoin="round"/>' for d in lines)
-    if turn: inner = f'<g transform="rotate({turn} 12 12)">{inner}</g>'
+    inner += ''.join(f'<path d="{d}" fill="none" stroke="{stroke}" stroke-width="{W}" stroke-linecap="round" stroke-linejoin="round"/>' for d in spec['lines'])
+    inner += ''.join(fill(d, ink, solid=True) for d in spec['ink'])
+    if spec['turn']: inner = f'<g transform="rotate({spec["turn"]} 12 12)">{inner}</g>'
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="{size}" height="{size}">{inner}</svg>'
 
 
-def before(name):
-    path = os.path.join(ASSETS, f'icon-{name}.imageset', f'icon-{name}.svg')
-    text = open(path).read()
+def inner_of(text):
     return text[text.index('>') + 1:text.rindex('</svg>')]
 
 
+def from_file(path):
+    return inner_of(open(path).read()) if os.path.exists(path) else ''
+
+
+# The breast again with no skin colour, to compare. Shell is a brand colour, and one skin tone.
+PLAIN_BREAST = icon([BREAST], wattle=[circle(16, 15, 2.5)], ink=[circle(16, 15, 1)])
+
+
 def main():
-    os.makedirs(os.path.join(OUT, 'after'), exist_ok=True)
+    os.makedirs(os.path.join(OUT, 'v2'), exist_ok=True)
     for name in ICONS:
-        with open(os.path.join(OUT, 'after', f'icon-{name}.svg'), 'w') as out: out.write(svg(name))
+        with open(os.path.join(OUT, 'v2', f'icon-{name}.svg'), 'w') as out: out.write(svg(name))
     if '--install' in sys.argv:
         for name in ICONS:
+            if name in NEW: continue
             folder = os.path.join(ASSETS, f'icon-{name}.imageset')
             open(os.path.join(folder, f'icon-{name}.svg'), 'w').write(svg(name))
             open(os.path.join(folder, f'icon-{name}-dark.svg'), 'w').write(svg(name, ink=DARK))
             open(os.path.join(ASSETS, f'icon-{name}-plain.imageset', f'icon-{name}-plain.svg'), 'w').write(svg(name, plain=True))
-        print('installed', len(ICONS), 'icons')
+        print('installed', len(ICONS) - len(NEW), 'icons')
     grid = ''.join(f'<path d="M{i} 0V24M0 {i}H24" stroke="#C9583F" stroke-width="0.03" opacity=".45"/>' for i in range(25))
     keys = ('<rect x="1" y="1" width="22" height="22" fill="none" stroke="#2A62B8" stroke-width="0.06" stroke-dasharray=".3 .3"/>'
             '<circle cx="12" cy="12" r="10" fill="none" stroke="#2A62B8" stroke-width="0.06"/><rect x="3" y="3" width="18" height="18" rx="2" fill="none" stroke="#2A62B8" stroke-width="0.06"/>'
             '<rect x="4" y="2" width="16" height="20" rx="2" fill="none" stroke="#2A62B8" stroke-width="0.06"/><rect x="2" y="4" width="20" height="16" rx="2" fill="none" stroke="#2A62B8" stroke-width="0.06"/>')
-    def inner(name): text = svg(name); return text[text.index('>') + 1:text.rindex('</svg>')]
+    sizes = lambda art: ''.join(f'<svg viewBox="0 0 24 24" width="{s}" height="{s}">{art}</svg>' for s in (32, 24, 17))
     cells = ''
-    for name, (_, _, _, note) in ICONS.items():
-        was, now = before(name), inner(name)
-        small = lambda art: ''.join(f'<svg viewBox="0 0 24 24" width="{s}" height="{s}">{art}</svg>' for s in (32, 24, 17))
-        cells += (f'<div class="c"><div class="pair"><svg viewBox="0 0 24 24" width="92" height="92" class="old">{was}</svg>'
-                  f'<svg viewBox="0 0 24 24" width="132" height="132" class="new">{grid}{keys}{now}</svg></div>'
-                  f'<div class="r"><span class="lab">was</span>{small(was)}</div><div class="r"><span class="lab">now</span>{small(now)}</div>'
-                  f'<b>{name.replace("-", " ").capitalize()}</b><p>{note}</p></div>')
-    row = lambda art, bg, fg: ''.join(f'<span class="chip" style="background:{bg}">{art(n, fg)}</span>' for n in ICONS)
-    strip = (f'<div class="strip">{row(lambda n, fg: svg(n, size=28), "#EAE2D2", INK)}</div>'
-             f'<div class="strip" style="background:#14110F">{row(lambda n, fg: svg(n, ink=DARK, size=28), "#3B332D", DARK)}</div>'
-             f'<div class="strip">{"".join(svg(n, size=17) for n in ICONS)}</div>')
-    html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Puggle icons, refined</title><style>
-body{{margin:0;padding:30px;background:#EFE7D4;font:13px/1.35 -apple-system,system-ui,sans-serif;color:#3A2A20;width:1980px}}
-h1{{margin:0 0 4px;font-size:28px;letter-spacing:-.02em}}.lede{{margin:0 0 18px;color:#6B5E52;font-size:16px;max-width:130ch}}
-.g{{display:flex;flex-wrap:wrap;gap:20px 14px}}.c{{width:238px}}.pair{{display:flex;align-items:flex-end;gap:8px}}
-.old{{background:#F8F2E4;border-radius:10px;opacity:.75}}.new{{background:#FBF6E9;border-radius:12px}}
-.r{{display:flex;align-items:center;gap:10px;margin-top:6px}}.lab{{width:26px;color:#6B5E52;font-size:11px}}
+    for name, spec in ICONS.items():
+        now = inner_of(svg(name))
+        app = from_file(os.path.join(ASSETS, f'icon-{name}.imageset', f'icon-{name}.svg'))
+        first = from_file(os.path.join(OUT, 'v1', f'icon-{name}.svg'))
+        rows = ''.join(f'<div class="r"><span class="lab">{label}</span>{sizes(art)}</div>' for label, art in (('in the app', app), ('first pass', first), ('now', now)) if art)
+        cells += (f'<div class="c"><svg viewBox="0 0 24 24" width="150" height="150" class="new">{grid}{keys}{now}</svg>{rows}'
+                  f'<b>{name.replace("-", " ").capitalize()}</b><p>{spec["note"]}</p></div>')
+    chip = lambda art, bg: f'<span class="chip" style="background:{bg}">{art}</span>'
+    light = ''.join(chip(svg(n, size=30), '#FBF6E9') for n in ICONS)
+    dark = ''.join(chip(svg(n, ink=DARK, size=30), '#2A2420') for n in ICONS)
+    mono = ''.join(chip(f'<span style="color:#3A2A20">{svg(n, plain=True, size=22).replace("#000000", "#3A2A20")}</span>', '#EAE2D2') for n in ICONS)
+    tiny = ''.join(svg(n, size=17) for n in ICONS)
+    tile = lambda n, label, sub: (f'<div class="tile">{svg(n, size=34)}<b>{label}</b><span>{sub}</span></div>')
+    listrow = lambda n, what, when: (f'<div class="lr"><span class="ic">{svg(n, plain=True, size=20).replace("#000000", "#3A2A20")}</span><b>{what}</b><span>{when}</span></div>')
+    context = (f'<div class="ctx"><div class="tiles">{tile("bottle", "Feeding", "14:52")}{tile("nappy", "Nappy", "Ollie 16:00")}{tile("potty", "Potty", "14:40")}'
+               f'{tile("breastfeed", "Breastfeed", "12:10")}{tile("sleep", "Sleep", "1h 59m")}</div>'
+               f'<div class="list">{listrow("nappy", "Nappy · wet", "16:00")}{listrow("breastfeed", "Breastfeed · 12m", "12:10")}{listrow("bottle", "Bottle · 180 ml", "14:52")}{listrow("potty", "Potty · wee", "14:40")}</div></div>')
+    big = lambda art, label: f'<div class="bigc"><svg viewBox="0 0 24 24" width="170" height="170" class="new">{art}</svg><span>{label}</span></div>'
+    close = (f'<div class="closeups">{big(from_file(os.path.join(OUT, "v1", "icon-nappy.svg")), "Nappy, first pass: the leg cut-outs shape the outline, like pants")}'
+             f'{big(inner_of(svg("nappy")), "Nappy now: a closed padded shape, tabs and leg openings inside")}'
+             f'{big(inner_of(svg("breastfeed")), "Breast, in Shell (suggested): a brand colour, though one skin tone")}{big(inner_of(svg("x", spec=PLAIN_BREAST)), "Breast, with no skin colour: harder to read")}'
+             f'{big(inner_of(svg("poo")), "Poo (new)")}{big(inner_of(svg("wee")), "Wee (new)")}</div>')
+    html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Puggle icons, second pass</title><style>
+body{{margin:0;padding:30px;background:#EFE7D4;font:13px/1.35 -apple-system,system-ui,sans-serif;color:#3A2A20;width:2010px}}
+h1{{margin:0 0 4px;font-size:28px;letter-spacing:-.02em}}.lede{{margin:0 0 18px;color:#6B5E52;font-size:16px;max-width:150ch}}
+h2{{font-size:18px;margin:28px 0 8px}}
+.g{{display:flex;flex-wrap:wrap;gap:22px 14px}}.c{{width:168px}}.new{{background:#FBF6E9;border-radius:14px}}
+.r{{display:flex;align-items:center;gap:8px;margin-top:5px;height:34px}}.lab{{width:54px;color:#6B5E52;font-size:11px}}
 b{{display:block;margin-top:6px;font-size:14px}}p{{margin:2px 0 0;color:#6B5E52}}
-.strip{{display:flex;gap:8px;align-items:center;padding:12px;border-radius:14px;margin-top:12px;flex-wrap:wrap}}
-.chip{{width:48px;height:48px;border-radius:14px;display:grid;place-items:center}}h2{{font-size:18px;margin:26px 0 4px}}
-</style></head><body><h1>Puggle icons, refined</h1>
-<p class="lede">All twenty redrawn to one set of rules. For each: the icon as it was, the new one on the grid with its keylines, then both at 32, 24 and 17 points.</p>
-<div class="g">{cells}</div><h2>The set together: in light, in dark, and at 17 points</h2>{strip}</body></html>'''
+.strip{{display:flex;gap:8px;align-items:center;padding:12px;border-radius:16px;margin-top:10px;flex-wrap:wrap}}
+.chip{{width:50px;height:50px;border-radius:14px;display:grid;place-items:center}}
+.closeups{{display:flex;gap:18px}}.bigc{{width:170px}}.bigc span{{display:block;margin-top:6px;color:#6B5E52}}
+.ctx{{display:flex;gap:26px;align-items:flex-start}}.tiles{{display:flex;gap:10px;background:#F2ECDD;padding:14px;border-radius:22px}}
+.tile{{width:104px;height:104px;border-radius:20px;background:#FBF6E9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}}
+.tile b{{margin:4px 0 0;font-size:14px}}.tile span{{color:#6B5E52;font-size:12px}}
+.list{{background:#FBF6E9;border-radius:20px;padding:4px 16px;width:330px}}.lr{{display:flex;align-items:center;gap:12px;padding:9px 0}}.lr+.lr{{border-top:1px solid #DDD2BC}}
+.lr .ic{{width:36px;height:36px;border-radius:50%;background:#EAE2D2;display:grid;place-items:center}}.lr b{{margin:0;flex:1;font-size:14px}}.lr span{{color:#6B5E52}}
+</style></head><body><h1>Puggle icons, second pass</h1>
+<p class="lede">A heavier line, fuller shapes, and two fills: Wattle for what the icon is about, Sky for what holds it. Each is shown on the grid, then at 32, 24 and 17 points beside the icon in the app today and the first pass.</p>
+<div class="g">{cells}</div>
+<h2>The ones that changed most</h2>{close}
+<h2>The set together: on paper, in dark, in one colour for lists, and at 17 points</h2>
+<div class="strip" style="background:#F2ECDD">{light}</div><div class="strip" style="background:#14110F">{dark}</div>
+<div class="strip" style="background:#FBF6E9">{mono}</div><div class="strip">{tiny}</div>
+<h2>In place: tiles on Today, and a list in History</h2>{context}</body></html>'''
     with open(os.path.join(OUT, 'refined.html'), 'w') as out: out.write(html)
     print(len(ICONS), 'icons')
 
