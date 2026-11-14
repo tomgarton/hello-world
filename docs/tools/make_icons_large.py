@@ -112,7 +112,14 @@ LARGE = {
     'tummy-time': (drawn([circle(30, 17, 9), 'M21.6 13.8C27 15 33 13.5 36 10.3', BODY],
                          fine=[eye(31.5, 19.5), 'M24 18.5q-1.8 1.7 0 3.4', 'M27 36.5C27 33.2 29 31 31.5 30.4'],
                          sky=[BODY + 'A9 9 0 0 1 22.5 22Z'], wattle=[circle(30, 17, 9)]), True),
-    'play': (doubled('play'), False),
+    # Three blocks with depth, as in ChatGPT's sheet: each shows its front, its top and its right side. The top
+    # block sits across the two below. Lines hidden behind a nearer block are left out by hand.
+    'play': (drawn([rr(4, 26, 16, 16, 3), rr(20, 26, 16, 16, 3), rr(12, 8, 16, 16, 3),
+                    'M5 26.8L8.6 23.2C9.2 22.4 10 22 11 22H12', 'M20 26L22.5 24',
+                    'M29 22H38.5C40 22 41 23 41 24.5V35.5C41 36.5 40.6 37.3 40 37.9L35.2 41.2', 'M35.2 26.8L40.2 22.7',
+                    'M13 8.8L16.6 5.2C17.2 4.4 18 4 19 4H30.5C32 4 33 5 33 6.5V17.5C33 18.5 32.6 19.3 32 19.9L27.2 23.2', 'M27.2 8.8L32.2 4.7',
+                    sparkle(20, 16, 4.6), 'M12 30.8L16 37.5H8Z', circle(28, 34, 3.6)],
+                   wattle=[rr(12, 8, 16, 16, 3)], sky=[rr(20, 26, 16, 16, 3)]), True),
     'walk': (doubled('walk', fine=['M20 21L9 16.5']), False),
     'note': (doubled('note'), False),
     'photo': (doubled('photo'), False),
