@@ -150,7 +150,7 @@ parts = []
 
 # Cover
 parts.append(f'''<section class="cover">
-{shape('quatrefoil', WARATAH, 92, -58, 210, 14)}{shape('pill', PAPER, -62, 150, 190, -28)}{shape('blossom', HARBOUR, 118, 150, 130, 0)}{shape('pebble', GUM, -30, 236, 96, 8)}
+{shape('quatrefoil', WARATAH, 92, -58, 210, 14)}{shape('pill', PAPER, -62, 150, 190, -28)}{shape('blossom', SKY, 118, 150, 130, 0)}{shape('pebble', GUM, -30, 236, 96, 8)}
 <img class="hero" src="img/hero-waving.png">
 <div class="rail">Working document · 14 November 2026</div>
 <div class="word">puggle</div>
