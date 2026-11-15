@@ -118,11 +118,28 @@ def strip(section, number, title, note):
             f'<div style="font-size: 13px; font-weight: 500; color: #5A4636">{note}</div></div>')
 
 
+def real_height(inner, height):
+    """A board's content can run past the height the canvas gives it. This asks Chrome how tall it really is."""
+    work = tempfile.mkdtemp()
+    src = os.path.join(work, 'measure.html')
+    open(src, 'w').write(f'<!doctype html><html><head><meta charset="utf-8">{FONT}<style>body{{margin:0}}</style></head><body><div id="b" style="width: 1080px">{inner}</div>'
+                         '<script>document.fonts.ready.then(function () { var root = document.getElementById("b").firstElementChild;'
+                         ' document.title = "tall:" + Math.ceil(root.scrollHeight); });</script></body></html>')
+    dom = subprocess.run([CHROME, '--headless', '--disable-gpu', '--virtual-time-budget=4000', '--dump-dom', 'file://' + src], capture_output=True, text=True).stdout
+    found = re.search(r'<title>tall:(\d+)</title>', dom)
+    return max(height, int(found.group(1))) if found else height
+
+
 def board(name, section, number, note, boards):
     """One board under its strip, and how tall the two are. A board too tall for a page is drawn smaller."""
     text = open(os.path.join(CANVAS, 'project', f'{name}.dc.html')).read()
     inner = re.sub(r'<helmet>.*?</helmet>', '', text[text.index('<x-dc>') + 6:text.index('</x-dc>')], flags=re.S)
-    info = boards[f'{name}.dc.html']
+    info = dict(boards[f'{name}.dc.html'])
+    tall = real_height(inner, info['h'])
+    if tall > info['h']:
+        # Let the board's own frame grow to hold what is in it.
+        inner = inner.replace(f'height: {info["h"]}px', f'height: {tall}px', 1)
+        info['h'] = tall
     room = PAGE_H - 63
     if info['h'] > room:
         k = room / info['h']
@@ -194,7 +211,7 @@ def refresh():
     for name, *_ in PICTURES:
         src = elsewhere.get(name, os.path.join(box, 'Documents', name + '.png'))
         assert os.path.exists(src), src
-        subprocess.run(['sips', '--resampleWidth', '2160', '-s', 'format', 'jpeg', '-s', 'formatOptions', '86', src, '--out', os.path.join(NOW, name + '.jpg')], capture_output=True)
+        subprocess.run(['sips', '--resampleWidth', '1500', '-s', 'format', 'jpeg', '-s', 'formatOptions', '74', src, '--out', os.path.join(NOW, name + '.jpg')], capture_output=True)
 
 
 def picture(name, title, note, most):
