@@ -1698,3 +1698,30 @@ Apple's Draw on the sleep button; the two ways to answer a save), `draw-every-ic
 `draw-guides.png`: every icon as its picture, drawn whole, at 25, 50 and 75 per cent, and with its strokes
 marked as Apple marks guide points (a ring where a stroke starts, a dot where it ends, a colour for each
 group). Made from "-debugFx 1", "-debugFx 2" and "-debugDrawSheet 0" (and 1).
+
+## Breastfeeding icon, after the International Breastfeeding Symbol (15 November 2026)
+
+Tom asked whether the International Breastfeeding Symbol could be an alternative for breastfeeding, drawn to
+match the set. The symbol is by Matt Daigle (2006) and its maker gave it to the public domain, so it can be
+used, redrawn and sold in an app.
+
+**What was drawn.** Four versions, `SYMBOL` in `docs/tools/make_icons.py`, on the 32 canvas at the set's
+weight with round ends and one colour:
+
+- **Symbol, in line.** The parent's head, a closed body, and a forearm under the baby. The baby's head is a
+  plain disc of colour with no outline.
+- **Symbol, in colour.** The same, with the parent in colour and the baby's head cut out. Nearest the symbol.
+- **Symbol, baby outlined.** The baby's head drawn as the parent's is. Kept, not recommended: with colour
+  inside an outline it can read as an eye when small.
+- **Symbol, one stroke.** The body as one stroke that hugs the baby, open where the hands pass.
+
+Under 24 points the forearm is left out. None carries a breast or a skin colour, so the skin tone setting
+has nothing to do for these.
+
+**Not decided.** Which version, and whether it replaces the current drawing or sits beside it as a choice.
+Nothing is installed in the app. The figure is narrower than the other icons, so on a tile it looks a little
+smaller than the bottle beside it; if one is chosen it is worth drawing it a touch larger.
+
+**To look at.** `docs/previews/icons/breastfeeding-symbol.png` (each beside the bottle, nappy, sleep and
+solids icons on tiles, in light and dark) and `breastfeeding.png` (all the choices). The sheet is made by
+`docs/tools/make_breastfeed_symbol_sheet.py`.

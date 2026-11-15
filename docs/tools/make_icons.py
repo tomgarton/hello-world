@@ -324,6 +324,46 @@ ALTERNATES = {
 }
 
 
+# After the International Breastfeeding Symbol (Matt Daigle, 2006, given to the public domain by its maker): a
+# round head above a body whose arms wrap a baby, the baby's head a circle at the chest. Tom asked for it as
+# another choice, drawn to sit with the rest of the set (15 November 2026). The symbol is one solid shape with
+# the baby cut out of it; here it is the set's line with one colour. Three drawings, on the same canvas and
+# at the same weight as the other choices:
+#   line    a closed body, and one line for the forearm: from the crook of the arm, under the baby's head, down
+#           to the bottom edge where the hand ends. The baby's head is in colour, as in the other choices.
+#   colour  the same drawing with the parent in colour and the baby's head left clear, which is nearest the
+#           symbol itself: one figure, the baby cut out of it.
+#   stroke  the body as one stroke that goes up one arm, across the shoulders and down the other, open where
+#           the hands pass each other.
+# The baby's head sits at the chest and to one side, clear of the shoulders, and rests on the forearm. A circle
+# in the middle of a closed body would read as a baby inside it.
+SYMBOL_HEAD = circle(15.6, 7.3, 4.3)
+SYMBOL_BODY = ('M13 14.9H18.6C22.2 14.9 25 18.4 25 21.6C25 25.4 21.8 28.2 17.6 28.2H14.2C10 28.2 7.2 26 7.2 22.4'
+               'C7.2 19.2 9.6 14.9 13 14.9Z')
+SYMBOL_BUB = circle(18.4, 20.8, 2.8)
+SYMBOL_ARM = 'M10.4 23.2C12.4 24.9 15 25.5 17.6 25.5C18.7 25.5 19 26.4 18.7 27.3'
+SYMBOL_HUG = ('M16.6 28.2C13.2 28.6 7.2 27.6 7.2 22.4C7.2 19.2 9.6 14.9 13 14.9H18.6C22.4 14.9 25 18.4 25 21.4'
+              'C25 24.4 23.4 26.8 20.8 26.6')
+SYMBOL_HUG_BUB = circle(18.7, 20.6, 2.8)
+# Each: the drawing for tiles, the simpler one for lists (no forearm line, which closes up at that weight), a
+# name and a note.
+SYMBOL_DISC = circle(18.5, 20.5, 3.1)   # the baby's head with no outline: an outlined one with colour inside reads as an eye
+SYMBOL = {
+    'symbol': (icon([SYMBOL_HEAD, SYMBOL_BODY, SYMBOL_ARM], box=32, weight=BIG, wattle=[SYMBOL_DISC]),
+               icon([SYMBOL_HEAD, SYMBOL_BODY], box=32, weight=SMALL, wattle=[SYMBOL_DISC]),
+               'Symbol, in line', 'A closed body with the forearm under the baby. The baby\u2019s head is the one spot of colour, with no outline. No breast and no skin colour.'),
+    'symbol-colour': (icon([SYMBOL_HEAD, SYMBOL_BODY, SYMBOL_ARM], box=32, weight=BIG, wattle=[SYMBOL_HEAD, SYMBOL_BODY + SYMBOL_DISC]),
+                      icon([SYMBOL_HEAD, SYMBOL_BODY], box=32, weight=SMALL, wattle=[SYMBOL_HEAD, SYMBOL_BODY + SYMBOL_DISC]),
+                      'Symbol, in colour', 'The same drawing with the parent in colour and the baby\u2019s head cut out. Nearest the symbol itself, which is one figure with the baby cut out.'),
+    'symbol-ring': (icon([SYMBOL_HEAD, SYMBOL_BODY, SYMBOL_BUB, SYMBOL_ARM], box=32, weight=BIG, wattle=[SYMBOL_BUB]),
+                    icon([SYMBOL_HEAD, SYMBOL_BODY, SYMBOL_BUB], box=32, weight=SMALL, wattle=[SYMBOL_BUB]),
+                    'Symbol, baby outlined', 'The baby\u2019s head drawn as the parent\u2019s is, with colour inside. Small, it can read as an eye.'),
+    'symbol-stroke': (icon([SYMBOL_HEAD, SYMBOL_HUG, SYMBOL_HUG_BUB], fine=['M14.4 23.9C13.2 24.4 12 24.5 10.9 24.1'], box=32, weight=BIG, wattle=[SYMBOL_HUG_BUB]),
+                      icon([SYMBOL_HEAD, SYMBOL_HUG, SYMBOL_HUG_BUB], box=32, weight=SMALL, wattle=[SYMBOL_HUG_BUB]),
+                      'Symbol, one stroke', 'The body is one stroke: up one arm, across the shoulders and down the other, open where the hands pass.'),
+}
+
+
 def small(spec):
     """The drawing for lists and anything under 24 points: no eye, ear or fold, and a heavier line."""
     return spec if spec['box'] == 24 else dict(spec, fine=[], weight=SMALL)
@@ -343,6 +383,16 @@ def alternates():
                   f'<span class="dk">{art(spec, ink=DARK, size=30)}</span><span class="pl">{plain}</span></div>'
                   f'<div class="tiles"><div class="tile">{art(spec, size=40)}<b>Breastfeed</b><span>12:10</span></div></div>'
                   f'<h3>{title}</h3><p>{text}</p></div>')
+    after = ''
+    for key, (spec, simple, title, text) in SYMBOL.items():
+        open(os.path.join(folder, f'icon-breastfeed-{key}.svg'), 'w').write(art(spec))
+        open(os.path.join(folder, f'icon-breastfeed-{key}-small.svg'), 'w').write(art(simple))
+        row = art(spec, size=32) + ''.join(art(simple, size=s) for s in (24, 17))
+        plain = art(simple, plain=True, size=22).replace('#000000', '#3A2A20')
+        after += (f'<div class="c"><div class="big">{art(spec, size=190)}</div><div class="r">{row}'
+                  f'<span class="dk">{art(spec, ink=DARK, size=30)}</span><span class="pl">{plain}</span></div>'
+                  f'<div class="tiles"><div class="tile">{art(spec, size=40)}<b>Breastfeed</b><span>12:10</span></div></div>'
+                  f'<h3>{title}</h3><p>{text}</p></div>')
     tones = ''.join(f'<div class="t">{art(breast(a, b), size=84)}{art(nursing(a, b), size=84)}</div>' for a, b in TONES)
     html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Breastfeeding icon, the choices</title><style>
 body{{margin:0;padding:34px;background:#EFE7D4;font:15px/1.4 -apple-system,system-ui,sans-serif;color:#3A2A20;width:1180px}}
@@ -358,6 +408,8 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
 <p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
 <div class="g">{cells}</div>
+<h2>After the International Breastfeeding Symbol</h2><p>Four more, added 15 November 2026. The symbol (Matt Daigle, 2006) was given to the public domain by its maker. These are drawn for this set: its line, its weight and one colour.</p>
+<div class="g" style="margin-top:14px">{after}</div>
 <h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
     open(os.path.join(OUT, 'breastfeeding.html'), 'w').write(html)
 
