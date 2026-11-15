@@ -173,6 +173,27 @@ final class SyncWatch: ObservableObject {
     private(set) var last: [String: Last] = [:]
     private(set) var failures = 0
 
+    /// An iCloud error in full: its code, and when it covers many records, how many failed each way
+    /// and iCloud's own words for the first of each. Record names are random ids, so nothing personal is here.
+    nonisolated static func explain(_ error: Error, depth: Int = 0) -> String {
+        let detail = error as NSError
+        var text = "\(detail.domain) \(detail.code): \(detail.localizedDescription)"
+        if let server = detail.userInfo["ServerErrorDescription"] as? String { text += " Server: \(server)" }
+        else if let debug = detail.userInfo[NSDebugDescriptionErrorKey] as? String { text += " (\(debug))" }
+        if let items = detail.userInfo[CKPartialErrorsByItemIDKey] as? NSDictionary, depth == 0 {
+            var groups: [String: (count: Int, first: String)] = [:]
+            for (_, value) in items {
+                guard let item = value as? NSError else { continue }
+                let key = "\(item.domain) \(item.code)"
+                let words = (item.userInfo["ServerErrorDescription"] as? String) ?? (item.userInfo[NSDebugDescriptionErrorKey] as? String) ?? item.localizedDescription
+                groups[key] = ((groups[key]?.count ?? 0) + 1, groups[key]?.first ?? words)
+            }
+            text += " Items: " + groups.sorted { $0.key < $1.key }.map { "\($0.value.count) × \($0.key) [\($0.value.first)]" }.joined(separator: "; ")
+        }
+        if let under = detail.userInfo[NSUnderlyingErrorKey] as? NSError, depth < 2 { text += " Under: " + explain(under, depth: depth + 1) }
+        return text
+    }
+
     private var finishedOnce = false
     private var running = Set<UUID>()
     private var observer: NSObjectProtocol?
@@ -188,18 +209,13 @@ final class SyncWatch: ObservableObject {
             if let ended = event.endDate {
                 let what = ["Setup", "Fetch", "Send"][min(event.type.rawValue, 2)]
                 let whose = event.storeIdentifier == persistence?.sharedStore?.identifier ? "shared with you" : "your own"
-                let problem = event.error.map { error -> String in
-                    let detail = error as NSError
-                    // The useful part is often one level down: which record, and why iCloud refused it.
-                    let inner = (detail.userInfo[NSUnderlyingErrorKey] as? NSError).map { " (\($0.domain) \($0.code))" } ?? ""
-                    let partial = (detail.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Error])?.values.first.map { e -> String in
-                        let n = e as NSError
-                        return " First: \(n.domain) \(n.code): \(n.localizedDescription)"
-                    } ?? ""
-                    return "\(detail.domain) \(detail.code)\(inner): \(detail.localizedDescription)\(partial)"
-                }
+                let problem = event.error.map { Self.explain($0) }
                 self.last["\(what), \(whose)"] = Last(ended: ended, ok: event.succeeded, error: problem)
-                if !event.succeeded { self.failures += 1 }
+                if !event.succeeded {
+                    self.failures += 1
+                    // Kept apart, so a later try that works does not hide why this one did not.
+                    self.last["\(what), \(whose), last failure"] = Last(ended: ended, ok: false, error: problem)
+                }
             }
             guard event.type == .import,
                   event.storeIdentifier == persistence?.sharedStore?.identifier else { return }
