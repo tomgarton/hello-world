@@ -1421,3 +1421,9 @@ Still looking through every entry, on their own screens: History, Insights, Patt
 Nappy and Sleep buttons as tall pills with only an icon, while the row with "Nothing yet" was fine. A time
 that counts by itself asks for all the width there is, and the words had first call on the row. The buttons
 now always keep their own size and the words take what is left. Not seen on a phone since.
+
+**Family snapshot widget, even gaps (15 November 2026).** Tom: the facts in a row were unevenly spaced. Each
+fact had a third of the row, so the gap after a short time ("46m") was wider than after a long one
+("3h 4m"). Each fact now takes only the room its words need, and the gap between facts is the same (16
+points), starting in line with "Nothing logged yet today". The same in the one-child layout. A counting time
+is sized by a still copy of its words (`SinceValue`). Not seen on a phone since.

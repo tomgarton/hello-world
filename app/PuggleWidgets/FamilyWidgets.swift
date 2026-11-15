@@ -51,6 +51,28 @@ private func sinceText(_ date: Date, now: Date) -> Text {
     return Text(minutes >= 60 ? "\(minutes / 60)h \(minutes % 60)m" : "\(minutes)m")
 }
 
+/// A time that counts by itself, taking only the room its words need. Such a time asks for all the width
+/// there is, which pushes whatever is beside it about. Here a still copy of the words sets the size (the
+/// longer of how it reads now and how it will read by the next refresh), and the counting one is drawn over it.
+private struct SinceValue: View {
+    let since: Date
+    let now: Date
+
+    private func words(at date: Date) -> String {
+        let minutes = max(Int(date.timeIntervalSince(since) / 60), 0)
+        return minutes >= 60 ? "\(minutes / 60)h \(minutes % 60)m" : "\(minutes)m"
+    }
+
+    var body: some View {
+        let (first, later) = (words(at: now), words(at: now.addingTimeInterval(15 * 60)))
+        Text(later.count > first.count ? later : first)
+            .lineLimit(1)
+            .fixedSize()
+            .hidden()
+            .overlay(alignment: .leading) { sinceText(since, now: now).lineLimit(1).fixedSize() }
+    }
+}
+
 /// One thing worth knowing about a child, as on the Lock Screen card: a word, and how long since.
 private struct Fact: Identifiable {
     let title: String
@@ -88,17 +110,16 @@ private struct FactView: View {
         }
         .font((large ? Font.footnote : .caption2).weight(.medium))
         .foregroundStyle(.secondary)
-        let value = sinceText(fact.since, now: now)
+        let value = SinceValue(since: fact.since, now: now)
             .font((large ? Font.title3 : .subheadline).weight(.semibold))
             .monospacedDigit()
-            .lineLimit(1)
-            .minimumScaleFactor(0.75)
         Group {
             if beside {
-                HStack(spacing: 6) { label; Spacer(minLength: 4); value.multilineTextAlignment(.trailing) }
+                HStack(spacing: 6) { label; Spacer(minLength: 4); value }
             } else {
+                // Its own size, so the facts in a row sit the same distance apart whatever their times read.
                 VStack(alignment: .leading, spacing: 0) { label; value }
-                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .fixedSize()
             }
         }
         .accessibilityElement(children: .combine)
@@ -271,7 +292,8 @@ private struct SnapshotWidgetView: View {
             if facts.isEmpty {
                 Text("Nothing logged yet today").font(.subheadline).foregroundStyle(.secondary)
             } else {
-                HStack(alignment: .top, spacing: 10) { ForEach(facts) { FactView(fact: $0, now: entry.date, large: true) } }
+                HStack(alignment: .top, spacing: 20) { ForEach(facts) { FactView(fact: $0, now: entry.date, large: true) } }
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -286,7 +308,13 @@ private struct SnapshotWidgetView: View {
             if facts.isEmpty {
                 Text("Nothing logged yet today").font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
             } else {
-                HStack(alignment: .top, spacing: 6) { ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date) } }
+                // The same gap between each fact, from the left, in line with "Nothing logged yet today".
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .top, spacing: 16) { ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date) } }
+                    HStack(alignment: .top, spacing: 10) { ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date) } }
+                    HStack(alignment: .top, spacing: 10) { ForEach(facts.prefix(2)) { FactView(fact: $0, now: entry.date) } }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
