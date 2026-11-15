@@ -367,7 +367,9 @@ DETAIL = {
     'pump': dict(fine=['M10 17.5H20', 'M12.5 15.5H15'], note='The milk has a surface, and the bottle a mark.'),
     'solids': dict(fine=['M4.5 13.5H19.5', 'M4.5 6.5L3.5 5M7 5.3L6.4 3.5M9.5 5V3'], note='A rim on the bowl, and steam.'),
     'sleep': dict(ink=[sparkle(15, 10, 1.5), sparkle(21, 10.5, 1.2)], note='Two more stars.'),
-    'nappy': dict(fine=['M8.5 7.3H15.5', 'M12 12.5V16.5'], note='A waistband seam and a centre fold.'),
+    # Two short curved creases across the front, as on Tom's reference sheet. A waistband seam and an upright
+    # centre fold were here before; the upright line looked odd (Tom, 15 November 2026).
+    'nappy': dict(fine=['M9.9 12.4C11.2 13.1 12.8 13.1 14.1 12.4', 'M10.6 14.9C11.5 15.4 12.5 15.4 13.4 14.9'], note='Two soft creases across the front.'),
     'potty': dict(note='As the small one.'),
     'bath': dict(fine=[circle(11.5, 3.3, 1.2), 'M13.2 6.2L11.2 7L13.2 8'], ink=[circle(15.2, 6.4, .7)], note='A second bubble, and the duck has a beak and an eye.'),
     'growth': dict(fine=['M7.5 4.5H9.5M7.5 8.5H9.5M7.5 12.5H9.5M7.5 16.5H9.5'], note='Half marks between the marks.'),

@@ -1591,3 +1591,8 @@ book.
 The potty's colour is now the opening alone, as a filled oval; the whole base was in yellow, which Tom found
 too much. The highlight line on the base went with it. In the app: `docs/previews/icons/in-app/dark-mustard.png`
 and `light-potty.png`.
+
+**The nappy's middle (15 November 2026).** Tom: the upright line looked odd; look back at the reference sheet.
+The larger drawing now has two short curved creases across the front, as the reference has, and the
+waistband seam and upright fold are gone. Risk noted: with the two tabs above them, the curves can read as
+eyes and a smile. Two short straight dashes would avoid that if it bothers.
