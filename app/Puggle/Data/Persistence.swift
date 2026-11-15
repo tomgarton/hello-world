@@ -168,6 +168,11 @@ final class SyncWatch: ObservableObject {
     /// Always false with iCloud off, in the sample family and in tests.
     @Published private(set) var arriving = false
 
+    /// The last send and fetch for each store since the app opened, for the iCloud check. No names, only times and codes.
+    struct Last { var ended: Date; var ok: Bool; var error: String? }
+    private(set) var last: [String: Last] = [:]
+    private(set) var failures = 0
+
     private var finishedOnce = false
     private var running = Set<UUID>()
     private var observer: NSObjectProtocol?
@@ -179,8 +184,24 @@ final class SyncWatch: ObservableObject {
             forName: NSPersistentCloudKitContainer.eventChangedNotification, object: persistence.container, queue: .main
         ) { [weak self, weak persistence] note in
             guard let self,
-                  let event = note.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey] as? NSPersistentCloudKitContainer.Event,
-                  event.type == .import,
+                  let event = note.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey] as? NSPersistentCloudKitContainer.Event else { return }
+            if let ended = event.endDate {
+                let what = ["Setup", "Fetch", "Send"][min(event.type.rawValue, 2)]
+                let whose = event.storeIdentifier == persistence?.sharedStore?.identifier ? "shared with you" : "your own"
+                let problem = event.error.map { error -> String in
+                    let detail = error as NSError
+                    // The useful part is often one level down: which record, and why iCloud refused it.
+                    let inner = (detail.userInfo[NSUnderlyingErrorKey] as? NSError).map { " (\($0.domain) \($0.code))" } ?? ""
+                    let partial = (detail.userInfo[CKPartialErrorsByItemIDKey] as? [AnyHashable: Error])?.values.first.map { e -> String in
+                        let n = e as NSError
+                        return " First: \(n.domain) \(n.code): \(n.localizedDescription)"
+                    } ?? ""
+                    return "\(detail.domain) \(detail.code)\(inner): \(detail.localizedDescription)\(partial)"
+                }
+                self.last["\(what), \(whose)"] = Last(ended: ended, ok: event.succeeded, error: problem)
+                if !event.succeeded { self.failures += 1 }
+            }
+            guard event.type == .import,
                   event.storeIdentifier == persistence?.sharedStore?.identifier else { return }
             if event.endDate == nil {
                 self.running.insert(event.identifier)

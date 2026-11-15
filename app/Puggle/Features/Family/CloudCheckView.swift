@@ -91,14 +91,33 @@ struct CloudCheckView: View {
         } catch { say("Listing zones shared with you failed. \(code(error))") }
 
         // How much of the family iCloud holds, counted record by record.
-        if let family, let record = persistence.container.record(for: family.objectID),
-           family.objectID.persistentStore != persistence.sharedStore {
+        if let family {
+            // Entries here that iCloud has no record of yet: these have not been sent.
+            let events = (family.events ?? []).filter { !$0.isDeleted }
+            let waiting = events.filter { persistence.container.record(for: $0.objectID) == nil }
+            let newest = waiting.compactMap(\.createdAt).max()
+            say("Entries on this phone: \(events.count). Not yet in iCloud: \(waiting.count)" +
+                (newest.map { ", the newest made \($0.formatted(date: .omitted, time: .shortened))" } ?? ""))
+        }
+        // What has been sent and fetched since the app was opened.
+        let watch = SyncWatch.shared
+        if watch.last.isEmpty {
+            say("Since opening: nothing sent or fetched yet")
+        } else {
+            for (what, last) in watch.last.sorted(by: { $0.key < $1.key }) {
+                say("\(what): \(last.ok ? "worked" : "failed") at \(last.ended.formatted(date: .omitted, time: .standard))" + (last.error.map { ". \($0)" } ?? ""))
+            }
+            if watch.failures > 0 { say("Failures since opening: \(watch.failures)") }
+        }
+        if let family, let record = persistence.container.record(for: family.objectID) {
+            let mine = family.objectID.persistentStore != persistence.sharedStore
+            let database = mine ? cloud.privateCloudDatabase : cloud.sharedCloudDatabase
             do {
                 var counts: [String: Int] = [:]
                 var since: CKServerChangeToken?
                 var more = true
                 while more {
-                    let page = try await cloud.privateCloudDatabase.recordZoneChanges(inZoneWith: record.recordID.zoneID, since: since)
+                    let page = try await database.recordZoneChanges(inZoneWith: record.recordID.zoneID, since: since)
                     for result in page.modificationResultsByID.values {
                         if let found = try? result.get().record { counts[found.recordType, default: 0] += 1 }
                     }
