@@ -1825,3 +1825,14 @@ baby) is now the app's breastfeeding icon, in place of the breast.
 (`docs/previews/icons/in-app/breastfeed-parent-and-baby.png`): the picture and the drawn version match.
 Not seen on a phone, on the feeding sheet with a feed running, or in a widget. "For now": Tom may change
 it again.
+
+## Backlog (started 15 November 2026)
+
+Parked by Tom, to come back to. Not planned work.
+
+- **Draw animation.** Left as it is: on a Today tile when an entry is saved (drawn over a faint copy), and
+  Apple's draw on the sleep button. Still open: drawn over a faint copy or from nothing; drawing on the new
+  row in "Today so far" (needs strokes for the small icons); drawing on when a screen first appears; a
+  partly drawn icon as a value.
+- **Play tab.** On hold until there are books to put in it.
+- **Documenting the flows in Figma.** After Today is rebuilt.
