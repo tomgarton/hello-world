@@ -1773,3 +1773,10 @@ small arc, open side up, and one alone in the middle of a round head reads as a 
 parent's side of its head), the baby's eye in the middle, open eyes, parent closed and baby open, and eyes
 with smiles. At 24 points and under no face is drawn. `docs/previews/icons/breastfeeding-faces.png`.
 Not decided; not installed.
+
+**Closed eyes that are not mouths (later, 15 November 2026).** Tom: closed eyes, but they still look like
+mouths. A single half circle on a face is a smile wherever it sits. Three answers in `NURSE_FACES`, drawn
+with `lid` (a shallower curve than `eye`): two closed eyes on the baby and one tilted lid on the parent (now
+the drawing's face: a pair cannot be a mouth), two on each, and one flat tilted lid each.
+`docs/previews/icons/breastfeeding-eyes.png` shows the three; `breastfeeding-faces.png` has all eight.
+Not decided; not installed.

@@ -86,7 +86,7 @@ def faces():
     body = ''.join(block(title, text, spec, M.small(spec)) for spec, title, text in M.NURSE_FACES.values())
     html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
     out = os.path.join(M.OUT, 'breastfeeding-faces.html')
-    open(out, 'w').write(f'{html[:html.index("<body>")]}<body><h1>Breastfeeding, the faces</h1><p>The chosen drawing with five faces. At 24 points and under, no face is drawn.</p>{body}</body></html>')
+    open(out, 'w').write(f'{html[:html.index("<body>")]}<body><h1>Breastfeeding, the faces</h1><p>The chosen drawing with eight faces. The first three are closed eyes drawn so they cannot be taken for mouths. At 24 points and under, no face is drawn.</p>{body}</body></html>')
     print('wrote', out)
 
 

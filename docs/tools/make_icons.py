@@ -393,17 +393,30 @@ def nurse(fine, ink=(), body=NURSE_BODY):
     return icon([NURSE_MUM, BUN, NURSE_BUB, body, NURSE_FRINGE, NURSE_ARM], fine=list(fine), ink=list(ink), box=32, weight=BIG, wattle=NURSE_HAIR)
 
 
+def lid(x, y, w, d, deg=0):
+    """A closed eyelid: a shallow curve, w each side of (x, y), sagging by d and turned by deg. Shallower than
+    `eye`, which is a half circle and reads as a smile when it is the only mark on a face."""
+    c, k = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+    p = lambda a, b: f'{round(x + a * c - b * k, 2)} {round(y + a * k + b * c, 2)}'
+    return f'M{p(-w, 0)}C{p(-w / 2, d)} {p(w / 2, d)} {p(w, 0)}'
+
+
 # The faces. A closed eye is a small arc, open side up. One alone in the middle of a round head reads as a
 # smile, so the baby's sits to the parent's side of its head, as the parent's sits to the baby's side.
 NURSE_FACES = {
-    'closed': (nurse([eye(14.2, 11.5, 1.0), eye(18.0, 18.2, 1.0)]), 'Closed eyes, turned to each other', 'Each has one closed eye on the side nearest the other, so both read as eyes and as looking at each other.'),
+    # Later the same day, Tom: closed eyes, but they still look like mouths. A pair cannot be a mouth, so the baby has two.
+    # The parent, seen from the side, has one: a shallower lid, tilted down toward the baby.
+    'lids': (nurse([lid(14.6, 11.4, 1.3, 1.0, 14), lid(17.6, 17.8, .9, .9, -8), lid(21.0, 18.3, .9, .9, -8)]), 'Two closed eyes on the baby', 'The baby has a pair, which cannot be a mouth. The parent has one shallow lid, tilted down toward the baby.'),
+    'pairs': (nurse([lid(13.2, 11.6, .9, .9), lid(16.2, 11.2, .7, .8), lid(17.6, 18.0, .9, .9), lid(21.0, 18.0, .9, .9)]), 'Two closed eyes on each', 'A pair on both. The parent\u2019s second eye is close to the edge of the head.'),
+    'flat': (nurse([lid(14.6, 11.2, 1.4, .6, 18), lid(18.2, 17.6, 1.3, .6, -18)]), 'One flat lid each', 'A single, flatter, tilted lid on each. Less like a smile, though still a single mark.'),
+    'closed': (nurse([eye(14.2, 11.5, 1.0), eye(18.0, 18.2, 1.0)]), 'One closed eye each, turned to each other', 'Before. Each has one closed eye on the side nearest the other, so both read as eyes and as looking at each other.'),
     'centre': (nurse([eye(14.2, 11.5, 1.0), eye(19.2, 18.4, 1.2)]), 'Closed eyes, baby\u2019s in the middle', 'As it was. In the middle of a round head the baby\u2019s eye reads as a smile.'),
     'dots': (nurse([], [circle(14.6, 11.3, .8), circle(17.8, 18.3, .8)]), 'Open eyes', 'A dot each, as tummy time has. Awake, and a little startled.'),
     'mixed': (nurse([eye(14.2, 11.5, 1.0)], [circle(17.8, 18.3, .8)]), 'Parent closed, baby open', 'The parent looks down; the baby looks up.'),
     'smiles': (nurse([eye(15.2, 13.0, .7), eye(19.6, 20.0, .8)], [circle(14.4, 10.9, .7), circle(17.9, 17.6, .7), circle(21, 17.6, .7)]), 'Eyes and smiles', 'Open eyes with a smile under them. Clear large; under 40 points the marks run together.'),
 }
 ALTERNATES['held-wrap'] = (nurse([eye(14.2, 11.5, 1.0), eye(19.2, 18.4, 1.2)], body=NURSE_WRAP), 'Parent and baby, arm up the far side', 'The first refinement: the body line comes up round the baby\u2019s far side.')
-ALTERNATES['held-refined'] = (NURSE_FACES['closed'][0], 'Parent and baby, refined',
+ALTERNATES['held-refined'] = (NURSE_FACES['lids'][0], 'Parent and baby, refined',
                               'The chosen drawing with its lines cleaned up: no eye touches an edge, no lines pile up under the baby, and the body line finishes under the baby\u2019s head.')
 
 # The symbol with the baby's head drawn as tummy time draws it (15 November 2026, Tom's ask): an outlined head,
