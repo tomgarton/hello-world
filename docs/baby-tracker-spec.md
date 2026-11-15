@@ -1565,3 +1565,13 @@ see it, and its name.
   took about 125 ms, in drawing its chart. Neither stalls, so nothing was changed. A phone is several times
   slower than this Mac, so History may take around half a second to open on a long history. If it does, the
   grouping into days is the part to keep between changes.
+
+**TestFlight, 15 November 2026, 19:20 or so:** the ninth upload of 0.1.0, from commit 635fb99. It carries
+Settings regrouped, the card and role pills on the Family tab, Puggle on the weather page, the full-screen
+play pad with endless ink by default, the bubbles fix, and Feedback notes. No new fields in the data model.
+
+**Next, in order (planned with Tom, 15 November):** let build 9 settle on both phones; dark icons, two
+options drawn to choose from; Today rebuilt child-first, its own build; the family Live Activity card, facts
+that open their sheet and the tile widget, its own build; the first book for Play; documenting flows in
+Figma once Today has landed. Parked: the Play tab until there are books, an iPad version, the reference
+pages and screens PDF, the tile chooser and Help answers, updating Xcode.
