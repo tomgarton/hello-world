@@ -1733,3 +1733,7 @@ and the baby's face would close up at 40 points and vanish at 17. Its idea is dr
 shoulders, one arm that runs on under the baby, and a wrapped baby. Three versions: the wrap in colour, the
 whole baby in colour, and in line with one fold. Under 24 points the parting and fold are left out. On a
 tile these are busier than the symbol versions; large, they are warmer. Not decided; on the same sheets.
+
+**The short list (later, 15 November 2026).** Tom still rates the earlier "Parent and baby" (from the first
+five choices). Three are in the running: Parent and baby, Symbol in line, and Held with the wrap in colour.
+`docs/previews/icons/breastfeeding-runners.png` shows them with the current icon. Not decided.
