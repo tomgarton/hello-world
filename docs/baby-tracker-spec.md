@@ -1280,5 +1280,5 @@ Tom: the scenes at the top of Today hardly change, and night should come from th
 - **Child first.** Each child's card has its three facts and a plus that opens that child's other actions in place; opening one closes the other. With one child the tiles sit open under the card.
 - **Siblings together** (a bath, a meal, a walk): inside the log sheet only, which already saves one entry for several children. No extra row on Today.
 - **Which actions show under a child:** suggested by the app from the child's age and what has been logged, and a setting on each child to change them.
-- **A choice of layout.** A setting for Today's structure: the new one ("Children first") or the earlier one with shared tiles. Claude's assumption, to confirm: the new one is the default for everyone, and the earlier one is the option.
+- **A choice of layout.** A setting for Today's structure: the new one ("Children first") or the earlier one with shared tiles. The new one is the default for everyone, and the earlier one is the option (confirmed by Tom).
 - Held with the rest of Today until sync is fixed.
