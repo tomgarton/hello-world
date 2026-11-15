@@ -1607,3 +1607,6 @@ Tooshies, The Honest Company and the first of some 1,200 on the Noun Project; lo
 have a waistband, tabs at the top corners and two leg curves, and leave the front clear. Many of the clearest
 have tabs that stick out past the sides. Ours now does: the body is a little narrower and drawn in two
 pieces, top and bottom, so each tab lies over the edge. The waistband between the tabs stays.
+
+**The nappy's tabs, pulled in (15 November 2026).** Tom: the overhang was a bit too much. The tabs now stick
+out by a little over one unit of the 24 (it was two and a half), and the body is wider again to meet them.
