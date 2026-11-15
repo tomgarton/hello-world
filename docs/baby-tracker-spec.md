@@ -1610,3 +1610,7 @@ pieces, top and bottom, so each tab lies over the edge. The waistband between th
 
 **The nappy's tabs, pulled in (15 November 2026).** Tom: the overhang was a bit too much. The tabs now stick
 out by a little over one unit of the 24 (it was two and a half), and the body is wider again to meet them.
+
+**The nappy's waistband at full weight (15 November 2026).** Tom: the waist line should be as thick as the
+other lines. It was drawn at the fine weight kept for small details; it is now one of the icon's own lines.
+It appears on the larger drawing only (32 points and up), as before.

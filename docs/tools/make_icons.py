@@ -377,7 +377,8 @@ DETAIL = {
     # A waistband joining the tops of the two tabs, and nothing in the middle: the leg openings do the work.
     # Before this it had an upright centre fold, which looked odd, and then two curved creases, which with
     # the tabs above them read as a face (Tom, 15 November 2026, after looking at how nappy makers draw one).
-    'nappy': dict(fine=['M6.6 7.5H17.4'], note='A waistband between the tabs.'),
+    # The waistband is drawn at the icon's own line weight, not the fine one (Tom, 15 November 2026).
+    'nappy': dict(lines=['M6.6 7.6H17.4'], note='A waistband between the tabs.'),
     'potty': dict(note='As the small one.'),
     'bath': dict(fine=[circle(11.5, 3.3, 1.2), 'M13.2 6.2L11.2 7L13.2 8'], ink=[circle(15.2, 6.4, .7)], note='A second bubble, and the duck has a beak and an eye.'),
     'growth': dict(fine=['M7.5 4.5H9.5M7.5 8.5H9.5M7.5 12.5H9.5M7.5 16.5H9.5'], note='Half marks between the marks.'),
@@ -403,7 +404,7 @@ def regular(name):
     more = DETAIL.get(name, {})
     spec = dict(ICONS[name], **more['spec']) if 'spec' in more else ICONS[name]
     out = dict(spec, weight=1.65, fineweight=1.125, fine=list(more.get('fine', [])))
-    out['lines'] = [d for i, d in enumerate(spec['lines']) if i not in more.get('drop', [])]
+    out['lines'] = [d for i, d in enumerate(spec['lines']) if i not in more.get('drop', [])] + list(more.get('lines', []))
     for key in ('sky', 'wattle', 'ink'):
         out[key] = list(spec[key]) + list(more.get(key, []))
     return out
