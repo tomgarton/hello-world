@@ -1750,3 +1750,17 @@ the blue; the yellow can be for the hair alone. Two more in `ALTERNATES`: "hair 
 fringe and bun only) and "both with hair" (the same, with a little hair on the baby, as tummy time has).
 One colour now, like the rest of the set. The first drawing, with blue, is kept. On
 `breastfeeding-runners.png`. Not decided; nothing installed.
+
+**Chosen: Parent and baby, hair in colour, refined (later, 15 November 2026).** Tom chose Parent and baby
+with colour on the parent's hair only, and asked for cleaner lines, the eyes touching edges above all.
+`ALTERNATES['held-refined']` in `make_icons.py`:
+
+- The fringe sits higher and the parent's eye is lower and smaller, so the eye touches neither the fringe nor
+  the edge of the head.
+- The baby is tucked under the parent's chin. The neck line and the wrap line are gone.
+- The body is one line: down the back, round, and up the baby's far side, so it reads as the holding arm.
+- The near forearm stops short of the baby and the body. Nothing piles up under the baby now.
+
+The drawing before is kept as `held-hair`. Not yet installed in the app: that needs the stroke order for
+drawing on, the small drawing, the widget glyph, and a decision on the skin tone setting, which this
+drawing has no use for. `breastfeeding-runners.png` shows it with the current icon and the one before.

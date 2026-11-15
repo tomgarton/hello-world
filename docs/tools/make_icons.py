@@ -374,6 +374,21 @@ ALTERNATES['held-hair'] = (icon(HELD_LINES, fine=HELD_EYES, box=32, weight=BIG, 
 ALTERNATES['held-hair-both'] = (icon(HELD_LINES, fine=HELD_EYES, box=32, weight=BIG, wattle=MUM_HAIR + [BUB_HAIR]),
                                 'Parent and baby, both with hair', 'No blue. The parent\u2019s hair and a little on the baby, as tummy time has.')
 
+# The one Tom chose, with its lines cleaned up (15 November 2026). Before: the parent's eye ran into the fringe
+# and the head's edge; a neck line, a wrap line, the arm, the baby's head and the body's base all met in one
+# knot under the baby. Now the fringe sits higher and the eye lower and smaller, so the eye touches nothing;
+# the baby is tucked under the chin; the body is one line that comes round and up the baby's far side; and the
+# near forearm stops short of everything.
+NURSE_MUM = circle(12.5, 9.5, 6)
+NURSE_FRINGE = 'M6.5 9.6C10.4 9.6 14.5 8 16.2 4.8'
+NURSE_BUB = circle(19.4, 18.2, 4.8)
+NURSE_BODY = 'M7.6 14.4C5 16.4 3.6 19.4 3.6 23C3.6 26.8 6.6 29.4 10.6 29.4H19C23.6 29.4 26.4 26.4 26.7 20.4'
+NURSE_ARM = 'M9 20.6C10.4 23.2 13 24.8 16.2 25'
+ALTERNATES['held-refined'] = (icon([NURSE_MUM, BUN, NURSE_BUB, NURSE_BODY, NURSE_FRINGE, NURSE_ARM],
+                                   fine=[eye(14.2, 11.5, 1.0), eye(19.2, 18.4, 1.2)], box=32, weight=BIG,
+                                   wattle=[NURSE_FRINGE + 'A6 6 0 0 0 6.5 9.6Z', BUN + 'A6 6 0 0 1 9.1 4.6Z']),
+                              'Parent and baby, refined', 'The chosen drawing with its lines cleaned up: no eye touches an edge, and no lines pile up under the baby.')
+
 # The symbol with the baby's head drawn as tummy time draws it (15 November 2026, Tom's ask): an outlined head,
 # hair in colour and a dot for an eye. Tummy time's head is 4.5 on a 24 canvas; to keep that share of the line
 # here it would be 6 across a 32 canvas, larger than the body can hold. So the head is 4.2, the body is wider
@@ -454,7 +469,7 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 .tiles{{display:flex;gap:8px}}
 .tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
-<p class="lede">Seven ways to draw it. The last two are Parent and baby without the blue. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
+<p class="lede">Eight ways to draw it. The last three are Parent and baby without the blue; the very last is the one chosen, refined. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
 <div class="g" style="flex-wrap:wrap">{cells}</div>
 <h2>After the International Breastfeeding Symbol</h2><p>Six after the symbol (Matt Daigle, 2006, given to the public domain by its maker) and three of a parent holding a wrapped baby, added 15 November 2026. All are drawn for this set: its line, its weight and one colour.</p>
 <div class="g" style="margin-top:14px;flex-wrap:wrap">{after}</div>
