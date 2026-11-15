@@ -1228,3 +1228,16 @@ Tom read a paracetamol bottle with the box thrown out. The label curves, so the 
 - **More photos.** After the directions photo, "Add another photo" reads another part of the same table and joins it on: the same age fills gaps, a new age is a new row, and a row whose age is off the edge joins the row holding the same amount, in order. Nothing already read is replaced, and changed rows need ticking again. The photos are kept as one picture, side by side.
 - **The screen.** A table with more than two columns, or with words in its cells, lays each row out down the page (age, then each heading with its value). Headings can be renamed, removed and added. The kept table is shown the same way.
 - **Not tested:** on a real bottle. The tests use lines typed to match the label. Joining a row with no age by its amount can pick the wrong row when two rows share an amount and the second photo misses one of them; every row is still checked by a person before saving.
+
+### Live Activity, a pass through every state (15 November 2026)
+
+Tom's feedback from his phone and watch: the open island had a meaningless clock and a number with no label, the watch card showed only a clock and "2 hours", the closed island cut "25 minutes" short and sat unevenly, and it was not clear which child a card was for. Read against Apple's Live Activities guidance.
+
+- **Whose card it is comes first, everywhere:** the child's initial on their own colour, as on Today. It replaces the clock icon in the closed island, the open island and on the Lock Screen, and it is the whole of the small round island when two children's cards are showing. The island's outline takes the child's colour too.
+- **Short times that update by themselves:** "25m", "1h 29m". The closed island has a fixed, small width for them, so nothing is cut off and the status bar is not covered.
+- **The open island** says what the number is ("Fed", "Asleep", "Left side") above it, with the name and a second fact below.
+- **Apple Watch and CarPlay** get a card of their own from iOS 18: the badge and name, then "Fed 1h 29m ago" and "Awake 1h 11m", or "Asleep 1h 12m". No buttons, because CarPlay switches them off.
+- **Lock Screen:** Apple's 14 point margin; the badge in place of the icon.
+- **Not built:** Clara's point that "Start sleep" on the Lock Screen is not much use. Three ideas are drawn in `docs/previews/live-activity/states.png`: facts only, facts with what is usual for the child, or a time to expect the next feed. The app's rule so far is plain facts, nothing due.
+- **Checked in the simulator:** the closed island in three states, the open island for "since a feed", and the Lock Screen for "since a feed" and feeding. **Not checked:** the open island for a sleep and a feed, two children side by side, the watch, CarPlay, and iOS 17.
+- Apple's guidance also says a Live Activity is for something with a beginning and an end, up to eight hours. The "since a feed" card runs to that limit by design; worth knowing if Apple questions it in review.

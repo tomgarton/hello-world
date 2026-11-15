@@ -25,6 +25,8 @@ struct TimerAttributes: ActivityAttributes {
 
     var childID: String
     var childName: String
+    /// Which of the children's colours is theirs, so the card can be told apart at a glance. Nil on a card made before this.
+    var colourIndex: Int?
 }
 
 /// The buttons on a Lock Screen card. They run inside the app, which sets `perform` at launch.

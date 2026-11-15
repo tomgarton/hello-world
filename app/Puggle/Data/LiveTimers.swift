@@ -22,6 +22,15 @@ final class LiveTimers {
     }
 
     func sync(with store: FamilyStore) {
+        #if DEBUG
+        // For checking the cards with the sample family: "-debugLive glance", "sleep", "feed" or "paused".
+        if let mode = UserDefaults.standard.string(forKey: "debugLive") {
+            guard !syncing else { return }
+            syncing = true
+            Task { await apply(Self.samples(mode)) }
+            return
+        }
+        #endif
         guard !store.isSample else { return }
         if syncing {
             again = true
@@ -51,7 +60,7 @@ final class LiveTimers {
         var result: [String: Wanted] = [:]
         for child in children {
             guard let id = child.id?.uuidString else { continue }
-            let attributes = TimerAttributes(childID: id, childName: child.displayName)
+            let attributes = TimerAttributes(childID: id, childName: child.displayName, colourIndex: Int(child.colourIndex))
             if let feed = store.activeFeed(for: child) {
                 var state = TimerAttributes.ContentState(mode: "feed")
                 if let side = feed.runningSide {
@@ -96,7 +105,8 @@ final class LiveTimers {
         for activity in Activity<TimerAttributes>.activities {
             let id = activity.attributes.childID
             guard let want = wanted[id], !showing.contains(id),
-                  want.attributes.childName == activity.attributes.childName else {
+                  want.attributes.childName == activity.attributes.childName,
+                  want.attributes.colourIndex == activity.attributes.colourIndex else {
                 await activity.end(nil, dismissalPolicy: .immediate)
                 continue
             }
@@ -115,6 +125,26 @@ final class LiveTimers {
                                       pushType: nil)
         }
     }
+
+    #if DEBUG
+    private static func samples(_ mode: String) -> [String: Wanted] {
+        let ago = { (minutes: Double) in Date.now.addingTimeInterval(-minutes * 60) }
+        var state: TimerAttributes.ContentState
+        switch mode {
+        case "sleep": state = .init(mode: "sleep", label: "Asleep", since: ago(72))
+        case "feed": state = .init(mode: "feed", label: "Feeding, left", since: ago(12), runningSide: "Left")
+        case "paused": state = .init(mode: "feed", label: "Feeding, paused", pausedText: "12 min")
+        default: state = .init(mode: "glance", fedSince: ago(89), awakeSince: ago(71))
+        }
+        var all = ["sample-ollie": Wanted(attributes: .init(childID: "sample-ollie", childName: "Ollie", colourIndex: 0), state: state)]
+        // "-debugLiveTwo 1" adds a second child, to see two cards and the small round ones.
+        if UserDefaults.standard.string(forKey: "debugLiveTwo") == "1" {
+            all["sample-bea"] = Wanted(attributes: .init(childID: "sample-bea", childName: "Bea", colourIndex: 2),
+                                       state: .init(mode: "sleep", label: "Asleep", since: ago(25)))
+        }
+        return all
+    }
+    #endif
 
     /// A running side's start is recomputed each time, so allow a little drift.
     private func same(_ a: TimerAttributes.ContentState, _ b: TimerAttributes.ContentState) -> Bool {
