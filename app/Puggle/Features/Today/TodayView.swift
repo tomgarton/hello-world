@@ -504,10 +504,9 @@ struct ChildStatusRow: View {
             }
         } label: {
             HStack(spacing: 6) {
-                // A moon to start, a sun to wake. One turns into the other with Apple's own replace effect,
-                // which says a state has changed (Tom, 15 November 2026).
-                Image(systemName: !asleep ? "moon" : (justStarted ? "arrow.uturn.backward" : "sun.max"))
-                    .contentTransition(.symbolEffect(.replace.downUp))
+                // A moon to start, a sun to wake. One is drawn off and the other drawn on with Apple's own Draw
+                // effects, on iOS 26; before that they change with the replace effect (Tom, 15 November 2026).
+                DrawnSymbol(name: !asleep ? "moon" : (justStarted ? "arrow.uturn.backward" : "sun.max"))
                     .accessibilityHidden(true)
                 Text(title)
             }

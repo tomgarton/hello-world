@@ -1647,3 +1647,54 @@ In dark the drawn line is thinner, as the picture is. Reduce Motion: nothing pla
 
 Recordings from the simulator: `docs/previews/icons/motion/draw-on.gif` and `bounce-breathe-replace.gif`,
 made from a screen that plays the effects by themselves ("-debugFx 1").
+
+## Drawing on, second pass, against Apple's guidance (15 November 2026)
+
+Tom asked for a second pass on the draw animation against SF Symbols' Draw, reading the guidance closely.
+Read: the Human Interface Guidelines page on SF Symbols, the Symbols framework's Draw On and Draw Off, and the
+whole WWDC25 session "What's new in SF Symbols 7".
+
+**What Apple says, and what was wrong with the first pass.**
+
+| Apple's guidance | First pass | Now |
+|---|---|---|
+| Each path has a start and an end, so a direction, chosen for the symbol's design and meaning | Whatever order and direction the generator happened to write | Set by hand for all 20 icons (`DRAW` in `docs/tools/make_icons.py`) |
+| By layer is the usual playback: each layer starts a little after the last, overlapping | One stroke at a time, in a line | Motion groups that start staggered; whole symbol and one at a time also there (`DrawPlayback`) |
+| Something symmetrical can draw from its middle, both ways | No | Yes: the nappy's top, the waistband, the bottle's teat |
+| A closed shape draws one way round, clockwise by default | As written, some anticlockwise | Clockwise, from a chosen starting point; the moon alone runs the other way, as a C is written |
+| Parts that are not drawn "appear in" | The colour faded in late; filled details (the moon's sparkles) vanished and popped back | Colours and filled details fade and grow into place in turn; a level or a thermometer's column rises from its foot |
+| Draw On brings a symbol into view, Draw Off takes it away; a bounce says an action occurred | Draw on from nothing to mark a save, leaving the tile blank | On a save the line fades to a faint copy and is drawn over, colours staying: the look of Apple's Variable Draw. The tile never goes blank |
+| Draw Off can follow the same direction or go back the way it came | None | Both (`IconDrawView.Phase.off`) |
+| Use animation judiciously, each for a clear purpose | One use | One use: a save. Capped at 1.1 seconds by layer, about 0.6 to 0.85 on a save |
+
+**The rules the annotations follow.** The main shape first, then what sits on it. Top to bottom and left to
+right, as a hand would. Something symmetrical from its middle. A closed shape clockwise. A direction that
+says what the thing does where it has one: steam rises, a level fills, ticks are counted down a ruler. A
+stroke that joins another starts from the end where the other already is, so it never begins in mid-air.
+
+**How it is built.** The generator writes each icon's strokes, in drawing order with their group, track and
+way of drawing, and its colours, to `IconStrokes.json`. The app (`app/Puggle/Design/IconStrokes.swift`)
+turns each stroke into points, arranges them (`IconDrawing.arrange`), works out a timeline for the playback
+asked for (`timeline`), and draws the icon at a moment on it (`IconDrawView`). At rest the icon is still its
+picture; the drawn version is the same shapes from the same source, and was checked against the picture for
+all 20 icons in light and dark.
+
+**The sleep button** uses Apple's real Draw effects on iOS 26, since its moon and sun are Apple's symbols:
+the old one is drawn off, then the new one comes in (`DrawnSymbol`). Seen on the simulator: the sun's ring and
+rays draw off; the moon fades in, because Apple's moon is not annotated for drawing. Before iOS 26 it uses
+the replace effect.
+
+**Not matched, and why.** Apple gives no timings, so the pace and easing are chosen. A filled detail does not
+travel along a stroke as Apple's attachments do. There are no weights to keep in step. Variable Draw as a
+value that can be set (for progress) is not offered. Apple says to draw whole shapes and not cutouts; the
+nappy's body is two pieces with gaps for the tabs, drawn one after the other so it reads as one stroke.
+Apple's own answer for "an action occurred" is a bounce; drawing over is used here because Tom prefers
+drawing, and it is the nearest thing in Apple's vocabulary. Nothing in the app yet draws an icon on as it
+arrives, which is what Draw On is for; the new row in Today so far when an entry is saved would be the
+place, and needs the small drawings' strokes.
+
+**To look at.** `docs/previews/icons/motion/draw-second-pass.gif` (draw on and off; the three playbacks;
+Apple's Draw on the sleep button; the two ways to answer a save), `draw-every-icon.gif`, and
+`draw-guides.png`: every icon as its picture, drawn whole, at 25, 50 and 75 per cent, and with its strokes
+marked as Apple marks guide points (a ring where a stroke starts, a dot where it ends, a colour for each
+group). Made from "-debugFx 1", "-debugFx 2" and "-debugDrawSheet 0" (and 1).

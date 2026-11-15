@@ -80,7 +80,7 @@ struct TileButton: View {
     let onAdd: (EventKind) -> Void
     @Environment(\.dynamicTypeSize) private var textSize
     let onEdit: (Event) -> Void
-    /// Goes up each time something of this tile's kind is saved, so its icon bounces once.
+    /// Goes up each time something of this tile's kind is saved, so its icon is drawn over once.
     @State private var saves = 0
 
     /// True while one of this tile's timers is running for one of its children: a breastfeed, for the feeding tile.
@@ -151,7 +151,7 @@ struct TileButton: View {
         if large && textSize.isAccessibilitySize {
             // Largest text: icon beside the words, full width, so nothing is cut off.
             HStack(spacing: 14) {
-                ActivityIcon(named: tile.iconName, size: 40, bounce: saves, breathing: running)
+                ActivityIcon(named: tile.iconName, size: 40, saved: saves, breathing: running)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(tile.title).font(.headline)
                     if !latest.isEmpty {
@@ -167,7 +167,7 @@ struct TileButton: View {
             .contentShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
         } else if large {
             VStack(spacing: 4) {
-                ActivityIcon(named: tile.iconName, size: 40, bounce: saves, breathing: running)
+                ActivityIcon(named: tile.iconName, size: 40, saved: saves, breathing: running)
                 Text(tile.title)
                     .font(.subheadline.weight(.semibold))
                     .lineLimit(1)

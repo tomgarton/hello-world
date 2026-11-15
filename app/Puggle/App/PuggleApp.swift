@@ -275,9 +275,12 @@ struct RootView: View {
             NavigationStack { AppearanceSettingsView() }
         } else if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
-        } else if UserDefaults.standard.string(forKey: "debugFx") == "1" {
-            // For recording the icon effects: "-debugFx 1".
-            EffectsDemoView()
+        } else if let page = UserDefaults.standard.string(forKey: "debugFx").flatMap(Int.init) {
+            // For recording the icons drawing themselves: "-debugFx 1", or 2 for every icon.
+            EffectsDemoView(page: page)
+        } else if let page = UserDefaults.standard.string(forKey: "debugDrawSheet").flatMap(Int.init) {
+            // For checking each icon's drawing against its picture, with its strokes marked: "-debugDrawSheet 0" (or 1).
+            IconDrawSheet(page: page)
         } else if UserDefaults.standard.string(forKey: "debugMoves") == "1" {
             // For checking her moves: launch with "-debugMoves 1".
             NavigationStack { MovesGalleryView() }

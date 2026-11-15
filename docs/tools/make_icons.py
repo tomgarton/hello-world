@@ -440,6 +440,92 @@ h3{{margin:10px 0 2px;font-size:17px}}p{{margin:0;color:#6B5E52}}i{{display:bloc
     open(os.path.join(OUT, 'sizes.html'), 'w').write(html)
 
 
+# How each icon draws itself on (15 November 2026, second pass, against Apple's guidance for the Draw animation
+# in SF Symbols 7). Apple annotates a symbol with guide points: where each path starts, where it ends, and so
+# which way it runs; and with layers, which draw with a staggered start. This is the same for Puggle's icons.
+#
+#   groups   One list for each motion group, in the order they start. Each group is a list of tracks, which
+#            draw at the same time; a track is the strokes one pen makes, one after another.
+#   stroke   Its number (the larger drawing's lines, split into single strokes, then its fine lines), then a
+#            colon and how it is drawn:
+#              (nothing)  an open stroke as it was written; a closed one from where it was written, clockwise
+#              r          an open stroke the other way
+#              m          from its middle out to both ends: Apple's bidirectional drawing, for something symmetrical
+#              e          from both ends in to the middle
+#              T B L R TL TR BL BR @x,y   a closed stroke, starting at its top, bottom, left, right, a corner,
+#                         or the point nearest x,y. Clockwise, as Apple draws a circle, unless followed by "-".
+#   fills    When a colour or a filled detail appears: after which group, and "up" if it rises from its foot.
+#            Apple: parts that are not drawn "appear in". Colours come after group 0 and filled details after
+#            the last group unless said here. a0 is the first colour, x0 the first fixed colour, k0 the first
+#            filled detail.
+#
+# The rules followed: the main shape first, then what sits on it; top to bottom and left to right, as a hand
+# would; something symmetrical from its middle; a closed shape clockwise; and a direction that says what the
+# thing does where it has one (steam rises, a level fills, ticks are counted down a ruler). Because a group
+# starts before the last has finished, a stroke that joins another starts from the end where the other
+# already is, so it grows out of a line and does not begin in mid-air: the nappy's leg openings from the
+# hips, the ruler's left side before its ticks, the band in the bowl from the wall already drawn.
+DRAW = {
+    'bottle':      dict(groups=[['0:m'], ['1:TL'], ['2:e'], ['3'], ['4 5 6']]),
+    'breastfeed':  dict(groups=[['0']]),
+    'pump':        dict(groups=[['0'], ['1:TL'], ['2:TL'], ['3'], ['4 5']], fills={'a0': (4, 'up')}),
+    'solids':      dict(groups=[['0'], ['4:r', '3:m'], ['1'], ['2'], ['5', '6', '7']], fills={'a0': 2}),
+    'sleep':       dict(groups=[['0:@9.5,3.5-']]),
+    'nappy':       dict(groups=[['0:m 1:e'], ['5:r', '4:r'], ['6:m'], ['2:TL', '3:TR-']], fills={'a0': 3, 'a1': 3}),
+    'potty':       dict(groups=[['0:T 1:e']]),
+    'bath':        dict(groups=[['0'], ['1', '2'], ['3:T 6'], ['4:T 5:T']], fills={'a0': 2, 'k0': 2}),
+    'growth':      dict(groups=[['0:BL'], ['5 1 6 2 7 3 8 4']]),
+    'weight':      dict(groups=[['0'], ['1', '5:m'], ['2'], ['3'], ['4']], fills={'a0': 3}),
+    'temperature': dict(groups=[['0:T'], ['1 2 3']], fills={'a0': 0, 'a1': (0, 'up')}),
+    'medicine':    dict(groups=[['0'], ['1'], ['2']], fills={'a0': 1}),
+    'vaccine':     dict(groups=[['0'], ['1 2:m', '3'], ['4:r 5:r 6:r']]),
+    'teeth':       dict(groups=[['0 1']]),
+    'milestone':   dict(groups=[['0']]),
+    'tummy-time':  dict(groups=[['0:T'], ['1'], ['2'], ['4', '3']], fills={'a0': 1, 'k0': 1}),
+    'play':        dict(groups=[['0:TL', '1:TL'], ['3', '4', '5', '6'], ['2:TL'], ['7', '8'], ['10', '11', '9']], fills={'a0': 2}),
+    'walk':        dict(groups=[['1'], ['0 5'], ['2'], ['6 3:T', '7 4:T']], fills={'a0': 1}),
+    'note':        dict(groups=[['0'], ['1'], ['4 2 3']], fills={'a0': 1}),
+    'photo':       dict(groups=[['0'], ['1'], ['2:T'], ['3']], fills={'a0': 2, 'k0': 0}),
+}
+OPEN_WAYS, CORNERS = ('', 'r', 'm', 'e'), ('T', 'B', 'L', 'R', 'TL', 'TR', 'BL', 'BR')
+
+
+def draw_data(name):
+    """An icon's strokes in the order they are drawn, and its colours, for the app (IconStrokes.json)."""
+    spec = regular(name)
+    single = []   # every stroke on its own: (path, fine)
+    for key, fine in (('lines', False), ('fine', True)):
+        for d in spec.get(key, []):
+            single += [('M' + part.strip(), fine) for part in d.split('M') if part.strip()]
+    plan = DRAW.get(name) or dict(groups=[[str(i)] for i in range(len(single))])
+    strokes, used = [], set()
+    for group, tracks in enumerate(plan['groups']):
+        for track, refs in enumerate(tracks):
+            for ref in refs.split():
+                number, _, way = ref.partition(':')
+                number = int(number)
+                assert number < len(single) and number not in used, (name, ref)
+                used.add(number)
+                d, fine = single[number]
+                closed = d.rstrip().endswith('Z')
+                start = way.rstrip('-')
+                assert (way in OPEN_WAYS) if not closed else (start == '' or start in CORNERS or start.startswith('@')), (name, ref, 'closed' if closed else 'open')
+                strokes.append({'d': d, 'fine': fine, 'mode': way, 'group': group, 'track': track})
+    assert len(used) == len(single), (name, 'strokes with no place in the drawing', sorted(set(range(len(single))) - used))
+    asked, last, fills = plan.get('fills', {}), len(plan['groups']) - 1, []
+    def fill(key, d, kind, colour=None, usual=0):
+        after, grow = asked.get(key, usual), 'centre'
+        if isinstance(after, tuple): after, grow = after
+        assert after <= last, (name, key)
+        fills.append({'d': d, 'kind': kind, 'colour': colour, 'after': after, 'grow': grow})
+    for i, d in enumerate(spec['wattle']): fill(f'a{i}', d, 'accent')
+    for i, t in enumerate(spec['tint']): fill(f'x{i}', t[0], 'fixed', t[1])
+    for i, d in enumerate(spec['ink']): fill(f'k{i}', d, 'ink', usual=last)
+    assert not set(asked) - {f'{k}{i}' for k, n in (('a', len(spec['wattle'])), ('x', len(spec['tint'])), ('k', len(spec['ink']))) for i in range(n)}, (name, 'no such fill')
+    return {'box': spec.get('box', 24), 'turn': spec['turn'], 'weight': spec.get('weight', W), 'fine': spec.get('fineweight', 1.2),
+            'strokes': strokes, 'fills': fills}
+
+
 def main():
     alternates()
     size_sheet()
@@ -460,14 +546,9 @@ def main():
                     other = svg(name, spec=spec, layer=layer, ink=DARK) if layer != 'fill' else None
                     if text: imageset(f'icon-{name}{tag}-{layer}', text, template=layer != 'fixed', dark=other)
         import json
-        # The strokes themselves, for the app to draw an icon on line by line (Tom, 15 November 2026). The larger
-        # drawing only, which is the one shown at 32 points and up.
-        strokes = {}
-        for name in ICONS:
-            if name in NEW: continue
-            spec = regular(name)
-            strokes[f'icon-{name}'] = {'box': spec.get('box', 24), 'turn': spec['turn'], 'weight': spec.get('weight', W),
-                                       'fine': spec.get('fineweight', 1.2), 'lines': spec['lines'], 'fineLines': spec.get('fine', []), 'ink': spec['ink']}
+        # The strokes themselves, in the order and direction they are drawn, for the app to draw an icon on
+        # (see DRAW). The larger drawing only, which is the one shown at 32 points and up.
+        strokes = {f'icon-{name}': draw_data(name) for name in ICONS if name not in NEW}
         json.dump(strokes, open(os.path.join(ASSETS, '..', 'IconStrokes.json'), 'w'), indent=1)
         os.makedirs(WIDGET_ASSETS, exist_ok=True)
         json.dump({'info': {'author': 'xcode', 'version': 1}}, open(os.path.join(WIDGET_ASSETS, 'Contents.json'), 'w'), indent=2)

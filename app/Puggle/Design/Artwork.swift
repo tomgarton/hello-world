@@ -4,6 +4,17 @@ import SwiftUI
 /// Drawn in `docs/tools/make_icons.py`, which writes each as parts: the line, the fill and,
 /// for the breast, any colour that never changes. The fill is yellow unless Settings says otherwise.
 struct ActivityIcon: View {
+    /// What an icon does when an entry of its kind is saved.
+    enum SavedEffect {
+        /// Its line fades to a faint copy and is drawn over again, the colours staying put. The tile never
+        /// goes blank. This is the look of Apple's Variable Draw, played once.
+        case reink
+        /// It goes and draws itself on from nothing.
+        case drawOn
+        /// A bounce: Apple's own effect for "an action occurred".
+        case bounce
+    }
+
     let name: String
     var size: CGFloat = 36
     /// One colour, for lists: the line in ink and the fill a faint tint of it.
@@ -11,18 +22,29 @@ struct ActivityIcon: View {
     @AppStorage(Setting.iconColour) private var mode = IconColour.yellow.rawValue
     @AppStorage(Setting.iconColourOwn) private var own = IconColour.ownDefault
     @Environment(\.iconChildColour) private var childColour
-    /// Bounces once each time this number changes: something was just saved. From Apple's symbol effects,
-    /// where a bounce says an action has happened (Tom, 15 November 2026).
-    var bounce = 0
+    /// Goes up each time an entry of this icon's kind is saved, and the icon answers once: see `SavedEffect`.
+    /// Where the app has no strokes for the icon (the small drawing), it bounces.
+    var saved = 0
+    var savedEffect = SavedEffect.reink
     /// The colour inside breathes while this is true: something is running, such as a feed. Only the colour
     /// moves, so the line stays steady and readable.
     var breathing = false
+    /// How the layers are played: by layer unless said.
+    var playback = DrawPlayback.byLayer
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
     @State private var lifted = false
     @State private var breath = false
-    /// How far the icon has been drawn on, while it is drawing itself. Nil the rest of the time, when it is a picture.
-    @State private var drawn: CGFloat?
-    @Environment(\.colorScheme) private var scheme
+    /// The drawing in progress, while the icon is drawing itself. Nil the rest of the time, when it is a picture.
+    @State private var run: Run?
+    @State private var runs = 0
+
+    private struct Run {
+        let phase: IconDrawView.Phase
+        let timeline: DrawTimeline
+        var time: Double
+        let number: Int
+    }
 
     init(_ kind: EventKind, size: CGFloat = 36, plain: Bool = false) {
         self.name = kind.iconName
@@ -30,15 +52,30 @@ struct ActivityIcon: View {
         self.plain = plain
     }
 
-    init(named name: String, size: CGFloat = 36, bounce: Int = 0, breathing: Bool = false) {
+    init(named name: String, size: CGFloat = 36, saved: Int = 0, breathing: Bool = false) {
         self.name = name
         self.size = size
-        self.bounce = bounce
+        self.saved = saved
         self.breathing = breathing
+    }
+
+    func savedEffect(_ effect: SavedEffect) -> ActivityIcon {
+        var copy = self
+        copy.savedEffect = effect
+        return copy
+    }
+
+    func playback(_ playback: DrawPlayback) -> ActivityIcon {
+        var copy = self
+        copy.playback = playback
+        return copy
     }
 
     /// The drawing with more detail, from 32 points up.
     private var parts: String { size >= 32 && UIImage(named: name + "-reg-line") != nil ? name + "-reg" : name }
+
+    /// The icon's strokes, where the app has them: the larger drawing only.
+    private var drawing: IconDrawing? { !plain && parts.hasSuffix("-reg") ? IconDrawing.named(name) : nil }
 
     private var fill: Color {
         switch IconColour(rawValue: mode) ?? .yellow {
@@ -55,6 +92,9 @@ struct ActivityIcon: View {
                 Image(uiImage: trimmed).resizable().renderingMode(.template).foregroundStyle(Palette.ink)
             } else if plain {
                 Image(name + "-plain").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
+            } else if let run, let drawing {
+                // Drawing itself: the same shapes as the picture, from the same source, drawn by the app.
+                IconDrawView(drawing: drawing, timeline: run.timeline, phase: run.phase, time: run.time, accent: fill, dark: scheme == .dark)
             } else if UIImage(named: parts + "-line") != nil {
                 ZStack {
                     Group {
@@ -66,20 +106,7 @@ struct ActivityIcon: View {
                         }
                     }
                     .opacity(breath ? 0.45 : 1)
-                    // While drawing on, the colour comes in over the last part, once its outline is there.
-                    .opacity(drawn.map { max(0, ($0 - 0.6) / 0.4) } ?? 1)
-                    if let drawn, let strokes = IconStrokes.all[name] {
-                        // The line, drawn stroke by stroke. In dark it is thinner, as the picture is.
-                        let unit = size / strokes.box * (scheme == .dark ? 0.62 : 1)
-                        ZStack {
-                            IconLines(strokes: strokes, progress: drawn, fine: false)
-                                .stroke(Palette.ink, style: StrokeStyle(lineWidth: strokes.weight * unit, lineCap: .round, lineJoin: .round))
-                            IconLines(strokes: strokes, progress: drawn, fine: true)
-                                .stroke(Palette.ink, style: StrokeStyle(lineWidth: strokes.fine * unit, lineCap: .round, lineJoin: .round))
-                        }
-                    } else {
-                        Image(parts + "-line").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
-                    }
+                    Image(parts + "-line").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
                 }
             } else {
                 Image(name).resizable()
@@ -89,17 +116,12 @@ struct ActivityIcon: View {
         .frame(width: size, height: size)
         .scaleEffect(lifted ? 1.22 : 1)
         .accessibilityHidden(true)
-        .onChange(of: bounce) { _, _ in
+        .onChange(of: saved) { _, _ in
             guard !reduceMotion else { return }
-            // Drawn on where the app has the icon's strokes (the larger drawing); a bounce otherwise.
-            if size >= 32, IconStrokes.all[name] != nil, parts.hasSuffix("-reg") {
-                drawn = 0
-                withAnimation(.easeInOut(duration: 0.9)) { drawn = 1 }
-                Task {
-                    try? await Task.sleep(for: .seconds(1.0))
-                    drawn = nil
-                }
-            } else {
+            switch (savedEffect, drawing != nil) {
+            case (.reink, true): play(.reink, pace: 1.3)
+            case (.drawOn, true): play(.on)
+            default:
                 withAnimation(.spring(duration: 0.16, bounce: 0)) { lifted = true }
                 withAnimation(.spring(duration: 0.5, bounce: 0.55).delay(0.16)) { lifted = false }
             }
@@ -111,6 +133,23 @@ struct ActivityIcon: View {
             } else {
                 withAnimation(.easeOut(duration: 0.3)) { breath = false }
             }
+        }
+    }
+
+    /// Plays one drawing through, then goes back to the picture.
+    private func play(_ phase: IconDrawView.Phase, pace: Double = 1) {
+        guard let drawing else { return }
+        let timeline = drawing.timeline(playback, pace: pace)
+        runs += 1
+        let number = runs
+        run = Run(phase: phase, timeline: timeline, time: 0, number: number)
+        Task { @MainActor in
+            // A moment later, so it is first shown at the start and then moved on from there.
+            try? await Task.sleep(for: .milliseconds(20))
+            guard run?.number == number else { return }
+            withAnimation(.linear(duration: timeline.total)) { run?.time = timeline.total }
+            try? await Task.sleep(for: .seconds(timeline.total + 0.05))
+            if run?.number == number { run = nil }
         }
     }
 }
