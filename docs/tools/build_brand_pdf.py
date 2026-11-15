@@ -3,10 +3,14 @@
 Every page is the same size, 1080 by 1527 (the proportions of A4, upright). Each board from design/canvas/project
 sits under a strip with its section and title. Short boards that follow each other in a section share a page; a
 board too tall for the page is drawn smaller to fit. There is a cover, a contents page, a divider for each section
-and the rules at the end. Section 7 ("In the app now") is carried
-over from the 14 November PDF as it was: those pages were pictures saved by the app's build, not boards.
+and the rules at the end. Section 7 ("In the app now") is pictures the
+app saves of its own drawings, kept in docs/brand/app-now/.
 
     python3 docs/tools/build_brand_pdf.py            # writes docs/brand/Puggle-brand-<date>.pdf
+    python3 docs/tools/build_brand_pdf.py --refresh  # first copies fresh pictures from the simulator
+
+Before --refresh, build the app for the simulator and launch it once with "-uitest 1 -hasOnboarded YES -debugSheet 1":
+it saves every sheet to its Documents folder. The first-run and pattern pictures are copied from docs/previews.
 
 Needs Google Chrome (to print each page) and Swift (PDFKit, to join them). The boards load Bricolage Grotesque
 from Google Fonts, so it needs a connection.
@@ -16,7 +20,7 @@ import json, os, re, subprocess, sys, tempfile
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.join(HERE, '..', '..')
 CANVAS = os.path.join(REPO, 'design', 'canvas')
-OLD = os.path.join(REPO, 'docs', 'brand', 'Puggle-brand-2026-11-14.pdf')
+NOW = os.path.join(REPO, 'docs', 'brand', 'app-now')
 DATE, STAMP = '15 November 2026', '2026-11-15'
 OUT = os.path.join(REPO, 'docs', 'brand', f'Puggle-brand-{STAMP}.pdf')
 PAGE_H = 1527
@@ -52,8 +56,30 @@ SECTIONS = [
         ('Scenes2', ''), ('AppScenes', ''), ('Wallpapers', ''), ('Books', ''),
         ('Merch', 'Drawn on 10 November. The line faces have no lick of hair yet.'), ('References', 'For study only. Nothing is copied from any of them.')]),
 ]
-APP_NOW = ('In the app now', 'What the app itself drew on 13 and 14 November: the cast, the scenes, the weather and where the logo had got to. '
-           'These five pages are carried over from the last edition unchanged, so Puggle has no lick of hair in them.', range(35, 40))
+APP_NOW = ('In the app now', 'What the app itself draws today: the cast, their clothes, how she shows a feeling, the scenes, the rooms and the weather. '
+           'These are pictures saved by the app\'s own build on 15 November, so they are ahead of the boards in sections 3, 4 and 6.')
+# Picture, title, note, and the most height it may take on the page.
+PICTURES = [
+    ('cast', 'The cast, by day and after dark', 'Each has their own file of parts.', 420),
+    ('portraits', 'Portraits', 'For the family list and anywhere a face stands for a person.', 150),
+    ('pebble-dummy', 'Pebble', 'Awake with his bottle, asleep with his dummy, in each colour.', 520),
+    ('wardrobe', 'Clothes', 'Every garment in every colour, and everyone dressed for rain, cold and heat.', 800),
+    ('hats-off', 'Under the hats', 'Hats come off indoors.', 500),
+    ('going-grey', 'Nan and Pop going grey', '', 1150),
+    ('sunglasses-built', 'Sunglasses', 'Every style on everyone, with hats in the heat, and pushed up in a reaction.', 1250),
+    ('feelings', 'Feelings', 'How each of the cast shows the same feelings.', 1250),
+    ('tail-motion', 'Tails in motion', '', 700),
+    ('bending-arms', 'Arms that bend', '', 1100),
+    ('scenes', 'The four outdoor scenes', 'Hills, beach, backyard and bush, from dawn to dark.', 770),
+    ('scenes-pulled', 'The scenes with the sky pulled down', '', 1380),
+    ('rooms', 'The four rooms', 'After dark she is indoors.', 310),
+    ('rooms-pulled', 'The rooms with the wall pulled down', '', 600),
+    ('firework', 'The firework', 'A milestone, after dark.', 125),
+    ('weather', 'Weather by day', 'Each scene in rain, storm, heat, wind, cold, snow and fog.', 1240),
+    ('weather-night', 'Weather after dark', '', 1240),
+    ('firstrun', 'First run', 'A picture from 14 November.', 430),
+    ('patterns', 'Repeat patterns, light and dark', 'A picture from 14 November.', 610),
+]
 RULES = [
     ('The name', 'Appears only on the splash screen, the app icon and Help.'),
     ('Wordmark', 'The six drawn letters, lower case, in Ink or Paper. It is a drawing, not a typeface: no other word is set in it.'),
@@ -159,26 +185,28 @@ out.documentAttributes = [PDFDocumentAttribute.titleAttribute: "Puggle: the bran
 out.write(to: URL(fileURLWithPath: a[1]))
 print(out.pageCount, "pages")
 '''
-# The pages carried over from the last edition are a different size each, so each becomes a picture on a page of ours.
-PICTURE = '''
-import PDFKit
-import AppKit
-let a = CommandLine.arguments
-let doc = PDFDocument(url: URL(fileURLWithPath: a[1]))!
-for n in a[3...] {
-    let p = doc.page(at: Int(n)! - 1)!; let b = p.bounds(for: .mediaBox); let k: CGFloat = 2
-    let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(b.width * k), pixelsHigh: Int(b.height * k), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
-    let c = NSGraphicsContext.current!.cgContext
-    c.setFillColor(NSColor.white.cgColor); c.fill(CGRect(x: 0, y: 0, width: b.width * k, height: b.height * k))
-    c.scaleBy(x: k, y: k); p.draw(with: .mediaBox, to: c)
-    try! rep.representation(using: .jpeg, properties: [.compressionFactor: 0.88])!.write(to: URL(fileURLWithPath: "\\(a[2])/old-\\(n).jpg"))
-    print(n, Int(b.height))
-}
-'''
+def refresh():
+    """Copies the pictures the app saved in the simulator into docs/brand/app-now, as smaller JPEGs."""
+    os.makedirs(NOW, exist_ok=True)
+    box = subprocess.run(['xcrun', 'simctl', 'get_app_container', 'iPhone 17', 'com.tomgarton.puggle', 'data'], capture_output=True, text=True).stdout.strip()
+    elsewhere = {'firstrun': os.path.join(REPO, 'docs', 'previews', 'onboarding', 'built-light.png'),
+                 'patterns': os.path.join(REPO, 'docs', 'previews', 'patterns', 'repeats.png')}
+    for name, *_ in PICTURES:
+        src = elsewhere.get(name, os.path.join(box, 'Documents', name + '.png'))
+        assert os.path.exists(src), src
+        subprocess.run(['sips', '--resampleWidth', '2160', '-s', 'format', 'jpeg', '-s', 'formatOptions', '86', src, '--out', os.path.join(NOW, name + '.jpg')], capture_output=True)
+
+
+def picture(name, title, note, most):
+    size = subprocess.run(['sips', '-g', 'pixelWidth', '-g', 'pixelHeight', os.path.join(NOW, name + '.jpg')], capture_output=True, text=True).stdout
+    wide, tall = (int(v) for v in re.findall(r'pixel\w+: (\d+)', size))
+    height = min(most, round(984 * tall / wide))
+    return (strip(APP_NOW[0], 7, title, note) + f'<div style="height: {height + 40}px; display: flex; align-items: center; justify-content: center">'
+            f'<img src="file://{os.path.abspath(os.path.join(NOW, name + ".jpg"))}" style="max-width: 984px; height: {height}px; border-radius: 10px"></div>', 63 + height + 40)
 
 
 def main():
+    if '--refresh' in sys.argv: refresh()
     boards = json.load(open(os.path.join(CANVAS, 'project', 'canvas.json')))['boards']
     work = tempfile.mkdtemp()
     pages = [cover(), contents([(t, a) for t, a, _ in SECTIONS] + [APP_NOW[:2], ('Rules', 'The short list that everything above follows.')])]
@@ -186,14 +214,7 @@ def main():
         pages.append(divider(number, title, about))
         pages += [page(body) for body in packed([board(name, title, number, note, boards) for name, note in items])]
     pages.append(divider(7, APP_NOW[0], APP_NOW[1]))
-    script = os.path.join(work, 'picture.swift')
-    open(script, 'w').write(PICTURE)
-    done = subprocess.run(['swift', script, OLD, work] + [str(n) for n in APP_NOW[2]], capture_output=True, text=True)
-    for line in done.stdout.split('\n'):
-        if not line.strip(): continue
-        n, points = line.split()
-        tall = min(int(points) / 0.75, PAGE_H)   # points to our pixels; a page taller than ours is drawn smaller
-        pages.append(page(f'<img src="old-{n}.jpg" style="display: block; height: {tall:.0f}px; margin: 0 auto">'))
+    pages += [page(body) for body in packed([picture(*p) for p in PICTURES])]
     pages.append(rules())
     parts = []
     for i, html in enumerate(pages):
