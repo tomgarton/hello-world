@@ -41,6 +41,9 @@ struct SyncProgress: Equatable {
     }
 
     var parts: [Part] = []
+    /// Entries on this phone with no child attached, of the kinds that always have one. An entry and the
+    /// child it is for travel to iCloud as separate records, so on another phone the entry can arrive first.
+    var childless = 0
 
     var total: Int { parts.reduce(0) { $0 + $1.total } }
     var sent: Int { parts.reduce(0) { $0 + $1.sent } }
@@ -88,7 +91,12 @@ struct SyncProgress: Equatable {
                 parts[group]?.total += 1
                 if inCloud[id] != nil { parts[group]?.sent += 1 }
             }
-            return SyncProgress(parts: Group.allCases.compactMap { parts[$0] }.filter { $0.total > 0 })
+            let lone = NSFetchRequest<NSNumber>(entityName: "Event")
+            lone.resultType = .countResultType
+            lone.predicate = NSPredicate(format: "family == %@ AND children.@count == 0 AND NOT (kindRaw IN %@)",
+                                         familyID, [Event.removedKind, EventKind.pump.rawValue, EventKind.note.rawValue])
+            let childless = (try? context.count(for: lone)) ?? 0
+            return SyncProgress(parts: Group.allCases.compactMap { parts[$0] }.filter { $0.total > 0 }, childless: childless)
         }
     }
 
@@ -153,6 +161,16 @@ struct SyncView: View {
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 4)
                         .padding(.vertical, 8)
+                    if progress.childless > 0 {
+                        card {
+                            Text("\(progress.childless.formatted()) \(progress.childless == 1 ? "entry has" : "entries have") no child on this phone")
+                                .font(.headline)
+                            Text("An entry and who it is for arrive from iCloud separately. If this number is not going down, compare it with the phone the entries were added on.")
+                                .font(.subheadline)
+                                .foregroundStyle(Palette.muted)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
+                    }
                     heading("Since Puggle was opened")
                     card { activity }
                 }

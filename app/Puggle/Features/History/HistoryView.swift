@@ -1,11 +1,22 @@
+import Combine
 import CoreData
 import SwiftUI
 
 /// Everything logged, newest first, grouped by day, with a filter by activity.
 struct HistoryView: View {
     @EnvironmentObject private var store: FamilyStore
-    @FetchRequest(sortDescriptors: [SortDescriptor(\Event.startedAt, order: .reverse)]) private var allEvents: FetchedResults<Event>
+    /// Read whole, with who each entry is for: without that, every row scrolled into view went back to the
+    /// disk for its child, which is what made a long history stutter (Tom, 15 November 2026).
+    @FetchRequest(fetchRequest: HistoryView.everything) private var allEvents: FetchedResults<Event>
     private var events: [Event] { store.onScreen(allEvents) }
+
+    private static var everything: NSFetchRequest<Event> {
+        let request = NSFetchRequest<Event>(entityName: "Event")
+        request.sortDescriptors = [NSSortDescriptor(keyPath: \Event.startedAt, ascending: false)]
+        request.returnsObjectsAsFaults = false
+        request.relationshipKeyPathsForPrefetching = ["children"]
+        return request
+    }
     @FetchRequest(sortDescriptors: [SortDescriptor(\Child.createdAt)]) private var allChildren: FetchedResults<Child>
     private var children: [Child] { store.onScreen(allChildren) }
     /// Filters stay set until cleared, across launches.
@@ -30,7 +41,14 @@ struct HistoryView: View {
         var id: Date { day }
     }
 
-    private var days: [DayGroup] {
+    /// The days as last worked out. Sorting thousands of entries into days is done when something changes,
+    /// not each time the screen is drawn: it used to be done twice on every redraw.
+    @State private var days: [DayGroup] = []
+    @State private var sorted = false
+    /// Goes up when anything in the store changes, so the days are worked out again.
+    @State private var changes = 0
+
+    private func makeDays() -> [DayGroup] {
         // A finished sleep is listed on the day it ended, at the time it ended.
         let grouped = Dictionary(grouping: filtered) { Calendar.current.startOfDay(for: $0.listedAt ?? .distantPast) }
         return grouped.keys.sorted(by: >).map { day in
@@ -41,7 +59,7 @@ struct HistoryView: View {
     var body: some View {
         NavigationStack {
             List {
-                if days.isEmpty {
+                if days.isEmpty && sorted {
                     ContentUnavailableView(isFiltered ? "Nothing matches" : "Nothing here yet",
                                            systemImage: "tray",
                                            description: Text(isFiltered
@@ -81,6 +99,13 @@ struct HistoryView: View {
                     .animation(.spring(duration: 0.4, bounce: 0), value: store.justDeleted?.deletedAt)
             }
             .sheet(item: $looking) { EntryDetailView(event: $0.event) }
+            .task(id: "\(allEvents.count)|\(kindFilter)|\(childFilter)|\(changes)") {
+                days = makeDays()
+                sorted = true
+            }
+            // An entry changed or arrived: wait for the flurry to end, then sort once.
+            .onReceive(NotificationCenter.default.publisher(for: .NSManagedObjectContextObjectsDidChange, object: store.context)
+                .debounce(for: .seconds(0.4), scheduler: RunLoop.main)) { _ in changes &+= 1 }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Menu {
@@ -134,6 +159,9 @@ struct EventRow: View {
                     ForEach(event.sortedChildren) { ChildChip(child: $0) }
                     if let who = event.loggedBy, !who.isEmpty {
                         Text("by \(who)").font(.footnote).foregroundStyle(Palette.muted).lineLimit(1)
+                    } else if event.loggedByID?.hasPrefix(FamilyStore.importPrefix) == true {
+                        // The file does not say who logged it, so say where it came from.
+                        Text("Imported").font(.footnote).foregroundStyle(Palette.muted).lineLimit(1)
                     }
                 }
                 if let note = event.note, !note.isEmpty {

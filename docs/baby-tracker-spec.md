@@ -1970,3 +1970,32 @@ way. The edge it runs off is soft. A single line that fits stays still. With Red
 largest text sizes, nothing moves and every line is shown in full, wrapped. VoiceOver reads all of it at
 once. Seen in a recording from the simulator (`docs/previews/today/heading-line.gif`); Reduce Motion and
 the largest text sizes not seen.
+
+## History after the import: slow to scroll, and entries with no child (15 November 2026, late)
+
+Tom, on build 10 with Clara's import synced to his phone: many imported entries show no child and no "by",
+and History gets laggy as it scrolls.
+
+**Slow to scroll: fixed.** Two causes, both in `HistoryView`.
+
+- The days were worked out afresh every time the screen was drawn, twice: every entry filtered, grouped by
+  day and sorted. After an import that is thousands of entries on each redraw, and the screen redraws
+  whenever anything in the store changes, which during a sync is constantly. The days are now worked out
+  when something changes (the number of entries, a filter, or a change in the store, once the flurry has
+  ended) and kept in between.
+- Each row went back to the disk for its child as it scrolled into view. The entries are now read whole,
+  with who each is for, in one go.
+
+**No "by": by design, now said.** The export file does not say who logged an entry, so an imported entry
+has no author. The row now says "Imported" where "by Tom" would be.
+
+**No child: not fixed, cause not confirmed.** The importer attaches the child to every entry it makes, so on
+Clara's phone they have one. An entry and the link to its child are separate records in iCloud, and after an
+import of thousands the links can arrive after the entries, or a batch of them may not have gone up. The
+iCloud sync screen now counts entries on this phone with no child (of the kinds that always have one), so
+the two phones can be compared: if Clara's says none and Tom's number is falling, it is still arriving; if
+Tom's stays put, links were lost and need sending again. If that is what it turns out to be, the lasting fix
+is to keep the child on the entry itself as well, which is a new field and so a schema deploy.
+
+92 tests pass. Seen in the simulator on a long sample history. The speed on a phone with the real import is
+not measured.
