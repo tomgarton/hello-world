@@ -7,6 +7,34 @@ options:
   deploymentTarget:
     iOS: "17.0"
 targets:
+  # The same app pointed at iCloud's Development side. As well as checking, it adds any field Puggle's model has
+  # and Development lacks. It takes the place of PuggleCheck on the phone (same bundle id). Before building it:
+  #   python3 make_schema_model.py
+  PuggleCheckDev:
+    type: application
+    platform: iOS
+    sources: [Check.swift, SchemaModel.swift]
+    info:
+      path: Info.plist
+      properties:
+        CFBundleDisplayName: Puggle Check
+        UILaunchScreen: {}
+    entitlements:
+      path: CheckDev.entitlements
+      properties:
+        com.apple.developer.icloud-container-identifiers: [iCloud.com.tomgarton.puggle]
+        com.apple.developer.icloud-services: [CloudKit]
+        com.apple.developer.icloud-container-environment: Development
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle.check
+        DEVELOPMENT_TEAM: X2UM64LDU4
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1"
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: SCHEMA
   PuggleCheck:
     type: application
     platform: iOS

@@ -1,4 +1,5 @@
 import CloudKit
+import CoreData
 import SwiftUI
 
 /// Asks iCloud, as the signed-in person, what it holds for the family and which fields it will accept.
@@ -142,6 +143,33 @@ struct Checker {
                 say("Test records deleted.")
             } catch { say("Deleting the test records failed. \(code(error))") }
         }
+        #if SCHEMA
+        await addMissing()
+        #endif
         say("Done.")
     }
+
+    #if SCHEMA
+    /// The Development build only. Hands Puggle's own data model to Core Data and asks it to make sure iCloud's
+    /// Development side has every record type and field. The store is a scratch file in this app's own storage.
+    /// It adds to the schema and holds no family data. The Production side is changed only by deploying the
+    /// schema in Apple's CloudKit Console.
+    func addMissing() async {
+        say("Adding Puggle's model to the Development schema…")
+        let container = NSPersistentCloudKitContainer(name: "Puggle", managedObjectModel: PuggleModel.shared)
+        let file = FileManager.default.temporaryDirectory.appendingPathComponent("schema-\(UUID().uuidString).sqlite")
+        let description = NSPersistentStoreDescription(url: file)
+        description.setOption(true as NSNumber, forKey: NSPersistentHistoryTrackingKey)
+        description.cloudKitContainerOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: "iCloud.com.tomgarton.puggle")
+        container.persistentStoreDescriptions = [description]
+        let failure: Error? = await withCheckedContinuation { done in
+            container.loadPersistentStores { _, error in done.resume(returning: error) }
+        }
+        if let failure { say("Opening the scratch store failed. \(code(failure))"); return }
+        do {
+            try container.initializeCloudKitSchema(options: [])
+            say("Schema: Development now has every field in Puggle's model.")
+        } catch { say("Schema: failed. \(code(error))") }
+    }
+    #endif
 }
