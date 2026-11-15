@@ -1186,3 +1186,13 @@ To tell them apart, test builds now have Settings, iCloud check (`CloudCheckView
 Sharing failure, found (14 November 2026). Tom's iCloud check from build 2: his iCloud holds the family's zone, and the phone holds an invite with a link, but iCloud has no such invite ("Record not found" for `cloudkit.zoneshare`). The invite was made while the phone ran an Xcode build, on iCloud's Development side. The TestFlight build uses Production, where Core Data made the zone again but not the invite, because the phone believed it already existed. Apple's sharing sheet then failed trying to change an invite that was not there.
 
 Fix: before showing the sheet, `Persistence.share` asks iCloud for the invite the phone holds. If iCloud has none, it makes a new invite for the same zone and gives Core Data the new one. The family's entries stay where they are; people are invited afresh. Offline, it carries on as before. The iCloud check also counts the family's records in iCloud, by kind, to confirm the entries themselves reached Production. Not yet run on a phone.
+
+### Import with two parents (15 November 2026)
+
+Both parents may bring entries in from the same app, so three things were looked at.
+
+- **Built: one copy after sync.** If two phones import the same file before they have caught up with each other, iCloud keeps both copies of each entry. When entries arrive, copies with the same identity are merged to one. Every phone keeps the same one (the copy made first), so two phones never remove each other's.
+- **Built: deleted stays deleted.** Deleting an imported entry leaves an empty mark with only its identity, in the family's iCloud. Importing the same file again, on any phone, leaves that row out and says how many. Bringing the entry back from Recently deleted removes the mark, and so does undoing the import. No change to the iCloud schema was needed: the mark is an entry with no child, no family and the kind "removed".
+- **Mocked up, not built:** holding the import while someone who has just joined is still catching up, and showing sleeps and feeds in the file that overlap ones already here, left out unless chosen. See `docs/previews/import/overlaps.png` (`docs/tools/make_import_mockup.py`).
+- **Who can import:** parents only. Someone who joins starts as a Helper unless the invite said Parent; whoever holds the family changes this on the person's row in Family.
+- **Not tested:** the merge and the marks have unit tests but have not run across two phones.

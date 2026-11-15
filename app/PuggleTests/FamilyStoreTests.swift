@@ -502,6 +502,48 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertEqual(store.currentFamily().events?.count, 1)
     }
 
+    func testADeletedImportedEntryStaysDeletedWhenTheFileIsImportedAgain() {
+        store.backups = shelf()
+        let reading = Importer.read(files: exportFiles())
+        let first = store.importDrafts(reading.drafts, children: ["Ollie B. Test": ollie])
+        let nappy = (store.currentFamily().events ?? []).first { $0.kind == .nappy }!
+        store.delete(nappy)
+        XCTAssertEqual(store.currentFamily().events?.count, 4)
+        XCTAssertEqual(store.importedCount(batch: first.batch), 4)
+        let second = store.importDrafts(reading.drafts, children: ["Ollie B. Test": ollie])
+        XCTAssertEqual([second.added, second.repeats, second.removed], [0, 4, 1])
+        // Bringing it back from Recently deleted takes the mark away, and leaves one entry, not two.
+        if let copy = store.justDeleted { _ = store.restore(copy) }
+        XCTAssertEqual(store.currentFamily().events?.count, 5)
+        let third = store.importDrafts(reading.drafts, children: ["Ollie B. Test": ollie])
+        XCTAssertEqual([third.added, third.removed], [0, 0])
+    }
+
+    func testTwoCopiesOfAnImportedEntryBecomeOne() {
+        store.backups = shelf()
+        let reading = Importer.read(files: exportFiles())
+        store.importDrafts(reading.drafts, children: ["Ollie B. Test": ollie])
+        let family = store.currentFamily()
+        // What another phone's import of the same file looks like once it arrives: the same ids again.
+        var ids = Set<UUID>()
+        for event in family.events ?? [] {
+            let copy = Event(context: store.context)
+            copy.id = event.id
+            copy.kind = event.kind
+            copy.startedAt = event.startedAt
+            copy.createdAt = Date.now.addingTimeInterval(60)
+            copy.loggedByID = "import-other"
+            copy.family = family
+            copy.children = event.children
+            ids.insert(event.id!)
+        }
+        try? store.context.save()
+        XCTAssertEqual(family.events?.count, 10)
+        store.mergeCopies(of: ids)
+        XCTAssertEqual(family.events?.count, 5)
+        XCTAssertFalse((family.events ?? []).contains { $0.loggedByID == "import-other" }, "The copy made first is the one kept")
+    }
+
     // MARK: Patterns
 
     /// Builds days of entries quickly, through the importer, for a child born `born` days ago.

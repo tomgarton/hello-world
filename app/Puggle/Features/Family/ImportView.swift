@@ -52,6 +52,7 @@ struct ImportView: View {
                     Text("Imported \(BackupsView.count(result.added, "entry", "entries")).").font(.headline)
                     if result.repeats > 0 { Text("\(BackupsView.count(result.repeats, "entry was", "entries were")) already imported from this file before.") }
                     if result.alreadyHere > 0 { Text("\(BackupsView.count(result.alreadyHere, "entry was", "entries were")) already logged here at the same minute, and left as they are.") }
+                    if result.removed > 0 { Text("\(BackupsView.count(result.removed, "entry was", "entries were")) imported before and deleted since, and left out.") }
                     Text("They are in History and Insights now. A backup was made first.")
                         .foregroundStyle(Palette.muted)
                 }

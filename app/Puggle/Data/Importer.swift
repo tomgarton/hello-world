@@ -325,10 +325,12 @@ extension FamilyStore {
         var repeats = 0
         /// An entry of the same kind for the same child within a minute was already here.
         var alreadyHere = 0
+        /// Imported before and deleted since, on any phone. They stay deleted.
+        var removed = 0
         var batch = ""
     }
 
-    private static let importPrefix = "import-"
+    static let importPrefix = "import-"
 
     /// The mark on the entries of the most recent import, so it can be taken back.
     var lastImportBatch: String? {
@@ -345,6 +347,7 @@ extension FamilyStore {
         let family = currentFamily()
         var result = Imported(batch: Self.importPrefix + UUID().uuidString.prefix(8))
         var have = Set((family.events ?? []).filter { !$0.isDeleted }.compactMap(\.id))
+        let gone = removedMarks(ids: nil, with: family)
         // Minutes already taken, by child and kind, to spot the same thing logged in both apps.
         // Only what was here before the import counts: two bottles in the same minute of one file are both kept.
         var taken: [String: Set<Int>] = [:]
@@ -364,6 +367,7 @@ extension FamilyStore {
                         String(draft.amountML), draft.detail ?? "", String(draft.value)].joined(separator: "|")
             let id = Self.uuid(from: seed)
             if have.contains(id) { result.repeats += 1; continue }
+            if gone.contains(id) { result.removed += 1; continue }
             let slot = "\(child.map { "\($0.objectID)" } ?? "")|\(draft.kind.rawValue)"
             let minute = Int(draft.start.timeIntervalSince1970 / 60)
             if let minutes = taken[slot], minutes.contains(minute) || minutes.contains(minute - 1) || minutes.contains(minute + 1) {
@@ -397,7 +401,7 @@ extension FamilyStore {
     /// How many entries the last import still has here.
     func importedCount(batch: String) -> Int {
         let request = NSFetchRequest<Event>(entityName: "Event")
-        request.predicate = NSPredicate(format: "loggedByID == %@", batch)
+        request.predicate = NSPredicate(format: "loggedByID == %@ AND kindRaw != %@", batch, Event.removedKind)
         return (try? context.count(for: request)) ?? 0
     }
 
@@ -409,10 +413,87 @@ extension FamilyStore {
         request.predicate = NSPredicate(format: "loggedByID == %@", batch)
         let events = (try? context.fetch(request)) ?? []
         lastSaved = nil
+        // The marks left by deleted entries go too, so importing the file again starts clean.
+        let live = events.filter { !$0.isRemovedMark }.count
         events.forEach(context.delete)
         persistence.save()
         if lastImportBatch == batch { lastImportBatch = nil }
-        return events.count
+        return live
+    }
+
+    // MARK: Deleted for good, and copies
+
+    /// Deletes an entry. One that came from an import leaves a mark behind with nothing in it but its id,
+    /// so the same row in the same file is not brought back, on this phone or anyone else's.
+    func take(out event: Event) {
+        guard event.loggedByID?.hasPrefix(Self.importPrefix) == true, event.id != nil else {
+            context.delete(event)
+            return
+        }
+        event.kindRaw = Event.removedKind
+        event.family = nil
+        event.children = []
+        event.startedAt = nil
+        event.endedAt = nil
+        event.amountML = 0
+        event.value = 0
+        event.leftSeconds = 0
+        event.rightSeconds = 0
+        event.detail = nil
+        event.note = nil
+        event.dose = nil
+        event.sticker = nil
+    }
+
+    /// The ids of imported entries deleted since, in this family's store. `ids` narrows the search.
+    func removedMarks(ids: Set<UUID>?, with family: Family) -> Set<UUID> {
+        Set(marks(ids: ids, with: family).compactMap(\.id))
+    }
+
+    private func marks(ids: Set<UUID>?, with family: Family) -> [Event] {
+        let request = NSFetchRequest<Event>(entityName: "Event")
+        request.predicate = ids.map { NSPredicate(format: "kindRaw == %@ AND id IN %@", Event.removedKind, $0 as CVarArg) }
+            ?? NSPredicate(format: "kindRaw == %@", Event.removedKind)
+        let home = family.objectID.persistentStore
+        return ((try? context.fetch(request)) ?? []).filter { !$0.isDeleted && $0.objectID.persistentStore == home }
+    }
+
+    /// Bringing a deleted entry back takes its mark away.
+    func clearMark(for id: UUID) {
+        guard let family = existingFamily() else { return }
+        marks(ids: [id], with: family).forEach(context.delete)
+    }
+
+    /// When two phones import the same file before they have caught up with each other, iCloud keeps both
+    /// copies of every entry. This keeps one. Every phone picks the same one (a deleted mark first, then
+    /// the copy made first), so two phones never each remove the other's.
+    @discardableResult
+    func mergeCopies(of ids: Set<UUID>) -> Int {
+        guard !ids.isEmpty, role != .viewer else { return 0 }
+        let request = NSFetchRequest<Event>(entityName: "Event")
+        request.predicate = NSPredicate(format: "id IN %@", ids as CVarArg)
+        var groups: [String: [Event]] = [:]
+        for event in (try? context.fetch(request)) ?? [] where !event.isDeleted {
+            guard let id = event.id else { continue }
+            let home = event.objectID.persistentStore?.identifier ?? ""
+            groups["\(home)|\(id)", default: []].append(event)
+        }
+        var removed = 0
+        for copies in groups.values where copies.count > 1 {
+            let ordered = copies.sorted { a, b in
+                if a.isRemovedMark != b.isRemovedMark { return a.isRemovedMark }
+                let (first, second) = (a.createdAt ?? .distantPast, b.createdAt ?? .distantPast)
+                if first != second { return first < second }
+                return (a.loggedByID ?? "") < (b.loggedByID ?? "")
+            }
+            for extra in ordered.dropFirst() {
+                if lastSaved?.events.contains(extra) == true { lastSaved = nil }
+                context.delete(extra)
+                removed += 1
+            }
+        }
+        if removed > 0 { persistence.save() }
+        return removed
     }
 
     private static func uuid(from seed: String) -> UUID {

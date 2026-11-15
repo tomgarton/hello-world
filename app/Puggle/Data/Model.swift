@@ -202,7 +202,12 @@ extension Event {
     }
 
     /// False once the entry has been deleted, here or on another phone.
-    var isLive: Bool { !isDeleted && managedObjectContext != nil }
+    var isLive: Bool { !isDeleted && managedObjectContext != nil && !isRemovedMark }
+
+    /// What is left of an imported entry that was deleted: no child, no family, nothing but its id.
+    /// It stops the same row being imported again. See `FamilyStore.take(out:)`.
+    static let removedKind = "removed"
+    var isRemovedMark: Bool { kindRaw == Self.removedKind }
 
     var sortedChildren: [Child] {
         (children ?? []).sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }

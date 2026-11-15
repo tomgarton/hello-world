@@ -105,6 +105,7 @@ extension FamilyStore {
         guard kind == .pump || !children.isEmpty else { return nil }
         let event = log(kind, for: children, at: entry.startedAt ?? .now, end: entry.endedAt, amountML: entry.amountML,
                         detail: entry.detail, note: entry.note, dose: entry.dose, value: entry.value)
+        clearMark(for: entry.id)
         event.id = entry.id
         event.sticker = entry.sticker
         event.leftSeconds = entry.leftSeconds

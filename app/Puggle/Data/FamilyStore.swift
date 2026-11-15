@@ -72,11 +72,15 @@ final class FamilyStore: ObservableObject {
             forName: .NSManagedObjectContextObjectsDidChange,
             object: persistence.viewContext,
             queue: .main
-        ) { [weak self] _ in
+        ) { [weak self] note in
+            // Entries that have just arrived, from this phone or another.
+            let arrived = Set((note.userInfo?[NSInsertedObjectsKey] as? Set<NSManagedObject> ?? [])
+                .compactMap { ($0 as? Event)?.id })
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.familyCache = nil
                 self.objectWillChange.send()
+                self.mergeCopies(of: arrived)
                 self.refreshRole()
                 // A rule saved on another phone has just arrived, or one saved here needs none of this.
                 if !self.isSample, !self.context.hasChanges { self.syncMedicineRules() }
@@ -466,7 +470,7 @@ final class FamilyStore: ObservableObject {
         // A copy is kept on this phone for 30 days, so it can be brought back.
         let copy = DeletedEntry(event)
         if !isSample { RecentlyDeleted.shared.add(copy) }
-        context.delete(event)
+        take(out: event)
         persistence.save()
         justDeleted = copy
     }
@@ -522,6 +526,7 @@ final class FamilyStore: ObservableObject {
     /// Everything, as a plain CSV file the family can open anywhere.
     func exportCSV() -> URL? {
         let request = NSFetchRequest<Event>(entityName: "Event")
+        request.predicate = NSPredicate(format: "kindRaw != %@", Event.removedKind)
         request.sortDescriptors = [NSSortDescriptor(key: "startedAt", ascending: true)]
         let events = (try? context.fetch(request)) ?? []
         let stamp = ISO8601DateFormatter()
