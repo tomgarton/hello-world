@@ -37,9 +37,12 @@ enum Setting {
     static let temperatureUnit = "temperatureUnit" // "c" or "f"
 }
 
-/// Settings, reached from the Family tab. Short on purpose: who you are,
-/// how the app looks, how much it shows, and where your data is.
-/// Appearance, night and units each have a small screen of their own.
+/// Settings, reached from the Family tab.
+///
+/// Grouped by what a parent is trying to do (Tom, 15 November 2026: it felt crammed and confusing):
+/// who they are, what Today shows, how the app looks, what shows away from the app, the children, privacy
+/// and data, and help. Every section has a heading. A line of help sits inside the row it explains, so it
+/// is never read as being about the whole group. Appearance, units, weather and reminders have their own screens.
 struct SettingsView: View {
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage(Setting.yourName) private var yourName = ""
@@ -48,37 +51,24 @@ struct SettingsView: View {
     @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
     @AppStorage(Setting.haptics) private var hapticsOn = true
     @AppStorage(Setting.appLock) private var lockOn = false
+    @AppStorage(Setting.appearance) private var appearance = "system"
+    @AppStorage(WeatherWatch.onKey) private var weatherOn = false
     @EnvironmentObject private var store: FamilyStore
     @State private var choosingTiles = false
 
     var body: some View {
         List {
             youSection
-            lookSection
             todaySection
-            glanceSection
-            stampsSection
-            lockSection
-            outsideSection
-            sampleSection
-            moreSection
-            if TesterDetail.on {
-                Section {
-                    NavigationLink("iCloud check") { CloudCheckView() }
-                } footer: {
-                    Text("Test builds only. Lists what iCloud holds for this family, to track down a sharing problem.")
-                }
-                .listRowBackground(Palette.paper)
-            }
-            #if DEBUG
-            Section {
-                NavigationLink("Developer") { DeveloperView() }
-            } footer: {
-                Text("Test builds only. Forces the scene, the splash and more, so each can be checked.")
-            }
-            .listRowBackground(Palette.paper)
-            #endif
+            lookSection
+            awaySection
+            childrenSection
+            privacySection
+            helpSection
+            testSection
         }
+        .listSectionSpacing(28)
+        .environment(\.defaultMinListRowHeight, 50)
         .scrollContentBackground(.hidden)
         .background(Palette.sand)
         .navigationTitle("Settings")
@@ -88,127 +78,156 @@ struct SettingsView: View {
         }
     }
 
-    private var youSection: some View {
-        Section {
-            TextField("Your name", text: $yourName)
-                .textContentType(.givenName)
-                .submitLabel(.done)
-        } header: {
-            Text("You")
-        } footer: {
-            Text("Shown beside what you log, so the family can see who added it. Optional.")
+    /// A group's heading, with a small icon so the groups can be told apart at a glance (Tom, 15 November 2026).
+    private func heading(_ title: String, _ symbol: String) -> some View {
+        HStack(spacing: 7) {
+            Image(systemName: symbol).font(.footnote.weight(.semibold)).frame(width: 20).accessibilityHidden(true)
+            Text(title).font(.subheadline.weight(.semibold))
         }
-        .listRowBackground(Palette.input)
+        .foregroundStyle(Palette.ink)
+        .textCase(nil)
+        .padding(.bottom, 2)
     }
 
-    private var lookSection: some View {
+    /// A row's name with one line of help under it.
+    private func named(_ title: String, _ help: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).foregroundStyle(Palette.ink)
+            Text(help).font(.footnote).foregroundStyle(Palette.muted).fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.vertical, 3)
+    }
+
+    private var youSection: some View {
         Section {
-            NavigationLink("Appearance and night") { AppearanceSettingsView() }
-            NavigationLink("Units and words") { UnitsSettingsView() }
-            NavigationLink("Weather on Today") { WeatherSettingsView() }
-            NavigationLink("Reminders") { RemindersView() }
-            Toggle("Touch feedback", isOn: $hapticsOn)
+            LabeledContent("Your name") {
+                TextField("Add your name", text: $yourName)
+                    .textContentType(.givenName)
+                    .submitLabel(.done)
+                    .multilineTextAlignment(.trailing)
+            }
         } header: {
-            Text("Look and feel")
+            heading("You", "person")
         } footer: {
-            Text("A small tap you feel when something is saved.")
+            Text("Shown beside what you log, so the family knows who added it.")
         }
         .listRowBackground(Palette.paper)
     }
 
     private var todaySection: some View {
         Section {
-            Picker("How much to see", selection: $justLog) {
-                Text("Everything").tag(false)
-                Text("Just logging").tag(true)
+            HStack {
+                named("Show", justLog ? "Only the buttons for logging. Everything is still saved."
+                                      : "Timers, the day's totals and Insights.")
+                Spacer(minLength: 8)
+                Picker("Show", selection: $justLog) {
+                    Text("Everything").tag(false)
+                    Text("Just logging").tag(true)
+                }
+                .labelsHidden()
+                .tint(Palette.muted)
             }
             .onChange(of: justLog) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
-            Button("Tiles on Today") { choosingTiles = true }
-        } header: {
-            Text("Today")
-        } footer: {
-            Text(justLog
-                 ? "Just the buttons for logging. No timers, totals or Insights. Everything is still saved."
-                 : "Timers, totals for the day, and Insights for the week.")
-        }
-        .listRowBackground(Palette.paper)
-    }
-
-    @ViewBuilder private var glanceSection: some View {
-        if !justLog {
-            Section {
-                Toggle("Last feed on the Lock Screen", isOn: $glanceOn)
-                    .onChange(of: glanceOn) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
-            } footer: {
-                Text("Time since the last feed, on the Lock Screen and in the Dynamic Island. Sleep and feed timers always show there.")
+            Button { choosingTiles = true } label: {
+                HStack {
+                    Text("Tiles").foregroundStyle(Palette.ink)
+                    Spacer()
+                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted.opacity(0.6))
+                }
             }
-            .listRowBackground(Palette.paper)
-        }
-    }
-
-    private var stampsSection: some View {
-        Section {
-            Toggle("Stamps after the potty", isOn: $stickersOn)
-        } footer: {
-            Text("After the potty, your child stamps a card. Five stamps earn a shiny sticker.")
+            NavigationLink { WeatherSettingsView() } label: {
+                LabeledContent("Weather", value: weatherOn ? "On" : "Off")
+            }
+        } header: {
+            heading("Today", "sun.max")
         }
         .listRowBackground(Palette.paper)
     }
 
-    private var lockSection: some View {
+    private var lookSection: some View {
         Section {
-            Toggle("Lock with Face ID", isOn: Binding(get: { lockOn }, set: { wanted in
+            NavigationLink { AppearanceSettingsView() } label: {
+                LabeledContent("Appearance and night", value: appearance == "light" ? "Light" : appearance == "dark" ? "Dark" : "Same as iPhone")
+            }
+            NavigationLink("Units and words") { UnitsSettingsView() }
+            Toggle(isOn: $hapticsOn) { named("Touch feedback", "A small tap when something is saved.") }
+        } header: {
+            heading("Look and feel", "paintbrush")
+        }
+        .listRowBackground(Palette.paper)
+    }
+
+    private var awaySection: some View {
+        Section {
+            if !justLog {
+                Toggle(isOn: $glanceOn) {
+                    named("Last feed on the Lock Screen", "Also in the Dynamic Island. Sleep and feed timers always show.")
+                }
+                .onChange(of: glanceOn) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
+            }
+            NavigationLink("Reminders") { RemindersView() }
+            NavigationLink("Siri and shortcuts") { SiriView() }
+        } header: {
+            heading("Away from the app", "iphone")
+        }
+        .listRowBackground(Palette.paper)
+    }
+
+    private var childrenSection: some View {
+        Section {
+            Toggle(isOn: $stickersOn) { named("Stamps after the potty", "Five stamps earn a sticker.") }
+        } header: {
+            heading("Children", "figure.and.child.holdinghands")
+        }
+        .listRowBackground(Palette.paper)
+    }
+
+    private var privacySection: some View {
+        Section {
+            Toggle(isOn: Binding(get: { lockOn }, set: { wanted in
                 // Ask before changing it either way, so only the phone's owner can.
                 Task {
                     if await AppLock.authenticate(reason: wanted ? "Turn on the lock" : "Turn off the lock") {
                         lockOn = wanted
                     }
                 }
-            }))
-        } header: {
-            Text("Privacy")
-        } footer: {
-            Text("Face ID each time the app opens. Siri and the Lock Screen timer still work.")
-        }
-        .listRowBackground(Palette.paper)
-    }
-
-    private var outsideSection: some View {
-        Section {
-            NavigationLink { SiriView() } label: {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Siri and shortcuts")
-                    Text("Ready to use. See what to say.").font(.footnote).foregroundStyle(Palette.muted)
-                }
+            })) {
+                named("Lock with Face ID", "Asked each time the app opens. Siri and Lock Screen timers still work.")
             }
-        } header: {
-            Text("Without opening the app")
-        }
-        .listRowBackground(Palette.paper)
-    }
-
-    private var sampleSection: some View {
-        Section {
-            if sample.isOn {
-                Button("Leave the sample family") { sample.leave() }
-            } else {
-                Button("Look around a sample family") { sample.start() }
-            }
-        } footer: {
-            Text(sample.isOn
-                 ? "These entries are made up. Your own family comes back when you leave."
-                 : "Two made-up children and two weeks of entries, to see every screen filled in. Your family is untouched.")
-        }
-        .listRowBackground(Palette.paper)
-    }
-
-    private var moreSection: some View {
-        Section {
             SyncRow()
             NavigationLink("Your data") { YourDataView() }
-            NavigationLink("Help and about") { HelpView() }
+        } header: {
+            heading("Privacy and data", "lock")
         }
         .listRowBackground(Palette.paper)
+    }
+
+    private var helpSection: some View {
+        Section {
+            NavigationLink("Help and about") { HelpView() }
+            Button { if sample.isOn { sample.leave() } else { sample.start() } } label: {
+                sample.isOn
+                    ? named("Leave the sample family", "Your own family comes back.")
+                    : named("Look around a sample family", "Two made-up children and two weeks of entries. Your family is untouched.")
+            }
+        } header: {
+            heading("Help", "questionmark.circle")
+        }
+        .listRowBackground(Palette.paper)
+    }
+
+    @ViewBuilder private var testSection: some View {
+        if TesterDetail.on {
+            Section {
+                NavigationLink("iCloud check") { CloudCheckView() }
+                #if DEBUG
+                NavigationLink("Developer") { DeveloperView() }
+                #endif
+            } header: {
+                heading("Test builds only", "hammer")
+            }
+            .listRowBackground(Palette.paper)
+        }
     }
 }
 

@@ -61,13 +61,11 @@ struct YourAvatar: View {
     }
 }
 
-/// You: your photo and name, then everything about how the app works for you.
-/// The full list of settings is one row away.
+/// You: your photo and name. Settings and Help are one row away.
 struct YouView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage(Setting.yourName) private var yourName = ""
     @EnvironmentObject private var store: FamilyStore
-    @State private var choosingTiles = false
     @ObservedObject private var photo = YourPhoto.shared
 
     private var version: String {
@@ -102,22 +100,11 @@ struct YouView: View {
                 }
                 .listRowBackground(Palette.input)
 
-                Section("Make it yours") {
-                    NavigationLink("Appearance and night") { AppearanceSettingsView() }
-                    NavigationLink("Reminders") { RemindersView() }
-                    NavigationLink("Units and words") { UnitsSettingsView() }
-                    Button("Tiles on Today") { choosingTiles = true }
-                }
-                .listRowBackground(Palette.paper)
-
-                Section("Need help?") {
-                    NavigationLink("Help and about") { HelpView() }
-                    NavigationLink("Your data") { YourDataView() }
-                }
-                .listRowBackground(Palette.paper)
-
+                // One way in to everything else. A shortlist here repeated half of Settings and left the
+                // other half a second tap away (Tom, 15 November 2026).
                 Section {
-                    NavigationLink("All settings") { SettingsView() }
+                    NavigationLink("Settings") { SettingsView() }
+                    NavigationLink("Help and about") { HelpView() }
                 }
                 .listRowBackground(Palette.paper)
 
@@ -125,7 +112,7 @@ struct YouView: View {
                     EmptyView()
                 } footer: {
                     VStack(spacing: 6) {
-                        Text("Everything stays on this phone, and in your own iCloud once sharing is on. There's no account with us.")
+                        Text("Everything stays on this phone, and in your own iCloud once sharing is on. There is no account to make.")
                         Text(version).monospacedDigit()
                         Text("This app is not a substitute for medical advice.")
                     }
@@ -141,7 +128,6 @@ struct YouView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
-            .sheet(isPresented: $choosingTiles) { TileChooserView(available: Tile.all) }
             .onDisappear { store.shareMyDetails() }
         }
         .foregroundStyle(Palette.ink)

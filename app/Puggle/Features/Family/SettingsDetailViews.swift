@@ -32,7 +32,7 @@ struct AppearanceSettingsView: View {
                 Text("Dark").tag("dark")
             }
         } footer: {
-            Text("How the app looks during the day.")
+            Text("How the app looks by day.")
         }
         .listRowBackground(Palette.paper)
     }
@@ -66,7 +66,7 @@ struct AppearanceSettingsView: View {
         switch IconColour(rawValue: iconColour) ?? .yellow {
         case .yellow: "The colour inside each icon. Skin tones stay as they are."
         case .own: "Choose any colour. Skin tones stay as they are."
-        case .child: "Each child's icons take that child's colour. Anything that is not one child's stays yellow."
+        case .child: "Each child's icons take their colour. Anything shared stays yellow."
         }
     }
 
@@ -101,13 +101,13 @@ struct AppearanceSettingsView: View {
     private var nightFooter: String {
         switch nightMode {
         case "off":
-            return "The night look stays off. The Night look filter in a Focus still turns the app dark."
+            return "A Focus with the Night look filter can still turn it on."
         case "sleep":
-            return "Very dim, warm text on near-black while any child has a sleep running. It comes on by itself, whatever is chosen above."
+            return "Dim, warm text on black while a child is asleep, whatever Appearance is set to."
         case "both":
-            return "Very dim, warm text on near-black between these times and while any child has a sleep running. It comes on by itself, whatever is chosen above."
+            return "Dim, warm text on black between these times and while a child is asleep, whatever Appearance is set to."
         default:
-            return "Very dim, warm text on near-black between these times. It comes on by itself, whatever is chosen above."
+            return "Dim, warm text on black between these times, whatever Appearance is set to."
         }
     }
 
@@ -116,7 +116,7 @@ struct AppearanceSettingsView: View {
             DatePicker("From", selection: time($nightFrom), displayedComponents: .hourAndMinute)
             DatePicker("Until", selection: time($nightUntil), displayedComponents: .hourAndMinute)
         } footer: {
-            Text("The times can run past midnight, such as 9 pm until 6 am.")
+            Text("The times can run past midnight.")
         }
         .listRowBackground(Palette.paper)
     }
@@ -148,7 +148,7 @@ struct UnitsSettingsView: View {
                 weightPicker
                 temperaturePicker
             } footer: {
-                Text("Changes how amounts are shown and typed. Entries already saved don't change.")
+                Text("How amounts are shown and typed. Saved entries don't change.")
             }
             .listRowBackground(Palette.paper)
             Section {
@@ -203,24 +203,7 @@ struct WeatherSettingsView: View {
                 Toggle("Match the weather outside", isOn: Binding(get: { isOn }, set: { on in
                     if on { watch.turnOn() } else { watch.turnOff() }
                 }))
-            } footer: {
-                Text("The picture at the top of Today shows rain, sun, wind or snow, as it is where you are, and the little platypus dresses for it.")
-            }
-            .listRowBackground(Palette.paper)
-
-            Section {
-                Label("It uses your rough location, to within a few kilometres.", systemImage: "location")
-                Label("Your location isn't saved, and isn't shared with your family or anyone else.", systemImage: "lock")
-                Label("Nothing else in the app uses it. Switch this off and it stops.", systemImage: "hand.raised")
-            } header: {
-                Text("What this uses")
-            }
-            .font(.subheadline)
-            .foregroundStyle(Palette.ink)
-            .listRowBackground(Palette.paper)
-
-            if isOn {
-                Section {
+                if isOn {
                     if let trouble = watch.trouble {
                         Text(trouble).foregroundStyle(Palette.ink)
                         // Test builds only: why, in the weather service's own words.
@@ -228,21 +211,35 @@ struct WeatherSettingsView: View {
                             Text(detail).font(.footnote.monospaced()).foregroundStyle(Palette.muted).textSelection(.enabled)
                         }
                     } else if let now = Weather(rawValue: live) {
-                        Text("Now: \(now.name.lowercased()).").foregroundStyle(Palette.ink)
+                        LabeledContent("Now", value: now.name)
                     } else {
-                        Text("Looking outside.").foregroundStyle(Palette.muted)
-                    }
-                } footer: {
-                    // Apple asks that its weather service is named wherever its data is used.
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text("Weather from \u{F8FF} Weather.")
-                        if let link = URL(string: "https://weatherkit.apple.com/legal-attribution.html") {
-                            Link("Where the weather comes from", destination: link)
-                        }
+                        LabeledContent("Now", value: "Checking")
                     }
                 }
-                .listRowBackground(Palette.paper)
+            } footer: {
+                Text("The picture at the top of Today shows the weather where you are: rain, sun, wind or snow.")
             }
+            .listRowBackground(Palette.paper)
+
+            Section {
+                Text("Uses your rough location, to within a few kilometres.")
+                Text("It isn't saved or shared, and nothing else in the app uses it.")
+            } header: {
+                Text("Location")
+            } footer: {
+                // Apple asks that its weather service is named, with this link, wherever its data is used.
+                if isOn, let link = URL(string: "https://weatherkit.apple.com/legal-attribution.html") {
+                    HStack(spacing: 6) {
+                        Text("\u{F8FF} Weather")
+                        Link("Data sources", destination: link)
+                    }
+                    .font(.footnote)
+                    .padding(.top, 6)
+                }
+            }
+            .font(.subheadline)
+            .foregroundStyle(Palette.ink)
+            .listRowBackground(Palette.paper)
         }
         .scrollContentBackground(.hidden)
         .background(Palette.sand)

@@ -1446,3 +1446,30 @@ now", which is the weather service refusing, not the location. The signing profi
 entitlement, so the likely gap is on Apple's side: WeatherKit has to be ticked twice for an App ID, under
 Capabilities and again under App Services, and only the first is done by Xcode. Test builds now show the
 service's own error under the message. Also reworded "or with us" to "or anyone else" (no "we" in the app).
+
+## Settings, reviewed and regrouped (15 November 2026)
+
+Tom: Settings felt confusing and crammed, the grouping was off, and the copy still read as machine-written,
+most of all at the bottom of Weather on Today. Screens in `docs/previews/settings/`.
+
+**What was wrong.** Nine sections, four with no heading. Help text sat under a whole group, so "A small tap
+you feel when something is saved" read as describing five rows. "Look and feel" held Reminders and the
+weather. iCloud sync was at the very bottom. The You screen repeated half of Settings under "Make it yours"
+and "Need help?", with the rest behind "All settings".
+
+**Now.** Seven groups, each with a heading and a small icon: You; Today (Show, Tiles, Weather); Look and feel
+(Appearance and night, Units and words, Touch feedback); Away from the app (Last feed on the Lock Screen,
+Reminders, Siri and shortcuts); Children (Stamps after the potty); Privacy and data (Lock with Face ID,
+iCloud sync, Your data); Help (Help and about, the sample family). Test builds get an eighth.
+
+- A line of help sits inside the row it explains. Only You keeps a line under the group.
+- Rows that lead somewhere show where they stand: Weather "Off", Appearance "Same as iPhone".
+- More room between groups and taller rows.
+- The You screen is the photo, the name, Settings, and Help and about.
+
+**Copy.** Shorter throughout, and no "we" or "us". Weather on Today: the three reassurances with icons became
+two plain lines under "Location"; the status is a row ("Now", "Rain"); Apple's credit is one small line, the
+Apple Weather mark and a "Data sources" link, which Apple requires. The night look's long notes are one
+sentence each.
+
+**Not yet reviewed:** Reminders, Your data, Help and about, Siri and shortcuts, and the tile chooser.
