@@ -10,6 +10,7 @@ private enum WTone {
     static let muted = Color(light: 0x6B5E52, dark: 0xB3A590)
     static let night = Color(red: 0x1B / 255, green: 0x24 / 255, blue: 0x40 / 255)
     static let moon = Color(red: 0xF3 / 255, green: 0xE0 / 255, blue: 0xB8 / 255)
+    static let badgeInk = Color(light: 0x3A2A20, dark: 0xEBDDC4)
     /// The same order as the app's child colours, so a child is the same colour in both.
     static let childColours: [Color] = [Color(light: 0xBFD9F5, dark: 0x2E4A6E), Color(light: 0xF3D5C9, dark: 0x6A4236),
                                         Color(light: 0xCFE5D2, dark: 0x34523B), Color(light: 0xF6E2A8, dark: 0x5E4E22),
@@ -41,12 +42,80 @@ struct FamilyEntry: TimelineEntry {
     }
 }
 
-/// "1 hr 35 min" or "12 min": updated each time the timeline refreshes.
-private func since(_ date: Date, now: Date) -> String {
+/// "1h 29m", updating by itself from iOS 18; before that, the time as it was when the widget last refreshed.
+private func sinceText(_ date: Date, now: Date) -> Text {
+    if #available(iOS 18.0, *) {
+        return Text(.dateRange(startingAt: date), format: .components(style: .narrow, fields: [.hour, .minute]))
+    }
     let minutes = max(Int(now.timeIntervalSince(date) / 60), 0)
-    if minutes < 1 { return "just now" }
-    let h = minutes / 60, m = minutes % 60
-    return h > 0 ? "\(h) hr \(m) min" : "\(m) min"
+    return Text(minutes >= 60 ? "\(minutes / 60)h \(minutes % 60)m" : "\(minutes)m")
+}
+
+/// One thing worth knowing about a child, as on the Lock Screen card: a word, and how long since.
+private struct Fact: Identifiable {
+    let title: String
+    /// One of Puggle's glyphs, or nil for the sun (awake has no glyph of ours).
+    let glyph: String?
+    let since: Date
+    var id: String { title }
+}
+
+private extension WidgetSnapshot.Child {
+    /// The snapshot: the sleep (running, or how long awake), the last feed and the last nappy.
+    /// Only what is recent: a feed from yesterday is not news.
+    func facts(now: Date) -> [Fact] {
+        let recent = { (date: Date?) -> Date? in date.flatMap { now.timeIntervalSince($0) < 12 * 3600 && $0 <= now.addingTimeInterval(60) ? $0 : nil } }
+        var all: [Fact] = []
+        if let asleep = asleepSince { all.append(Fact(title: "Asleep", glyph: "sleep", since: asleep)) }
+        if let fed = recent(lastFeed) { all.append(Fact(title: "Fed", glyph: "bottle", since: fed)) }
+        if asleepSince == nil, let woke = recent(lastWoke) { all.append(Fact(title: "Awake", glyph: nil, since: woke)) }
+        if usesNappies, let nappy = recent(lastNappy) { all.append(Fact(title: Terms.nappy, glyph: "nappy", since: nappy)) }
+        return all
+    }
+}
+
+/// A word over a time, or beside it. The same on every widget.
+private struct FactView: View {
+    let fact: Fact
+    let now: Date
+    var beside = false
+    var large = false
+
+    var body: some View {
+        let label = HStack(spacing: 3) {
+            if let glyph = fact.glyph { Glyph(glyph, size: large ? 14 : 12) } else { Image(systemName: "sun.max").font(.system(size: large ? 12 : 10, weight: .semibold)) }
+            Text(fact.title)
+        }
+        .font((large ? Font.footnote : .caption2).weight(.medium))
+        .foregroundStyle(.secondary)
+        let value = sinceText(fact.since, now: now)
+            .font((large ? Font.title3 : .subheadline).weight(.semibold))
+            .monospacedDigit()
+            .lineLimit(1)
+            .minimumScaleFactor(0.75)
+        Group {
+            if beside {
+                HStack(spacing: 6) { label; Spacer(minLength: 4); value.multilineTextAlignment(.trailing) }
+            } else {
+                VStack(alignment: .leading, spacing: 0) { label; value }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
+private struct ChildBadge: View {
+    let child: WidgetSnapshot.Child
+    var size: CGFloat = 30
+
+    var body: some View {
+        Text(String(child.name.prefix(1)))
+            .font(.system(size: size * 0.5, weight: .bold, design: .rounded))
+            .foregroundStyle(WTone.badgeInk)
+            .frame(width: size, height: size)
+            .background(WTone.child(child.colourIndex), in: Circle())
+    }
 }
 
 /// How long after a nappy the widget's button offers Undo.
@@ -89,46 +158,133 @@ struct ChildWidget: Widget {
             ChildWidgetView(entry: entry)
         }
         .configurationDisplayName("One child")
-        .description("Since the last feed, and whether they're asleep.")
-        .supportedFamilies([.systemSmall])
+        .description("Their last feed, sleep and \(Terms.nappyLower), at a glance. Also for the Lock Screen.")
+        .supportedFamilies([.systemSmall, .accessoryRectangular, .accessoryInline])
     }
 }
 
 private struct ChildWidgetView: View {
+    @Environment(\.widgetFamily) private var family
     let entry: FamilyEntry
 
     var body: some View {
-        Group {
-            if let child = entry.chosen {
+        if let child = entry.chosen {
+            let facts = child.facts(now: entry.date)
+            switch family {
+            case .accessoryInline:
+                // One line beside the date: the name and the first fact.
+                Group {
+                    if let first = facts.first { Text("\(child.name): \(first.title) ") + sinceText(first.since, now: entry.date) } else { Text(child.name) }
+                }
+                .containerBackground(for: .widget) { Color.clear }
+            case .accessoryRectangular:
+                // Under the clock on the Lock Screen: the name, then up to two facts.
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(child.name).font(.headline).lineLimit(1)
+                    ForEach(facts.prefix(2)) { fact in
+                        (Text(fact.title + " ") + sinceText(fact.since, now: entry.date)).font(.subheadline).monospacedDigit().lineLimit(1)
+                    }
+                    if facts.isEmpty { Text("Nothing logged yet").font(.subheadline) }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .containerBackground(for: .widget) { Color.clear }
+            default:
                 let asleep = child.asleepSince != nil
-                VStack(alignment: .leading, spacing: 6) {
+                VStack(alignment: .leading, spacing: 5) {
                     HStack(spacing: 8) {
-                        Text(String(child.name.prefix(1)))
-                            .font(.system(size: 15, weight: .bold, design: .rounded))
-                            .frame(width: 30, height: 30)
-                            .background(WTone.child(child.colourIndex), in: Circle())
+                        ChildBadge(child: child, size: 28)
                         Text(child.name).font(.headline).lineLimit(1).minimumScaleFactor(0.7)
                     }
                     Spacer(minLength: 0)
-                    if let start = child.asleepSince {
-                        Label { Text("Asleep") } icon: { Glyph("sleep", size: 14) }.font(.caption.weight(.semibold))
-                        Text(start, style: .timer).font(.title2.weight(.semibold)).monospacedDigit()
-                    } else if let fed = child.lastFeed {
-                        Text("Since a feed").font(.caption.weight(.semibold)).foregroundStyle(WTone.muted)
-                        Text(since(fed, now: entry.date)).font(.title3.weight(.semibold)).monospacedDigit()
-                            .lineLimit(1).minimumScaleFactor(0.7)
-                        if let text = child.lastFeedText {
-                            Text(text).font(.caption).foregroundStyle(WTone.muted).lineLimit(1)
-                        }
+                    if facts.isEmpty {
+                        Text("Nothing logged yet").font(.subheadline).foregroundStyle(.secondary)
                     } else {
-                        Text("Nothing logged yet").font(.subheadline).foregroundStyle(WTone.muted)
+                        ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date, beside: true) }
                     }
                 }
                 .foregroundStyle(asleep ? WTone.moon : WTone.ink)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .containerBackground(for: .widget) { asleep ? WTone.night : WTone.paper }
+            }
+        } else {
+            EmptyWidget()
+        }
+    }
+}
+
+// MARK: The family at a glance (medium and large)
+
+struct SnapshotWidget: Widget {
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: "puggle.snapshot", provider: FamilyProvider()) { entry in
+            SnapshotWidgetView(entry: entry)
+        }
+        .configurationDisplayName("Family snapshot")
+        .description("Every child's last feed, sleep and change, side by side.")
+        .supportedFamilies([.systemMedium, .systemLarge])
+    }
+}
+
+private struct SnapshotWidgetView: View {
+    @Environment(\.widgetFamily) private var family
+    let entry: FamilyEntry
+
+    var body: some View {
+        Group {
+            if let children = entry.snapshot?.children, !children.isEmpty {
+                // As many rows as fit: three on a medium widget, six on a large one. The rest are counted.
+                let room = family == .systemLarge ? 6 : 3
+                let shown = Array(children.prefix(room))
+                VStack(alignment: .leading, spacing: 0) {
+                    if children.count == 1, let only = children.first {
+                        alone(only)
+                    } else {
+                        ForEach(shown) { child in
+                            row(child).frame(maxHeight: .infinity)
+                            if child.id != shown.last?.id { Divider().opacity(0.5) }
+                        }
+                        if children.count > shown.count {
+                            Text("and \(children.count - shown.count) more in Puggle").font(.caption2).foregroundStyle(.secondary)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                    }
+                }
+                .foregroundStyle(WTone.ink)
+                .containerBackground(for: .widget) { WTone.paper }
             } else {
                 EmptyWidget()
+            }
+        }
+    }
+
+    /// One child has the widget to themselves: the facts get the room.
+    private func alone(_ child: WidgetSnapshot.Child) -> some View {
+        let facts = child.facts(now: entry.date)
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 10) {
+                ChildBadge(child: child, size: 34)
+                Text(child.name).font(.title3.weight(.semibold)).lineLimit(1)
+            }
+            Spacer(minLength: 0)
+            if facts.isEmpty {
+                Text("Nothing logged yet today").font(.subheadline).foregroundStyle(.secondary)
+            } else {
+                HStack(alignment: .top, spacing: 10) { ForEach(facts) { FactView(fact: $0, now: entry.date, large: true) } }
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    private func row(_ child: WidgetSnapshot.Child) -> some View {
+        let facts = child.facts(now: entry.date)
+        return HStack(spacing: 10) {
+            ChildBadge(child: child, size: 28)
+            Text(child.name).font(.subheadline.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.75)
+                .frame(width: 64, alignment: .leading)
+            if facts.isEmpty {
+                Text("Nothing logged yet today").font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
+            } else {
+                HStack(alignment: .top, spacing: 6) { ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date) } }
             }
         }
     }
@@ -151,9 +307,9 @@ struct FamilyWidget: Widget {
         StaticConfiguration(kind: "puggle.family", provider: FamilyProvider()) { entry in
             FamilyWidgetView(entry: entry)
         }
-        .configurationDisplayName("The family")
+        .configurationDisplayName("Quick log")
         // Fixed text: WidgetKit stops the widget if this is built from a value that changes.
-        .description("Every child, with buttons to start a sleep and log a change.")
+        .description("Start a sleep or log a change for any child, without opening Puggle.")
         .supportedFamilies([.systemMedium])
     }
 }
@@ -164,11 +320,11 @@ private struct FamilyWidgetView: View {
     var body: some View {
         Group {
             if let children = entry.snapshot?.children, !children.isEmpty {
-                VStack(spacing: 8) {
+                // The rows share the height, so two children do not leave the bottom half empty.
+                VStack(spacing: 0) {
                     ForEach(Array(children.prefix(3))) { child in
-                        row(child, compact: children.count > 2)
+                        row(child, compact: children.count > 2).frame(maxHeight: .infinity)
                     }
-                    Spacer(minLength: 0)
                 }
                 .containerBackground(for: .widget) { WTone.paper }
             } else {
@@ -179,26 +335,24 @@ private struct FamilyWidgetView: View {
 
     private func row(_ child: WidgetSnapshot.Child, compact: Bool) -> some View {
         HStack(spacing: 10) {
-            Text(String(child.name.prefix(1)))
-                .font(.system(size: 14, weight: .bold, design: .rounded))
-                .frame(width: 30, height: 30)
-                .background(WTone.child(child.colourIndex), in: Circle())
+            ChildBadge(child: child, size: 30)
             VStack(alignment: .leading, spacing: 1) {
                 Text(child.name).font(.subheadline.weight(.semibold)).lineLimit(1)
+                // Short, so it is never cut off beside the buttons: the first fact, or nothing.
                 Group {
-                    if let start = child.asleepSince {
-                        Text("Asleep · ") + Text(start, style: .timer)
-                    } else if let fed = child.lastFeed {
-                        Text("Fed \(since(fed, now: entry.date)) ago")
+                    if let first = child.facts(now: entry.date).first {
+                        Text(first.title + " ") + sinceText(first.since, now: entry.date)
                     } else {
-                        Text("Nothing yet today")
+                        Text("Nothing yet")
                     }
                 }
                 .font(.caption)
                 .foregroundStyle(WTone.muted)
                 .monospacedDigit()
                 .lineLimit(1)
+                .minimumScaleFactor(0.8)
             }
+            .layoutPriority(1)
             Spacer(minLength: 4)
             if child.usesNappies && !compact {
                 // For a minute after a nappy, the button takes it back: a stray tap is easy on the Home Screen.

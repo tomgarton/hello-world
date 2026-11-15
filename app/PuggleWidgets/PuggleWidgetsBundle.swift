@@ -18,6 +18,7 @@ struct PuggleWidgetsEntry {
 struct PuggleWidgetsBundle: WidgetBundle {
     var body: some Widget {
         TimerLiveActivityWithSmall()
+        SnapshotWidget()
         ChildWidget()
         FamilyWidget()
         StartSleepControl()
@@ -27,6 +28,7 @@ struct PuggleWidgetsBundle: WidgetBundle {
 struct PuggleWidgetsBundleBefore18: WidgetBundle {
     var body: some Widget {
         TimerLiveActivity()
+        SnapshotWidget()
         ChildWidget()
         FamilyWidget()
     }

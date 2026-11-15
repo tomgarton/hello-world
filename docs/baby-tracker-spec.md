@@ -1243,3 +1243,12 @@ Tom's feedback from his phone and watch: the open island had a meaningless clock
 - Apple's guidance also says a Live Activity is for something with a beginning and an end, up to eight hours. The "since a feed" card runs to that limit by design; worth knowing if Apple questions it in review.
 
 **Lock Screen snapshot (Tom and Clara, 15 November).** Few people know to press and hold the Dynamic Island, so the Lock Screen card now carries the snapshot itself: up to three facts side by side, each a word over a short time. Awake: Fed, Awake, Nappy. Asleep: Asleep, Fed, Nappy, with "Woke up". "Start sleep" is gone from the Lock Screen (Clara: not much use there) and stays in the open island. The nappy is new to the card's data and also shows in the open island and on the watch card. A feed in progress keeps its own layout. Seen in the simulator for awake and asleep; not on a phone or a watch.
+
+**Widgets, on the same thinking (15 November).** Tom's widget cut its status short ("Nothing yet t…") and left half its height empty with two children. The widgets now share the Lock Screen card's snapshot: a badge, the name, and up to three facts (the sleep, the last feed, the last nappy), with short times that update by themselves from iOS 18.
+
+- **Family snapshot** (new; medium and large): a row for each child with the three facts side by side. One child has the widget to themselves, with larger numbers. Three rows fit on a medium widget and six on a large one; the rest are counted.
+- **One child** (small): the three facts as lines. It can now also go on the Lock Screen, under the clock or beside the date.
+- **Quick log** (was "The family"; medium): the buttons to start a sleep and log a change. Its status is one short fact, and the rows share the height.
+- A fact shows only if it is from the last twelve hours.
+- **Not seen on screen.** The simulator's widget picker would not take taps reliably, so these layouts have only been built, not looked at.
+- The Dynamic Island sitting over the Home Screen's Edit and Done buttons while widgets are being arranged: iOS places those buttons beside the bare island, and any Live Activity widens the island over them. Ours was wider than it needed to be; the narrower one is in the same build.
