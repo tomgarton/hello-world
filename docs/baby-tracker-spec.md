@@ -1575,3 +1575,9 @@ options drawn to choose from; Today rebuilt child-first, its own build; the fami
 that open their sheet and the tile widget, its own build; the first book for Play; documenting flows in
 Figma once Today has landed. Parked: the Play tab until there are books, an iPad version, the reference
 pages and screens PDF, the tile chooser and Help answers, updating Xcode.
+
+**Icons in dark, options drawn (15 November 2026).** Tom: they need thinner lines in dark, and the yellow
+should follow the dark palette, since yellow beside the pale line lacks the contrast it has in light. Sheet:
+`docs/previews/icons/dark-options.png` (`docs/tools/make_icon_dark_options.py`). As now (line at 0.8 of its
+light weight, Wattle); A, line at 0.62; B, line at 0.62 with a deep mustard `#B8861B`; C, line at 0.62 with
+dark amber `#86641A`; D, line at 0.5 with deep mustard. Not installed.
