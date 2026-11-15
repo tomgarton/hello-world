@@ -348,31 +348,15 @@ extension FamilyStore {
         var result = Imported(batch: Self.importPrefix + UUID().uuidString.prefix(8))
         var have = Set((family.events ?? []).filter { !$0.isDeleted }.compactMap(\.id))
         let gone = removedMarks(ids: nil, with: family)
-        // Minutes already taken, by child and kind, to spot the same thing logged in both apps.
-        // Only what was here before the import counts: two bottles in the same minute of one file are both kept.
-        var taken: [String: Set<Int>] = [:]
-        for event in family.events ?? [] where !event.isDeleted {
-            guard let start = event.startedAt else { continue }
-            for child in event.children ?? [] {
-                taken["\(child.objectID)|\(event.kindRaw ?? "")", default: []].insert(Int(start.timeIntervalSince1970 / 60))
-            }
-            if (event.children ?? []).isEmpty { taken["|\(event.kindRaw ?? "")", default: []].insert(Int(start.timeIntervalSince1970 / 60)) }
-        }
+        let taken = takenMinutes(in: family)
         for draft in drafts {
             let child = children[draft.baby]
             // Pumping belongs to the parent, so it needs no child. Everything else does.
             guard child != nil || draft.kind == .pump else { continue }
-            // The same row always makes the same id, so importing a file twice adds nothing twice.
-            let seed = [child?.id?.uuidString ?? "", draft.kind.rawValue, String(Int(draft.start.timeIntervalSince1970)),
-                        String(draft.amountML), draft.detail ?? "", String(draft.value)].joined(separator: "|")
-            let id = Self.uuid(from: seed)
+            let id = Self.importID(for: draft, child: child)
             if have.contains(id) { result.repeats += 1; continue }
             if gone.contains(id) { result.removed += 1; continue }
-            let slot = "\(child.map { "\($0.objectID)" } ?? "")|\(draft.kind.rawValue)"
-            let minute = Int(draft.start.timeIntervalSince1970 / 60)
-            if let minutes = taken[slot], minutes.contains(minute) || minutes.contains(minute - 1) || minutes.contains(minute + 1) {
-                result.alreadyHere += 1; continue
-            }
+            if Self.isTaken(draft, child: child, in: taken) { result.alreadyHere += 1; continue }
             let event = Event(context: context)
             place(event, with: family)
             event.id = id
@@ -396,6 +380,97 @@ extension FamilyStore {
         persistence.save()
         if result.added > 0 { lastImportBatch = result.batch }
         return result
+    }
+
+    /// The same row always makes the same id, so importing a file twice adds nothing twice.
+    static func importID(for draft: Importer.Draft, child: Child?) -> UUID {
+        let seed = [child?.id?.uuidString ?? "", draft.kind.rawValue, String(Int(draft.start.timeIntervalSince1970)),
+                    String(draft.amountML), draft.detail ?? "", String(draft.value)].joined(separator: "|")
+        return uuid(from: seed)
+    }
+
+    /// Minutes already taken, by child and kind, to spot the same thing logged in both apps.
+    /// Only what was here before the import counts: two bottles in the same minute of one file are both kept.
+    private func takenMinutes(in family: Family) -> [String: Set<Int>] {
+        var taken: [String: Set<Int>] = [:]
+        for event in family.events ?? [] where !event.isDeleted {
+            guard let start = event.startedAt else { continue }
+            let minute = Int(start.timeIntervalSince1970 / 60)
+            let kind = event.kindRaw ?? ""
+            for child in event.children ?? [] {
+                taken["\(child.objectID)|\(kind)", default: []].insert(minute)
+            }
+            if (event.children ?? []).isEmpty { taken["|\(kind)", default: []].insert(minute) }
+        }
+        return taken
+    }
+
+    private static func isTaken(_ draft: Importer.Draft, child: Child?, in taken: [String: Set<Int>]) -> Bool {
+        let owner = child.map { "\($0.objectID)" } ?? ""
+        let minute = Int(draft.start.timeIntervalSince1970 / 60)
+        guard let minutes = taken["\(owner)|\(draft.kind.rawValue)"] else { return false }
+        return minutes.contains(minute) || minutes.contains(minute - 1) || minutes.contains(minute + 1)
+    }
+
+    // MARK: Overlaps
+
+    /// An entry in the file that looks like one already in the family: the same child and kind, at a time
+    /// that overlaps. Most likely the same sleep or feed, entered in both apps a few minutes apart.
+    struct Overlap: Identifiable {
+        /// Where the draft sits in the list that was checked.
+        let index: Int
+        let draft: Importer.Draft
+        let existing: Event
+        var id: Int { index }
+    }
+
+    /// The kinds checked for overlaps. A bottle has no length, so it counts when within ten minutes.
+    private static let overlapSlack: [EventKind: TimeInterval] = [.sleep: 0, .breastfeed: 0, .bottle: 600]
+
+    /// The drafts that overlap an entry already here, newest first. Drafts the import would skip anyway
+    /// (imported before, deleted since, or logged here in the same minute) are not listed.
+    func overlaps(in drafts: [Importer.Draft], children: [String: Child]) -> [Overlap] {
+        guard let family = existingFamily() else { return [] }
+        let have = Set((family.events ?? []).filter { !$0.isDeleted }.compactMap(\.id))
+        let gone = removedMarks(ids: nil, with: family)
+        let taken = takenMinutes(in: family)
+        func days(_ span: ClosedRange<Date>, slack: TimeInterval) -> ClosedRange<Int> {
+            let first = Int((span.lowerBound.timeIntervalSince1970 - slack) / 86_400)
+            let last = Int((span.upperBound.timeIntervalSince1970 + slack) / 86_400)
+            return first...max(first, last)
+        }
+        // What is here, by child, kind and day, so a long history stays quick to search.
+        var shelf: [String: [(span: ClosedRange<Date>, event: Event)]] = [:]
+        for event in family.events ?? [] where !event.isDeleted {
+            guard Self.overlapSlack[event.kind] != nil, let start = event.startedAt else { continue }
+            // A sleep still going runs to now. A breastfeed with no end runs for the time on each side.
+            let end = event.endedAt ?? (event.kind == .sleep ? Date.now : start.addingTimeInterval(event.leftSeconds + event.rightSeconds))
+            let span = start...max(start, end)
+            for child in event.children ?? [] {
+                for day in days(span, slack: 0) {
+                    shelf["\(child.objectID)|\(event.kind.rawValue)|\(day)", default: []].append((span, event))
+                }
+            }
+        }
+        var found: [Overlap] = []
+        for (index, draft) in drafts.enumerated() {
+            guard let slack = Self.overlapSlack[draft.kind], let child = children[draft.baby] else { continue }
+            let id = Self.importID(for: draft, child: child)
+            if have.contains(id) || gone.contains(id) || Self.isTaken(draft, child: child, in: taken) { continue }
+            let end = draft.end ?? draft.start.addingTimeInterval(draft.leftSeconds + draft.rightSeconds)
+            let span = draft.start...max(draft.start, end)
+            search: for day in days(span, slack: slack) {
+                for standing in shelf["\(child.objectID)|\(draft.kind.rawValue)|\(day)"] ?? [] {
+                    let apart = max(standing.span.lowerBound.timeIntervalSince(span.upperBound),
+                                    span.lowerBound.timeIntervalSince(standing.span.upperBound))
+                    if apart <= slack {
+                        found.append(Overlap(index: index, draft: draft, existing: standing.event))
+                        break search
+                    }
+                }
+            }
+        }
+        return found.sorted { $0.draft.start > $1.draft.start }
     }
 
     /// How many entries the last import still has here.

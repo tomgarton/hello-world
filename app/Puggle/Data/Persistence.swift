@@ -63,6 +63,8 @@ final class Persistence {
         }
 
         container.persistentStoreDescriptions = [privateDescription, sharedDescription]
+        // Before the stores load, so the first fetch from iCloud is not missed.
+        if !inMemory, Self.cloudSyncEnabled { SyncWatch.shared.start(for: self) }
         container.loadPersistentStores { [weak self] description, error in
             if let error {
                 // During development, crash loudly so problems are found early.
@@ -155,4 +157,44 @@ final class Persistence {
         guard let sharedStore else { return }
         try await container.acceptShareInvitations(from: [metadata], into: sharedStore)
     }
+}
+
+/// Whether a joined family's entries are still coming down from iCloud. The import screen waits on this,
+/// so someone who has just joined does not import a file whose entries are already on their way.
+final class SyncWatch: ObservableObject {
+    static let shared = SyncWatch()
+
+    /// True until one fetch of the shared family has finished since launch, and while any is running.
+    /// Always false with iCloud off, in the sample family and in tests.
+    @Published private(set) var arriving = false
+
+    private var finishedOnce = false
+    private var running = Set<UUID>()
+    private var observer: NSObjectProtocol?
+
+    func start(for persistence: Persistence) {
+        guard observer == nil else { return }
+        arriving = true
+        observer = NotificationCenter.default.addObserver(
+            forName: NSPersistentCloudKitContainer.eventChangedNotification, object: persistence.container, queue: .main
+        ) { [weak self, weak persistence] note in
+            guard let self,
+                  let event = note.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey] as? NSPersistentCloudKitContainer.Event,
+                  event.type == .import,
+                  event.storeIdentifier == persistence?.sharedStore?.identifier else { return }
+            if event.endDate == nil {
+                self.running.insert(event.identifier)
+            } else {
+                self.running.remove(event.identifier)
+                if event.succeeded { self.finishedOnce = true }
+            }
+            let now = !self.finishedOnce || !self.running.isEmpty
+            if now != self.arriving { self.arriving = now }
+        }
+    }
+
+    #if DEBUG
+    /// For checking the import screen's wait: "-debugImport catching".
+    func hold() { arriving = true }
+    #endif
 }

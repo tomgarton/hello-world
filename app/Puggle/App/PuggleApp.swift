@@ -252,6 +252,10 @@ struct RootView: View {
             let invite = Invite(inviter: "Alex", familyTitle: "Ollie and Bea's family", lookOnly: join == "viewer")
             JoinView(invite: invite,
                      stage: join == "joined" ? .joined : JoinProblem(rawValue: join).map { .failed($0) } ?? .asking)
+        } else if let look = UserDefaults.standard.string(forKey: "debugImport"), sample.isOn {
+            // For checking the import screen with the sample family ("-uitest 1"): "-debugImport overlaps"
+            // (a file already read, some of it overlapping), "list" (the pairs) or "catching" (waiting for iCloud).
+            NavigationStack { ImportView(debug: look) }
         } else if UserDefaults.standard.string(forKey: "debugAppearance") == "1" {
             // For checking the icon colour setting: "-debugAppearance 1" (with "-iconColour own" or child).
             NavigationStack { AppearanceSettingsView() }

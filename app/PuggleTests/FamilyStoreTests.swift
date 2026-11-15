@@ -544,6 +544,49 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertFalse((family.events ?? []).contains { $0.loggedByID == "import-other" }, "The copy made first is the one kept")
     }
 
+    func testAnOverlappingSleepIsFoundAndLeftOutUnlessKept() {
+        store.backups = shelf()
+        let nap = store.logEach(.sleep, for: [ollie], at: ago(minutes: 180), end: ago(minutes: 90))[0]
+        let bottle = store.logEach(.bottle, for: [ollie], at: ago(minutes: 60), amountML: 120)[0]
+        let drafts = [
+            // The same nap, entered in the other app eight minutes later.
+            Importer.Draft(baby: "Ollie", kind: .sleep, start: ago(minutes: 172), end: ago(minutes: 95)),
+            // A bottle six minutes after the one here, and one an hour later.
+            Importer.Draft(baby: "Ollie", kind: .bottle, start: ago(minutes: 54), amountML: 110),
+            Importer.Draft(baby: "Ollie", kind: .bottle, start: ago(minutes: 5), amountML: 90),
+            // Another day's nap, and a nappy at the same time as the nap here: neither overlaps.
+            Importer.Draft(baby: "Ollie", kind: .sleep, start: ago(minutes: 1620), end: ago(minutes: 1530)),
+            Importer.Draft(baby: "Ollie", kind: .nappy, start: ago(minutes: 170), detail: "Wet"),
+        ]
+        let found = store.overlaps(in: drafts, children: ["Ollie": ollie])
+        XCTAssertEqual(found.map(\.index), [1, 0], "Newest first")
+        XCTAssertEqual(found.map(\.existing), [bottle, nap])
+
+        // Left out by default: only the other three come in, and what was here is as it was.
+        let out = Set(found.map(\.index))
+        let rest = drafts.enumerated().filter { !out.contains($0.offset) }.map(\.element)
+        XCTAssertEqual(store.importDrafts(rest, children: ["Ollie": ollie]).added, 3)
+        XCTAssertEqual(store.currentFamily().events?.count, 5)
+        XCTAssertEqual(nap.endedAt, store.activeSleep(for: ollie) == nil ? nap.endedAt : nil)
+
+        // Kept when chosen: the overlapping two come in beside the ones here.
+        XCTAssertEqual(store.importDrafts(drafts, children: ["Ollie": ollie]).added, 2)
+        XCTAssertEqual(store.currentFamily().events?.count, 7)
+    }
+
+    func testAnExactRepeatIsNotListedAsAnOverlap() {
+        store.backups = shelf()
+        let drafts = [Importer.Draft(baby: "Ollie", kind: .sleep, start: ago(minutes: 180), end: ago(minutes: 90))]
+        XCTAssertTrue(store.overlaps(in: drafts, children: ["Ollie": ollie]).isEmpty)
+        store.importDrafts(drafts, children: ["Ollie": ollie])
+        // Imported before: the import skips it by itself, so there is nothing to ask about.
+        XCTAssertTrue(store.overlaps(in: drafts, children: ["Ollie": ollie]).isEmpty)
+        // Logged here in the same minute: the same.
+        let logged = store.logEach(.bottle, for: [ollie], at: ago(minutes: 30), amountML: 100)[0]
+        let same = [Importer.Draft(baby: "Ollie", kind: .bottle, start: logged.startedAt!.addingTimeInterval(20), amountML: 100)]
+        XCTAssertTrue(store.overlaps(in: same, children: ["Ollie": ollie]).isEmpty)
+    }
+
     // MARK: Patterns
 
     /// Builds days of entries quickly, through the importer, for a child born `born` days ago.
