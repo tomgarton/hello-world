@@ -1744,3 +1744,9 @@ baby's head from tummy time (outlined head, hair in colour, a dot for an eye). T
 has to be smaller, so the body is wider, the fringe has no line of its own, and the forearm stops at the
 baby. With the eye, a ring with a dot inside the body can read as an eye or a lens; without it, it reads as a
 head with hair. Both are on `breastfeeding-runners.png`. Not decided.
+
+**Parent and baby without the blue (later, 15 November 2026).** Tom: Parent and baby still works, but drop
+the blue; the yellow can be for the hair alone. Two more in `ALTERNATES`: "hair in colour" (the parent's
+fringe and bun only) and "both with hair" (the same, with a little hair on the baby, as tummy time has).
+One colour now, like the rest of the set. The first drawing, with blue, is kept. On
+`breastfeeding-runners.png`. Not decided; nothing installed.

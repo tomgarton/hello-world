@@ -364,6 +364,16 @@ SYMBOL = {
 }
 
 
+# Parent and baby without the blue (15 November 2026, Tom's ask): colour is for hair alone, as on tummy time.
+HELD_LINES = [MUM, BUN, BUB, TORSO, FRINGE, 'M14 15.3C15.5 16.5 17.5 16.8 19 16.7', 'M17.2 23.6C16 23.9 15 24.4 14.1 25.1', ARM]
+HELD_EYES = [eye(14.4, 10.8), eye(20.6, 20.2, 1.2)]
+MUM_HAIR = [FRINGE + 'A6 6 0 0 0 6.7 11Z', BUN + 'A6 6 0 0 1 9.1 4.6Z']
+BUB_HAIR = 'M17 18.8C19.4 18.6 22.6 18 24.6 17.1A5 5 0 0 0 17 18.8Z'
+ALTERNATES['held-hair'] = (icon(HELD_LINES, fine=HELD_EYES, box=32, weight=BIG, wattle=MUM_HAIR),
+                           'Parent and baby, hair in colour', 'No blue. The only colour is the parent\u2019s hair.')
+ALTERNATES['held-hair-both'] = (icon(HELD_LINES, fine=HELD_EYES, box=32, weight=BIG, wattle=MUM_HAIR + [BUB_HAIR]),
+                                'Parent and baby, both with hair', 'No blue. The parent\u2019s hair and a little on the baby, as tummy time has.')
+
 # The symbol with the baby's head drawn as tummy time draws it (15 November 2026, Tom's ask): an outlined head,
 # hair in colour and a dot for an eye. Tummy time's head is 4.5 on a 24 canvas; to keep that share of the line
 # here it would be 6 across a 32 canvas, larger than the body can hold. So the head is 4.2, the body is wider
@@ -444,8 +454,8 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 .tiles{{display:flex;gap:8px}}
 .tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
-<p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
-<div class="g">{cells}</div>
+<p class="lede">Seven ways to draw it. The last two are Parent and baby without the blue. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
+<div class="g" style="flex-wrap:wrap">{cells}</div>
 <h2>After the International Breastfeeding Symbol</h2><p>Six after the symbol (Matt Daigle, 2006, given to the public domain by its maker) and three of a parent holding a wrapped baby, added 15 November 2026. All are drawn for this set: its line, its weight and one colour.</p>
 <div class="g" style="margin-top:14px;flex-wrap:wrap">{after}</div>
 <h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
@@ -526,7 +536,7 @@ h3{{margin:10px 0 2px;font-size:17px}}p{{margin:0;color:#6B5E52}}i{{display:bloc
 .tile b{{font-size:11px;margin-top:2px}}.dk{{background:#2A2420;border-radius:16px;width:60px;height:60px;display:grid;place-items:center}}
 </style></head><body><h1>Puggle icons, three sizes</h1>
 <p class="lede">Small is for lists: the drawing as it was. Regular is for tiles: the same shapes with a finer line and a little more detail, shown at 40 points. Large, for where an icon stands alone, is not drawn yet. Under each pair: the small drawing in a list at 20 and 17 points, then the regular one on a tile and in dark.</p>
-<div class="g">{cells}</div></body></html>'''
+<div class="g" style="flex-wrap:wrap">{cells}</div></body></html>'''
     open(os.path.join(OUT, 'sizes.html'), 'w').write(html)
 
 
@@ -690,7 +700,7 @@ b{{display:block;margin-top:6px;font-size:14px}}p{{margin:2px 0 0;color:#6B5E52}
 .lr .ic{{width:36px;height:36px;border-radius:50%;background:#EAE2D2;display:grid;place-items:center}}.lr b{{margin:0;flex:1;font-size:14px}}.lr span{{color:#6B5E52}}
 </style></head><body><h1>Puggle icons, second pass</h1>
 <p class="lede">A heavier line, fuller shapes, and two fills: Wattle for what the icon is about, Sky for what holds it. Each is shown on the grid, then at 32, 24 and 17 points beside the icon in the app today and the first pass.</p>
-<div class="g">{cells}</div>
+<div class="g" style="flex-wrap:wrap">{cells}</div>
 <h2>The ones that changed most</h2>{close}
 <h2>The set together: on paper, in dark, in one colour for lists, and at 17 points</h2>
 <div class="strip" style="background:#F2ECDD">{light}</div><div class="strip" style="background:#14110F">{dark}</div>

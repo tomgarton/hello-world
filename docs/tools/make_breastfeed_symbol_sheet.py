@@ -69,15 +69,15 @@ def runners():
     """The short list (15 November 2026): the earlier 'Parent and baby', the symbol in line, and held with the wrap in colour."""
     now = M.ICONS['breastfeed']
     body = block('In the app now', 'The current drawing, for comparison.', now, M.small(now))
-    spec, title, text = M.ALTERNATES['held']
-    body += block(title, text + ' From the first five choices.', spec, M.small(spec))
-    for group, key in ((M.SYMBOL, 'symbol'), (M.SYMBOL, 'symbol-hair'), (M.SYMBOL, 'symbol-face'), (M.HELD, 'held')):
-        spec, simple, title, text = group[key]
-        body += block(title, text, spec, simple)
+    for key in ('held-hair', 'held-hair-both', 'held'):
+        spec, title, text = M.ALTERNATES[key]
+        body += block(title, text + (' As first drawn, with blue.' if key == 'held' else ''), spec, M.small(spec))
+    spec, simple, title, text = M.SYMBOL['symbol']
+    body += block(title, text, spec, simple)
     html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
     head = html[:html.index('<body>')]
     out = os.path.join(M.OUT, 'breastfeeding-runners.html')
-    open(out, 'w').write(f'{head}<body><h1>Breastfeeding, the short list</h1><p>Three in the running, and the symbol with the baby&rsquo;s head from tummy time, each in light and dark, small, in one colour, and on Today tiles.</p>{body}</body></html>')
+    open(out, 'w').write(f'{head}<body><h1>Breastfeeding, the short list</h1><p>Parent and baby without the blue, two ways, then as first drawn, then Symbol in line. Each in light and dark, small, in one colour, and on Today tiles.</p>{body}</body></html>')
     print('wrote', out)
 
 
