@@ -1302,3 +1302,22 @@ Tom: the scenes at the top of Today hardly change, and night should come from th
 3. If nothing is missing: the phone's lost bookkeeping is the cause. Take a backup, reset the phone's copy so it loads again from iCloud, then bring back from the backup the entries iCloud does not have.
 
 **Until then:** Clara should not import, and Tom's entries stay on his phone only. Nothing is lost.
+
+## Sync between Tom and Clara: fixed (15 November 2026, 15:48)
+
+The cause was the schema. iCloud's Production side lacked ten fields the model had gained since the schema was
+last deployed: Event `note`, `runningSide`, `sideStartedAt`, `wakings`; Guide `photo`, `readAt`, `rows`,
+`strength`; Person `invitedAt`, `lookup`. Production refuses a record with an unknown field, and the refusal
+fails the whole send, so nothing left Tom's phone. Clara's phone got through only because nothing she had
+logged used those fields.
+
+What fixed it, with no new build:
+
+1. The Development build of Puggle Check (`app/tools/PuggleCheck`, target PuggleCheckDev) gave Puggle's model
+   to Core Data's `initializeCloudKitSchema`, which added every field to the Development side.
+2. Tom chose Deploy Schema Changes in the CloudKit Console.
+3. Puggle was closed and opened again. It sent all 21 entries and Clara's person row. The family's zone then
+   held CD_Event 21, CD_Person 2.
+
+The rule from now on: when the model gains an attribute or an entity, run PuggleCheckDev and deploy the schema
+before that build goes to TestFlight. The Production target of Puggle Check says which fields are refused.
