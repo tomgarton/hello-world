@@ -20,6 +20,11 @@ struct TodayView: View {
     @State private var pumping = false
     @Environment(\.dynamicTypeSize) private var textSize
     @State private var feedTimer = false
+    /// Set when a feed is started from one child's card, so the timers open on that child.
+    @State private var feedChild: Child?
+    /// The child whose other actions are open, children first. One at a time.
+    @State private var openChild: NSManagedObjectID?
+    @AppStorage(Setting.todayLayout) private var layoutRaw = TodayLayout.children.rawValue
     @State private var pastFeed = false
     @State private var editing: EditTarget?
     /// An entry opened to read, from Today so far.
@@ -98,38 +103,10 @@ struct TodayView: View {
                         emptyState
                     } else {
                         let _ = markHadChild()
-                        ForEach(children) { child in
-                            ChildStatusRow(child: child) { dayOf = child }
-                        }
-                        let layout = tileLayout
-                        if !store.canLog {
-                            Text("You're a viewer, so you can look but not log. \(store.holderName) can change that.")
-                                .font(.footnote)
-                                .foregroundStyle(Palette.muted)
-                                .padding(.horizontal, 4)
+                        if layoutRaw == TodayLayout.tiles.rawValue {
+                            sharedTiles
                         } else {
-                        if !layout.main.isEmpty {
-                            // One tile per row at the largest text sizes, so the names fit.
-                            let tiles = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))
-                            tiles {
-                                ForEach(layout.main) { tileButton($0, large: true) }
-                            }
-                        }
-                        // Everything else is in each child's panel.
-                        let hintRow = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
-                                                                   : AnyLayout(HStackLayout(spacing: 6))
-                        hintRow {
-                            Text(layout.chips.isEmpty ? "" : "More in each child's panel: tap their name.")
-                                .font(.footnote)
-                                .foregroundStyle(Palette.muted)
-                            Spacer(minLength: 0)
-                            Button("Edit") { choosingTiles = true }
-                                .font(.subheadline.weight(.semibold))
-                                .foregroundStyle(Palette.muted)
-                                .padding(.horizontal, 10)
-                                .frame(minHeight: 44)
-                                .accessibilityLabel("Choose the tiles on Today")
-                        }
+                            childrenFirst
                         }
                         // One door to everything for the child: drawing, and the stamp book if there is one.
                         Button { showingPlay = true } label: {
@@ -190,10 +167,12 @@ struct TodayView: View {
         .sheet(isPresented: $feedTimer, onDismiss: {
             if pastFeed {
                 pastFeed = false
+                loggingChild = feedChild
                 logging = .breastfeed
             }
+            feedChild = nil
         }) {
-            FeedTimerView(children: relevant(.breastfeed)) { pastFeed = true }
+            FeedTimerView(children: feedChild.map { [$0] } ?? relevant(.breastfeed)) { pastFeed = true }
         }
         // Held against stray swipes home while the child has the phone.
         .protectedCover(item: $stickerFor) { target in
@@ -272,6 +251,81 @@ struct TodayView: View {
         }
     }
 
+    /// Children first: a card for each child with their three facts, and the rest of their actions behind a plus.
+    /// A sleeping child goes first. With one child there is nothing to choose between, so their actions sit
+    /// open under the card.
+    @ViewBuilder private var childrenFirst: some View {
+        let ordered = children.filter { store.activeSleep(for: $0) != nil } + children.filter { store.activeSleep(for: $0) == nil }
+        let alone = ordered.count == 1
+        ForEach(ordered) { child in
+            ChildCard(child: child, open: !alone && openChild == child.objectID, hasPlus: !alone,
+                      onOpenDay: { dayOf = child },
+                      onToggle: { withAnimation(.spring(duration: 0.35, bounce: 0.1)) { openChild = openChild == child.objectID ? nil : child.objectID } },
+                      onLog: { log($0, for: child) },
+                      onPastSleep: { pastSleepFor = child },
+                      onEdit: { editing = $0 })
+        }
+        if !store.canLog {
+            Text("You're a viewer, so you can look but not log. \(store.holderName) can change that.")
+                .font(.footnote)
+                .foregroundStyle(Palette.muted)
+                .padding(.horizontal, 4)
+        } else if alone, let child = ordered.first {
+            ChildActions(child: child, facts: store.facts(for: child).map(\.kind), inside: false,
+                         onLog: { log($0, for: child) }, onPastSleep: { pastSleepFor = child })
+        }
+    }
+
+    /// Opens the right sheet to log one thing for one child.
+    private func log(_ kind: EventKind, for child: Child) {
+        switch kind {
+        case .pump: pumping = true
+        case .breastfeed:
+            feedChild = child
+            feedTimer = true
+        default:
+            loggingChild = child
+            logging = kind
+        }
+    }
+
+    /// The earlier Today, kept as a choice: a row for each child, then one set of tiles for the family.
+    @ViewBuilder private var sharedTiles: some View {
+                ForEach(children) { child in
+                    ChildStatusRow(child: child) { dayOf = child }
+                }
+                let layout = tileLayout
+                if !store.canLog {
+                    Text("You're a viewer, so you can look but not log. \(store.holderName) can change that.")
+                .font(.footnote)
+                .foregroundStyle(Palette.muted)
+                .padding(.horizontal, 4)
+                } else {
+                if !layout.main.isEmpty {
+                    // One tile per row at the largest text sizes, so the names fit.
+                    let tiles = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(spacing: 10)) : AnyLayout(HStackLayout(spacing: 10))
+                    tiles {
+                ForEach(layout.main) { tileButton($0, large: true) }
+                    }
+                }
+                // Everything else is in each child's panel.
+                let hintRow = textSize.isAccessibilitySize ? AnyLayout(VStackLayout(alignment: .leading, spacing: 4))
+                                           : AnyLayout(HStackLayout(spacing: 6))
+                hintRow {
+                    Text(layout.chips.isEmpty ? "" : "More in each child's panel: tap their name.")
+                .font(.footnote)
+                .foregroundStyle(Palette.muted)
+                    Spacer(minLength: 0)
+                    Button("Edit") { choosingTiles = true }
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Palette.muted)
+                .padding(.horizontal, 10)
+                .frame(minHeight: 44)
+                .accessibilityLabel("Choose the tiles on Today")
+                }
+                }
+    }
+
     private func markHadChild() {
         guard !hadChild, !store.isSample else { return }
         DispatchQueue.main.async { hadChild = true }
@@ -298,14 +352,15 @@ struct TodayView: View {
     }
 
     private var header: some View {
-        PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil }, line: headerLine) {
+        let words = headerWords
+        return PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil }, title: words.title, line: words.line) {
             showingYou = true
         }
     }
 
-    /// One plain line about the day: a greeting, then what is happening, or
-    /// how the night went in the morning. Nothing to do and nothing to beat.
-    private var headerLine: String {
+    /// The greeting as the heading, and one plain line about the day under it: what is happening, or how the
+    /// night went in the morning. Nothing to do and nothing to beat. The date is not shown: the phone has it.
+    private var headerWords: (title: String, line: String) {
         let hour = Calendar.current.component(.hour, from: .now)
         let greeting = switch hour {
         case 5..<12: "Morning"
@@ -314,11 +369,11 @@ struct TodayView: View {
         default: "Hello"
         }
         let name = yourName.trimmingCharacters(in: .whitespaces)
-        let hello = name.isEmpty ? "\(greeting)." : "\(greeting), \(name)."
-        guard !justLog, !children.isEmpty else { return hello }
+        let hello = name.isEmpty ? greeting : "\(greeting), \(name)"
+        guard !justLog, !children.isEmpty else { return (hello, "") }
         let asleep = children.filter { store.activeSleep(for: $0) != nil }.map(\.displayName)
         if !asleep.isEmpty {
-            return "\(hello) \(ListFormatter.localizedString(byJoining: asleep)) \(asleep.count == 1 ? "is" : "are") asleep."
+            return (hello, "\(ListFormatter.localizedString(byJoining: asleep)) \(asleep.count == 1 ? "is" : "are") asleep.")
         }
         // In the morning: the longest sleep that ended today, for the first child who had one.
         if hour < 12 {
@@ -328,12 +383,12 @@ struct TodayView: View {
                     .filter { $0.kind == .sleep && ($0.endedAt ?? .distantPast) >= today }
                     .max { ($0.endedAt ?? .now).timeIntervalSince($0.startedAt ?? .now) < ($1.endedAt ?? .now).timeIntervalSince($1.startedAt ?? .now) }
                 if let night, let start = night.startedAt, let end = night.endedAt, end.timeIntervalSince(start) >= 3 * 3600 {
-                    return "\(hello) \(child.displayName) slept \(Elapsed.short(seconds: night.asleepSeconds(from: start, to: end))) last night."
+                    return (hello, "\(child.displayName) slept \(Elapsed.short(seconds: night.asleepSeconds(from: start, to: end))) last night.")
                 }
             }
         }
         let count = children.reduce(0) { $0 + store.events(for: $1, since: Calendar.current.startOfDay(for: .now)).count }
-        return count == 0 ? hello : "\(hello) \(count) \(count == 1 ? "thing" : "things") logged today."
+        return (hello, count == 0 ? "" : "\(count) \(count == 1 ? "thing" : "things") logged today.")
     }
 
     @ViewBuilder private var emptyState: some View {

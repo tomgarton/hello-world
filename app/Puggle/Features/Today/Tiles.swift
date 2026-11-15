@@ -334,6 +334,8 @@ struct TileChooserView: View {
 struct PuggleHeader: View {
     /// True while any child is asleep.
     let quiet: Bool
+    /// The greeting: "Afternoon, Tom".
+    let title: String
     let line: String
     let onYou: () -> Void
 
@@ -374,7 +376,8 @@ struct PuggleHeader: View {
         VStack(alignment: .leading, spacing: 10) {
             scene
             VStack(alignment: .leading, spacing: 2) {
-                Text(Date.now, format: .dateTime.weekday(.wide).day().month(.wide))
+                // The greeting, not the date: the phone already says what day it is (Tom, 15 November 2026).
+                Text(title)
                     .displayFont(28)
                     .foregroundStyle(Palette.ink)
                 if !line.isEmpty {

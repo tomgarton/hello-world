@@ -524,6 +524,20 @@ final class FamilyStore: ObservableObject {
         }
     }
 
+    /// The latest sleep that began in the daytime in the last two weeks: a child with one naps, so their card
+    /// on Today keeps its sleep button through the day.
+    func lastNap(for child: Child, now: Date = .now) -> Event? {
+        remembered("nap", for: child) {
+            let from = now.addingTimeInterval(-14 * 86400)
+            return (child.events ?? [])
+                .filter { event in
+                    guard event.kind == .sleep, event.isLive, let start = event.startedAt, start > from else { return false }
+                    return (8..<17).contains(Calendar.current.component(.hour, from: start))
+                }
+                .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+        }
+    }
+
     /// When the child last woke: the latest end of any sleep.
     func lastWoke(for child: Child) -> Date? {
         remembered("woke", for: child) {

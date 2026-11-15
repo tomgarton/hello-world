@@ -1842,3 +1842,42 @@ the same evening. It carries the icons in dark (thinner line, Banksia for Wattle
 redraws, icons that move (draw on a save, breathe while a feed runs, Apple's draw on the sleep button) and
 the parent-and-baby breastfeeding icon. No new fields in the data model. Banksia's naming and the palette
 board came after and are not in it; they change no behaviour.
+
+## Today, children first: built (15 November 2026, late)
+
+Built from the two decisions above ("Today with the snapshot" and "where everything else is logged") and
+their drawings. Not on a phone yet; build 10 does not have it.
+
+**What Today is now.**
+
+- **A card for each child** (`ChildCard` in `Features/Today/ChildCard.swift`): the avatar, name and age (tap
+  for their day so far, as before), the sleep button, and a plus.
+- **Three facts, each a button.** A baby: Fed, Awake or Asleep, Nappy. An older child: Awake or Asleep, Ate,
+  and the potty if they are training, else the nappy. "A baby" follows milk: a bottle or breastfeed in the
+  last two days, or under a year old and taking either. Tapping Fed, Ate, Nappy or Potty opens that log
+  sheet for that child (Fed asks bottle or breast when the child takes both, and opens the timers while a
+  feed runs). Tapping Awake opens a past sleep; tapping Asleep sets when they woke.
+- **One line under the facts.** A medicine that is due comes first; then a running feed; then what comes
+  next ("Next nappy around 22:50"), which goes once its time has passed. Nothing while asleep.
+- **The plus** opens the rest of that child's actions inside the card, four across, and turns to a cross.
+  Opening one child closes the other. What the facts already log is left out of the grid.
+- **One child:** no plus. Their actions sit open under the card as tiles, three across.
+- **A sleeping child goes first**, in night colours.
+- **The sleep button** shows while asleep, from 5 pm to 7 am, for a child with a daytime sleep in the last
+  two weeks, and for any child under 18 months. That last part is an addition to the decision: without it a
+  new baby with nothing logged would have no sleep button at midday.
+- **Siblings together** stays inside the log sheet, which still offers the other children and Everyone.
+- **The date has gone from the top** (Tom, the same evening: "is today's date actually useful? I don't
+  think so"). The greeting is the heading ("Afternoon, Tom") and the line about the day sits under it.
+- **Settings, Today, Layout:** "Children first" (the default for everyone) or "Shared tiles", which is the
+  earlier Today unchanged, with its tile chooser.
+
+**Not built.** The setting on each child for which actions show under them: for now it is everything the
+child uses, by age and their setup answers. The shared tiles' "Tiles on Today" chooser has no part in the
+new layout.
+
+**Checked.** 80 tests pass (four new, for which facts show and when the sleep button shows). In the
+simulator with the sample family: both layouts, light and dark, a child asleep, the plus opening, and a fact
+opening its sheet for the right child (`docs/previews/today/built.png`, `built-open.png`). Not seen: a
+family of one child, three children, the largest text sizes, a viewer, "Just logging", a running
+breastfeed, or anything on a phone.

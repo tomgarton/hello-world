@@ -5,6 +5,8 @@ enum Setting {
     static let yourName = "yourName"
     static let appearance = "appearance"
     static let justLog = "justLog"
+    /// How Today is laid out: "children" (the default) or "tiles". See `TodayLayout`.
+    static let todayLayout = "todayLayout"
     /// A notice two days before a child reaches a new row on a saved tin.
     static let rowNotices = "rowNotices"
     static let pottyStickers = "pottyStickers"
@@ -48,6 +50,7 @@ enum Setting {
 struct SettingsView: View {
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage(Setting.justLog) private var justLog = false
+    @AppStorage(Setting.todayLayout) private var todayLayout = TodayLayout.children.rawValue
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @AppStorage(Setting.stampInkRunsOut) private var inkRunsOut = false
     @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
@@ -97,6 +100,16 @@ struct SettingsView: View {
 
     private var todaySection: some View {
         Section {
+            HStack {
+                named("Layout", todayLayout == TodayLayout.tiles.rawValue ? "One set of tiles for the family, under the children."
+                                                                          : "Each child has their own facts and actions.")
+                Spacer(minLength: 8)
+                Picker("Layout", selection: $todayLayout) {
+                    ForEach(TodayLayout.allCases) { Text($0.title).tag($0.rawValue) }
+                }
+                .labelsHidden()
+                .tint(Palette.muted)
+            }
             HStack {
                 named("Show", justLog ? "Only the buttons for logging. Everything is still saved."
                                       : "Timers, the day's totals and Insights.")
