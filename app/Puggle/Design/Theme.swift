@@ -45,8 +45,8 @@ enum Palette {
     static let fixedPaper = Color(light: 0xFBF6E9, dark: 0xFBF6E9, night: 0xC9BEA8)
 
     static let wattle = Color(hex: 0xF4BE2C)
-    /// The yellow inside the activity icons. Wattle by day. In dark it is a deep mustard, so it sits back from
-    /// the pale line as Wattle sits back from the dark one (Tom's choice, 15 November 2026).
+    /// The yellow inside the activity icons. Wattle by day. In dark it is Banksia, a deep mustard in the brand
+    /// palette, so it sits back from the pale line as Wattle sits back from the dark one (15 November 2026).
     static let iconYellow = Color(light: 0xF4BE2C, dark: 0xB8861B, night: 0x8F6A18)
     static let harbour = Color(hex: 0x2A62B8)
     /// Red for deleting: deep enough to read on paper by day, brighter after dark (4.5:1 or more).

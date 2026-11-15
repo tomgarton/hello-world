@@ -703,11 +703,11 @@ Clothing mock-ups: tees (face and wordmark; friends repeat; Breton stripes with 
 | Group | Tokens |
 |---|---|
 | Base | Ink #3A2A20, Paper #FBF6E9, Sand #F2ECDD, Night #1B2440, Moon #F3E0B8 |
-| Brights (fills) | Wattle #F4BE2C, Harbour #2A62B8, Waratah #E5553B, Gum #3C9A5F |
+| Brights (fills) | Wattle #F4BE2C, Harbour #2A62B8, Waratah #E5553B, Gum #3C9A5F, Banksia #B8861B |
 | Soft fields (child colours, backgrounds) | Sky #BFD9F5, Shell #F3D9C9, Mint #CFE5D2, Sun #F4E7B0 |
 | Puggle | Fur #8A5A3C, Bill #6E7F8D, Blush #EE9C88, Stitch #C24A36 |
 
-Rules: text is Ink on light colours, Paper or Moon on Night. Waratah, Gum, Bill and Stitch pass contrast only for large text, so they are fills, never small text. Each child takes one soft field as their colour. Contrast values are on the canvas sheet.
+Rules: text is Ink on light colours, Paper or Moon on Night. Waratah, Gum, Bill and Stitch pass contrast only for large text, so they are fills, never small text. Each child takes one soft field as their colour. Contrast values are on the canvas sheet. Banksia (added 15 November 2026) is Wattle after dark: the colour inside the activity icons in dark mode, where Wattle is too bright beside a pale line. At night it deepens to #8F6A18.
 
 Type: Bricolage Grotesque ExtraBold for the logotype, display and titles; the iOS system font for headline, body and caption so Dynamic Type works. Components: chunky outlined buttons with a hard Ink shadow; soft rounded chips in the child's colour.
 

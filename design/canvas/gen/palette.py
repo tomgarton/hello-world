@@ -11,7 +11,7 @@ def cr(a, b):
 INK, PAPER = '#3A2A20', '#FBF6E9'
 groups = [
  ('Base', [('Ink', INK), ('Paper', PAPER), ('Sand', '#F2ECDD'), ('Night', '#1B2440'), ('Moon', '#F3E0B8')]),
- ('Brights', [('Wattle', '#F4BE2C'), ('Harbour', '#2A62B8'), ('Waratah', '#E5553B'), ('Gum', '#3C9A5F')]),
+ ('Brights', [('Wattle', '#F4BE2C'), ('Harbour', '#2A62B8'), ('Waratah', '#E5553B'), ('Gum', '#3C9A5F'), ('Banksia', '#B8861B')]),   # Banksia: Wattle after dark (15 November 2026)
  ('Soft fields', [('Sky', '#BFD9F5'), ('Shell', '#F3D9C9'), ('Mint', '#CFE5D2'), ('Sun', '#F4E7B0')]),
  ('Puggle', [('Fur', '#8A5A3C'), ('Bill', '#6E7F8D'), ('Blush', '#EE9C88'), ('Stitch', '#C24A36')]),
 ]
@@ -48,7 +48,7 @@ body = f'''<div style="width: 1080px; height: 780px; box-sizing: border-box; bac
 <div style="display: flex; gap: 50px; align-items: flex-start">
 <div style="display: flex; flex-direction: column; gap: 10px"><div style="font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #5A4636">Type</div>{type_html}</div>
 <div style="display: flex; flex-direction: column; gap: 12px"><div style="font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #5A4636">Components</div><div style="display: flex; flex-wrap: wrap; gap: 12px; width: 330px">{comps}</div>
-<div style="font-size: 13px; font-weight: 500; color: #4A3B30; line-height: 1.4; max-width: 330px">Text is always Ink on light colours and Paper or Moon on Night. Brights are fills, not text colours. Each child gets one soft field as their colour.</div></div>
+<div style="font-size: 13px; font-weight: 500; color: #4A3B30; line-height: 1.4; max-width: 330px">Text is always Ink on light colours and Paper or Moon on Night. Brights are fills, not text colours. Each child gets one soft field as their colour. Banksia is Wattle after dark: the colour inside icons in dark mode.</div></div>
 </div>
 </div>'''
 wrap('Palette and type', body, 1080, 780, 'Palette.dc.html', 21800)
