@@ -151,6 +151,8 @@ private func familyTimeline(_ snapshot: WidgetSnapshot?, chosen: String? = nil) 
         let over = nappy.addingTimeInterval(undoWindow + 1)
         if over > now { times.append(over) }
     }
+    // When a "next" line's time passes, the widget is drawn again without it.
+    for next in (snapshot?.children ?? []).compactMap(\.nextAt) where next > now { times.append(next.addingTimeInterval(1)) }
     let entries = times.sorted().map { FamilyEntry(date: $0, snapshot: snapshot, chosenID: chosen) }
     return Timeline(entries: entries, policy: .after(now.addingTimeInterval(2 * 3600)))
 }
@@ -259,7 +261,13 @@ private struct SnapshotWidgetView: View {
                 let room = family == .systemLarge ? 6 : 3
                 let shown = Array(children.prefix(room))
                 VStack(alignment: .leading, spacing: 0) {
-                    if children.count == 1, let only = children.first {
+                    if family == .systemLarge, children.count <= 4 {
+                        // The large widget has the room for the day so far and what comes next (Tom, 15 November 2026).
+                        ForEach(children) { child in
+                            block(child, roomy: children.count <= 3).frame(maxHeight: .infinity)
+                            if child.id != children.last?.id { Divider().opacity(0.5) }
+                        }
+                    } else if children.count == 1, let only = children.first {
                         alone(only)
                     } else {
                         ForEach(shown) { child in
@@ -297,6 +305,37 @@ private struct SnapshotWidgetView: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+    }
+
+    /// A child on the large widget: their name, the three facts, the day so far and what comes next.
+    private func block(_ child: WidgetSnapshot.Child, roomy: Bool) -> some View {
+        let facts = child.facts(now: entry.date)
+        let next: String? = child.nextAt.flatMap { $0 > entry.date ? child.nextText : nil }
+        return VStack(alignment: .leading, spacing: roomy ? 6 : 3) {
+            HStack(spacing: 8) {
+                ChildBadge(child: child, size: roomy ? 30 : 24)
+                Text(child.name).font((roomy ? Font.headline : .subheadline).weight(.semibold)).lineLimit(1)
+                Spacer(minLength: 8)
+                if let next {
+                    Text(next).font(.caption).foregroundStyle(.secondary).lineLimit(1).minimumScaleFactor(0.8)
+                }
+            }
+            if facts.isEmpty {
+                Text("Nothing logged yet today").font(.subheadline).foregroundStyle(.secondary)
+            } else {
+                HStack(alignment: .top, spacing: roomy ? 20 : 16) {
+                    ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date, large: roomy) }
+                }
+            }
+            if let today = child.today {
+                Text("Today · " + today)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(roomy ? 2 : 1)
+                    .minimumScaleFactor(0.85)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func row(_ child: WidgetSnapshot.Child) -> some View {

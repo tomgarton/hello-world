@@ -1427,3 +1427,11 @@ fact had a third of the row, so the gap after a short time ("46m") was wider tha
 ("3h 4m"). Each fact now takes only the room its words need, and the gap between facts is the same (16
 points), starting in line with "Nothing logged yet today". The same in the one-child layout. A counting time
 is sized by a still copy of its words (`SinceValue`). Not seen on a phone since.
+
+**Family today, on the large widget (built 15 November 2026).** Tom: the large Family snapshot wasted its
+room, with two short rows in a tall box. With up to four children the large size now uses the layout drawn
+as "Family today, large" in `docs/previews/widgets/family.png`: for each child, their name, the three facts
+(larger with up to three children), "Today · 4 feeds, 560 ml · 3h 10m asleep · 5 nappies", and what comes
+next beside the name until its time. With five or six children it keeps the short rows. The day so far and
+the next line are written into the widgets' summary by the app (`WidgetFeed.today`). A sleep still running
+is left out of the day's total. Not seen on a phone.

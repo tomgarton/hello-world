@@ -18,6 +18,11 @@ struct WidgetSnapshot: Codable {
         let usesNappies: Bool
         /// When their last sleep ended. Nil in a summary written before this was added.
         var lastWoke: Date?
+        /// The day so far, for the large widget: "4 feeds, 560 ml · 3h 10m asleep · 5 nappies". Nil when nothing yet.
+        var today: String?
+        /// What comes next, as on the Lock Screen card: "Next feed around 2:30 pm", shown until `nextAt`.
+        var nextText: String?
+        var nextAt: Date?
     }
 
     var children: [Child]
@@ -45,7 +50,8 @@ struct WidgetSnapshot: Codable {
     static let preview = WidgetSnapshot(children: [
         Child(id: "preview-ollie", name: "Ollie", colourIndex: 0, asleepSince: nil,
               lastFeed: Date.now.addingTimeInterval(-95 * 60), lastFeedText: "Bottle · 150 ml",
-              lastNappy: Date.now.addingTimeInterval(-40 * 60), usesNappies: true, lastWoke: Date.now.addingTimeInterval(-71 * 60)),
+              lastNappy: Date.now.addingTimeInterval(-40 * 60), usesNappies: true, lastWoke: Date.now.addingTimeInterval(-71 * 60),
+              today: "4 feeds, 560 ml · 3h 10m asleep · 5 nappies"),
         Child(id: "preview-bea", name: "Bea", colourIndex: 1, asleepSince: Date.now.addingTimeInterval(-50 * 60),
               lastFeed: Date.now.addingTimeInterval(-150 * 60), lastFeedText: "Solids", lastNappy: nil, usesNappies: false),
     ], updatedAt: .now)
