@@ -1282,3 +1282,23 @@ Tom: the scenes at the top of Today hardly change, and night should come from th
 - **Which actions show under a child:** suggested by the app from the child's age and what has been logged, and a setting on each child to change them.
 - **A choice of layout.** A setting for Today's structure: the new one ("Children first") or the earlier one with shared tiles. The new one is the default for everyone, and the earlier one is the option (confirmed by Tom).
 - Held with the rest of Today until sync is fixed.
+
+### Sync between Tom and Clara: where it stands (paused 15 November 2026, afternoon)
+
+**The problem.** Tom's phone cannot send to iCloud. Every send fails with CKErrorDomain 2 (some records refused, so the whole batch is held). Clara's phone is healthy: all her entries are in iCloud. One cause, three symptoms: Tom's entries do not reach Clara; Clara is not in the family list on her phone, because her row is made on Tom's phone and has never been sent; and she cannot import, because without that row she counts as a Helper.
+
+**What is known.**
+- iCloud (Production) holds the family zone with 1 family, 2 children, 19 entries, 1 medicine box and 1 person (Tom). So it has accepted every record type.
+- Tom's phone reports all 18 of its entries as not in iCloud, including ones that came from iCloud. It has lost track of what it has sent.
+- Apple does not give a released app the reason for a refused record: builds 5 and 6 show only the code. Relaunching the TestFlight build from the Mac with logging on gave no log either.
+
+**Leading guess, not confirmed.** Clara's person row uses fields (`lookup`, `invitedAt`) that the Production schema may never have seen, because no one had joined a family when the schema was deployed. If so, the fix is to add every field to the schema and deploy it again; no new build is needed, and Tom's phone should then send by itself.
+
+**Puggle Check** (`app/tools/PuggleCheck`): a separate small app, installed on Tom's phone from the Mac on 15 November with his yes. It reads the family's zone and asks iCloud which fields it accepts, writing only test records to the default zone and deleting them. First run: iCloud refused it with "Invalid bundle ID for container", because the new app's ID is not yet linked to Puggle's iCloud container. A retry four minutes later printed nothing (the phone was probably locked).
+
+**Next, when Tom is back.**
+1. Run Puggle Check again with the phone unlocked. If it is still refused, link the ID `com.tomgarton.puggle.check` to the container `iCloud.com.tomgarton.puggle` in Apple's developer site (Identifiers), or fall back to a debug build of Puggle itself pointed at Production.
+2. If fields are missing: add them in Development, then deploy the schema to Production in the CloudKit Console.
+3. If nothing is missing: the phone's lost bookkeeping is the cause. Take a backup, reset the phone's copy so it loads again from iCloud, then bring back from the backup the entries iCloud does not have.
+
+**Until then:** Clara should not import, and Tom's entries stay on his phone only. Nothing is lost.
