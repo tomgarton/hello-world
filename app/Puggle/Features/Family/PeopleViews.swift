@@ -83,18 +83,22 @@ struct PersonRow: View {
     var isMe: Bool
     var opens: Bool
 
-    private var detail: String {
-        if person.hasJoined { return person.role.title }
-        guard let invited = person.invitedAt else { return person.role.title }
-        return "\(person.role.title). Invited \(invited.formatted(.dateTime.weekday(.wide)))"
+    private var detail: String? {
+        guard !person.hasJoined, let invited = person.invitedAt else { return nil }
+        return "Invited \(invited.formatted(.dateTime.weekday(.wide)))"
     }
 
     var body: some View {
         HStack(spacing: 12) {
             PersonAvatar(person: person, size: 40)
             VStack(alignment: .leading) {
-                Text(isMe ? "You" : person.displayName).font(.headline)
-                Text(detail).font(.subheadline).foregroundStyle(Palette.muted)
+                // Their name, and "You" after it on the person's own row (Tom, 15 November 2026).
+                // Their role is the pill beside it, so the line under the name is only for someone still to join.
+                HStack(spacing: 6) {
+                    NameAndYou(name: person.displayName, isMe: isMe).font(.headline)
+                    RoleChip(person.role.title)
+                }
+                if let detail { Text(detail).font(.subheadline).foregroundStyle(Palette.muted) }
             }
             Spacer(minLength: 0)
             if !person.hasJoined {
@@ -112,6 +116,37 @@ struct PersonRow: View {
         }
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// "Alex · You" on the person's own row, their name alone on anyone else's, and "You" where no name is set.
+struct NameAndYou: View {
+    let name: String
+    let isMe: Bool
+
+    var body: some View {
+        let known = !name.trimmingCharacters(in: .whitespaces).isEmpty && name != "You"
+        if isMe, known {
+            (Text(name) + Text(" · You").foregroundStyle(Palette.muted)).lineLimit(1)
+        } else {
+            Text(isMe ? "You" : name).lineLimit(1)
+        }
+    }
+}
+
+/// A small pill beside a name, holding the person's role: Parent, Helper or Viewer.
+struct RoleChip: View {
+    let text: String
+    init(_ text: String) { self.text = text }
+
+    var body: some View {
+        Text(text)
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(Palette.ink)
+            .padding(.horizontal, 8)
+            .padding(.vertical, 3)
+            .background(Palette.field, in: Capsule())
+            .fixedSize()
     }
 }
 

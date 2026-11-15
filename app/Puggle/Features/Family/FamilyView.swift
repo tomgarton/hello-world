@@ -33,6 +33,8 @@ struct FamilyView: View {
                         .listRowBackground(Color.clear)
                 }
                 // You, at the head of your family, as the iPhone's own Settings has it (Tom, 15 November 2026).
+                // Only the name and the family here. "You" and the role are on the person's row in Family and
+                // friends, so nothing is said twice.
                 Section {
                     Button { showingYou = true } label: {
                         HStack(spacing: 14) {
@@ -41,7 +43,8 @@ struct FamilyView: View {
                                 Text(yourName.trimmingCharacters(in: .whitespaces).isEmpty ? "Add your name" : yourName)
                                     .font(.title3.weight(.semibold))
                                     .foregroundStyle(Palette.ink)
-                                Text("\(store.role.title) · \(store.familyName.isEmpty ? store.childrenTitle : store.familyName)")
+                                    .lineLimit(1)
+                                Text(store.familyName.isEmpty ? store.childrenTitle : store.familyName)
                                     .font(.subheadline)
                                     .foregroundStyle(Palette.muted)
                                     .lineLimit(1)
@@ -141,7 +144,8 @@ struct FamilyView: View {
                     ForEach(people) { person in
                         let opens = store.isParent || store.isMe(person)
                         Button {
-                            if opens { opened = person }
+                            // Your own row opens your photo and name, as the card at the top does.
+                            if store.isMe(person) { showingYou = true } else if opens { opened = person }
                         } label: {
                             PersonRow(person: person, isMe: store.isMe(person), opens: opens)
                         }

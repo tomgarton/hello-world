@@ -1492,3 +1492,8 @@ the head, in a card with your photo and name, and everything else beneath.
 
 Open, from Apple's guidance: Tiles is an option for one screen, and Today already has its own Edit, so the
 Tiles row in Settings may not be needed. Appearance repeats the iPhone's own light and dark setting.
+
+**Names and roles on the Family tab (15 November 2026, Tom).** The card at the top keeps to the person's name
+and the family. In Family and friends, a person's own row reads "Alex · You", and everyone's role is a small
+pill beside their name (Parent, Helper, Viewer), so "You" and the role are said once. The line under a name
+is now only for someone still to join ("Invited Tuesday"). A person's own row opens their photo and name.
