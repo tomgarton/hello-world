@@ -1262,3 +1262,13 @@ Tom: the scenes at the top of Today hardly change, and night should come from th
 - **Four places a day.** The scene changes with the part of the day (before 9, to 1 pm, to 5 pm, evening), starting from a different place each day. It used to change once a day. From 6 pm she is still indoors, as before.
 - **The weather** is off unless switched on in Settings, looks again when the app comes to the front if the last look is over half an hour old, and is dropped after three hours. That is unchanged; if the weather never shows, check it is on and location is allowed.
 - Seen in the simulator at noon in light and dark, and at 5 pm and 11 pm. The sunrise and sunset path has not run: the simulator build has no weather service.
+
+### Decisions, 15 November 2026 (Tom, asked one by one)
+
+- **What comes next.** The Lock Screen card and widgets get one line for the soonest of the next feed, sleep or nappy, worked out from the child's own last week: "Next feed around 2:30". Once that time has passed the line goes, and only the facts are left. Nothing ever reads as late. This replaces the earlier rule of facts only.
+- **One family card.** With two or more children the Live Activity becomes one card with a row for each child, as drawn in `docs/previews/live-activity/family.png`.
+- **Widgets to add:** facts open their log sheet (they do not log on the tap), a tile widget for one child, a large "Family today" widget, and Puggle on the small widget's empty state.
+- **Today:** mock up the snapshot rows first, before building.
+- **In-app feedback:** build it. A note in Settings, saved with the build number, to copy out later.
+- **Order after the sync fix:** the Today mock-up, then the rest.
+- Pushed to GitHub the same day.
