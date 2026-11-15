@@ -64,8 +64,8 @@ struct AppearanceSettingsView: View {
 
     private var iconFooter: String {
         switch IconColour(rawValue: iconColour) ?? .yellow {
-        case .yellow: "The colour inside each icon. Skin tones stay as they are."
-        case .own: "Choose any colour. Skin tones stay as they are."
+        case .yellow: "The colour inside each icon."
+        case .own: "Choose any colour for the inside of each icon."
         case .child: "Each child's icons take their colour. Anything shared stays yellow."
         }
     }

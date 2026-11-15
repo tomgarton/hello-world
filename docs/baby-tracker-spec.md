@@ -1805,3 +1805,23 @@ to copy. Two more in `ALTERNATES` try the last point: `held-baby-colour` (the ba
 parent's fringe and bun in line only) and `held-baby-plain` (the same with no hair at all).
 `docs/previews/icons/breastfeeding-accent.png` sets them beside hair in colour. On a tile the baby's head
 gives a clear spot of colour where the hair is a sliver. Not decided; not installed.
+
+## Breastfeeding icon: a parent and baby, in the app (15 November 2026)
+
+Tom, after trying the colour on the baby: the parent's hair in yellow works better; go with that for now.
+So the chosen drawing (hair in colour, no faces, the two heads apart, the body line finishing under the
+baby) is now the app's breastfeeding icon, in place of the breast.
+
+- `ICONS['breastfeed']` in `docs/tools/make_icons.py` is `NURSE_APART` brought from its 32 canvas to the
+  set's 24 with `place` (scaled by 0.75 and centred). The small and regular drawings are the same lines at
+  the set's two weights.
+- It draws on in this order: the parent's head, the hair, the body down and round, the forearm, the baby.
+- It has no skin colour, so no icon has a fixed colour any more. Installing now removes a layer a drawing
+  no longer has (the two `-fixed` image sets went), and the footers under Icon colour in Settings no longer
+  say "Skin tones stay as they are."
+- The breast is kept as `ALTERNATES['breast']`, and every other option stays on the sheets.
+
+76 tests pass. Seen in the simulator on the every-icon sheet in light and dark
+(`docs/previews/icons/in-app/breastfeed-parent-and-baby.png`): the picture and the drawn version match.
+Not seen on a phone, on the feeding sheet with a feed running, or in a widget. "For now": Tom may change
+it again.

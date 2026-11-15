@@ -24,7 +24,7 @@ Run `python3 docs/tools/make_icons.py` from the repo: it writes docs/previews/ic
 docs/previews/icons/refined.html. With `--install` it also writes each icon's three files in the app's asset
 catalogue (light, dark and plain); poo and wee are new and are not installed.
 """
-import math, os, re, sys
+import math, os, re, shutil, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'previews', 'icons')
@@ -61,6 +61,24 @@ def scale(d, k=2):
             else: nums = [v * k for v in nums]
             out += ' '.join(f'{v:g}' for v in nums) + ' '
             if not n: break
+    return out.strip()
+
+
+def place(d, k=1, dx=0, dy=0):
+    """A path scaled by k, then moved by (dx, dy). Capital commands only: M L H V C A Z."""
+    out, tokens, i = '', re.findall(r'[A-Za-z]|-?\d*\.?\d+', scale(d, k)), 0
+    counts = {'M': 2, 'L': 2, 'H': 1, 'V': 1, 'C': 6, 'A': 7, 'Z': 0}
+    while i < len(tokens):
+        cmd = tokens[i]; i += 1
+        assert cmd in counts, (cmd, d)
+        out += cmd
+        while counts[cmd] and i < len(tokens) and not tokens[i].isalpha():
+            nums = [float(t) for t in tokens[i:i + counts[cmd]]]; i += counts[cmd]
+            if cmd == 'H': nums[0] += dx
+            elif cmd == 'V': nums[0] += dy
+            elif cmd == 'A': nums[5] += dx; nums[6] += dy
+            else: nums = [v + (dx if j % 2 == 0 else dy) for j, v in enumerate(nums)]
+            out += ' '.join(f'{round(v, 3):g}' for v in nums) + ' '
     return out.strip()
 
 
@@ -434,6 +452,12 @@ ALTERNATES['held-tucked'] = (NURSE_FACES['none'][0], 'Parent and baby, tucked in
 ALTERNATES['held-refined'] = (NURSE_APART, 'Parent and baby, refined',
                               'The chosen drawing: hair in colour, no faces, the baby\u2019s head clear of the parent\u2019s, and the body line finishing under the baby.')
 
+# In the app from 15 November 2026 ("let's go with that for now"): the drawing above, brought from its 32 canvas
+# to the set's 24 and centred. The breast it replaces is still `ALTERNATES['breast']`. It has no skin colour,
+# so the app's icons now carry no fixed colours at all.
+ICONS['breastfeed'] = icon([place(d, .75, 1.1, -.2) for d in NURSE_APART['lines']], wattle=[place(d, .75, 1.1, -.2) for d in NURSE_APART['wattle']],
+                           note='A parent holding a baby: hair in colour, no faces, the two heads apart.')
+
 # As Apple might colour it (15 November 2026): the accent on the baby, who is the subject, not on the parent's
 # hair. Two ways: the hair kept in line, and no hair at all (Apple's figures have none).
 APART_BUB = circle(20.9, 20.2, 4.5)
@@ -637,7 +661,8 @@ h3{{margin:10px 0 2px;font-size:17px}}p{{margin:0;color:#6B5E52}}i{{display:bloc
 # hips, the ruler's left side before its ticks, the band in the bowl from the wall already drawn.
 DRAW = {
     'bottle':      dict(groups=[['0:m'], ['1:TL'], ['2:e'], ['3'], ['4 5 6']]),
-    'breastfeed':  dict(groups=[['0']]),
+    # the parent's head, then hair, then the body down and round, the arm, and the baby last
+    'breastfeed':  dict(groups=[['0:T'], ['4', '1'], ['3'], ['5'], ['2:T']], fills={'a0': 1, 'a1': 1}),
     'pump':        dict(groups=[['0'], ['1:TL'], ['2:TL'], ['3'], ['4 5']], fills={'a0': (4, 'up')}),
     'solids':      dict(groups=[['0'], ['4:r', '3:m'], ['1'], ['2'], ['5', '6', '7']], fills={'a0': 2}),
     'sleep':       dict(groups=[['0:@9.5,3.5-']]),
@@ -715,6 +740,8 @@ def main():
                     text = svg(name, spec=spec, layer=layer)
                     other = svg(name, spec=spec, layer=layer, ink=DARK) if layer != 'fill' else None
                     if text: imageset(f'icon-{name}{tag}-{layer}', text, template=layer != 'fixed', dark=other)
+                    elif os.path.isdir(os.path.join(ASSETS, f'icon-{name}{tag}-{layer}.imageset')):
+                        shutil.rmtree(os.path.join(ASSETS, f'icon-{name}{tag}-{layer}.imageset'))   # a layer the drawing no longer has
         import json
         # The strokes themselves, in the order and direction they are drawn, for the app to draw an icon on
         # (see DRAW). The larger drawing only, which is the one shown at 32 points and up.
