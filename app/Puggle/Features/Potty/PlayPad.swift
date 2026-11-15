@@ -381,6 +381,7 @@ struct PlayPadView: View {
     @State private var loaded = false
     @State private var paperSize: CGSize = .zero
     // A stamp's ink runs out, as on the stamper, until an ink pad is pressed again.
+    @AppStorage(Setting.stampInkRunsOut) private var inkRunsOut = false
     @State private var inkLeft = 8
     @State private var squished: Ink?
     @State private var dryNudge = 0
@@ -421,6 +422,11 @@ struct PlayPadView: View {
         }
         .background(Palette.sand.ignoresSafeArea())
         .foregroundStyle(Palette.ink)
+        // Harder for small hands to leave by accident: the bar at the bottom is hidden, and a swipe from an
+        // edge has to be made twice. iOS lets no app stop it altogether; Guided Access does that.
+        .persistentSystemOverlays(.hidden)
+        .defersSystemGestures(on: .all)
+        .statusBarHidden(true)
         .overlay(alignment: .top) {
             if let toast {
                 Text(toast)
@@ -668,6 +674,16 @@ struct PlayPadView: View {
     }
 
     private func place(_ point: CGPoint) {
+        // Ink that runs out is a choice in Settings, off unless switched on: a small child does not see why
+        // the stamp has stopped (Tom, 15 November 2026). Without it every stamp is a full one.
+        guard inkRunsOut else {
+            Haptics.tap()
+            let mark = PadMark(kind: .stamp(stamp: stamp.rawValue, seed: UInt64.random(in: 0...UInt64.max),
+                                            tilt: Double.random(in: -9...9), strength: 1),
+                               ink: ink, points: [point])
+            withAnimation(.spring(duration: 0.25, bounce: 0.4)) { add(mark) }
+            return
+        }
         guard inkLeft > 0 else {
             // Out of ink: the pads give a little wiggle to say where to go.
             Haptics.warning()

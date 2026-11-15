@@ -8,6 +8,8 @@ enum Setting {
     /// A notice two days before a child reaches a new row on a saved tin.
     static let rowNotices = "rowNotices"
     static let pottyStickers = "pottyStickers"
+    /// On the play pad, a stamp fades and stops after eight presses until an ink pad is pressed. Off unless chosen.
+    static let stampInkRunsOut = "stampInkRunsOut"
     static let lockScreenGlance = "lockScreenGlance"
     static let haptics = "haptics"
     static let tilesCustom = "tilesCustom"
@@ -47,6 +49,7 @@ struct SettingsView: View {
     @EnvironmentObject private var sample: SampleFamily
     @AppStorage(Setting.justLog) private var justLog = false
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
+    @AppStorage(Setting.stampInkRunsOut) private var inkRunsOut = false
     @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
     @AppStorage(Setting.haptics) private var hapticsOn = true
     @AppStorage(Setting.appLock) private var lockOn = false
@@ -147,6 +150,7 @@ struct SettingsView: View {
     private var childrenSection: some View {
         Section {
             Toggle(isOn: $stickersOn) { named("Stamps after the potty", "Five stamps earn a sticker.") }
+            Toggle(isOn: $inkRunsOut) { named("Stamps run out of ink", "On the play pad, a stamp fades until an ink pad is pressed again.") }
         } header: {
             heading("Children", "figure.and.child.holdinghands")
         }

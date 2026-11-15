@@ -1758,7 +1758,11 @@ struct Bubbles: View {
                 var random = SeededRandom(UInt64(i) &* 613 &+ 5)
                 let radius = CGFloat(random.range(5, 12)), speed = random.range(0.1, 0.17), start = random.unit(), x0 = random.range(0.12, 0.88)
                 let rise = (t * speed + start).truncatingRemainder(dividingBy: 1)
-                let centre = CGPoint(x: margin + (size.width - margin * 2) * x0 + CGFloat(sin(rise * 7 + Double(i))) * 6, y: size.height * (1 - rise))
+                let sway = CGFloat(sin(rise * 7 + Double(i))) * 6
+                let across = margin + (size.width - margin * 2) * CGFloat(x0) + sway
+                // Kept a whole bubble inside the top and bottom, so one is never cut off flat as it starts or ends.
+                let up = radius + 1 + (size.height - radius * 2 - 2) * CGFloat(1 - rise)
+                let centre = CGPoint(x: across, y: up)
                 let round = Path(ellipseIn: CGRect(x: centre.x - radius, y: centre.y - radius, width: radius * 2, height: radius * 2))
                 let fade = rise > 0.88 ? (1 - rise) / 0.12 : min(1, rise / 0.08)
                 context.fill(round, with: .color(Color.white.opacity(0.22 * fade)))

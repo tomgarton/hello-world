@@ -1504,3 +1504,32 @@ row's value or status on the trailing side and its name on the leading side. Som
 "Invited Tuesday · Not joined yet" under their name; the yellow "Not joined yet" pill went, so a row never
 has two pills. The Tiles row is out of Settings: Today has its own Edit, and Apple's guidance is to keep an
 option for one screen on that screen.
+
+## Play pad: first fixes, and what the review found (15 November 2026)
+
+Tom: his son asks to stamp all the time, and the screen fights him. He does not see why the stamp stops, he
+leaves the app by the bar at the bottom, there are a lot of buttons, and Draw and Stamp book are muddled.
+
+**Built now.**
+- **Ink that runs out is a setting, off unless switched on** (Settings, Children, "Stamps run out of ink").
+  Without it every stamp is a full one. It was always on: eight stamps, fading, then nothing until an ink
+  pad was pressed.
+- **Harder to leave by accident.** On the play pad the bar at the bottom and the status bar are hidden, and a
+  swipe from an edge has to be made twice. iOS lets no app stop it altogether; Guided Access does.
+- **Puggle's bubbles** on Today no longer cut off flat at the top and bottom of their frame.
+
+**What other apps and the research say** (sources in the session, 15 November):
+- Pok Pok: no menus or words, one exit control at the top, eight colours, a slider to wipe the page, grown-up
+  things outside the toy behind a gate. It tells parents to use Guided Access.
+- Sesame Workshop and Nielsen Norman: tapping is the easiest gesture for this age and pinching the hardest;
+  children rest a hand on the bottom edge, so controls there get pressed by accident; targets of about 2 cm;
+  pictures, not words; parent controls that look different from the child's.
+- Open-ended toys have no way to fail and nothing that runs out.
+
+**Where the pad stands against that.** Around the paper it has a top bar of six controls (close, two page
+arrows, the page's name, undo, more) and under it five tools, eight colours, the stamps and the sizes, all
+at the bottom where a resting hand lands. The paper is a card with margins, not the whole screen.
+
+**Icons in dark, not solved.** Tom finds them hard to read. A soft body behind each icon was tried and made
+little difference, so it was taken out. Two ways on, not yet drawn: solid pale shapes with dark detail, or
+the simpler drawing with fewer inner lines.
