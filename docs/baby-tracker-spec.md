@@ -1435,3 +1435,8 @@ as "Family today, large" in `docs/previews/widgets/family.png`: for each child, 
 next beside the name until its time. With five or six children it keeps the short rows. The day so far and
 the next line are written into the widgets' summary by the app (`WidgetFeed.today`). A sleep still running
 is left out of the day's total. Not seen on a phone.
+
+**TestFlight, 15 November 2026, evening:** the eighth upload of 0.1.0, from commit 90a5be2. It carries the
+fixes for a long history (entries read in one go, lookups kept, the sync count off the main thread), capitals
+after an interpunct, the Quick log buttons, even gaps between facts, and Family today on the large widget.
+No new fields in the data model, so no schema to deploy.
