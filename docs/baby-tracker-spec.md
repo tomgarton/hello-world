@@ -1581,3 +1581,13 @@ should follow the dark palette, since yellow beside the pale line lacks the cont
 `docs/previews/icons/dark-options.png` (`docs/tools/make_icon_dark_options.py`). As now (line at 0.8 of its
 light weight, Wattle); A, line at 0.62; B, line at 0.62 with a deep mustard `#B8861B`; C, line at 0.62 with
 dark amber `#86641A`; D, line at 0.5 with deep mustard. Not installed.
+
+**Icons in dark: option B, and the potty (15 November 2026).** Tom chose B. In dark the icons' line is now
+0.62 of its light weight (`DARK_LINE` in `docs/tools/make_icons.py`; it was 0.8), and the default yellow is a
+deep mustard, `#B8861B`, with `#8F6A18` at night (`Palette.iconYellow`). Light is unchanged. A colour of the
+person's own, or each child's colour, is left as chosen in dark. The mustard is new and not yet in the brand
+book.
+
+The potty's colour is now the opening alone, as a filled oval; the whole base was in yellow, which Tom found
+too much. The highlight line on the base went with it. In the app: `docs/previews/icons/in-app/dark-mustard.png`
+and `light-potty.png`.

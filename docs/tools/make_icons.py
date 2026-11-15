@@ -126,9 +126,9 @@ ICONS = {
                   note='One closed, padded shape. The tabs and the leg openings sit inside it, which is what says nappy and not pants.'),
     # The front of the seat swells up in the middle: the splash guard. It stands in front of the opening.
     'potty': icon([POTTY, FRONT],
-                  sky=[FRONT + 'C21.7 17 22 18.5 22 19.5A2.5 2.5 0 0 1 19.5 22H4.5A2.5 2.5 0 0 1 2 19.5C2 18.5 2.3 17 3 14.5Z'],
-                  ink=['M8.5 11.8A3.5 1.3 0 1 0 15.5 11.8A3.5 1.3 0 1 0 8.5 11.8Z'],
-                  note='A small backrest, a wide seat with its opening, a raised front and a base.'),
+                  # The colour is the opening alone (Tom, 15 November 2026: the whole base in yellow was too much).
+                  wattle=['M8.2 11.8A3.8 1.6 0 1 0 15.8 11.8A3.8 1.6 0 1 0 8.2 11.8Z'],
+                  note='A small backrest, a wide seat with its opening in colour, a raised front and a base.'),
     'bath': icon(['M2.5 11H21.5V13.5A6 6 0 0 1 15.5 19.5H8.5A6 6 0 0 1 2.5 13.5Z', 'M6.5 19.5L5.5 22M17.5 19.5L18.5 22', circle(16, 7, 3), circle(7.5, 5.5, 2.3)],
                  wattle=[circle(16, 7, 3)], note='A tub, a bubble and a duck looking over the rim.'),
     'growth': icon([rr(7.5, 2, 9, 20, 2.5), 'M7.5 6.5H10.5M7.5 10.5H12M7.5 14.5H10.5M7.5 18.5H12'], wattle=[rr(7.5, 2, 9, 20, 2.5)],
@@ -161,7 +161,6 @@ NEW = ['poo', 'wee']
 # and the Sky fills go. Three icons had no Wattle at all: their Sky part becomes the accent.
 for _name, _spec in ICONS.items():
     if _name == 'nappy': _spec['wattle'] += _spec['sky'][:2]      # the fastening tabs
-    if _name == 'potty': _spec['wattle'] += _spec['sky']  # the base
     _spec['sky'] = []
 
 
@@ -188,7 +187,9 @@ def svg(name, ink=INK, plain=False, size=24, spec=None, layer=None):
 # In dark the line is pale on a dark ground, and a pale line looks heavier than a dark one of the same width.
 # So the dark drawing has a thinner line. A fixed colour is dimmed a little too, so the pale line still shows
 # against it (the breast's skin was nearly the line's own colour).
-DARK_LINE, DARK_FIXED = 0.8, 0.8
+# 0.62 since 15 November 2026 (it was 0.8): Tom found the icons hard to read in dark, and chose the thinner line
+# with a deep mustard in place of Wattle (`Palette.iconYellow` in the app). See docs/previews/icons/dark-options.png.
+DARK_LINE, DARK_FIXED = 0.62, 0.8
 
 
 def dimmed(colour, k):
@@ -367,7 +368,7 @@ DETAIL = {
     'solids': dict(fine=['M4.5 13.5H19.5', 'M4.5 6.5L3.5 5M7 5.3L6.4 3.5M9.5 5V3'], note='A rim on the bowl, and steam.'),
     'sleep': dict(ink=[sparkle(15, 10, 1.5), sparkle(21, 10.5, 1.2)], note='Two more stars.'),
     'nappy': dict(fine=['M8.5 7.3H15.5', 'M12 12.5V16.5'], note='A waistband seam and a centre fold.'),
-    'potty': dict(fine=['M6 19.3H9.5'], note='A highlight on the base.'),
+    'potty': dict(note='As the small one.'),
     'bath': dict(fine=[circle(11.5, 3.3, 1.2), 'M13.2 6.2L11.2 7L13.2 8'], ink=[circle(15.2, 6.4, .7)], note='A second bubble, and the duck has a beak and an eye.'),
     'growth': dict(fine=['M7.5 4.5H9.5M7.5 8.5H9.5M7.5 12.5H9.5M7.5 16.5H9.5'], note='Half marks between the marks.'),
     'weight': dict(fine=['M12 19L13.6 16.4', 'M6.5 5.8H17.5'], note='A needle on the dial and a line in the tray.'),

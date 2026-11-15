@@ -28,10 +28,10 @@ struct ActivityIcon: View {
 
     private var fill: Color {
         switch IconColour(rawValue: mode) ?? .yellow {
-        case .yellow: Palette.wattle
+        case .yellow: Palette.iconYellow
         case .own: Color(hex: UInt32(truncatingIfNeeded: own))
         // Pumping is the parent's, not a child's.
-        case .child: name == EventKind.pump.iconName ? Palette.wattle : childColour ?? Palette.wattle
+        case .child: name == EventKind.pump.iconName ? Palette.iconYellow : childColour ?? Palette.iconYellow
         }
     }
 
