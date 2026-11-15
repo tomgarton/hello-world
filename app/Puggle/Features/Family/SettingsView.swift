@@ -194,6 +194,9 @@ struct SettingsView: View {
     @ViewBuilder private var testSection: some View {
         if TesterDetail.on {
             Section {
+                NavigationLink { FeedbackView() } label: {
+                    LabeledContent("Feedback notes", value: FeedbackNotes.load().isEmpty ? "" : "\(FeedbackNotes.load().count)")
+                }
                 NavigationLink("iCloud check") { CloudCheckView() }
                 #if DEBUG
                 NavigationLink("Developer") { DeveloperView() }

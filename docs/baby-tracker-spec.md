@@ -1553,3 +1553,15 @@ tabs; a Play tab with what exists now (a big button into the pad, each child's s
 and the same tab once there are books, with shelves of stories and lift-the-flap books. The book titles on
 the drawing are placeholders. Not decided: whether to add the tab now or with the first book, which families
 see it, and its name.
+
+**Feedback notes, and a speed check (15 November 2026).**
+
+- **Feedback notes** (`FeedbackView`), in Settings under Test builds only: a field, "What did you notice?",
+  and Save note. Each note keeps its date and the build it was made on. Notes are listed newest first, can be
+  swiped away, and Copy all notes puts them on the clipboard as plain text. They stay on the phone; the app
+  sends nothing.
+- **History and Insights with a long history.** Measured on the simulator with 5,400 entries on disk. Opening
+  History took about 175 ms on the main thread, of which about 50 ms was grouping entries into days; Insights
+  took about 125 ms, in drawing its chart. Neither stalls, so nothing was changed. A phone is several times
+  slower than this Mac, so History may take around half a second to open on a long history. If it does, the
+  grouping into days is the part to keep between changes.
