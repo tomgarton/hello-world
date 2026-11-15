@@ -1999,3 +1999,8 @@ is to keep the child on the entry itself as well, which is a new field and so a 
 
 92 tests pass. Seen in the simulator on a long sample history. The speed on a phone with the real import is
 not measured.
+
+**TestFlight, 15 November 2026, about 23:25:** the eleventh upload of 0.1.0, from commit afa4656, pushed to
+GitHub first. It carries Today children first, the greeting and its one-row line, milk today beside the
+tin, the reader for formula tins, and Banksia's name. No new fields in the data model. It does not carry
+the History fixes (sorting once, "Imported", the count of entries with no child), which came after.
