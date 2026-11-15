@@ -416,7 +416,14 @@ NURSE_FACES = {
     'smiles': (nurse([eye(15.2, 13.0, .7), eye(19.6, 20.0, .8)], [circle(14.4, 10.9, .7), circle(17.9, 17.6, .7), circle(21, 17.6, .7)]), 'Eyes and smiles', 'Open eyes with a smile under them. Clear large; under 40 points the marks run together.'),
 }
 ALTERNATES['held-wrap'] = (nurse([eye(14.2, 11.5, 1.0), eye(19.2, 18.4, 1.2)], body=NURSE_WRAP), 'Parent and baby, arm up the far side', 'The first refinement: the body line comes up round the baby\u2019s far side.')
-ALTERNATES['held-refined'] = (NURSE_FACES['lids'][0], 'Parent and baby, refined',
+# Later again, Tom: take the eye from the tummy time baby. That is a dot, 0.9 on the 24 canvas, set to the side
+# the head faces, 0.4 of the way out. Here it is 1.0, for the heavier line.
+NURSE_FACES = {
+    'tummy': (nurse([], [circle(14.9, 11.3, 1.0), circle(17.5, 18.3, 1.0)]), 'Tummy time\u2019s eye on both', 'A dot each, set toward the other, as the tummy time baby has.'),
+    'tummy-baby': (nurse([lid(14.6, 11.4, 1.3, 1.0, 14)], [circle(17.5, 18.3, 1.0)]), 'Tummy time\u2019s eye on the baby', 'The baby has the dot. The parent keeps one closed lid, looking down.'),
+    **NURSE_FACES,
+}
+ALTERNATES['held-refined'] = (NURSE_FACES['tummy'][0], 'Parent and baby, refined',
                               'The chosen drawing with its lines cleaned up: no eye touches an edge, no lines pile up under the baby, and the body line finishes under the baby\u2019s head.')
 
 # The symbol with the baby's head drawn as tummy time draws it (15 November 2026, Tom's ask): an outlined head,

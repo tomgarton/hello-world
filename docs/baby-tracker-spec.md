@@ -1780,3 +1780,8 @@ with `lid` (a shallower curve than `eye`): two closed eyes on the baby and one t
 the drawing's face: a pair cannot be a mouth), two on each, and one flat tilted lid each.
 `docs/previews/icons/breastfeeding-eyes.png` shows the three; `breastfeeding-faces.png` has all eight.
 Not decided; not installed.
+
+**Tummy time's eye (later, 15 November 2026).** Tom: take the eye from the tummy time baby. That is a dot
+set to the side the head faces. Two more in `NURSE_FACES`: the dot on both (now the drawing's face), and
+the dot on the baby with the parent's closed lid kept. A dot cannot be read as a mouth, and it ties the
+drawing to tummy time. `breastfeeding-eyes.png` shows the two. Not decided; not installed.
