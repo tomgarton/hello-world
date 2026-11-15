@@ -53,7 +53,6 @@ struct SettingsView: View {
     @AppStorage(Setting.appearance) private var appearance = "system"
     @AppStorage(WeatherWatch.onKey) private var weatherOn = false
     @EnvironmentObject private var store: FamilyStore
-    @State private var choosingTiles = false
 
     var body: some View {
         List {
@@ -71,9 +70,6 @@ struct SettingsView: View {
         .background(Palette.sand)
         .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $choosingTiles) {
-            TileChooserView(available: Tile.all)
-        }
     }
 
     /// A group's heading, with a small icon so the groups can be told apart at a glance (Tom, 15 November 2026).
@@ -110,13 +106,6 @@ struct SettingsView: View {
                 .tint(Palette.muted)
             }
             .onChange(of: justLog) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
-            Button { choosingTiles = true } label: {
-                HStack {
-                    Text("Tiles").foregroundStyle(Palette.ink)
-                    Spacer()
-                    Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted.opacity(0.6))
-                }
-            }
             NavigationLink { WeatherSettingsView() } label: {
                 LabeledContent("Weather", value: weatherOn ? "On" : "Off")
             }

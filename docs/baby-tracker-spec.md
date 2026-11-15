@@ -1497,3 +1497,10 @@ Tiles row in Settings may not be needed. Appearance repeats the iPhone's own lig
 and the family. In Family and friends, a person's own row reads "Alex · You", and everyone's role is a small
 pill beside their name (Parent, Helper, Viewer), so "You" and the role are said once. The line under a name
 is now only for someone still to join ("Invited Tuesday"). A person's own row opens their photo and name.
+
+**Roles on the right, and Tiles out of Settings (15 November 2026, Tom).** The role pills sit at the right of
+each row in Family and friends, before the chevron, so they read down one edge. Apple's list guidance puts a
+row's value or status on the trailing side and its name on the leading side. Someone still to join has
+"Invited Tuesday · Not joined yet" under their name; the yellow "Not joined yet" pill went, so a row never
+has two pills. The Tiles row is out of Settings: Today has its own Edit, and Apple's guidance is to keep an
+option for one screen on that screen.

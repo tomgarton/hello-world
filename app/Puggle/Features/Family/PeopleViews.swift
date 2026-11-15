@@ -84,8 +84,9 @@ struct PersonRow: View {
     var opens: Bool
 
     private var detail: String? {
-        guard !person.hasJoined, let invited = person.invitedAt else { return nil }
-        return "Invited \(invited.formatted(.dateTime.weekday(.wide)))"
+        guard !person.hasJoined else { return nil }
+        guard let invited = person.invitedAt else { return "Not joined yet" }
+        return "Invited \(invited.formatted(.dateTime.weekday(.wide))) · Not joined yet"
     }
 
     var body: some View {
@@ -93,23 +94,13 @@ struct PersonRow: View {
             PersonAvatar(person: person, size: 40)
             VStack(alignment: .leading) {
                 // Their name, and "You" after it on the person's own row (Tom, 15 November 2026).
-                // Their role is the pill beside it, so the line under the name is only for someone still to join.
-                HStack(spacing: 6) {
-                    NameAndYou(name: person.displayName, isMe: isMe).font(.headline)
-                    RoleChip(person.role.title)
-                }
+                NameAndYou(name: person.displayName, isMe: isMe).font(.headline)
+                // The line under the name is only for someone still to join.
                 if let detail { Text(detail).font(.subheadline).foregroundStyle(Palette.muted) }
             }
-            Spacer(minLength: 0)
-            if !person.hasJoined {
-                // Solid, so the dark ink reads in every look, night included.
-                Text("Not joined yet")
-                    .font(.footnote.weight(.semibold))
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 4)
-                    .foregroundStyle(Palette.fixedInk)
-                    .background(Palette.wattle, in: Capsule())
-            }
+            Spacer(minLength: 8)
+            // Roles down the right-hand side, so the list can be read down one edge (Tom, 15 November 2026).
+            RoleChip(person.role.title)
             if opens {
                 Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
             }
