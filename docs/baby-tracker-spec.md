@@ -1440,3 +1440,9 @@ is left out of the day's total. Not seen on a phone.
 fixes for a long history (entries read in one go, lookups kept, the sync count off the main thread), capitals
 after an interpunct, the Quick log buttons, even gaps between facts, and Family today on the large widget.
 No new fields in the data model, so no schema to deploy.
+
+**Weather still failing on Tom's phone (15 November 2026).** Settings shows "Couldn't get the weather just
+now", which is the weather service refusing, not the location. The signing profile does carry the WeatherKit
+entitlement, so the likely gap is on Apple's side: WeatherKit has to be ticked twice for an App ID, under
+Capabilities and again under App Services, and only the first is done by Xcode. Test builds now show the
+service's own error under the message. Also reworded "or with us" to "or anyone else" (no "we" in the app).

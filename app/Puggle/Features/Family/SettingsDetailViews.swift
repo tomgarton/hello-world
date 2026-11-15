@@ -210,7 +210,7 @@ struct WeatherSettingsView: View {
 
             Section {
                 Label("It uses your rough location, to within a few kilometres.", systemImage: "location")
-                Label("Your location isn't saved, and isn't shared with your family or with us.", systemImage: "lock")
+                Label("Your location isn't saved, and isn't shared with your family or anyone else.", systemImage: "lock")
                 Label("Nothing else in the app uses it. Switch this off and it stops.", systemImage: "hand.raised")
             } header: {
                 Text("What this uses")
@@ -223,6 +223,10 @@ struct WeatherSettingsView: View {
                 Section {
                     if let trouble = watch.trouble {
                         Text(trouble).foregroundStyle(Palette.ink)
+                        // Test builds only: why, in the weather service's own words.
+                        if TesterDetail.on, let detail = watch.troubleDetail {
+                            Text(detail).font(.footnote.monospaced()).foregroundStyle(Palette.muted).textSelection(.enabled)
+                        }
                     } else if let now = Weather(rawValue: live) {
                         Text("Now: \(now.name.lowercased()).").foregroundStyle(Palette.ink)
                     } else {

@@ -47,6 +47,8 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
 
     /// Shown in Settings when it cannot work: location refused, or no weather to be had.
     @Published var trouble: String?
+    /// The weather service's own words for the last failure, shown under the message in test builds only.
+    @Published var troubleDetail: String?
 
     override private init() {
         super.init()
@@ -138,8 +140,11 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
             UserDefaults.standard.set(found.rawValue, forKey: Self.liveKey)
             UserDefaults.standard.set(Date.now.timeIntervalSince1970, forKey: Self.liveAtKey)
             trouble = nil
+            troubleDetail = nil
         } catch {
             trouble = "Couldn't get the weather just now. It will try again later."
+            let detail = error as NSError
+            troubleDetail = "\(detail.domain) \(detail.code): \(detail.localizedDescription)"
         }
         #endif
     }
