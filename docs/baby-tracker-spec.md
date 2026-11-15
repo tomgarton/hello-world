@@ -1196,3 +1196,14 @@ Both parents may bring entries in from the same app, so three things were looked
 - **Mocked up, not built:** holding the import while someone who has just joined is still catching up, and showing sleeps and feeds in the file that overlap ones already here, left out unless chosen. See `docs/previews/import/overlaps.png` (`docs/tools/make_import_mockup.py`).
 - **Who can import:** parents only. Someone who joins starts as a Helper unless the invite said Parent; whoever holds the family changes this on the person's row in Family.
 - **Not tested:** the merge and the marks have unit tests but have not run across two phones.
+
+### Brand book brought up to date (15 November 2026)
+
+The brand book is the design canvas's "Characters" and "Brand and world" pages; the PDF in `docs/brand/` is an export of them from 14 November and is now behind the canvas.
+
+- **Model sheet:** rebuilt from the app's current file of her parts. Front only (the three-quarter, side and back views are gone), the lick of hair, pyjamas, the rain hat, and the moves Oh!, hug, read and bubbles.
+- **Hair board:** retitled, with a note that Puggle has a lick of hair and the rest of the cast do not.
+- **New board, App icon:** light and dark, how clear and tinted are made, small sizes.
+- **New board, Activity icons:** the 22 drawings, the three sizes, the colour rule (Wattle by default, a colour of your own, the child's colour, fixed colours), dark, and the breastfeeding choices. The older icon board on the App page is marked superseded.
+- **Still behind the app:** boards drawn by the older scripts show Puggle without her lick of hair (expressions, hands, family, the cast line-up, glasses, scenes, wallpapers, books, logos, merchandise, onboarding). "Puggle: three additions" and the motion boards still show the side-on walk. The palette board does not show the icon colour setting.
+- Sources: `design/canvas/gen/model2.py`, `brand15.py`, `rig.py` (now reads the rig's newer conditions).

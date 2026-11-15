@@ -36,9 +36,8 @@ def render(face=None, pose=None, style='tinted', moonlit=False, skip=()):
         if p.get('parent') in world: m = _mul(m, world[p['parent']])
         world[p['id']] = m
         if not p['shapes'] or p['id'] in skip: continue
-        if p.get('when'):
-            k, v = p['when'].split('=')
-            if f.get(k) != v: continue
+        # Every condition in `when` must hold: "outfit=rain&shades=none", with "a|b" for either.
+        if any(f.get(c.split('=')[0]) not in c.split('=')[1].split('|') for c in (p.get('when') or '').split('&') if '=' in c): continue
         out += f'<g data-part="{p["id"]}" transform="matrix({" ".join("%.4f" % v for v in m)})">' + ''.join(_shape(s, style, moonlit) for s in p['shapes']) + '</g>'
     return out
 def key(move, t):

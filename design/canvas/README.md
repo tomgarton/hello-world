@@ -23,6 +23,8 @@ Most scripts load earlier ones, so keep them together. The chain for the current
 
 `rig.py` draws Puggle from a copy of the app's rig file (`gen/puggle.rig.json`; copy it again from `app/Puggle/Resources/Rigs/` when the app's changes). `model2.py` builds the model sheet from it and replaces `model.py`. `platy.py` and `express.py` now draw the 12 November Puggle (eyes, cheeks, eyebrows, pocket, feet, tail). `wrap()` in `world.py` recolours dark outlines to a darker shade of each fill (`tint`), except on boards named in `NOTINT`, and keeps a board's place on the canvas when it is regenerated.
 
+`brand15.py` draws the two boards added on 15 November, "App icon" and "Activity icons", from the app's own sources. It takes the repo as a second argument: `python3 brand15.py .. ../../..`. Run it again after `docs/tools/make_icons.py` or `app/tools/make_app_icon.py` changes.
+
 Things to know:
 
 - Scripts written early in the project reset a board's position and page in `canvas.json` when they run. Copy `canvas.json` first and restore the entry afterwards.

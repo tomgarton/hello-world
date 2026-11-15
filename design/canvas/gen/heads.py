@@ -48,11 +48,12 @@ CURLS = [('Current', curl_a(), 'Thin and lost at small sizes'),
          ('Curl with a bow', curl_bow(), 'Topknot tied with a tiny bow'),
          ('Forehead squiggle', curl_fore(), 'A zigzag across the brow, cartoon-strip style')]
 curl_html = ''.join(cell(t, head('happy') + c, n, 140, 128, '30 -10 180 196') for t, c, n in CURLS)
-body = f'''<div style="width: 1080px; height: 600px; box-sizing: border-box; background: #F2ECDD; color: #2A1F18; font-family: 'Bricolage Grotesque', system-ui, sans-serif; padding: 36px 48px; display: flex; flex-direction: column; gap: 14px">
-<h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em">No hair: head accessories, and Pebble’s curl</h1>
+body = f'''<div style="width: 1080px; height: 650px; box-sizing: border-box; background: #F2ECDD; color: #2A1F18; font-family: 'Bricolage Grotesque', system-ui, sans-serif; padding: 36px 48px; display: flex; flex-direction: column; gap: 14px">
+<h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em">Hair: Puggle’s lick, head accessories, and Pebble’s curl</h1>
+<div style="font-size: 14px; font-weight: 500; color: #4A3B30; line-height: 1.4; max-width: 960px">Since 14 November Puggle has a lick of hair: one leaning tuft, part of her head, in the same fur and line. It is on her model sheet. The rest of the cast still have no hair and wear accessories; Pebble keeps a curl.</div>
 <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #5A4636">Head accessories</div>
 <div style="display: flex; gap: 6px">{acc_html}</div>
 <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #5A4636">Pebble’s curl</div>
 <div style="display: flex; gap: 12px">{curl_html}</div>
 </div>'''
-wrap('Head accessories and curls', body, 1080, 600, 'Heads.dc.html', 23980)
+wrap('Head accessories and curls', body, 1080, 650, 'Heads.dc.html', 23980)

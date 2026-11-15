@@ -50,10 +50,10 @@ back = (leg(100) + leg(140) + foot(100, 7) + foot(140, -7) +
         f'<path d="M88 166 Q120 156 152 166 L180 244 Q182 254 170 254 L70 254 Q58 254 60 244 Z" fill="{J}" stroke="{JL}" stroke-width="7" stroke-linejoin="round"></path>' + limb(88, 178, 50, 214, 4) + limb(152, 178, 190, 214, -4) +
         f'<g data-p="tail"><ellipse cx="120" cy="250" rx="24" ry="34" fill="{FUR}" stroke="{FURL}" stroke-width="6"></ellipse><path d="M110 240 Q120 244 130 240 M109 256 Q120 261 131 256 M120 226 L120 272" stroke="{FURL}" stroke-width="2.5" stroke-linecap="round" fill="none"></path></g>' +
         f'<ellipse cx="120" cy="108" rx="70" ry="60" fill="{FUR}" stroke="{FURL}" stroke-width="7"></ellipse>' + clip(80, 60))
-views = [('Front (from the app)', front), ('Three-quarter', three), ('Side', side), ('Back', back)]
+views = [('At rest', front), ('With eyebrows, as on the app icon', rig.render(face={'brows': 'on'})), ('Bedtime, in pyjamas', rig.render(face={'outfit': 'night'})), ('Reading', rig.render(**rig.key('read', 0)))]
 guides = ''.join(f'<path d="M0 {y}H1000" stroke="#C9B89F" stroke-width="1.5" stroke-dasharray="6 6"></path>' for y in (48, 168, 254, 292))
-turn = f'<svg role="img" aria-label="Puggle turnaround: front, three-quarter, side and back" width="980" height="290" viewBox="0 20 1000 296">{guides}' + ''.join(f'<g data-v="{i}" transform="translate({i*250+5} 0)">{v}</g>' for i, (n, v) in enumerate(views)) + '</svg>'
-labels = ''.join(f'<div style="width: 245px; font-size: 14px; font-weight: 700; text-align: center">{n}</div>' for n, v in views)
+turn = f'<svg role="img" aria-label="Puggle from the front: at rest, with eyebrows, in pyjamas and reading" width="980" height="290" viewBox="0 20 1000 296">{guides}' + ''.join(f'<g data-v="{i}" transform="translate({i*250+5} 0)">{v}</g>' for i, (n, v) in enumerate(views)) + '</svg>'
+labels = ''.join(f'<div style="width: 245px; font-size: 14px; font-weight: 700; text-align: center; white-space: nowrap">{n}</div>' for n, v in views)
 H = 'font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: #5A4636'
 T = 'font-size: 13px; font-weight: 500; color: #4A3B30; line-height: 1.4'
 def tile(name, svg, note='', vb='28 4 190 184', wd=104, ht=100, bg='#FBF6E9'):
@@ -72,13 +72,14 @@ FACES = [('At rest', rig.render(), 'Dot eyes, plain cheeks, no brows'),
          ('Asleep', rig.render(**rig.ASLEEP), 'Closed eyes, soft brows, Zs')]
 faces = ''.join(tile(n, s, note) for n, s, note in FACES)
 MOVES = [('nod', 0.0, 'Nod', 'An everyday save'), ('greet', 0.52, 'Hello', 'Opening the app'), ('proud', 0.44, 'Proud', 'A potty success'),
-         ('celebrate', 0.12, 'Celebrate', 'A milestone. Rare'), ('wake', 0.2, 'Wake', 'A sleep ended'), (None, 0, 'Asleep', 'A sleep is running')]
-moves = ''.join(tile(n, rig.render(**(rig.key(m, t) if m else rig.ASLEEP)), note, vb='-10 -24 260 330', wd=118, ht=146) for m, t, n, note in MOVES)
+         ('celebrate-refined', 0.38, 'Celebrate', 'A milestone. Rare'), ('oh', 0.26, 'Oh!', 'Hands to her cheeks'), ('hug', 1.2, 'Hug', 'With her rabbit'),
+         ('bubbles', 0.9, 'Bubbles', 'Play'), ('wake', 0.2, 'Wake', 'A sleep ended')]
+moves = ''.join(tile(n, rig.render(**(rig.key(m, t) if m else rig.ASLEEP)), note, vb='-10 -24 260 330', wd=98, ht=122) for m, t, n, note in MOVES)
 LINES = [('Coloured line', rig.render(), 'The look. Each line is a darker shade of its own colour', '#FBF6E9'),
-         ('Dark line', rig.render(style='ink'), 'App icon and small marks only, if they need the contrast', '#FBF6E9'),
+         ('Dark line', rig.render(style='ink'), 'Only where a small mark needs the contrast. The app icon uses the coloured line', '#FBF6E9'),
          ('By moonlight', rig.render(moonlit=True), 'Cooler, leaning violet. Still her own colours', '#2B2F5E')]
 lines = ''.join(tile(n, s, note, vb='-10 -24 260 330', wd=118, ht=146, bg=bg) for n, s, note, bg in LINES)
-OUT = [('Rain', 'rain', 'Coat and boots'), ('Cold', 'warm', 'Scarf and beanie'), ('Heat', 'sun', 'Straw hat and zinc')]
+OUT = [('Rain', 'rain', 'Coat, boots and rain hat'), ('Cold', 'warm', 'Scarf and beanie'), ('Heat', 'sun', 'Straw hat and zinc')]
 outfits = ''.join(tile(n, rig.render(face={'outfit': o}), note, vb='-10 -24 260 330', wd=118, ht=146) for n, o, note in OUT)
 sw = [('Fur', FUR, FURL), ('Bill and feet', BILL, BILLL), ('Dress', J, JL), ('Pocket', POCKET, JL), ('Clip', CLIP, CLIPL), ('Cheeks', BLUSH, None), ('Cheek marks', MARK, None), ('Eyes, nostrils', INK, None)]
 swatches = ''.join(f'<div style="display: flex; align-items: center; gap: 8px"><div style="width: 30px; height: 30px; border-radius: 15px; background: {c}; border: 4px solid {l or c}; box-sizing: border-box"></div><div style="display: flex; flex-direction: column"><div style="font-size: 13px; font-weight: 800">{n}</div><div style="font-size: 12px; font-weight: 500; color: #4A3B30; font-variant-numeric: tabular-nums">{c}' + (f', line {l}' if l else '') + '</div></div></div>' for n, c, l in sw)
@@ -93,8 +94,8 @@ import re
 small = re.sub(r'<path d="M100 210 L140 210[^>]*></path>', '', small)
 small = re.sub(r'stroke-width="([\d.]+)"', lambda m: 'stroke-width="%.1f"' % (float(m.group(1)) * (1.25 if float(m.group(1)) < 12 else 1.06)), small)
 bodyh = f'''<div style="width: 1080px; height: 1450px; box-sizing: border-box; background: #F2ECDD; color: #2A1F18; font-family: 'Bricolage Grotesque', system-ui, sans-serif; padding: 40px 48px; display: flex; flex-direction: column; gap: 20px">
-<div style="display: flex; align-items: baseline; justify-content: space-between"><h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em">Puggle model sheet</h1><div style="font-size: 14px; font-weight: 600; color: #4A3B30">As built in the app, 12 November 2026. About 2½ heads tall</div></div>
-<div style="{T}; max-width: 980px">The front view, faces, moves and outfits below are drawn from the app's own file of her parts, so this sheet and the app cannot drift apart. What changed from the sheet before: coloured lines, eyes lower, wider apart and a little smaller, soft oval cheeks, a light blue pocket, webbed feet, markings on her tail, a yellow centre in her clip, and eyebrows that appear only with a feeling.</div>
+<div style="display: flex; align-items: baseline; justify-content: space-between"><h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em">Puggle model sheet</h1><div style="font-size: 14px; font-weight: 600; color: #4A3B30">As built in the app, 15 November 2026. About 2½ heads tall</div></div>
+<div style="{T}; max-width: 980px">Everything on this sheet is drawn from the app's own file of her parts, so the two cannot drift apart. <b>She always faces the viewer.</b> Three-quarter, side and back views are retired (14 November). New: a lick of hair, part of her head in the same fur and line; pyjamas for bedtime; a rain hat; and four moves (Oh!, hug, read, bubbles).</div>
 <div style="display: flex; flex-direction: column; gap: 4px">{turn}<div style="display: flex">{labels}</div></div>
 <div style="display: flex; flex-direction: column; gap: 8px"><div style="{H}">Faces: eyes, eyebrows and cheeks show the feeling. The bill never changes. No mouth</div><div style="display: flex; gap: 14px">{faces}</div></div>
 <div style="display: flex; gap: 40px"><div style="display: flex; flex-direction: column; gap: 8px"><div style="{H}">Moves: the pose each one holds</div><div style="display: flex; gap: 10px">{moves}</div></div></div>
@@ -107,7 +108,7 @@ bodyh = f'''<div style="width: 1080px; height: 1450px; box-sizing: border-box; b
 <div style="display: flex; flex-direction: column; gap: 10px"><div style="{H}">Colours, each with its line</div><div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 22px">{swatches}</div>
 <div style="{T}; max-width: 400px">Line weight: head and dress 7, bill, legs and tail 6, details 4 to 5 (at 240 wide). Cheeks and inside shapes have no line. Dark brown is kept for eyes and nostrils.</div></div>
 <div style="display: flex; flex-direction: column; gap: 10px"><div style="{H}">Never</div><div style="display: flex; gap: 10px">{dont_html}</div>
-<div style="{T}; max-width: 460px">Eyebrows are off at rest and come in only with a move: raised for delight, soft for content and sleepy. Never angry, sad or worried. Also never: an open or bent bill, hands hidden in silhouette, dark patches on the face.</div></div>
+<div style="{T}; max-width: 460px">Eyebrows are off at rest and come in only with a move: raised for delight, soft for content and sleepy. Never angry, sad or worried. Also never: a side or three-quarter view, an open or bent bill, hands hidden in silhouette, dark patches on the face.</div></div>
 </div>
 </div>'''
 wrap('Puggle model sheet', bodyh, 1080, 1450, 'ModelSheet.dc.html', 18920)
