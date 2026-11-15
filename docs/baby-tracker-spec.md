@@ -1387,3 +1387,8 @@ figure and a bar, a breakdown that opens, a plain sentence about pace, a refresh
   go." If nothing has moved for a minute it says so;
 - a second card, "Since Puggle was opened": sending now, last sent, last fetched;
 - a button in the corner to count again.
+
+**TestFlight, 15 November 2026, 16:20:** the seventh upload of 0.1.0, from commit d6a04c3. It carries the fix
+for the widget extension stopping on launch, what comes next on the Lock Screen card, the Last saved bar going
+after 30 seconds, iCloud sync in Settings, more time to send in the background, and the sky by the clock. The
+data model has no new fields since the schema was deployed, so nothing needs deploying for it.
