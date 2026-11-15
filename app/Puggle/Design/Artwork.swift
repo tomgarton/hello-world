@@ -11,6 +11,15 @@ struct ActivityIcon: View {
     @AppStorage(Setting.iconColour) private var mode = IconColour.yellow.rawValue
     @AppStorage(Setting.iconColourOwn) private var own = IconColour.ownDefault
     @Environment(\.iconChildColour) private var childColour
+    /// Bounces once each time this number changes: something was just saved. From Apple's symbol effects,
+    /// where a bounce says an action has happened (Tom, 15 November 2026).
+    var bounce = 0
+    /// The colour inside breathes while this is true: something is running, such as a feed. Only the colour
+    /// moves, so the line stays steady and readable.
+    var breathing = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var lifted = false
+    @State private var breath = false
 
     init(_ kind: EventKind, size: CGFloat = 36, plain: Bool = false) {
         self.name = kind.iconName
@@ -18,9 +27,11 @@ struct ActivityIcon: View {
         self.plain = plain
     }
 
-    init(named name: String, size: CGFloat = 36) {
+    init(named name: String, size: CGFloat = 36, bounce: Int = 0, breathing: Bool = false) {
         self.name = name
         self.size = size
+        self.bounce = bounce
+        self.breathing = breathing
     }
 
     /// The drawing with more detail, from 32 points up.
@@ -43,12 +54,15 @@ struct ActivityIcon: View {
                 Image(name + "-plain").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
             } else if UIImage(named: parts + "-line") != nil {
                 ZStack {
-                    if UIImage(named: parts + "-fill") != nil {
-                        Image(parts + "-fill").resizable().renderingMode(.template).foregroundStyle(fill)
+                    Group {
+                        if UIImage(named: parts + "-fill") != nil {
+                            Image(parts + "-fill").resizable().renderingMode(.template).foregroundStyle(fill)
+                        }
+                        if UIImage(named: parts + "-fixed") != nil {
+                            Image(parts + "-fixed").resizable()
+                        }
                     }
-                    if UIImage(named: parts + "-fixed") != nil {
-                        Image(parts + "-fixed").resizable()
-                    }
+                    .opacity(breath ? 0.45 : 1)
                     Image(parts + "-line").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
                 }
             } else {
@@ -57,7 +71,21 @@ struct ActivityIcon: View {
         }
         .scaledToFit()
         .frame(width: size, height: size)
+        .scaleEffect(lifted ? 1.22 : 1)
         .accessibilityHidden(true)
+        .onChange(of: bounce) { _, _ in
+            guard !reduceMotion else { return }
+            withAnimation(.spring(duration: 0.16, bounce: 0)) { lifted = true }
+            withAnimation(.spring(duration: 0.5, bounce: 0.55).delay(0.16)) { lifted = false }
+        }
+        .onChange(of: breathing, initial: true) { _, on in
+            guard !reduceMotion else { breath = false; return }
+            if on {
+                withAnimation(.easeInOut(duration: 1.6).repeatForever(autoreverses: true)) { breath = true }
+            } else {
+                withAnimation(.easeOut(duration: 0.3)) { breath = false }
+            }
+        }
     }
 }
 

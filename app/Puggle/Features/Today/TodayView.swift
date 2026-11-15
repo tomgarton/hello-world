@@ -503,7 +503,15 @@ struct ChildStatusRow: View {
                 store.startSleep(for: child)
             }
         } label: {
-            Text(title)
+            HStack(spacing: 6) {
+                // A moon to start, a sun to wake. One turns into the other with Apple's own replace effect,
+                // which says a state has changed (Tom, 15 November 2026).
+                Image(systemName: !asleep ? "moon" : (justStarted ? "arrow.uturn.backward" : "sun.max"))
+                    .contentTransition(.symbolEffect(.replace.downUp))
+                    .accessibilityHidden(true)
+                Text(title)
+            }
+                .animation(.default, value: title)
                 .font(.subheadline.weight(.semibold))
                 .padding(.horizontal, 14)
                 .frame(minHeight: 44)

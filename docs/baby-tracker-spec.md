@@ -1614,3 +1614,23 @@ out by a little over one unit of the 24 (it was two and a half), and the body is
 **The nappy's waistband at full weight (15 November 2026).** Tom: the waist line should be as thick as the
 other lines. It was drawn at the fine weight kept for small details; it is now one of the icon's own lines.
 It appears on the larger drawing only (32 points and up), as before.
+
+## Icons that move, after Apple's symbol effects (15 November 2026)
+
+Tom asked what could be taken from SF Symbols for animation and colour. Apple's guidance in short: a bounce
+says something happened; a breathe or pulse says something is going on; a replace says a state changed;
+variable colour shows a value that changes; a wiggle calls attention; use each sparingly, for one purpose.
+Puggle's icons did not move at all. Three effects are built, the three that work with the icons as layered
+pictures:
+
+- **Bounce on save.** A tile's icon bounces once when an entry of its kind is saved (`ActivityIcon.bounce`).
+- **Breathe while running.** The colour inside the feeding tile's icon fades down and up while a breastfeed
+  is running. Only the colour moves; the line stays steady (`ActivityIcon.breathing`).
+- **Moon to sun.** The sleep button has an icon: a moon on Start sleep, a turn-back arrow on Cancel, a sun on
+  Woke up, changing with Apple's replace effect. These three are Apple's symbols, not Puggle's drawings.
+
+With Reduce Motion on, the bounce and the breathe do not play. Not seen in motion by anyone yet.
+
+Not built, and why: drawing an icon on stroke by stroke, and colour that rises inside a shape (a bottle
+filling), need the icons as shapes the app draws, not pictures. Making them true custom SF Symbols would give
+every effect, and is a project of its own.
