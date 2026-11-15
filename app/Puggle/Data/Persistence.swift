@@ -173,6 +173,17 @@ final class SyncWatch: ObservableObject {
     private(set) var last: [String: Last] = [:]
     private(set) var failures = 0
 
+    /// True while a send to iCloud is running, for the sync screen in Settings.
+    @Published private(set) var sending = false
+    private var sends = Set<UUID>()
+
+    /// The newest send, and the newest fetch, of either store since the app opened.
+    var lastSend: Last? { newest("Send") }
+    var lastFetch: Last? { newest("Fetch") }
+    private func newest(_ what: String) -> Last? {
+        last.filter { $0.key.hasPrefix(what) && !$0.key.hasSuffix("last failure") }.values.max { $0.ended < $1.ended }
+    }
+
     /// An iCloud error in full: its code, and when it covers many records, how many failed each way
     /// and iCloud's own words for the first of each. Record names are random ids, so nothing personal is here.
     nonisolated static func explain(_ error: Error, depth: Int = 0) -> String {
@@ -206,6 +217,12 @@ final class SyncWatch: ObservableObject {
         ) { [weak self, weak persistence] note in
             guard let self,
                   let event = note.userInfo?[NSPersistentCloudKitContainer.eventNotificationUserInfoKey] as? NSPersistentCloudKitContainer.Event else { return }
+            if event.type == .export {
+                if event.endDate == nil { self.sends.insert(event.identifier) } else { self.sends.remove(event.identifier) }
+                if self.sending == self.sends.isEmpty { self.sending = !self.sends.isEmpty }
+            }
+            // The sync screen reads the times below, so it is told on every event.
+            self.objectWillChange.send()
             if let ended = event.endDate {
                 let what = ["Setup", "Fetch", "Send"][min(event.type.rawValue, 2)]
                 let whose = event.storeIdentifier == persistence?.sharedStore?.identifier ? "shared with you" : "your own"

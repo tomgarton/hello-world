@@ -1348,3 +1348,17 @@ value put into it (the word for nappy), and WidgetKit stops the whole extension 
 included. The line came in with the widgets commit (6b71d85) and is in TestFlight build 6, so on build 6 the
 Lock Screen cards and widgets very likely do not draw. Fixed by passing the description as plain text. It needs
 a new build to reach the phones.
+
+## iCloud sync, in Settings (built 15 November 2026)
+
+Tom asked for somewhere to see sync progress, after Clara's import from Baby Tracker did not show on his phone
+and nothing said whether it was still sending. Settings has a row, "iCloud sync", with "Up to date" or
+"1,872 to send" beside it. The screen (`SyncView`) shows:
+
+- a headline: Up to date, Sending to iCloud, Waiting to send, or The last send did not go through;
+- while anything is waiting, a bar and "1,248 of 3,120 entries are in iCloud";
+- the counts (on this phone, in iCloud, still to send) and when it last sent and fetched since opening.
+
+It counts the family's entries on the phone and asks Core Data which of them iCloud has a record of, every
+three seconds while the screen is open. It is for everyone, not only test builds; the iCloud check stays for
+codes. Drawn with made-up numbers ("-debugSync 0.4"): `docs/previews/sync/`. Not yet seen with a real send.

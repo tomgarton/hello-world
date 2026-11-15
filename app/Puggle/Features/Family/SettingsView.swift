@@ -204,6 +204,7 @@ struct SettingsView: View {
 
     private var moreSection: some View {
         Section {
+            SyncRow()
             NavigationLink("Your data") { YourDataView() }
             NavigationLink("Help and about") { HelpView() }
         }

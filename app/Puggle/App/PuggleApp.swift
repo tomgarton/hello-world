@@ -256,6 +256,9 @@ struct RootView: View {
             // For checking the import screen with the sample family ("-uitest 1"): "-debugImport overlaps"
             // (a file already read, some of it overlapping), "list" (the pairs) or "catching" (waiting for iCloud).
             NavigationStack { ImportView(debug: look) }
+        } else if UserDefaults.standard.string(forKey: "debugSync") != nil {
+            // For checking the sync screen part-way through a send: "-debugSync 0.4" (or 1 for up to date).
+            NavigationStack { SyncView() }
         } else if UserDefaults.standard.string(forKey: "debugBox") == "1", sample.isOn {
             // For checking how a wide table reads in the box reader, with the sample family: "-debugBox 1".
             BoxReaderDebug()
