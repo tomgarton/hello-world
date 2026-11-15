@@ -354,8 +354,9 @@ private struct FamilyWidgetView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
             }
-            .layoutPriority(1)
-            Spacer(minLength: 4)
+            // The words take what the buttons leave. A time that counts by itself asks for all the width there
+            // is, and with first call on it, it squeezed the buttons down to their icons (Tom, 15 November 2026).
+            .frame(maxWidth: .infinity, alignment: .leading)
             if child.usesNappies && !compact {
                 // For a minute after a nappy, the button takes it back: a stray tap is easy on the Home Screen.
                 if let nappy = child.lastNappy, entry.date.timeIntervalSince(nappy) < undoWindow, entry.date >= nappy.addingTimeInterval(-5) {
@@ -387,8 +388,11 @@ private struct FamilyWidgetView: View {
             }
                 .font(.caption.weight(.semibold))
                 .labelStyle(.titleAndIcon)
+                .lineLimit(1)
                 .padding(.horizontal, 10)
-                .frame(minHeight: 30)
+                .frame(height: 30)
+                // Always its own size, whatever is beside it.
+                .fixedSize()
                 .foregroundStyle(filled ? WTone.paper : WTone.ink)
                 .background(filled ? WTone.ink : WTone.field, in: Capsule())
         }

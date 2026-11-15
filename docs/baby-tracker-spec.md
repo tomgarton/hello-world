@@ -1416,3 +1416,8 @@ Still looking through every entry, on their own screens: History, Insights, Patt
 
 **Interpuncts.** Tom: each fact joined by an interpunct starts with a capital. "Awake 3h 2m · Nappy 4h",
 "Bottle · 150 ml · Formula", "Slept 2h · Woke once", "Feeding · Left · 12 min". In the writing guide.
+
+**Quick log widget, squeezed buttons (15 November 2026).** On Tom's phone the row with "Fed 44m" showed its
+Nappy and Sleep buttons as tall pills with only an icon, while the row with "Nothing yet" was fine. A time
+that counts by itself asks for all the width there is, and the words had first call on the row. The buttons
+now always keep their own size and the words take what is left. Not seen on a phone since.
