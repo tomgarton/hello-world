@@ -460,6 +460,15 @@ def main():
                     other = svg(name, spec=spec, layer=layer, ink=DARK) if layer != 'fill' else None
                     if text: imageset(f'icon-{name}{tag}-{layer}', text, template=layer != 'fixed', dark=other)
         import json
+        # The strokes themselves, for the app to draw an icon on line by line (Tom, 15 November 2026). The larger
+        # drawing only, which is the one shown at 32 points and up.
+        strokes = {}
+        for name in ICONS:
+            if name in NEW: continue
+            spec = regular(name)
+            strokes[f'icon-{name}'] = {'box': spec.get('box', 24), 'turn': spec['turn'], 'weight': spec.get('weight', W),
+                                       'fine': spec.get('fineweight', 1.2), 'lines': spec['lines'], 'fineLines': spec.get('fine', []), 'ink': spec['ink']}
+        json.dump(strokes, open(os.path.join(ASSETS, '..', 'IconStrokes.json'), 'w'), indent=1)
         os.makedirs(WIDGET_ASSETS, exist_ok=True)
         json.dump({'info': {'author': 'xcode', 'version': 1}}, open(os.path.join(WIDGET_ASSETS, 'Contents.json'), 'w'), indent=2)
         for name in WIDGET_GLYPHS:

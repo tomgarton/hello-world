@@ -20,6 +20,9 @@ struct ActivityIcon: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var lifted = false
     @State private var breath = false
+    /// How far the icon has been drawn on, while it is drawing itself. Nil the rest of the time, when it is a picture.
+    @State private var drawn: CGFloat?
+    @Environment(\.colorScheme) private var scheme
 
     init(_ kind: EventKind, size: CGFloat = 36, plain: Bool = false) {
         self.name = kind.iconName
@@ -63,7 +66,20 @@ struct ActivityIcon: View {
                         }
                     }
                     .opacity(breath ? 0.45 : 1)
-                    Image(parts + "-line").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
+                    // While drawing on, the colour comes in over the last part, once its outline is there.
+                    .opacity(drawn.map { max(0, ($0 - 0.6) / 0.4) } ?? 1)
+                    if let drawn, let strokes = IconStrokes.all[name] {
+                        // The line, drawn stroke by stroke. In dark it is thinner, as the picture is.
+                        let unit = size / strokes.box * (scheme == .dark ? 0.62 : 1)
+                        ZStack {
+                            IconLines(strokes: strokes, progress: drawn, fine: false)
+                                .stroke(Palette.ink, style: StrokeStyle(lineWidth: strokes.weight * unit, lineCap: .round, lineJoin: .round))
+                            IconLines(strokes: strokes, progress: drawn, fine: true)
+                                .stroke(Palette.ink, style: StrokeStyle(lineWidth: strokes.fine * unit, lineCap: .round, lineJoin: .round))
+                        }
+                    } else {
+                        Image(parts + "-line").resizable().renderingMode(.template).foregroundStyle(Palette.ink)
+                    }
                 }
             } else {
                 Image(name).resizable()
@@ -75,8 +91,18 @@ struct ActivityIcon: View {
         .accessibilityHidden(true)
         .onChange(of: bounce) { _, _ in
             guard !reduceMotion else { return }
-            withAnimation(.spring(duration: 0.16, bounce: 0)) { lifted = true }
-            withAnimation(.spring(duration: 0.5, bounce: 0.55).delay(0.16)) { lifted = false }
+            // Drawn on where the app has the icon's strokes (the larger drawing); a bounce otherwise.
+            if size >= 32, IconStrokes.all[name] != nil, parts.hasSuffix("-reg") {
+                drawn = 0
+                withAnimation(.easeInOut(duration: 0.9)) { drawn = 1 }
+                Task {
+                    try? await Task.sleep(for: .seconds(1.0))
+                    drawn = nil
+                }
+            } else {
+                withAnimation(.spring(duration: 0.16, bounce: 0)) { lifted = true }
+                withAnimation(.spring(duration: 0.5, bounce: 0.55).delay(0.16)) { lifted = false }
+            }
         }
         .onChange(of: breathing, initial: true) { _, on in
             guard !reduceMotion else { breath = false; return }

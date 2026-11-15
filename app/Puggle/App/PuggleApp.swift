@@ -275,6 +275,9 @@ struct RootView: View {
             NavigationStack { AppearanceSettingsView() }
         } else if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
+        } else if UserDefaults.standard.string(forKey: "debugFx") == "1" {
+            // For recording the icon effects: "-debugFx 1".
+            EffectsDemoView()
         } else if UserDefaults.standard.string(forKey: "debugMoves") == "1" {
             // For checking her moves: launch with "-debugMoves 1".
             NavigationStack { MovesGalleryView() }

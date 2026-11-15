@@ -1634,3 +1634,16 @@ With Reduce Motion on, the bounce and the breathe do not play. Not seen in motio
 Not built, and why: drawing an icon on stroke by stroke, and colour that rises inside a shape (a bottle
 filling), need the icons as shapes the app draws, not pictures. Making them true custom SF Symbols would give
 every effect, and is a project of its own.
+
+**Drawing on (15 November 2026).** Tom's favourite of Apple's effects, and it is built. When an entry is
+saved, its tile's icon draws itself on, stroke by stroke, in under a second, and its colour comes in once the
+outline is nearly there. It takes the place of the bounce wherever the app has the icon's strokes, which is
+the larger drawing of every icon (32 points and up); smaller icons still bounce.
+
+How: `make_icons.py --install` now also writes each icon's path data to `app/Puggle/Resources/IconStrokes.json`.
+The app reads it (`IconStrokes`), turns the path data into paths (`SVGPath`, which handles the arcs the icons
+use) and draws them as far as a moving point (`IconLines`). Each stroke takes time in step with its length.
+In dark the drawn line is thinner, as the picture is. Reduce Motion: nothing plays.
+
+Recordings from the simulator: `docs/previews/icons/motion/draw-on.gif` and `bounce-breathe-replace.gif`,
+made from a screen that plays the effects by themselves ("-debugFx 1").
