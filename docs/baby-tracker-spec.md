@@ -1219,3 +1219,12 @@ Tom drew a rounded lowercase wordmark with ChatGPT ("B1", v3). A v4 with four fi
 **Wordmark v5 set aside (Tom, 15 November).** A v5 with the e redrawn (a bigger eye, a wider opening under the bar, a slightly shorter letter) and the p's descender level with the g tails was offered. Tom kept v4. The v5 files stay in `docs/previews/logo/wordmark-B1/` with `docs/tools/make_wordmark_v5.py`.
 
 **Brand book section 7 rebuilt (15 November).** "In the app now" is 19 pictures saved by the app's own build on 15 November (`-debugSheet 1`), kept in `docs/brand/app-now/`: the cast by day and after dark, portraits, Pebble, clothes, under the hats, going grey, sunglasses, feelings, tails, bending arms, the outdoor scenes and rooms (plain and pulled down), the firework, and weather by day and after dark. First run and the repeat patterns are pictures from 14 November. The five pages carried over from the 14 November edition are gone. `build_brand_pdf.py --refresh` copies fresh pictures from the simulator. The PDF is 46 pages. Not included: the option sheets (hair, curls, glasses frames and colours), which are explorations.
+
+### Reading a bottle (15 November 2026)
+
+Tom read a paracetamol bottle with the box thrown out. The label curves, so the last column was lost, and the table came out with five columns and sentences as rows.
+
+- **The reader.** A row counts only when it starts with its age, so "Do not give to babies less than 2 months" is no longer a row. Words with no number join the value before them. "7.5 ml (5 ml + 2.5 ml)" stays one amount. The table is as wide as most of its rows; a row that ran on keeps the extra in its last cell.
+- **More photos.** After the directions photo, "Add another photo" reads another part of the same table and joins it on: the same age fills gaps, a new age is a new row, and a row whose age is off the edge joins the row holding the same amount, in order. Nothing already read is replaced, and changed rows need ticking again. The photos are kept as one picture, side by side.
+- **The screen.** A table with more than two columns, or with words in its cells, lays each row out down the page (age, then each heading with its value). Headings can be renamed, removed and added. The kept table is shown the same way.
+- **Not tested:** on a real bottle. The tests use lines typed to match the label. Joining a row with no age by its amount can pick the wrong row when two rows share an amount and the second photo misses one of them; every row is still checked by a person before saving.

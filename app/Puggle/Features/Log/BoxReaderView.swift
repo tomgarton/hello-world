@@ -1,7 +1,7 @@
 import PhotosUI
 import SwiftUI
 
-/// Two photos of a box or tin, read on this phone, then each row checked against the photo
+/// Photos of a box, bottle or tin (the front, then the directions in one part or several), read on this phone, then each row checked against the photo
 /// before anything is saved. What is saved is shared with the family.
 struct BoxReaderView: View {
     @EnvironmentObject private var store: FamilyStore
@@ -15,7 +15,7 @@ struct BoxReaderView: View {
     var startName = ""
     var onSaved: (Guide) -> Void = { _ in }
 
-    private enum Side: Identifiable { case front, directions; var id: Self { self } }
+    private enum Side: Identifiable { case front, directions, more; var id: Self { self } }
 
     @State private var name = ""
     @State private var strength = ""
@@ -25,7 +25,10 @@ struct BoxReaderView: View {
     @State private var unsure = Set<BoxReader.Cell>()
     @State private var ticked = Set<UUID>()
     @State private var frontRead = false
-    @State private var directions: UIImage?
+    /// The photos of the directions: one for a flat box, two or three for a table that wraps round a bottle.
+    @State private var shots: [UIImage] = []
+    @State private var zoomed = 0
+    private var directions: UIImage? { shots.first }
     @State private var keepPhoto = true
     @State private var busy: Side?
     @State private var choosing: Side?
@@ -59,7 +62,7 @@ struct BoxReaderView: View {
                 if kind == .medicine && (table != nil || directions != nil || editing) { rules }
                 if directions != nil {
                     Section {
-                        Toggle("Keep this photo", isOn: $keepPhoto)
+                        Toggle(shots.count > 1 ? "Keep these photos" : "Keep this photo", isOn: $keepPhoto)
                     } footer: {
                         Text(keepPhoto ? "Kept with the family's copy, so anyone can check the table against the \(kind.thing)."
                                        : "Only the typed-up table is kept.")
@@ -109,7 +112,7 @@ struct BoxReaderView: View {
                     .ignoresSafeArea()
             }
             .fullScreenCover(isPresented: $zooming) {
-                if let directions { PhotoViewer(image: directions) }
+                if let image = shots[safe: zoomed] ?? shots.first { PhotoViewer(image: image) }
             }
             .onAppear(perform: load)
         }
@@ -124,10 +127,15 @@ struct BoxReaderView: View {
             photoRow(.directions, title: "2. The directions",
                      detail: kind == .medicine ? "The table of ages and doses" : "The table of ages, water and scoops",
                      done: directions != nil)
+            if directions != nil {
+                photoRow(.more, title: "Add another photo",
+                         detail: shots.count > 1 ? "\(shots.count) photos of the directions so far" : "For a table that wraps round a bottle",
+                         done: false)
+            }
         } header: {
-            Text("Two photos")
+            Text("Photos")
         } footer: {
-            Text("Read on this iPhone. Lay the \(kind.thing) flat, in good light, close up.")
+            Text("Read on this iPhone. Lay the \(kind.thing) flat, in good light, close up. On a bottle, take the table in two or three parts, each overlapping the last, and they are joined.")
         }
         .listRowBackground(Palette.paper)
     }
@@ -158,23 +166,30 @@ struct BoxReaderView: View {
 
     @ViewBuilder private var check: some View {
         Section {
-            if let directions {
-                Button { zooming = true } label: {
-                    Image(uiImage: directions)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity, maxHeight: 220)
-                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .overlay(alignment: .bottomTrailing) {
-                            Label("Zoom", systemImage: "arrow.up.left.and.arrow.down.right")
-                                .font(.caption.weight(.semibold))
-                                .padding(.horizontal, 8).padding(.vertical, 4)
-                                .background(.thinMaterial, in: Capsule())
-                                .padding(8)
+            if !shots.isEmpty {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 10) {
+                        ForEach(Array(shots.enumerated()), id: \.offset) { index, shot in
+                            Button { zoomed = index; zooming = true } label: {
+                                Image(uiImage: shot)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxHeight: 220)
+                                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                                    .overlay(alignment: .bottomTrailing) {
+                                        Label("Zoom", systemImage: "arrow.up.left.and.arrow.down.right")
+                                            .font(.caption.weight(.semibold))
+                                            .padding(.horizontal, 8).padding(.vertical, 4)
+                                            .background(.thinMaterial, in: Capsule())
+                                            .padding(8)
+                                    }
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(shots.count > 1 ? "Photo \(index + 1) of the directions. Opens it larger." : "The photo of the directions. Opens it larger.")
                         }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("The photo of the directions. Opens it larger.")
             }
             if table == nil || (table?.rows.isEmpty ?? true) {
                 Text("No table could be read. Add the rows yourself, or save the photo on its own.")
@@ -222,46 +237,110 @@ struct BoxReaderView: View {
         }
     }
 
-    private var headings: some View {
-        HStack(spacing: 8) {
-            Text("Age").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            ForEach(Array((table?.columns ?? []).enumerated()), id: \.offset) { index, _ in
-                TextField("Heading", text: Binding(get: { table?.columns[safe: index] ?? "" },
-                                                   set: { table?.columns[index] = $0 }))
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(Palette.muted)
-                    .multilineTextAlignment(.trailing)
-                    .frame(width: 76)
-            }
-            Spacer().frame(width: 36)
-        }
+    /// Side by side suits a tin (an age, water and scoops). A table with more columns, or with words in
+    /// its cells, would not fit across the screen, so each row is laid out down the page instead.
+    private var stacked: Bool {
+        guard let table else { return false }
+        return table.columns.count > 2 || table.rows.contains { $0.values.contains { $0.count > 9 } }
     }
 
-    private func rowEditor(_ index: Int, _ row: BoxTable.Row) -> some View {
-        let isTicked = ticked.contains(row.id)
-        return VStack(alignment: .leading, spacing: 6) {
-            HStack(alignment: .center, spacing: 8) {
-                cellField("Age", text: Binding(get: { table?.rows[safe: index]?.age ?? "" }, set: { edit(index) { $0.age = $1 }($0) }),
-                          cell: .init(row: row.id, column: -1))
+    @ViewBuilder private var headings: some View {
+        if stacked {
+            DisclosureGroup("Headings") {
+                ForEach(Array((table?.columns ?? []).enumerated()), id: \.offset) { index, _ in
+                    HStack {
+                        TextField("Heading", text: Binding(get: { table?.columns[safe: index] ?? "" }, set: { table?.columns[index] = $0 }))
+                        if (table?.columns.count ?? 0) > 1 {
+                            Button(role: .destructive) { removeColumn(index) } label: { Image(systemName: "minus.circle") }
+                                .buttonStyle(.plain)
+                                .foregroundStyle(Palette.waratah)
+                                .accessibilityLabel("Remove this column")
+                        }
+                    }
+                }
+                Button { addColumn() } label: { Label("Add a column", systemImage: "plus") }
+            }
+            .font(.subheadline)
+        } else {
+            HStack(spacing: 8) {
+                Text("Age").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                ForEach(Array(row.values.enumerated()), id: \.offset) { column, _ in
-                    cellField("–", text: Binding(get: { table?.rows[safe: index]?.values[safe: column] ?? "" },
-                                                 set: { edit(index) { $0.values[column] = $1 }($0) }),
-                              cell: .init(row: row.id, column: column))
+                ForEach(Array((table?.columns ?? []).enumerated()), id: \.offset) { index, _ in
+                    TextField("Heading", text: Binding(get: { table?.columns[safe: index] ?? "" },
+                                                       set: { table?.columns[index] = $0 }))
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Palette.muted)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 76)
                 }
-                Button {
-                    if isTicked { ticked.remove(row.id) } else { ticked.insert(row.id); Haptics.tap() }
-                } label: {
-                    Image(systemName: isTicked ? "checkmark.circle.fill" : "circle")
-                        .font(.title2)
-                        .foregroundStyle(isTicked ? Palette.gum : Palette.muted)
-                        .frame(width: 36, height: 44)
+                Spacer().frame(width: 36)
+            }
+        }
+    }
+
+    private func removeColumn(_ index: Int) {
+        guard var changed = table, changed.columns.indices.contains(index) else { return }
+        changed.columns.remove(at: index)
+        for row in changed.rows.indices where changed.rows[row].values.indices.contains(index) {
+            // A row that had something in the column needs checking again.
+            if !changed.rows[row].values[index].isEmpty { ticked.remove(changed.rows[row].id) }
+            changed.rows[row].values.remove(at: index)
+        }
+        table = changed
+    }
+
+    private func addColumn() {
+        guard var changed = table else { return }
+        changed.columns.append("Column \(changed.columns.count + 1)")
+        for row in changed.rows.indices { changed.rows[row].values.append("") }
+        table = changed
+    }
+
+    private func tick(_ row: BoxTable.Row) -> some View {
+        let isTicked = ticked.contains(row.id)
+        return Button {
+            if isTicked { ticked.remove(row.id) } else { ticked.insert(row.id); Haptics.tap() }
+        } label: {
+            Image(systemName: isTicked ? "checkmark.circle.fill" : "circle")
+                .font(.title2)
+                .foregroundStyle(isTicked ? Palette.gum : Palette.muted)
+                .frame(width: 36, height: 44)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(isTicked ? "Checked" : "Check this row")
+    }
+
+    private func rowEditor(_ index: Int, _ row: BoxTable.Row) -> some View {
+        let age = Binding(get: { table?.rows[safe: index]?.age ?? "" }, set: { edit(index) { $0.age = $1 }($0) })
+        func value(_ column: Int) -> Binding<String> {
+            Binding(get: { table?.rows[safe: index]?.values[safe: column] ?? "" }, set: { edit(index) { $0.values[column] = $1 }($0) })
+        }
+        return VStack(alignment: .leading, spacing: 6) {
+            if stacked {
+                HStack(alignment: .center, spacing: 8) {
+                    cellField("Age", text: age, cell: .init(row: row.id, column: -1))
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    tick(row)
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel(isTicked ? "Checked" : "Check this row")
+                ForEach(Array(row.values.enumerated()), id: \.offset) { column, _ in
+                    HStack(alignment: .firstTextBaseline, spacing: 8) {
+                        Text(table?.columns[safe: column] ?? "").font(.footnote).foregroundStyle(Palette.muted)
+                            .frame(width: 88, alignment: .leading)
+                        cellField("–", text: value(column), cell: .init(row: row.id, column: column), wraps: true)
+                    }
+                }
+            } else {
+                HStack(alignment: .center, spacing: 8) {
+                    cellField("Age", text: age, cell: .init(row: row.id, column: -1))
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    ForEach(Array(row.values.enumerated()), id: \.offset) { column, _ in
+                        cellField("–", text: value(column), cell: .init(row: row.id, column: column))
+                            .multilineTextAlignment(.trailing)
+                            .frame(width: 76)
+                    }
+                    tick(row)
+                }
             }
             startsAt(index, row)
         }
@@ -296,8 +375,8 @@ struct BoxReaderView: View {
         }
     }
 
-    private func cellField(_ prompt: String, text: Binding<String>, cell: BoxReader.Cell) -> some View {
-        TextField(prompt, text: text)
+    private func cellField(_ prompt: String, text: Binding<String>, cell: BoxReader.Cell, wraps: Bool = false) -> some View {
+        TextField(prompt, text: text, axis: wraps ? .vertical : .horizontal)
             .font(.body.monospacedDigit())
             .padding(.vertical, 4).padding(.horizontal, 6)
             .background(unsure.contains(cell) ? Palette.wattle.opacity(0.35) : Palette.input,
@@ -340,7 +419,7 @@ struct BoxReaderView: View {
             strength = existing.strength ?? ""
             table = existing.table
             ticked = Set((table?.rows ?? []).map(\.id))
-            directions = existing.photo.flatMap(UIImage.init(data:))
+            shots = existing.photo.flatMap(UIImage.init(data:)).map { [$0] } ?? []
             keepPhoto = existing.photo != nil
         }
         if kind == .medicine {
@@ -360,8 +439,20 @@ struct BoxReaderView: View {
             if !label.name.isEmpty { name = label.name }
             if let found = label.strength { strength = found }
             frontRead = true
+        case .more:
+            // Another part of the same table: what it adds is joined on, and nothing already read is replaced.
+            shots.append(image)
+            let found = BoxReader.table(from: lines, kind: kind)
+            let before = table
+            let joined = BoxReader.merged(table ?? BoxTable(columns: kind.defaultColumns, rows: []), with: found.table,
+                                          loose: BoxReader.looseRows(from: lines), kind: kind)
+            table = joined.rows.isEmpty ? nil : joined
+            unsure.formUnion(found.unsure)
+            // A row this photo changed, or added, needs checking.
+            let same = Set((before?.rows ?? []).filter { row in joined.rows.contains(row) }.map(\.id))
+            ticked.formIntersection(same)
         case .directions:
-            directions = image
+            shots = [image]
             let found = BoxReader.table(from: lines, kind: kind)
             table = found.table.rows.isEmpty ? nil : found.table
             unsure = found.unsure
@@ -378,7 +469,7 @@ struct BoxReaderView: View {
     private func save() {
         var kept = table
         kept?.rows.removeAll { $0.age.trimmingCharacters(in: .whitespaces).isEmpty && $0.values.allSatisfy(\.isEmpty) }
-        let photo: Data? = keepPhoto ? (editing ? existing?.photo : directions.flatMap(BoxReader.keepable)) : nil
+        let photo: Data? = keepPhoto ? (editing ? existing?.photo : BoxReader.sideBySide(shots).flatMap(BoxReader.keepable)) : nil
         guard let guide = store.saveGuide(
             replacing: existing, kind: kind, name: name, strength: strength, table: kept, photo: photo,
             gap: Double(gapText.replacingOccurrences(of: ",", with: ".")), limit: Int(limitText)) else { return }
@@ -490,6 +581,25 @@ struct TableCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             if let heading { Text(heading).font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted) }
+            if table.columns.count > 2 || table.rows.contains(where: { $0.values.contains { $0.count > 9 } }) {
+                // Too wide to sit across the card: each row goes down the page, as in the reader.
+                ForEach(table.rows) { row in
+                    Divider()
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(row.age).font(.subheadline.weight(.semibold))
+                        ForEach(Array(row.values.enumerated()), id: \.offset) { column, value in
+                            if !value.isEmpty {
+                                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                                    Text(table.columns[safe: column] ?? "").font(.footnote).foregroundStyle(Palette.muted)
+                                        .frame(width: 88, alignment: .leading)
+                                    Text(value).monospacedDigit().fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                        }
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            } else {
             Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 10) {
                 GridRow {
                     Text("Age")
@@ -506,6 +616,7 @@ struct TableCard: View {
                     }
                     .accessibilityElement(children: .combine)
                 }
+            }
             }
         }
         .padding(16)
@@ -617,3 +728,31 @@ struct RowNoticeCard: View {
 extension Array {
     subscript(safe index: Int) -> Element? { indices.contains(index) ? self[index] : nil }
 }
+
+#if DEBUG
+/// A bottle's table, as read, opened for checking: "-debugBox 1" with the sample family.
+struct BoxReaderDebug: View {
+    @EnvironmentObject private var store: FamilyStore
+    @State private var guide: Guide?
+
+    var body: some View {
+        Group {
+            if let guide { BoxReaderView(kind: .medicine, existing: guide, editing: true) } else { Color.clear }
+        }
+        .onAppear {
+            guard guide == nil else { return }
+            func row(_ age: String, _ count: Int, _ unit: AgeMark.Unit, _ values: [String]) -> BoxTable.Row {
+                BoxTable.Row(age: age, from: AgeMark(count: count, unit: unit), values: values)
+            }
+            let table = BoxTable(columns: ["How much", "How often"], rows: [
+                row("2-3 months", 2, .months, ["2.5 ml - If necessary, after 4-6 hours", "a second dose"]),
+                row("3-6 months", 3, .months, ["2.5 ml", "Up to 4 times a day"]),
+                row("6-24 months", 6, .months, ["5 ml", "Up to 4 times a day"]),
+                row("2-4 years", 2, .years, ["7.5 ml (5 ml + 2.5 ml)", "Up to 4 times a day"]),
+            ])
+            guide = store.saveGuide(replacing: nil, kind: .medicine, name: "Paracetamol", strength: "120 mg in 5 ml",
+                                    table: table, photo: nil, gap: 4, limit: 4)
+        }
+    }
+}
+#endif

@@ -178,7 +178,8 @@ enum BoxReader {
     private static func split(_ cell: String) -> [String] {
         let range = NSRange(cell.startIndex..., in: cell)
         let rest = measure.stringByReplacingMatches(in: cell, range: range, withTemplate: "")
-        guard rest.rangeOfCharacter(from: .letters) == nil else { return [cell] }
+        // "7.5 ml (5 ml + 2.5 ml)" is one amount spelled out, not three.
+        guard rest.rangeOfCharacter(from: .letters) == nil, !cell.contains("("), !cell.contains("+") else { return [cell] }
         let parts = measure.matches(in: cell, range: range).compactMap { Range($0.range, in: cell).map { String(cell[$0]).trimmingCharacters(in: .whitespaces) } }
         return parts.isEmpty ? [cell] : parts
     }
@@ -199,20 +200,7 @@ enum BoxReader {
     /// Puts the read text back into rows by where it sits, keeps the rows that start with an age,
     /// and returns the table with the cells worth a second look.
     static func table(from lines: [ReadLine], kind: GuideKind) -> (table: BoxTable, unsure: Set<Cell>) {
-        // Rows: lines whose middles are level with each other.
-        var grouped: [(mid: CGFloat, height: CGFloat, lines: [ReadLine])] = []
-        for line in lines.sorted(by: { $0.box.midY > $1.box.midY }) {
-            if let last = grouped.indices.last,
-               abs(grouped[last].mid - line.box.midY) < 0.5 * max(grouped[last].height, line.box.height) {
-                grouped[last].lines.append(line)
-                let all = grouped[last].lines
-                grouped[last].mid = all.map(\.box.midY).reduce(0, +) / CGFloat(all.count)
-                grouped[last].height = all.map(\.box.height).max() ?? line.box.height
-            } else {
-                grouped.append((line.box.midY, line.box.height, [line]))
-            }
-        }
-        let rows = grouped.map { $0.lines.sorted { $0.box.minX < $1.box.minX } }
+        let rows = levelRows(lines)
 
         var table = BoxTable(columns: [], rows: [])
         var unsure = Set<Cell>()
@@ -223,6 +211,9 @@ enum BoxReader {
             for count in 1...cells.count {
                 let joined = cells.prefix(count).map(\.text).joined(separator: " ")
                 guard let found = age(in: joined) else { continue }
+                // A row of the table starts with its age. An age further along is a sentence
+                // ("Do not give to babies less than 2 months"), not a row.
+                guard joined.distance(from: joined.startIndex, to: found.range.lowerBound) <= 3 else { break }
                 ageText = clean(String(joined[found.range]))
                 from = found.from
                 let rest = clean(joined.replacingCharacters(in: found.range, with: " "))
@@ -238,6 +229,11 @@ enum BoxReader {
                 for part in split(text) {
                     let value = clean(part)
                     guard !value.isEmpty else { continue }
+                    // Words with no number in them carry on the value before ("5 ml" then "if needed").
+                    if value.rangeOfCharacter(from: .decimalDigits) == nil, let last = row.values.indices.last {
+                        row.values[last] += " " + value
+                        continue
+                    }
                     if isShaky(value, confidence: confidence) { shakyColumns.append(row.values.count) }
                     row.values.append(value)
                 }
@@ -246,9 +242,18 @@ enum BoxReader {
             table.rows.append(row)
         }
 
-        let width = max(table.rows.map(\.values.count).max() ?? 0, 1)
+        // The table is as wide as most of its rows. A row with more (a sentence that ran on) keeps the
+        // extra in its last cell, so one long row does not give every row empty columns.
+        var tally: [Int: Int] = [:]
+        table.rows.forEach { tally[max($0.values.count, 1), default: 0] += 1 }
+        let width = tally.max { ($0.value, -$0.key) < ($1.value, -$1.key) }?.key ?? 1
         for index in table.rows.indices {
-            table.rows[index].values += Array(repeating: "", count: max(0, width - table.rows[index].values.count))
+            var values = table.rows[index].values
+            if values.count > width {
+                values = Array(values.prefix(width - 1)) + [values.dropFirst(width - 1).joined(separator: " ")]
+                unsure = unsure.filter { $0.row != table.rows[index].id || $0.column < width }
+            }
+            table.rows[index].values = values + Array(repeating: "", count: max(0, width - values.count))
         }
         // Headings: the row just above the first age, if it has the right number of cells.
         if let first = firstAgeRow, first > 0 {
@@ -256,11 +261,117 @@ enum BoxReader {
             if heads.count == width + 1 { table.columns = Array(heads.dropFirst()) }
             else if heads.count == width, width >= 2 { table.columns = heads }
         }
-        if table.columns.count != width {
-            let defaults = kind.defaultColumns
-            table.columns = (0..<width).map { $0 < defaults.count ? defaults[$0] : "Column \($0 + 1)" }
-        }
+        if table.columns.count != width { table.columns = headings(width, kind: kind) }
         return (table, unsure)
+    }
+
+    private static func headings(_ width: Int, kind: GuideKind, keeping old: [String] = []) -> [String] {
+        let defaults = kind.defaultColumns
+        return (0..<width).map { $0 < old.count ? old[$0] : $0 < defaults.count ? defaults[$0] : "Column \($0 + 1)" }
+    }
+
+    /// Lines put back into rows: those whose middles are level with each other, left to right.
+    private static func levelRows(_ lines: [ReadLine]) -> [[ReadLine]] {
+        var grouped: [(mid: CGFloat, height: CGFloat, lines: [ReadLine])] = []
+        for line in lines.sorted(by: { $0.box.midY > $1.box.midY }) {
+            if let last = grouped.indices.last,
+               abs(grouped[last].mid - line.box.midY) < 0.5 * max(grouped[last].height, line.box.height) {
+                grouped[last].lines.append(line)
+                let all = grouped[last].lines
+                grouped[last].mid = all.map(\.box.midY).reduce(0, +) / CGFloat(all.count)
+                grouped[last].height = all.map(\.box.height).max() ?? line.box.height
+            } else {
+                grouped.append((line.box.midY, line.box.height, [line]))
+            }
+        }
+        return grouped.map { $0.lines.sorted { $0.box.minX < $1.box.minX } }
+    }
+
+    // MARK: More than one photo
+
+    private static let amount = try! NSRegularExpression(
+        pattern: "^\\d+(?:[.,]\\d+)?\\s*(?:ml|mls|scoops?|tsp|mg|tablets?)\\b", options: [.caseInsensitive])
+
+    /// Rows of a photo that has lost the ages off its edge, as round a bottle: each starts with an amount
+    /// and has something after it.
+    static func looseRows(from lines: [ReadLine]) -> [[String]] {
+        levelRows(lines).compactMap { cells in
+            let texts = cells.map { clean($0.text) }.filter { !$0.isEmpty }
+            guard texts.count >= 2, let first = texts.first, age(in: first) == nil,
+                  amount.firstMatch(in: first, range: NSRange(first.startIndex..., in: first)) != nil else { return nil }
+            return texts
+        }
+    }
+
+    /// The amount a cell starts with, in one spelling: "2,5 ML if needed" is "2.5ml".
+    private static func leading(_ text: String) -> String? {
+        guard let match = amount.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)), let range = Range(match.range, in: text) else { return nil }
+        return text[range].lowercased().replacingOccurrences(of: " ", with: "").replacingOccurrences(of: ",", with: ".").replacingOccurrences(of: "mls", with: "ml")
+    }
+
+    private static func same(_ a: String, _ b: String) -> Bool {
+        func plain(_ text: String) -> String { text.lowercased().replacingOccurrences(of: " ", with: "").replacingOccurrences(of: ",", with: ".") }
+        return !a.isEmpty && plain(a) == plain(b)
+    }
+
+    /// Adds what another photo of the same table read. A row with the same age fills that row's gaps;
+    /// a new age is a new row; and a row with no age joins the row that holds its first amount, in order.
+    /// Nothing already read is replaced.
+    static func merged(_ table: BoxTable, with more: BoxTable, loose: [[String]], kind: GuideKind) -> BoxTable {
+        var result = table
+        func fill(_ index: Int, from column: Int, with values: [String]) {
+            for (offset, value) in values.enumerated() where !value.isEmpty {
+                let at = column + offset
+                while result.rows[index].values.count <= at { result.rows[index].values.append("") }
+                if result.rows[index].values[at].isEmpty { result.rows[index].values[at] = value }
+            }
+        }
+        for row in more.rows {
+            if let index = result.rows.firstIndex(where: { ($0.from != nil && $0.from == row.from) || same($0.age, row.age) }) {
+                fill(index, from: 0, with: row.values)
+            } else {
+                result.rows.append(row)
+            }
+        }
+        var next = 0
+        for values in loose {
+            // Matched on the amount each starts with: "2.5 ml" here is "2.5 ml" there, whatever follows it.
+            guard let wanted = leading(values[0]),
+                  let index = result.rows.indices.dropFirst(next).first(where: { i in result.rows[i].values.contains { leading($0) == wanted } }),
+                  let column = result.rows[index].values.firstIndex(where: { leading($0) == wanted }) else { continue }
+            fill(index, from: column + 1, with: Array(values.dropFirst()))
+            next = index + 1
+        }
+        let width = max(result.rows.map(\.values.count).max() ?? 1, 1)
+        for index in result.rows.indices {
+            result.rows[index].values += Array(repeating: "", count: width - result.rows[index].values.count)
+        }
+        let real = more.columns.count == width && more.columns != headings(width, kind: kind)
+        result.columns = headings(width, kind: kind, keeping: result.columns == headings(result.columns.count, kind: kind) && real ? more.columns : result.columns)
+        // Youngest first; rows not by age stay at the end, in the order they came.
+        func days(_ row: BoxTable.Row) -> Int {
+            guard let from = row.from else { return .max }
+            return from.count * (from.unit == .weeks ? 7 : from.unit == .months ? 30 : 365)
+        }
+        result.rows = result.rows.enumerated().sorted { (days($0.element), $0.offset) < (days($1.element), $1.offset) }.map(\.element)
+        return result
+    }
+
+    /// Several photos as one picture, side by side at one height, so one photo is kept with the table.
+    static func sideBySide(_ images: [UIImage]) -> UIImage? {
+        guard let first = images.first else { return nil }
+        guard images.count > 1 else { return first }
+        let height = images.map(\.size.height).min() ?? first.size.height
+        let widths = images.map { $0.size.width * height / max($0.size.height, 1) }
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = 1
+        return UIGraphicsImageRenderer(size: CGSize(width: widths.reduce(0, +), height: height), format: format).image { _ in
+            var x: CGFloat = 0
+            for (image, width) in zip(images, widths) {
+                image.draw(in: CGRect(x: x, y: 0, width: width, height: height))
+                x += width
+            }
+        }
     }
 
     /// A photo made small enough to share with the family: about 1600 points on its long side.
