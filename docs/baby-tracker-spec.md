@@ -1272,3 +1272,5 @@ Tom: the scenes at the top of Today hardly change, and night should come from th
 - **In-app feedback:** build it. A note in Settings, saved with the build number, to copy out later.
 - **Order after the sync fix:** the Today mock-up, then the rest.
 - Pushed to GitHub the same day.
+
+**Today with the snapshot (decided 15 November, not built).** Drawn in `docs/previews/today/snapshot.png`. Each child's card takes three facts as tappable boxes that open the log sheet for that child. A baby shows Fed, Awake or Asleep, and Nappy; an older child shows Awake or Asleep, Ate, and Potty or Nappy, whichever they use. One line under the facts says what comes next and goes once its time has passed. The sleep button shows only for a child who naps: one with a daytime sleep logged in the last two weeks, and for everyone in the evening. A sleeping child goes first, in night colours. The nappy tile goes; the tiles keep what has no fact. **Held until sync is fixed.**
