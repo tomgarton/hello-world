@@ -237,13 +237,13 @@ extension Event {
         wakings = (wakings ?? "").isEmpty ? pair : "\(wakings!),\(pair)"
     }
 
-    /// "woke once", "woke 3 times", or nil.
+    /// "Woke once", "Woke 3 times", or nil. It follows an interpunct, so it starts with a capital.
     var wokeText: String? {
         switch wakingIntervals.count {
         case 0: nil
-        case 1: "woke once"
-        case 2: "woke twice"
-        case let n: "woke \(n) times"
+        case 1: "Woke once"
+        case 2: "Woke twice"
+        case let n: "Woke \(n) times"
         }
     }
 
@@ -281,7 +281,7 @@ extension Event {
             if let start = startedAt, let end = endedAt { return "Slept · \(Elapsed.short(seconds: asleepSeconds(from: start, to: end)))" }
             return "Asleep"
         case .nappy, .potty, .solids:
-            return (detail ?? "").isEmpty ? kind.title : "\(kind.title) · \(detail!.lowercased())"
+            return (detail ?? "").isEmpty ? kind.title : "\(kind.title) · \(detail!.lowercased().firstUpper)"
         default:
             return summary
         }
@@ -292,7 +292,7 @@ extension Event {
         switch kind {
         case .bottle:
             let ml = amountML > 0 ? " · \(Units.volume(amountML))" : ""
-            let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
+            let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased().firstUpper)"
             return "Bottle\(ml)\(what)"
         case .sleep:
             if let start = startedAt, let end = endedAt {
@@ -307,12 +307,12 @@ extension Event {
                 if rightSeconds > 0 { parts.append("right \(Elapsed.minutes(rightSeconds))") }
                 return "Breastfeed · " + parts.joined(separator: " · ")
             }
-            let side = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
+            let side = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased().firstUpper)"
             let length = (startedAt.flatMap { start in endedAt.map { Elapsed.short(from: start, to: $0) } }).map { " · \($0)" } ?? ""
             return "Breastfeed\(side)\(length)"
         case .nappy, .potty, .solids:
-            let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
-            let extra = kind != .potty && !(dose ?? "").isEmpty ? " · \(dose!.lowercased())" : ""
+            let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased().firstUpper)"
+            let extra = kind != .potty && !(dose ?? "").isEmpty ? " · \(dose!.lowercased().firstUpper)" : ""
             return "\(kind.title)\(what)\(extra)"
         case .note:
             return note ?? "Note"
@@ -323,7 +323,7 @@ extension Event {
             let amount = (dose ?? "").isEmpty ? "" : " · \(dose!)"
             return "\(name)\(amount)"
         case .temperature:
-            let place = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased())"
+            let place = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased().firstUpper)"
             return "Temperature \(Units.temperature(value))\(place)"
         case .vaccination:
             return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination · \(detail!)"
@@ -331,7 +331,7 @@ extension Event {
             return (detail ?? "").isEmpty ? "Milestone" : detail!
         case .pump:
             if detail == Pump.count {
-                return "Milk on hand · fridge \(Units.volume(value)) · freezer \(Units.volume(amountML))"
+                return "Milk on hand · Fridge \(Units.volume(value)) · Freezer \(Units.volume(amountML))"
             }
             let place = (detail ?? "").isEmpty ? "" : " · \(Pump.placeText(detail!))"
             return "Pumped · \(Units.volume(amountML))\(place)"
@@ -592,4 +592,9 @@ enum PuggleModel {
         model.entities = [family, child, event, person, guide]
         return model
     }
+}
+
+extension String {
+    /// With a capital first letter, for a fact that follows an interpunct: "Nappy · Wet".
+    var firstUpper: String { prefix(1).uppercased() + dropFirst() }
 }

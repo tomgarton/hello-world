@@ -470,8 +470,8 @@ struct ChildStatusRow: View {
         }
         if let feed = store.activeFeed(for: child) {
             let started = "since \((feed.startedAt ?? now).formatted(date: .omitted, time: .shortened))"
-            guard let side = feed.runningSide else { return ["Feeding · paused", started] }
-            return ["Feeding · \(side.lowercased()) · \(Elapsed.minutes(feed.feedSeconds(side, now: now)))", started]
+            guard let side = feed.runningSide else { return ["Feeding · Paused", started] }
+            return ["Feeding · \(side) · \(Elapsed.minutes(feed.feedSeconds(side, now: now)))", started]
         }
         // The later of the last bottle and the last breastfeed.
         let feeds = [store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0 }

@@ -17,7 +17,7 @@ enum BackgroundSync {
 
     private static var assertion = UIBackgroundTaskIdentifier.invalid
 
-    private static var waiting: Int { SyncProgress.count(in: FamilyStore.live).waiting }
+    private static func waiting() async -> Int { await SyncProgress.count(in: FamilyStore.live).waiting }
 
     /// At launch, before the app has finished starting: iOS needs to know what to run.
     static func register() {
@@ -28,14 +28,18 @@ enum BackgroundSync {
     }
 
     /// When Puggle leaves the screen. Does nothing when everything is already in iCloud.
+    /// The hold is taken first and the counting done after, away from the main thread, so leaving is never slowed.
     static func leftScreen() {
-        guard Persistence.cloudSyncEnabled, waiting > 0 else { return }
-        schedule()
-        guard assertion == .invalid else { return }
+        guard Persistence.cloudSyncEnabled, !FamilyStore.live.isSample, assertion == .invalid else { return }
         assertion = UIApplication.shared.beginBackgroundTask(withName: "Sending to iCloud") { release() }
         Task {
+            guard await waiting() > 0 else { release(); return }
+            schedule()
             // Let go as soon as it has all gone, so no time is held that is not needed.
-            while assertion != .invalid, waiting > 0 { try? await Task.sleep(for: .seconds(3)) }
+            while assertion != .invalid {
+                try? await Task.sleep(for: .seconds(10))
+                if await waiting() == 0 { break }
+            }
             release()
         }
     }
@@ -59,8 +63,11 @@ enum BackgroundSync {
     private static func run(_ task: BGTask) {
         // Loading the store is what starts Core Data sending again.
         let work = Task { @MainActor in
-            while !Task.isCancelled, waiting > 0 { try? await Task.sleep(for: .seconds(5)) }
-            let left = waiting
+            var left = await waiting()
+            while !Task.isCancelled, left > 0 {
+                try? await Task.sleep(for: .seconds(10))
+                left = await waiting()
+            }
             if left > 0 { schedule() }
             task.setTaskCompleted(success: left == 0)
         }

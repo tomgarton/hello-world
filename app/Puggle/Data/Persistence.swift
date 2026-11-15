@@ -35,10 +35,16 @@ final class Persistence {
     /// step with the family.
     var readOnly = false
 
-    init(inMemory: Bool = false) {
+    /// `scratch` is for checking speed with a long history ("-debugBig"): real files on disk, in a folder of
+    /// their own that is thrown away, and no iCloud. An in-memory store hides how slow reading from disk is.
+    init(inMemory: Bool = false, scratch: Bool = false) {
         container = NSPersistentCloudKitContainer(name: "Puggle", managedObjectModel: PuggleModel.shared)
 
-        let base = NSPersistentContainer.defaultDirectoryURL()
+        var base = NSPersistentContainer.defaultDirectoryURL()
+        if scratch {
+            base = FileManager.default.temporaryDirectory.appendingPathComponent("scratch-\(UUID().uuidString)")
+            try? FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+        }
         let privateDescription = NSPersistentStoreDescription(url: base.appendingPathComponent("puggle-private.sqlite"))
         let sharedDescription = NSPersistentStoreDescription(url: base.appendingPathComponent("puggle-shared.sqlite"))
 
@@ -52,7 +58,7 @@ final class Persistence {
             sharedDescription.url = URL(fileURLWithPath: "/dev/null/shared")
             privateDescription.type = NSInMemoryStoreType
             sharedDescription.type = NSInMemoryStoreType
-        } else if Self.cloudSyncEnabled {
+        } else if Self.cloudSyncEnabled, !scratch {
             let privateOptions = NSPersistentCloudKitContainerOptions(containerIdentifier: Self.cloudKitContainerID)
             privateOptions.databaseScope = .private
             privateDescription.cloudKitContainerOptions = privateOptions
@@ -64,7 +70,7 @@ final class Persistence {
 
         container.persistentStoreDescriptions = [privateDescription, sharedDescription]
         // Before the stores load, so the first fetch from iCloud is not missed.
-        if !inMemory, Self.cloudSyncEnabled { SyncWatch.shared.start(for: self) }
+        if !inMemory, !scratch, Self.cloudSyncEnabled { SyncWatch.shared.start(for: self) }
         container.loadPersistentStores { [weak self] description, error in
             if let error {
                 // During development, crash loudly so problems are found early.

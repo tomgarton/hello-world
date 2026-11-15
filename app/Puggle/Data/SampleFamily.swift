@@ -19,11 +19,47 @@ final class SampleFamily: ObservableObject {
         Task {
             // Let the loading screen draw before the entries are made.
             try? await Task.sleep(for: .milliseconds(120))
-            let sample = FamilyStore(persistence: Persistence(inMemory: true))
+            var big = false
+            #if DEBUG
+            big = UserDefaults.standard.string(forKey: "debugBig") != nil
+            #endif
+            let sample = FamilyStore(persistence: big ? Persistence(scratch: true) : Persistence(inMemory: true))
             sample.isSample = true
             SampleData(store: sample).fill()
             sample.authorOverride = nil
             #if DEBUG
+            // For checking the app with a long history, as after an import: "-debugBig 150" adds that many
+            // days of feeds, sleeps and changes for each child, about 18 a day each.
+            if let days = UserDefaults.standard.string(forKey: "debugBig").flatMap(Int.init) {
+                let family = sample.currentFamily()
+                let midnight = Calendar.current.startOfDay(for: .now)
+                for child in family.children ?? [] {
+                    for day in 15..<(15 + days) {
+                        let start = midnight.addingTimeInterval(-Double(day) * 86400)
+                        @MainActor func add(_ kind: EventKind, _ hour: Double, minutes: Double = 0, detail: String? = nil) {
+                            let event = Event(context: sample.context)
+                            sample.place(event, with: family)
+                            event.id = UUID()
+                            event.kind = kind
+                            event.startedAt = start.addingTimeInterval(hour * 3600)
+                            if minutes > 0 { event.endedAt = event.startedAt?.addingTimeInterval(minutes * 60) }
+                            event.detail = detail
+                            event.amountML = kind == .bottle ? 150 : 0
+                            event.createdAt = event.startedAt
+                            event.family = family
+                            event.children = [child]
+                        }
+                        for hour in stride(from: 6.5, to: 22, by: 2.5) { add(.bottle, hour) }
+                        for hour in stride(from: 7.0, to: 22, by: 2.4) { add(.nappy, hour, detail: "Wet") }
+                        for hour in [9.0, 12.5, 15.5] { add(.sleep, hour, minutes: 60) }
+                        add(.sleep, 19, minutes: 600)
+                    }
+                }
+                sample.persistence.save()
+                // Forgotten, so everything is read back from disk as it would be on a phone that has just opened.
+                sample.context.reset()
+                if UserDefaults.standard.string(forKey: "debugBigCold") != "1" { sample.warm() }
+            }
             // For checking Patterns with a real history: "-debugImportFile <path> -debugImportBirth 2024-04-29"
             // adds a child to the sample family and imports the file for them. Nothing is saved: the sample is in memory.
             if let path = UserDefaults.standard.string(forKey: "debugImportFile"),

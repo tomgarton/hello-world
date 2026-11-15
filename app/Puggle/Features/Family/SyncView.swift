@@ -49,8 +49,10 @@ struct SyncProgress: Equatable {
     /// Rounded down, so it only says 100% when nothing is waiting.
     var percent: Int { waiting == 0 ? 100 : min(99, Int(fraction * 100)) }
 
+    /// Counted away from the main thread, on a context of its own: after a big import there are thousands
+    /// of entries, and counting them where the screen is drawn made the app stutter.
     @MainActor
-    static func count(in store: FamilyStore) -> SyncProgress {
+    static func count(in store: FamilyStore) async -> SyncProgress {
         #if DEBUG
         // For looking at the screen part-way through: "-debugSync 0.4" starts two fifths sent and climbs,
         // "-debugSync 1" is up to date.
@@ -60,17 +62,34 @@ struct SyncProgress: Equatable {
             return SyncProgress(parts: totals.map { Part(group: $0.0, total: $0.1, sent: Int(Double($0.1) * climbed)) })
         }
         #endif
-        guard Persistence.cloudSyncEnabled, !store.isSample, let family = store.existingFamily() else { return SyncProgress() }
-        let events = (family.events ?? []).filter { !$0.isDeleted }
-        // One question for all of them: which of these does iCloud have a record of.
-        let inCloud = store.persistence.container.recordIDs(for: events.map(\.objectID))
-        var parts = Dictionary(uniqueKeysWithValues: Group.allCases.map { ($0, Part(group: $0)) })
-        for event in events {
-            let group = Group(event.kind)
-            parts[group]?.total += 1
-            if inCloud[event.objectID] != nil { parts[group]?.sent += 1 }
+        guard Persistence.cloudSyncEnabled, !store.isSample, let family = store.existingFamily(),
+              !family.objectID.isTemporaryID else { return SyncProgress() }
+        let familyID = family.objectID
+        let container = store.persistence.container
+        let context = container.newBackgroundContext()
+        return await context.perform {
+            // Only each entry's id and kind are read, not the entries themselves.
+            let id = NSExpressionDescription()
+            id.name = "id"
+            id.expression = NSExpression.expressionForEvaluatedObject()
+            id.expressionResultType = .objectIDAttributeType
+            let request = NSFetchRequest<NSDictionary>(entityName: "Event")
+            request.predicate = NSPredicate(format: "family == %@", familyID)
+            request.resultType = .dictionaryResultType
+            request.propertiesToFetch = [id, "kindRaw"]
+            let rows = (try? context.fetch(request)) ?? []
+            let ids = rows.compactMap { $0["id"] as? NSManagedObjectID }
+            // One question for all of them: which of these does iCloud have a record of.
+            let inCloud = container.recordIDs(for: ids)
+            var parts = Dictionary(uniqueKeysWithValues: Group.allCases.map { ($0, Part(group: $0)) })
+            for row in rows {
+                guard let id = row["id"] as? NSManagedObjectID else { continue }
+                let group = Group(EventKind(rawValue: row["kindRaw"] as? String ?? "") ?? .note)
+                parts[group]?.total += 1
+                if inCloud[id] != nil { parts[group]?.sent += 1 }
+            }
+            return SyncProgress(parts: Group.allCases.compactMap { parts[$0] }.filter { $0.total > 0 })
         }
-        return SyncProgress(parts: Group.allCases.compactMap { parts[$0] }.filter { $0.total > 0 })
     }
 
     #if DEBUG
@@ -90,7 +109,7 @@ struct SyncRow: View {
                 Text(SyncView.short(progress, cloud: cloud, sample: store.isSample))
             }
         }
-        .task { progress = SyncProgress.count(in: store) }
+        .task { progress = await SyncProgress.count(in: store) }
     }
 }
 
@@ -145,21 +164,21 @@ struct SyncView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button { refresh() } label: { Image(systemName: "arrow.clockwise") }
+                Button { Task { await refresh() } } label: { Image(systemName: "arrow.clockwise") }
                     .accessibilityLabel("Count again")
             }
         }
         .task {
             // Counted again every few seconds while the screen is open, so the bar moves as batches go up.
             while !Task.isCancelled {
-                refresh()
+                await refresh()
                 try? await Task.sleep(for: .seconds(3))
             }
         }
     }
 
-    private func refresh() {
-        let now = SyncProgress.count(in: store)
+    private func refresh() async {
+        let now = await SyncProgress.count(in: store)
         if first == nil { first = (.now, now.sent) }
         if now.sent != progress.sent { moved = .now }
         progress = now

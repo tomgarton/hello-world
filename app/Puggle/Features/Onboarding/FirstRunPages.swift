@@ -227,7 +227,7 @@ struct SharePiece: View {
     private let rows: [(icon: String, what: String, child: String, colour: Int, who: String, when: String, at: Double)] = [
         ("icon-bottle", "Bottle · 180 ml", "Ollie", 1, "Nan", "14:52", 2.0),
         ("icon-sleep", "Slept 1h 59m", "Ollie", 1, "Alex", "12:54", 0.9),
-        ("icon-potty", "Potty · wee", "Bea", 0, "Robin", "11:40", 0.3),
+        ("icon-potty", "Potty · Wee", "Bea", 0, "Robin", "11:40", 0.3),
     ]
 
     var body: some View {

@@ -91,7 +91,10 @@ final class FamilyStore: ObservableObject {
         cacheObserver = NotificationCenter.default.addObserver(
             forName: .NSManagedObjectContextObjectsDidChange, object: persistence.viewContext, queue: nil
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.familyCache = nil }
+            MainActor.assumeIsolated {
+                self?.familyCache = nil
+                self?.found = [:]
+            }
         }
         changeObserver = NotificationCenter.default.addObserver(
             forName: .NSManagedObjectContextObjectsDidChange,
@@ -101,9 +104,13 @@ final class FamilyStore: ObservableObject {
             // Entries that have just arrived, from this phone or another.
             let arrived = Set((note.userInfo?[NSInsertedObjectsKey] as? Set<NSManagedObject> ?? [])
                 .compactMap { ($0 as? Event)?.id })
+            let many = (note.userInfo?[NSInsertedObjectsKey] as? Set<NSManagedObject> ?? []).count > 50
             MainActor.assumeIsolated {
                 guard let self else { return }
                 self.familyCache = nil
+                self.found = [:]
+                // A big batch has just come in from iCloud or an import: read it in one go.
+                if many { self.warm() }
                 self.objectWillChange.send()
                 self.mergeCopies(of: arrived)
                 self.refreshRole()
@@ -112,7 +119,33 @@ final class FamilyStore: ObservableObject {
                 LiveTimers.shared.sync(with: self)
             }
         }
+        warm()
     }
+
+    /// Answers to "which entry is the latest", kept until anything changes. Today asks these several times a
+    /// second, and each one looks through every entry the child has, which is thousands after an import.
+    private var found: [String: Event?] = [:]
+
+    private func remembered(_ what: String, for child: Child, _ find: () -> Event?) -> Event? {
+        let key = what + "|" + child.objectID.uriRepresentation().absoluteString
+        // With a change not yet saved, nothing has said so yet: look afresh, and remember nothing.
+        if context.hasChanges { return find() }
+        if let hit = found[key] { return hit }
+        let event = find()
+        found[key] = event
+        return event
+    }
+
+    /// Reads every entry from disk in one go. Without this the first look through a child's entries reads
+    /// them one at a time, which is slow enough after a big import to make the app stutter as it opens.
+    func warm() {
+        let request = NSFetchRequest<Event>(entityName: "Event")
+        request.returnsObjectsAsFaults = false
+        request.relationshipKeyPathsForPrefetching = ["children"]
+        // Held on to: Core Data forgets what nothing is holding, and would read each one again singly.
+        held = (try? context.fetch(request)) ?? []
+    }
+    private var held: [Event] = []
 
     deinit {
         if let changeObserver { NotificationCenter.default.removeObserver(changeObserver) }
@@ -235,7 +268,7 @@ final class FamilyStore: ObservableObject {
 
     /// A feed whose timer has not been finished. One per child.
     func activeFeed(for child: Child) -> Event? {
-        (child.events ?? []).first { $0.isRunningFeed }
+        remembered("feed", for: child) { (child.events ?? []).first { $0.isRunningFeed } }
     }
 
     /// Starts a side, or pauses it if it is the one running. Starting one side stops the other.
@@ -471,20 +504,33 @@ final class FamilyStore: ObservableObject {
     }
 
     func activeSleep(for child: Child) -> Event? {
-        (child.events ?? []).first { $0.kind == .sleep && $0.endedAt == nil }
+        remembered("sleep", for: child) { (child.events ?? []).first { $0.kind == .sleep && $0.endedAt == nil } }
     }
 
     func latest(_ kind: EventKind, for child: Child) -> Event? {
-        (child.events ?? [])
-            .filter { $0.kind == kind }
-            .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+        remembered("latest " + kind.rawValue, for: child) {
+            (child.events ?? [])
+                .filter { $0.kind == kind }
+                .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+        }
     }
 
     /// The most recent entry of any kind, for the status line when there is no feed yet.
     func latest(for child: Child) -> Event? {
-        (child.events ?? [])
-            .filter { $0.kind != .milestone }
-            .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+        remembered("latest", for: child) {
+            (child.events ?? [])
+                .filter { $0.kind != .milestone }
+                .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+        }
+    }
+
+    /// When the child last woke: the latest end of any sleep.
+    func lastWoke(for child: Child) -> Date? {
+        remembered("woke", for: child) {
+            (child.events ?? [])
+                .filter { $0.kind == .sleep && $0.endedAt != nil }
+                .max { ($0.endedAt ?? .distantPast) < ($1.endedAt ?? .distantPast) }
+        }?.endedAt
     }
 
     func delete(_ event: Event) {

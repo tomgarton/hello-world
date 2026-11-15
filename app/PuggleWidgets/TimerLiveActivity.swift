@@ -164,16 +164,16 @@ private struct Detail: View {
         switch state.mode {
         case "glance":
             switch (state.awakeSince, state.nappySince) {
-            case let (awake?, nappy?): (Text("Awake ") + Since.text(awake, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)).monospacedDigit()
+            case let (awake?, nappy?): (Text("Awake ") + Since.text(awake, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)).monospacedDigit()
             case let (awake?, nil): (Text("Awake ") + Since.text(awake)).monospacedDigit()
-            case let (nil, nappy?): (Text("Nappy ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
+            case let (nil, nappy?): (Text("\(Terms.nappy) ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
             default: Text("Since the last feed")
             }
         case "sleep":
             switch (state.fedSince, state.nappySince) {
-            case let (fed?, nappy?): (Text("Fed ") + Since.text(fed, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)).monospacedDigit()
+            case let (fed?, nappy?): (Text("Fed ") + Since.text(fed, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)).monospacedDigit()
             case let (fed?, nil): (Text("Fed ") + Since.text(fed) + Text(" ago")).monospacedDigit()
-            case let (nil, nappy?): (Text("Nappy ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
+            case let (nil, nappy?): (Text("\(Terms.nappy) ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
             default: if let since = state.since { Text("Since ") + Text(since, style: .time) } else { Text(state.label) }
             }
         default:
@@ -301,17 +301,17 @@ private struct SmallCard: View {
                 case "glance":
                     if let fed = state.fedSince { Text("Fed ") + Since.text(fed, narrow: true) + Text(" ago") }
                     switch (state.awakeSince, state.nappySince) {
-                    case let (awake?, nappy?): Text("Awake ") + Since.text(awake, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)
+                    case let (awake?, nappy?): Text("Awake ") + Since.text(awake, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)
                     case let (awake?, nil): Text("Awake ") + Since.text(awake, narrow: true)
-                    case let (nil, nappy?): Text("Nappy ") + Since.text(nappy, narrow: true) + Text(" ago")
+                    case let (nil, nappy?): Text("\(Terms.nappy) ") + Since.text(nappy, narrow: true) + Text(" ago")
                     default: EmptyView()
                     }
                 case "sleep":
                     if let since = state.since { Text("Asleep ") + Since.text(since, narrow: true) }
                     switch (state.fedSince, state.nappySince) {
-                    case let (fed?, nappy?): Text("Fed ") + Since.text(fed, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)
+                    case let (fed?, nappy?): Text("Fed ") + Since.text(fed, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)
                     case let (fed?, nil): Text("Fed ") + Since.text(fed, narrow: true) + Text(" ago")
-                    case let (nil, nappy?): Text("Nappy ") + Since.text(nappy, narrow: true) + Text(" ago")
+                    case let (nil, nappy?): Text("\(Terms.nappy) ") + Since.text(nappy, narrow: true) + Text(" ago")
                     default: EmptyView()
                     }
                 default:

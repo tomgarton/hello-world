@@ -35,7 +35,7 @@ Delight belongs in the pictures and movement (Puggle, the scenes, the stamps), n
 - **Never "we"** in the app. Say what the app does: "The app never suggests a dose."
 - **Tap**, never "click".
 - **Numbers**: digits, units spaced ("150 ml"), 24-hour or the phone's setting for times.
-- **Interpuncts** join short facts: "Bottle · 150 ml · formula".
+- **Interpuncts** join short facts, and each fact starts with a capital: "Bottle · 150 ml · Formula", "Awake 3h 2m · Nappy 4h" (Tom, 15 November 2026).
 
 ## Words to use and avoid
 

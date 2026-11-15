@@ -1392,3 +1392,27 @@ figure and a bar, a breakdown that opens, a plain sentence about pace, a refresh
 for the widget extension stopping on launch, what comes next on the Lock Screen card, the Last saved bar going
 after 30 seconds, iCloud sync in Settings, more time to send in the background, and the sky by the clock. The
 data model has no new fields since the schema was deployed, so nothing needs deploying for it.
+
+## After a big import: stutter, and a crash on build 7 (15 November 2026)
+
+Clara imported her Baby Tracker history, and on build 7 Puggle stuttered as it opened and then crashed while
+it was off screen. The crash report has not been read, so the cause below is the likely one, not a proven one.
+
+**What was slow.** Checked on the simulator with 150 days of entries for two children (5,400) in a store on
+disk ("-debugBig 150"; "-debugBigCold 1" shows it as it was).
+
+- Core Data read entries from disk one at a time, the first time anything looked through a child's entries:
+  at launch, and again after every batch from iCloud. About 300 ms of stalls on the Mac for this history, and
+  several times that on a phone. `FamilyStore.warm()` now reads them in one go and holds them (about 40 ms).
+- Today asked "is this child asleep, feeding, when were they last fed" several times a second, and each
+  answer looked through every entry. The answers are now kept until something changes.
+- The sync count added in build 7 ran where the screen is drawn. On leaving the screen with entries waiting,
+  build 7 counted every three seconds, each count going through every entry. This is the likely crash: iOS
+  ends an app whose main thread is busy when its background time runs out. The count is now made away from
+  the main thread, reading only ids and kinds, and every ten seconds.
+- What comes next now looks at the last eight days only.
+
+Still looking through every entry, on their own screens: History, Insights, Patterns and the growing summary.
+
+**Interpuncts.** Tom: each fact joined by an interpunct starts with a capital. "Awake 3h 2m · Nappy 4h",
+"Bottle · 150 ml · Formula", "Slept 2h · Woke once", "Feeding · Left · 12 min". In the writing guide.

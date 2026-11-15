@@ -23,7 +23,7 @@ final class FamilyStoreTests: XCTestCase {
         let events = store.logEach(.bottle, for: [ollie], at: ago(minutes: 5), amountML: 150, detail: "Formula")
         XCTAssertEqual(events.count, 1)
         XCTAssertEqual(store.latest(.bottle, for: ollie)?.amountML, 150)
-        XCTAssertEqual(store.latest(.bottle, for: ollie)?.summary, "Bottle · 150 ml · formula")
+        XCTAssertEqual(store.latest(.bottle, for: ollie)?.summary, "Bottle · 150 ml · Formula")
     }
 
     func testUndoRemovesWhatWasJustSaved() {
@@ -103,7 +103,7 @@ final class FamilyStoreTests: XCTestCase {
         sleep.addWaking(from: ago(minutes: 200), to: ago(minutes: 170))
         let asleep = sleep.asleepSeconds(from: sleep.startedAt!, to: sleep.endedAt!)
         XCTAssertEqual(asleep / 60, 250, accuracy: 1, "280 minutes in bed, 30 awake")
-        XCTAssertEqual(sleep.wokeText, "woke once")
+        XCTAssertEqual(sleep.wokeText, "Woke once")
     }
 
     func testBackToSleepCarriesOnTheSameSleepAndUndoEndsItAgain() {

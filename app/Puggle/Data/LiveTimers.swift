@@ -88,10 +88,7 @@ final class LiveTimers {
                 var state = TimerAttributes.ContentState(mode: "glance")
                 state.fedSince = lastFeed
                 state.nappySince = lastNappy
-                let woke = (child.events ?? [])
-                    .filter { $0.kind == .sleep }
-                    .compactMap(\.endedAt)
-                    .max()
+                let woke = store.lastWoke(for: child)
                 // "Awake" is for young babies, and only beside a feed: on its own it is just a clock.
                 if let woke, woke > cutoff, woke <= .now, child.ageMonths < 18, state.fedSince != nil {
                     state.awakeSince = woke

@@ -68,7 +68,9 @@ enum NextUp {
     }
 
     static func soonest(for child: Child, now: Date = .now) -> Guess? {
-        let events = (child.events ?? []).filter(\.isLive)
+        // Only the last week and a day is looked at, so a long history costs nothing more.
+        let from = now.addingTimeInterval(-(days + 1) * 86400)
+        let events = (child.events ?? []).filter { ($0.startedAt ?? .distantPast) > from && $0.isLive }
         let feeds = events.filter { $0.kind == .bottle || $0.kind == .breastfeed }.compactMap(\.startedAt)
         let sleeps = events.filter { $0.kind == .sleep }.compactMap { event in event.startedAt.map { (start: $0, end: event.endedAt) } }
         let nappies = child.uses(.nappy) ? events.filter { $0.kind == .nappy }.compactMap(\.startedAt) : []

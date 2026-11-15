@@ -35,7 +35,7 @@ enum WidgetFeed {
                 lastFeedText: feed?.brief,
                 lastNappy: store.latest(.nappy, for: child)?.startedAt,
                 usesNappies: child.uses(.nappy),
-                lastWoke: (child.events ?? []).filter { $0.kind == .sleep }.compactMap(\.endedAt).max())
+                lastWoke: store.lastWoke(for: child))
         }
         WidgetSnapshot(children: rows, updatedAt: .now).save()
         WidgetCenter.shared.reloadAllTimelines()

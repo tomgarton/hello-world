@@ -110,7 +110,7 @@ extension FamilyStore {
             return (name, next)
         }
         guard let soonest = upcoming.min(by: { $0.1 < $1.1 }) else { return nil }
-        return "\(soonest.0) · from \(soonest.1.formatted(date: .omitted, time: .shortened))"
+        return "\(soonest.0) · From \(soonest.1.formatted(date: .omitted, time: .shortened))"
     }
 }
 
