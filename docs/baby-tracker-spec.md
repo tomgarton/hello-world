@@ -1934,3 +1934,30 @@ seven rows. In the simulator with the sample family: the line on Today and the c
 (`docs/previews/today/milk-today.png`). **Not checked: reading a real tin on a phone.** The full photo on the
 phone is sharper than the screenshots used here and may read more digits or different ones; other brands'
 tables have not been tried.
+
+## The top of Today: greeting and one line (15 November 2026, night)
+
+Tom, asked one by one before the next build:
+
+- **Heading:** a greeting by time of day, with the name when it is set. "Morning, Tom" from 5, "Afternoon,
+  Tom" from 12, "Evening, Tom" from 5 pm, and a plain "Hello, Tom" from 10 pm to 5 am. No date.
+- **The line under it** says one thing at a time, in place of "22 things logged today". Tom chose last
+  night's sleep, the day in numbers, who is asleep or feeding, and "anything else important to see at a
+  glance". Not chosen: what comes next (each card has its own line for that).
+- **An empty day** shows the weather, if it is switched on.
+
+**Built** (`Features/Today/TodayHeading.swift`). The line is the first of these that applies:
+
+1. A regular medicine that is due: "Due for Ollie · Calpol · 14:00". This is the "anything else important".
+2. Who is asleep: "Bea has been asleep for 40 min.", or "Bea and Ollie are asleep."
+3. Who is feeding: "Ollie is feeding."
+4. From 5 to 10 in the morning, last night's sleep: "Ollie slept 9h 20m last night · Woke twice".
+5. The day in numbers, a line for each child with anything logged, three at most: "Ollie: 6 feeds, 510 ml ·
+   1 meal · 8h 57m asleep · 4 nappies". The same counts the widgets show.
+6. Nothing logged yet: the weather, if it is on and under three hours old: "18° and raining outside." The
+   temperature is now kept with the weather for this. With the weather off, nothing.
+
+"Just logging" says only who is asleep. 92 tests pass (five new). Seen in the simulator at 8 am, 2 pm and
+11 pm with the sample family (`docs/previews/today/heading.png`). The weather line has not been seen: the
+simulator build has no weather service. With two children the numbers run to three lines of text, which
+pushes the cards down; that may want shortening once it has been lived with.

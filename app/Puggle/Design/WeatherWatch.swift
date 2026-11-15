@@ -19,6 +19,8 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
     /// The last weather found, as a `Weather` raw value, and when.
     static let liveKey = "liveWeather"
     static let liveAtKey = "liveWeatherAt"
+    /// The temperature that went with it, in Celsius, for the line at the top of Today.
+    static let degreesKey = "liveDegrees"
     /// Today's sunrise and sunset where the family is, as seconds since 1970, for the scene's sky.
     nonisolated static let sunriseKey = "liveSunrise"
     nonisolated static let sunsetKey = "liveSunset"
@@ -69,6 +71,16 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
         return age < 3 * 3600 ? real : .clear
     }
 
+    /// The real weather in words for the top of Today, if it is on and under three hours old: "18° and
+    /// raining outside." Nil when the weather is off or stale; a made-up fine day is not reported.
+    static func words(now: Date = .now) -> String? {
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: onKey), let kind = Weather(rawValue: defaults.string(forKey: liveKey) ?? ""),
+              now.timeIntervalSince1970 - defaults.double(forKey: liveAtKey) < 3 * 3600 else { return nil }
+        let degrees = defaults.object(forKey: degreesKey) as? Double
+        return TodayHeading.weather(kind, degrees: degrees.map { Int(Units.temperatureValue($0).rounded()) })
+    }
+
     /// Switched on in Settings: ask for the location, then look.
     func turnOn() {
         UserDefaults.standard.set(true, forKey: Self.onKey)
@@ -80,6 +92,7 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
         UserDefaults.standard.set(false, forKey: Self.onKey)
         UserDefaults.standard.removeObject(forKey: Self.liveKey)
         UserDefaults.standard.removeObject(forKey: Self.liveAtKey)
+        UserDefaults.standard.removeObject(forKey: Self.degreesKey)
         UserDefaults.standard.removeObject(forKey: Self.sunriseKey)
         UserDefaults.standard.removeObject(forKey: Self.sunsetKey)
         trouble = nil
@@ -138,6 +151,7 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
                 UserDefaults.standard.set(set.timeIntervalSince1970, forKey: Self.sunsetKey)
             }
             UserDefaults.standard.set(found.rawValue, forKey: Self.liveKey)
+            UserDefaults.standard.set(now.temperature.converted(to: .celsius).value, forKey: Self.degreesKey)
             UserDefaults.standard.set(Date.now.timeIntervalSince1970, forKey: Self.liveAtKey)
             trouble = nil
             troubleDetail = nil

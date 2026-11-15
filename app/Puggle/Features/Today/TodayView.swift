@@ -358,37 +358,42 @@ struct TodayView: View {
         }
     }
 
-    /// The greeting as the heading, and one plain line about the day under it: what is happening, or how the
-    /// night went in the morning. Nothing to do and nothing to beat. The date is not shown: the phone has it.
+    /// The greeting as the heading, and one line under it: see `TodayHeading` for what it chooses from.
     private var headerWords: (title: String, line: String) {
-        let hour = Calendar.current.component(.hour, from: .now)
-        let greeting = switch hour {
-        case 5..<12: "Morning"
-        case 12..<17: "Afternoon"
-        case 17..<22: "Evening"
-        default: "Hello"
+        let hour = Room.hourNow
+        let hello = TodayHeading.greeting(hour: hour, name: yourName)
+        guard !children.isEmpty else { return (hello, "") }
+        let now = Date.now
+        var facts = TodayHeading.Facts()
+        facts.asleep = children.compactMap { child in
+            guard let sleep = store.activeSleep(for: child), let start = sleep.startedAt else { return nil }
+            return (child.displayName, justLog ? nil : Elapsed.short(seconds: sleep.asleepSeconds(from: start, to: now)))
         }
-        let name = yourName.trimmingCharacters(in: .whitespaces)
-        let hello = name.isEmpty ? greeting : "\(greeting), \(name)"
-        guard !justLog, !children.isEmpty else { return (hello, "") }
-        let asleep = children.filter { store.activeSleep(for: $0) != nil }.map(\.displayName)
-        if !asleep.isEmpty {
-            return (hello, "\(ListFormatter.localizedString(byJoining: asleep)) \(asleep.count == 1 ? "is" : "are") asleep.")
+        // "Just logging" counts nothing, so it says only who is asleep or feeding.
+        guard !justLog else { return (hello, TodayHeading.line(facts)) }
+        facts.due = children.compactMap { child in
+            ReminderStore.shared.due(for: child, in: store, now: now).map { "Due for \(child.displayName) · \($0)" }
         }
-        // In the morning: the longest sleep that ended today, for the first child who had one.
-        if hour < 12 {
-            let today = Calendar.current.startOfDay(for: .now)
+        facts.feeding = children.filter { store.activeFeed(for: $0) != nil }.map(\.displayName)
+        // Early in the morning: the longest sleep that ended today, for the first child who had one.
+        if TodayHeading.isEarly(hour: hour) {
+            let today = Calendar.current.startOfDay(for: now)
             for child in children {
                 let night = (child.events ?? [])
-                    .filter { $0.kind == .sleep && ($0.endedAt ?? .distantPast) >= today }
-                    .max { ($0.endedAt ?? .now).timeIntervalSince($0.startedAt ?? .now) < ($1.endedAt ?? .now).timeIntervalSince($1.startedAt ?? .now) }
+                    .filter { $0.kind == .sleep && $0.isLive && ($0.endedAt ?? .distantPast) >= today }
+                    .max { ($0.endedAt ?? now).timeIntervalSince($0.startedAt ?? now) < ($1.endedAt ?? now).timeIntervalSince($1.startedAt ?? now) }
                 if let night, let start = night.startedAt, let end = night.endedAt, end.timeIntervalSince(start) >= 3 * 3600 {
-                    return (hello, "\(child.displayName) slept \(Elapsed.short(seconds: night.asleepSeconds(from: start, to: end))) last night.")
+                    let slept = Elapsed.short(seconds: night.asleepSeconds(from: start, to: end))
+                    facts.lastNight = "\(child.displayName) slept \(slept) last night" + (night.wokeText.map { " · \($0)" } ?? ".")
+                    break
                 }
             }
         }
-        let count = children.reduce(0) { $0 + store.events(for: $1, since: Calendar.current.startOfDay(for: .now)).count }
-        return (hello, count == 0 ? "" : "\(count) \(count == 1 ? "thing" : "things") logged today.")
+        facts.numbers = children.compactMap { child in
+            WidgetFeed.today(for: child, in: store, now: now).map { "\(child.displayName): \($0)" }
+        }
+        facts.weather = WeatherWatch.words(now: now)
+        return (hello, TodayHeading.line(facts))
     }
 
     @ViewBuilder private var emptyState: some View {
