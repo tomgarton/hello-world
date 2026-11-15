@@ -40,7 +40,7 @@ def block(title, text, spec, simple):
 def main():
     now = M.ICONS['breastfeed']
     body = block('In the app now', 'The current drawing, for comparison.', now, M.small(now))
-    for key, (spec, simple, title, text) in M.SYMBOL.items():
+    for key, (spec, simple, title, text) in list(M.HELD.items()) + list(M.SYMBOL.items()):
         body += block(title, text, spec, simple)
     html = f'''<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Breastfeeding, after the symbol</title><style>
 body{{margin:0;padding:30px;background:#EFE7D4;font:15px/1.4 -apple-system,system-ui,sans-serif;color:#3A2A20;width:760px}}
@@ -53,8 +53,8 @@ section{{margin-top:26px;padding-top:22px;border-top:1px solid #D9CFB8}}
 .tiles{{display:flex;gap:8px;margin-top:12px;padding:10px;border-radius:22px}}.tiles.dk{{background:#141110}}
 .tile{{width:140px;height:96px;border-radius:20px;background:#FBF6E9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}}
 .tile b{{font-size:14px}}.dk .tile{{background:#2A2420;color:#EBDDC4}}
-</style></head><body><h1>Breastfeeding, after the symbol</h1>
-<div class="lede"><div class="big">{REF}</div><p>The International Breastfeeding Symbol, by Matt Daigle, 2006. Its maker gave it to the public domain, so it can be used and redrawn. Below, it is redrawn for this set: the set&rsquo;s line and weight, round ends, and one spot of colour. Each is shown in light and dark, in the small sizes, in one colour for lists, and on Today tiles beside the bottle, nappy, sleep and solids icons.</p></div>
+</style></head><body><h1>Breastfeeding, a parent and baby</h1>
+<div class="lede"><div class="big">{REF}</div><p>The International Breastfeeding Symbol, by Matt Daigle, 2006. Its maker gave it to the public domain, so it can be used and redrawn. Below, after the current icon, are three of a parent holding a wrapped baby and then the symbol redrawn four ways, all for this set: the set&rsquo;s line and weight, round ends, and one spot of colour. Each is shown in light and dark, in the small sizes, in one colour for lists, and on Today tiles beside the bottle, nappy, sleep and solids icons.</p></div>
 {body}</body></html>'''
     out = os.path.join(M.OUT, 'breastfeeding-symbol.html')
     open(out, 'w').write(html)

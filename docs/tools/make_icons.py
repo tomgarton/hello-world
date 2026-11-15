@@ -364,6 +364,26 @@ SYMBOL = {
 }
 
 
+# A parent holding a wrapped baby (15 November 2026), after a stock line drawing Tom liked: its idea, with the
+# neckline, the sling's folds, the ear and the baby's face left out. Hair is a fine line, gone when small.
+HELD_HEAD = circle(16, 7.2, 4.3)
+HELD_HAIR = 'M11.9 6.3C13.9 6.6 15.6 5.5 16.3 3.4C17 5.3 18.4 6.3 20.1 6.3'
+HELD_LEFT = 'M12.2 14.6C8 14.6 5.2 17.4 5.2 21.6V25'
+HELD_RIGHT = 'M19.8 14.6C24 14.6 26.8 17.4 26.8 21.6C26.8 25.6 23.4 28 18.6 28H12.4C10.4 28 9 27.2 8.2 26'   # the shoulder runs on into the forearm
+HELD_BUB = circle(20.2, 20.5, 3.0)
+HELD_WRAP = 'M17.3 19.5C13.6 18.7 10 20.3 8.6 23.5C11.6 24.9 15.4 24.7 18.2 22.9'
+HELD = {
+    'held': (icon([HELD_HEAD, HELD_LEFT, HELD_RIGHT, HELD_BUB, HELD_WRAP], fine=[HELD_HAIR], box=32, weight=BIG, wattle=[HELD_WRAP + 'Z']),
+             icon([HELD_HEAD, HELD_LEFT, HELD_RIGHT, HELD_BUB, HELD_WRAP], box=32, weight=SMALL, wattle=[HELD_WRAP + 'Z']),
+             'Held, wrap in colour', 'Head with a parting, shoulders, and one arm that runs on under a wrapped baby. The wrap carries the colour.'),
+    'held-baby': (icon([HELD_HEAD, HELD_LEFT, HELD_RIGHT, HELD_BUB, HELD_WRAP], fine=[HELD_HAIR], box=32, weight=BIG, wattle=[HELD_BUB, HELD_WRAP + 'Z']),
+                  icon([HELD_HEAD, HELD_LEFT, HELD_RIGHT, HELD_BUB, HELD_WRAP], box=32, weight=SMALL, wattle=[HELD_BUB, HELD_WRAP + 'Z']),
+                  'Held, baby in colour', 'The same, with the whole baby in colour.'),
+    'held-line': (icon([HELD_HEAD, HELD_LEFT, HELD_RIGHT, HELD_BUB, HELD_WRAP], fine=[HELD_HAIR, 'M12.6 20.5C13 21.7 13 22.9 12.6 23.9'], box=32, weight=BIG, wattle=[HELD_BUB]),
+                  icon([HELD_HEAD, HELD_LEFT, HELD_RIGHT, HELD_BUB, HELD_WRAP], box=32, weight=SMALL, wattle=[HELD_BUB]),
+                  'Held, in line', 'Nearest the drawing it came from: the wrap in line with one fold, and only the baby\u2019s head in colour.'),
+}
+
 def small(spec):
     """The drawing for lists and anything under 24 points: no eye, ear or fold, and a heavier line."""
     return spec if spec['box'] == 24 else dict(spec, fine=[], weight=SMALL)
@@ -384,7 +404,7 @@ def alternates():
                   f'<div class="tiles"><div class="tile">{art(spec, size=40)}<b>Breastfeed</b><span>12:10</span></div></div>'
                   f'<h3>{title}</h3><p>{text}</p></div>')
     after = ''
-    for key, (spec, simple, title, text) in SYMBOL.items():
+    for key, (spec, simple, title, text) in list(SYMBOL.items()) + list(HELD.items()):
         open(os.path.join(folder, f'icon-breastfeed-{key}.svg'), 'w').write(art(spec))
         open(os.path.join(folder, f'icon-breastfeed-{key}-small.svg'), 'w').write(art(simple))
         row = art(spec, size=32) + ''.join(art(simple, size=s) for s in (24, 17))
@@ -408,8 +428,8 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
 <p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
 <div class="g">{cells}</div>
-<h2>After the International Breastfeeding Symbol</h2><p>Four more, added 15 November 2026. The symbol (Matt Daigle, 2006) was given to the public domain by its maker. These are drawn for this set: its line, its weight and one colour.</p>
-<div class="g" style="margin-top:14px">{after}</div>
+<h2>After the International Breastfeeding Symbol</h2><p>Four after the symbol (Matt Daigle, 2006, given to the public domain by its maker) and three of a parent holding a wrapped baby, added 15 November 2026. All are drawn for this set: its line, its weight and one colour.</p>
+<div class="g" style="margin-top:14px;flex-wrap:wrap">{after}</div>
 <h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
     open(os.path.join(OUT, 'breastfeeding.html'), 'w').write(html)
 

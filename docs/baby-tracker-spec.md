@@ -1725,3 +1725,11 @@ smaller than the bottle beside it; if one is chosen it is worth drawing it a tou
 **To look at.** `docs/previews/icons/breastfeeding-symbol.png` (each beside the bottle, nappy, sleep and
 solids icons on tiles, in light and dark) and `breastfeeding.png` (all the choices). The sheet is made by
 `docs/tools/make_breastfeed_symbol_sheet.py`.
+
+**A parent holding a wrapped baby (later, 15 November 2026).** Tom sent a stock line drawing of a parent with a
+swaddled baby and asked whether it was too detailed. As drawn, yes: the neckline, the sling's folds, the ear
+and the baby's face would close up at 40 points and vanish at 17. Its idea is drawn afresh for the set as
+`HELD` in `make_icons.py` (the stock drawing is not copied or kept): a head with a parting in a fine line,
+shoulders, one arm that runs on under the baby, and a wrapped baby. Three versions: the wrap in colour, the
+whole baby in colour, and in line with one fold. Under 24 points the parting and fold are left out. On a
+tile these are busier than the symbol versions; large, they are warmer. Not decided; on the same sheets.
