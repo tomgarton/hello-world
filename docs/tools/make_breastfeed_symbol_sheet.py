@@ -90,6 +90,23 @@ def faces():
     print('wrote', out)
 
 
+
+def eyes():
+    """The eye options side by side, so they can be compared at a glance (15 November 2026)."""
+    cols = ''
+    for key, name in (('none', 'No faces'), ('tummy', 'Dot on both'), ('tummy-baby', 'Dot on baby'), ('lids', 'Pair on baby'), ('pairs', 'Pair on each')):
+        spec = M.NURSE_FACES[key][0]
+        tile = lambda draw, cls: f'<div class="tiles {cls}" style="margin-top:8px;padding:8px"><div class="tile" style="width:124px">{draw(spec, 40)}<b>Breastfeed</b></div></div>'
+        cols += (f'<div><div class="big" style="width:140px;height:140px">{light(spec, 120)}</div>'
+                 f'<div class="big dk" style="width:140px;height:140px;margin-top:8px">{dark(spec, 120)}</div>'
+                 f'{tile(light, "")}{tile(dark, "dk")}<h2 style="font-size:15px;margin-top:8px;text-align:center">{name}</h2></div>')
+    html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
+    out = os.path.join(M.OUT, 'breastfeeding-eyes.html')
+    open(out, 'w').write(f'{html[:html.index("<body>")]}<body><h1>Breastfeeding, the eyes</h1><p>Five ways, side by side: large in light and dark, then on a tile at the size the app uses.</p><div style="display:flex;gap:12px;margin-top:18px">{cols}</div></body></html>')
+    print('wrote', out)
+
+
 if __name__ == '__main__':
     runners()
     faces()
+    eyes()

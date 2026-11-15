@@ -423,6 +423,7 @@ NURSE_FACES = {
     'tummy-baby': (nurse([lid(14.6, 11.4, 1.3, 1.0, 14)], [circle(17.5, 18.3, 1.0)]), 'Tummy time\u2019s eye on the baby', 'The baby has the dot. The parent keeps one closed lid, looking down.'),
     **NURSE_FACES,
 }
+NURSE_FACES['none'] = (nurse([]), 'No faces', 'Nothing on either face, as the small sizes already are. The hair, the tucked-in baby and the arm carry it.')
 ALTERNATES['held-refined'] = (NURSE_FACES['tummy'][0], 'Parent and baby, refined',
                               'The chosen drawing with its lines cleaned up: no eye touches an edge, no lines pile up under the baby, and the body line finishes under the baby\u2019s head.')
 

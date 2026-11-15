@@ -1785,3 +1785,7 @@ Not decided; not installed.
 set to the side the head faces. Two more in `NURSE_FACES`: the dot on both (now the drawing's face), and
 the dot on the baby with the parent's closed lid kept. A dot cannot be read as a mouth, and it ties the
 drawing to tummy time. `breastfeeding-eyes.png` shows the two. Not decided; not installed.
+
+**The eyes, side by side (later, 15 November 2026).** Tom is unsure about the eyes. `NURSE_FACES['none']`
+adds the drawing with no faces, and `breastfeeding-eyes.png` now sets five side by side (no faces, dot on
+both, dot on baby, pair on baby, pair on each), large in light and dark and on a tile. Not decided.
