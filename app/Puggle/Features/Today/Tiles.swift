@@ -381,10 +381,8 @@ struct PuggleHeader: View {
                     .displayFont(28)
                     .foregroundStyle(Palette.ink)
                 if !line.isEmpty {
-                    Text(line)
-                        .font(.body)
-                        .foregroundStyle(Palette.muted)
-                        .fixedSize(horizontal: false, vertical: true)
+                    // One row: several lines take turns, and a long one slides along.
+                    GlanceLine(lines: line.split(separator: "\n").map(String.init))
                 }
             }
             .accessibilityElement(children: .combine)

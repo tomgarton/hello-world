@@ -1961,3 +1961,12 @@ Tom, asked one by one before the next build:
 11 pm with the sample family (`docs/previews/today/heading.png`). The weather line has not been seen: the
 simulator build has no weather service. With two children the numbers run to three lines of text, which
 pushes the cards down; that may want shortening once it has been lived with.
+
+**The line stays on one row (later the same night).** Tom: with two children the day in numbers could show
+them one after another, or scroll like a long song title in Music. It does both (`GlanceLine` in
+`Features/Today/GlanceLine.swift`): each child's line takes its turn, fading to the next after about four
+and a half seconds; a line too long for the row waits, slides to its end at reading pace, rests, then gives
+way. The edge it runs off is soft. A single line that fits stays still. With Reduce Motion on, or at the
+largest text sizes, nothing moves and every line is shown in full, wrapped. VoiceOver reads all of it at
+once. Seen in a recording from the simulator (`docs/previews/today/heading-line.gif`); Reduce Motion and
+the largest text sizes not seen.
