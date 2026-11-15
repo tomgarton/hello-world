@@ -1596,3 +1596,8 @@ and `light-potty.png`.
 The larger drawing now has two short curved creases across the front, as the reference has, and the
 waistband seam and upright fold are gone. Risk noted: with the two tabs above them, the curves can read as
 eyes and a smile. Two short straight dashes would avoid that if it bothers.
+
+**The nappy, with a waistband (15 November 2026).** Tried after looking at how a nappy maker draws one
+(Tooshies; looked at only, nothing copied): a waistband joining the tops of the two tabs, and nothing in the
+middle. The curved creases are gone, and with them the face. Tooshies' own SVGs are only interface icons;
+its drawn icons are PNGs.
