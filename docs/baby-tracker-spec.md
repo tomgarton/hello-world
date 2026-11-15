@@ -1789,3 +1789,11 @@ drawing to tummy time. `breastfeeding-eyes.png` shows the two. Not decided; not 
 **The eyes, side by side (later, 15 November 2026).** Tom is unsure about the eyes. `NURSE_FACES['none']`
 adds the drawing with no faces, and `breastfeeding-eyes.png` now sets five side by side (no faces, dot on
 both, dot on baby, pair on baby, pair on each), large in light and dark and on a tile. Not decided.
+
+**Settled, bar installing (later, 15 November 2026).** Tom: no faces, and the baby's head must not touch the
+parent's. `NURSE_APART` in `make_icons.py` is now `ALTERNATES['held-refined']`: hair in colour, no faces, the
+baby a little smaller, lower and further out, clear of the chin by about a line's width, the body line
+running on under it and the forearm stopping short. The tucked-in version is kept as `held-tucked`, and the
+face options keep the tucked-in baby they were drawn on. `breastfeeding-runners.png` shows it with the
+current icon. Not installed: that needs its draw-on stroke order, the widget glyph, and a decision on the
+skin tone setting, which this drawing has no use for.

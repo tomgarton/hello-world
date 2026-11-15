@@ -69,14 +69,14 @@ def runners():
     """The short list (15 November 2026): the earlier 'Parent and baby', the symbol in line, and held with the wrap in colour."""
     now = M.ICONS['breastfeed']
     body = block('In the app now', 'The current drawing, for comparison.', now, M.small(now))
-    for key in ('held-refined', 'held-wrap', 'held-hair'):
+    for key in ('held-refined', 'held-tucked', 'held-hair'):
         spec, title, text = M.ALTERNATES[key]
         if key == 'held-hair': title, text = 'Before any refining', 'Parent and baby, hair in colour, as it was.'
         body += block(title, text, spec, M.small(spec))
     html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
     head = html[:html.index('<body>')]
     out = os.path.join(M.OUT, 'breastfeeding-runners.html')
-    open(out, 'w').write(f'{head}<body><h1>Breastfeeding, the short list</h1><p>The one chosen, Parent and baby with hair in colour, refined. Shown with the current icon and as it was before, in light and dark, small, in one colour, and on Today tiles.</p>{body}</body></html>')
+    open(out, 'w').write(f'{head}<body><h1>Breastfeeding, the short list</h1><p>The one chosen: Parent and baby, hair in colour, no faces, the two heads apart. Shown with the current icon, with the heads touching, and as it was before any refining, in light and dark, small, in one colour, and on Today tiles.</p>{body}</body></html>')
     print('wrote', out)
 
 
