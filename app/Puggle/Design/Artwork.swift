@@ -139,14 +139,17 @@ struct PuggleStanding: View {
     }
 }
 
-/// The logotype: lowercase, in the display face. Only on the splash, the icon and Help.
+/// The wordmark: six drawn letters, lower case (chosen 15 November 2026). It is a picture, not type,
+/// so no other word is set in it. Only on the splash, the welcome page and Help.
+/// `size` is the size of type it stands in for, so it sits where the typeset name did.
 struct Wordmark: View {
     var size: CGFloat = 44
 
     var body: some View {
-        Text("puggle")
-            .displayFont(size)
-            .tracking(-size * 0.04)
+        Image("Wordmark")
+            .resizable()
+            .scaledToFit()
+            .frame(height: size * 0.95)
             .foregroundStyle(Palette.ink)
             .accessibilityLabel("Puggle")
     }

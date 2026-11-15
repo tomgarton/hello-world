@@ -1,7 +1,9 @@
 """Builds the brand book PDF from the design canvas boards (15 November 2026).
 
-One page per board from design/canvas/project, under a strip with its section and title, with a cover, a
-contents page, a divider for each section and the rules at the end. Section 7 ("In the app now") is carried
+Every page is the same size, 1080 by 1527 (the proportions of A4, upright). Each board from design/canvas/project
+sits under a strip with its section and title. Short boards that follow each other in a section share a page; a
+board too tall for the page is drawn smaller to fit. There is a cover, a contents page, a divider for each section
+and the rules at the end. Section 7 ("In the app now") is carried
 over from the 14 November PDF as it was: those pages were pictures saved by the app's build, not boards.
 
     python3 docs/tools/build_brand_pdf.py            # writes docs/brand/Puggle-brand-<date>.pdf
@@ -17,6 +19,7 @@ CANVAS = os.path.join(REPO, 'design', 'canvas')
 OLD = os.path.join(REPO, 'docs', 'brand', 'Puggle-brand-2026-11-14.pdf')
 DATE, STAMP = '15 November 2026', '2026-11-15'
 OUT = os.path.join(REPO, 'docs', 'brand', f'Puggle-brand-{STAMP}.pdf')
+PAGE_H = 1527
 CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 sys.path.insert(0, os.path.join(CANVAS, 'gen'))
 import rig
@@ -76,95 +79,133 @@ OPEN = ["The mark that goes with the wordmark: an exploration is under way in th
         'The large icon drawings are not in the app yet.']
 
 
-def page(body, height, extra=''):
+def page(body, height=PAGE_H, extra='', ground='#F2ECDD'):
     return (f'<!doctype html><html lang="en"><head><meta charset="utf-8">{FONT}<style>@page{{size:1080px {height}px;margin:0}}'
             f'html,body{{margin:0;-webkit-print-color-adjust:exact;print-color-adjust:exact}}a{{color:#2A1F18}}{extra}</style></head>'
-            f'<body><div style="width: 1080px; height: {height}px; overflow: hidden">{body}</div></body></html>')
+            f'<body><div style="width: 1080px; height: {height}px; overflow: hidden; background: {ground}">{body}</div></body></html>')
+
+
+def strip(section, number, title, note):
+    return (f'<div style="height: 63px; box-sizing: border-box; background: #FBF6E9; border-top: 1px solid #E4DCC8; border-bottom: 1px solid #E4DCC8; padding: 0 48px; display: flex; align-items: center; gap: 14px; {BASE}">'
+            f'<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #5A4636; white-space: nowrap">{number}. {section}</div>'
+            f'<div style="font-size: 14px; font-weight: 800; white-space: nowrap">{title}</div>'
+            f'<div style="font-size: 13px; font-weight: 500; color: #5A4636">{note}</div></div>')
 
 
 def board(name, section, number, note, boards):
+    """One board under its strip, and how tall the two are. A board too tall for a page is drawn smaller."""
     text = open(os.path.join(CANVAS, 'project', f'{name}.dc.html')).read()
     inner = re.sub(r'<helmet>.*?</helmet>', '', text[text.index('<x-dc>') + 6:text.index('</x-dc>')], flags=re.S)
     info = boards[f'{name}.dc.html']
-    strip = (f'<div style="height: 63px; box-sizing: border-box; background: #FBF6E9; border-bottom: 1px solid #E4DCC8; padding: 0 48px; display: flex; align-items: center; gap: 14px; {BASE}">'
-             f'<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #5A4636; white-space: nowrap">{number}. {section}</div>'
-             f'<div style="font-size: 14px; font-weight: 800; white-space: nowrap">{info["title"]}</div>'
-             f'<div style="font-size: 13px; font-weight: 500; color: #5A4636">{note}</div></div>')
-    return page(strip + inner, info['h'] + 63)
+    room = PAGE_H - 63
+    if info['h'] > room:
+        k = room / info['h']
+        note = (note + ' ' if note else '') + f'Shown at {round(k * 100)}% to fit the page.'
+        inner = (f'<div style="width: 1080px; height: {room}px; overflow: hidden"><div style="width: 1080px; height: {info["h"]}px; transform: scale({k:.4f}); transform-origin: top left; margin-left: {(1080 - 1080 * k) / 2:.1f}px">{inner}</div></div>')
+    return strip(section, number, info['title'], note) + inner, 63 + min(info['h'], room)
+
+
+def packed(items):
+    """Boards in order, as many to a page as fit."""
+    pages, now, used = [], '', 0
+    for markup, height in items:
+        if now and used + height > PAGE_H: pages.append(now); now, used = '', 0
+        now += markup; used += height
+    return pages + ([now] if now else [])
 
 
 def divider(number, title, about):
-    return page(f'<div style="width: 1080px; height: 420px; box-sizing: border-box; background: #2A62B8; padding: 150px 72px 0; {BASE}; color: #FBF6E9">'
-                f'<div style="font-size: 20px; font-weight: 700">Section {number}</div><div style="font-size: 56px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1">{title}</div>'
-                f'<div style="font-size: 17px; font-weight: 500; margin-top: 14px; max-width: 860px; line-height: 1.4">{about}</div></div>', 420)
+    return page(f'<div style="width: 1080px; height: {PAGE_H}px; box-sizing: border-box; padding: 620px 72px 0; {BASE}; color: #FBF6E9">'
+                f'<div style="font-size: 300px; font-weight: 800; line-height: 1; position: absolute; left: 60px; top: 60px; opacity: 0.16">{number}</div>'
+                f'<div style="font-size: 22px; font-weight: 700">Section {number}</div><div style="font-size: 84px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; max-width: 900px">{title}</div>'
+                f'<div style="font-size: 20px; font-weight: 500; margin-top: 22px; max-width: 760px; line-height: 1.4">{about}</div></div>', ground='#2A62B8')
 
 
 def cover():
     wave = rig.render(**rig.key('greet', 0.52))
-    return page(f'<div style="width: 1080px; height: 760px; box-sizing: border-box; background: #F4BE2C; padding: 84px 72px; position: relative; {BASE}">'
-                f'<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="puggle" width="430" height="145" viewBox="65 90 688 232" style="margin-left: -6px">{WORDMARK}</svg>'
-                f'<div style="font-size: 30px; font-weight: 700; margin-top: 22px">The brand so far</div>'
-                f'<div style="font-size: 16px; font-weight: 500; margin-top: 12px; max-width: 460px; line-height: 1.4">Name and logo, colour and type, Puggle and her family, icons and stickers, and the world they live in.</div>'
-                f'<div style="position: absolute; left: 72px; bottom: 60px; font-size: 14px; font-weight: 700">{DATE} · Working document</div>'
-                f'<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Puggle waving" width="400" height="500" viewBox="0 0 240 300" style="position: absolute; right: 90px; bottom: 50px">{wave}</svg></div>', 760)
+    return page(f'<div style="width: 1080px; height: {PAGE_H}px; box-sizing: border-box; padding: 110px 72px; position: relative; {BASE}">'
+                f'<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="puggle" width="640" height="216" viewBox="65 90 688 232" style="margin-left: -9px">{WORDMARK}</svg>'
+                f'<div style="font-size: 40px; font-weight: 700; margin-top: 26px">The brand so far</div>'
+                f'<div style="font-size: 19px; font-weight: 500; margin-top: 14px; max-width: 520px; line-height: 1.4">Name and logo, colour and type, Puggle and her family, icons and stickers, and the world they live in.</div>'
+                f'<div style="position: absolute; left: 72px; bottom: 72px; font-size: 16px; font-weight: 700">{DATE} · Working document</div>'
+                f'<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Puggle waving" width="640" height="800" viewBox="0 0 240 300" style="position: absolute; right: 60px; bottom: 60px">{wave}</svg></div>', ground='#F4BE2C')
 
 
 def contents(rows):
     lines = ''.join(f'<div style="display: flex; gap: 30px; padding: 16px 0; border-top: 1px solid #DDD2BC"><div style="width: 22px; font-size: 17px; font-weight: 800">{i}</div>'
                     f'<div><div style="font-size: 18px; font-weight: 800">{t}</div><div style="font-size: 14px; font-weight: 500; color: #4A3B30; margin-top: 3px; max-width: 800px; line-height: 1.4">{a}</div></div></div>'
                     for i, (t, a) in enumerate(rows, 1))
-    return page(f'<div style="width: 1080px; height: 1000px; box-sizing: border-box; background: #F2ECDD; padding: 64px 72px; {BASE}">'
+    return page(f'<div style="width: 1080px; height: {PAGE_H}px; box-sizing: border-box; padding: 110px 72px; {BASE}">'
                 f'<div style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em">What\'s inside</div>'
                 f'<div style="font-size: 15px; font-weight: 500; color: #4A3B30; margin: 14px 0 30px; max-width: 820px; line-height: 1.45">Each page is a board from the design canvas, as it stood on {DATE}. '
-                f'A note beside a page title says where a board is behind. Since the last edition (14 November): Puggle has her lick of hair and always faces the viewer, the wordmark is chosen, and the app icon and the activity icons have pages of their own.</div>{lines}</div>', 1000)
+                f'Every page is one size; short boards share a page and a few tall ones are drawn smaller. A note beside a page title says where a board is behind. Since the last edition (14 November): Puggle has her lick of hair and always faces the viewer, the wordmark is chosen, and the app icon and the activity icons have pages of their own.</div>{lines}</div>')
 
 
 def rules():
-    rows = ''.join(f'<div style="display: flex; gap: 30px; padding: 18px 0; border-top: 1px solid #DDD2BC"><div style="width: 200px; flex: none; font-size: 17px; font-weight: 800">{a}</div>'
-                   f'<div style="font-size: 16px; font-weight: 500; line-height: 1.45">{b}</div></div>' for a, b in RULES)
+    rows = ''.join(f'<div style="display: flex; gap: 30px; padding: 13px 0; border-top: 1px solid #DDD2BC"><div style="width: 200px; flex: none; font-size: 16px; font-weight: 800">{a}</div>'
+                   f'<div style="font-size: 15px; font-weight: 500; line-height: 1.4">{b}</div></div>' for a, b in RULES)
     still = ''.join(f'<li style="margin: 8px 0">{t}</li>' for t in OPEN)
-    return page(f'<div style="width: 1080px; height: 1680px; box-sizing: border-box; background: #F2ECDD; padding: 64px 72px; {BASE}">'
+    return page(f'<div style="width: 1080px; height: {PAGE_H}px; box-sizing: border-box; padding: 80px 72px; {BASE}">'
                 f'<div style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 26px">Rules</div>{rows}'
-                f'<div style="font-size: 24px; font-weight: 800; margin: 44px 0 10px">Still open</div><ul style="margin: 0; padding-left: 20px; font-size: 16px; font-weight: 500; line-height: 1.4">{still}</ul></div>', 1680)
+                f'<div style="font-size: 24px; font-weight: 800; margin: 34px 0 10px">Still open</div><ul style="margin: 0; padding-left: 20px; font-size: 15px; font-weight: 500; line-height: 1.4">{still}</ul></div>')
 
 
 JOIN = '''
 import PDFKit
 let a = CommandLine.arguments
 let out = PDFDocument()
-let old = PDFDocument(url: URL(fileURLWithPath: a[2]))!
-for item in a[3...] {
-    if item.hasPrefix("old:") { out.insert(old.page(at: Int(item.dropFirst(4))! - 1)!, at: out.pageCount) }
-    else { let d = PDFDocument(url: URL(fileURLWithPath: item))!; for i in 0..<d.pageCount { out.insert(d.page(at: i)!, at: out.pageCount) } }
-}
+for item in a[2...] { let d = PDFDocument(url: URL(fileURLWithPath: item))!; for i in 0..<d.pageCount { out.insert(d.page(at: i)!, at: out.pageCount) } }
 out.documentAttributes = [PDFDocumentAttribute.titleAttribute: "Puggle: the brand so far"]
 out.write(to: URL(fileURLWithPath: a[1]))
 print(out.pageCount, "pages")
+'''
+# The pages carried over from the last edition are a different size each, so each becomes a picture on a page of ours.
+PICTURE = '''
+import PDFKit
+import AppKit
+let a = CommandLine.arguments
+let doc = PDFDocument(url: URL(fileURLWithPath: a[1]))!
+for n in a[3...] {
+    let p = doc.page(at: Int(n)! - 1)!; let b = p.bounds(for: .mediaBox); let k: CGFloat = 2
+    let rep = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: Int(b.width * k), pixelsHigh: Int(b.height * k), bitsPerSample: 8, samplesPerPixel: 4, hasAlpha: true, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
+    NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
+    let c = NSGraphicsContext.current!.cgContext
+    c.setFillColor(NSColor.white.cgColor); c.fill(CGRect(x: 0, y: 0, width: b.width * k, height: b.height * k))
+    c.scaleBy(x: k, y: k); p.draw(with: .mediaBox, to: c)
+    try! rep.representation(using: .jpeg, properties: [.compressionFactor: 0.88])!.write(to: URL(fileURLWithPath: "\\(a[2])/old-\\(n).jpg"))
+    print(n, Int(b.height))
+}
 '''
 
 
 def main():
     boards = json.load(open(os.path.join(CANVAS, 'project', 'canvas.json')))['boards']
     work = tempfile.mkdtemp()
-    pages = [('cover', cover()), ('contents', contents([(t, a) for t, a, _ in SECTIONS] + [APP_NOW[:2], ('Rules', 'The short list that everything above follows.')]))]
+    pages = [cover(), contents([(t, a) for t, a, _ in SECTIONS] + [APP_NOW[:2], ('Rules', 'The short list that everything above follows.')])]
     for number, (title, about, items) in enumerate(SECTIONS, 1):
-        pages.append((f's{number}', divider(number, title, about)))
-        pages += [(f's{number}-{name}', board(name, title, number, note, boards)) for name, note in items]
-    pages.append(('s7', divider(7, APP_NOW[0], APP_NOW[1])))
-    pages += [(f'old:{n}', None) for n in APP_NOW[2]]
-    pages.append(('rules', rules()))
+        pages.append(divider(number, title, about))
+        pages += [page(body) for body in packed([board(name, title, number, note, boards) for name, note in items])]
+    pages.append(divider(7, APP_NOW[0], APP_NOW[1]))
+    script = os.path.join(work, 'picture.swift')
+    open(script, 'w').write(PICTURE)
+    done = subprocess.run(['swift', script, OLD, work] + [str(n) for n in APP_NOW[2]], capture_output=True, text=True)
+    for line in done.stdout.split('\n'):
+        if not line.strip(): continue
+        n, points = line.split()
+        tall = min(int(points) / 0.75, PAGE_H)   # points to our pixels; a page taller than ours is drawn smaller
+        pages.append(page(f'<img src="old-{n}.jpg" style="display: block; height: {tall:.0f}px; margin: 0 auto">'))
+    pages.append(rules())
     parts = []
-    for name, html in pages:
-        if html is None: parts.append(name); continue
-        src, pdf = os.path.join(work, name + '.html'), os.path.join(work, name + '.pdf')
+    for i, html in enumerate(pages):
+        src, pdf = os.path.join(work, f'p{i:02}.html'), os.path.join(work, f'p{i:02}.pdf')
         open(src, 'w').write(html)
         subprocess.run([CHROME, '--headless', '--disable-gpu', '--no-pdf-header-footer', '--virtual-time-budget=4000', f'--print-to-pdf={pdf}', 'file://' + src],
                        capture_output=True)
-        assert os.path.exists(pdf), name
+        assert os.path.exists(pdf), i
         parts.append(pdf)
     script = os.path.join(work, 'join.swift')
     open(script, 'w').write(JOIN)
-    print(subprocess.run(['swift', script, OUT, OLD] + parts, capture_output=True, text=True).stdout.strip(), '->', OUT)
+    print(subprocess.run(['swift', script, OUT] + parts, capture_output=True, text=True).stdout.strip(), '->', OUT)
 
 
 if __name__ == '__main__':

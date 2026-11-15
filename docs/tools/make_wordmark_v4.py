@@ -2,6 +2,9 @@
 into docs/previews/logo/wordmark-B1/.
 
     python3 docs/tools/make_wordmark_v4.py docs/previews/logo/wordmark-B1/puggle_B1_v3.svg
+
+It also writes the app's copy, the image `Wordmark` in the asset catalogue: the same letters in black, trimmed
+to their edges, for the app to tint.
 """
 import os, re, sys
 HERE = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'previews', 'logo', 'wordmark-B1')
@@ -41,6 +44,16 @@ def svg(body, width=None, vb='65 90 688 232', extra=''):
 
 open(os.path.join(HERE, 'puggle_B1_v4.svg'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n' + svg('<title>Puggle wordmark, B1 v4</title>' + mark(INK)))
 open(os.path.join(HERE, 'puggle_B1_v4_reversed.svg'), 'w').write('<?xml version="1.0" encoding="UTF-8"?>\n' + svg('<title>Puggle wordmark, B1 v4, reversed</title>' + mark(PAPER)))
+
+asset = os.path.join(HERE, '..', '..', '..', '..', 'app', 'Puggle', 'Resources', 'Assets.xcassets', 'Wordmark.imageset')
+os.makedirs(asset, exist_ok=True)
+open(os.path.join(asset, 'Wordmark.svg'), 'w').write(f'<svg xmlns="http://www.w3.org/2000/svg" width="653" height="218" viewBox="75 95 653 218">{mark("#000000")}</svg>')
+open(os.path.join(asset, 'Contents.json'), 'w').write('''{
+  "images": [{"idiom": "universal", "filename": "Wordmark.svg"}],
+  "info": {"author": "xcode", "version": 1},
+  "properties": {"preserves-vector-representation": true, "template-rendering-intent": "template"}
+}
+''')
 
 old, new = mark('#332116', False), mark(INK)
 ghost = lambda: mark('#E5553B', False) + mark(INK).replace(f'fill="{INK}"', f'fill="{INK}" fill-opacity="0.82"')
