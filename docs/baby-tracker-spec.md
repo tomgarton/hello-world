@@ -1601,3 +1601,9 @@ eyes and a smile. Two short straight dashes would avoid that if it bothers.
 (Tooshies; looked at only, nothing copied): a waistband joining the tops of the two tabs, and nothing in the
 middle. The curved creases are gone, and with them the face. Tooshies' own SVGs are only interface icons;
 its drawn icons are PNGs.
+
+**The nappy, with tabs past its sides (15 November 2026).** After looking at how others draw one (Kit & Kin,
+Tooshies, The Honest Company and the first of some 1,200 on the Noun Project; looked at only): nearly all
+have a waistband, tabs at the top corners and two leg curves, and leave the front clear. Many of the clearest
+have tabs that stick out past the sides. Ours now does: the body is a little narrower and drawn in two
+pieces, top and bottom, so each tab lies over the edge. The waistband between the tabs stays.

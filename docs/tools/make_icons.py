@@ -79,6 +79,9 @@ def icon(lines, wattle=(), sky=(), ink=(), tint=(), turn=0, note='', fine=(), bo
 
 TEAT = 'M9 8C9 6.5 10 6 10 4.5A2 2 0 0 1 14 4.5C14 6 15 6.5 15 8'
 NAPPY = 'M6 4.5H18A4 4 0 0 1 22 8.5V12C22 17 18.5 20.5 14 20.5H10C5.5 20.5 2 17 2 12V8.5A4 4 0 0 1 6 4.5Z'
+# The narrower body the tabs stick out from: its top, down to where the tabs begin, and the rest below them.
+NAPPY_TOP = 'M3.57 7.3A3.5 3.5 0 0 1 7 4.5H17A3.5 3.5 0 0 1 20.43 7.3'
+NAPPY_BOTTOM = 'M3.5 10.7V12C3.5 17 6.5 20.5 10.5 20.5H13.5C17.5 20.5 20.5 17 20.5 12V10.7'
 # The teardrop of the second pass, with its left side flat where it meets the chest.
 BREAST = 'M5.5 2.5C11 5 20.5 8.5 20.5 14A8 8 0 0 1 12.5 22C8.5 22 5.5 19.5 5.5 15.5Z'
 POTTY = ('M12 4C9 4 7.5 6.5 7 10C5 10.8 3.6 12.5 3 14.5C2.3 17 2 18.5 2 19.5A2.5 2.5 0 0 0 4.5 22H19.5A2.5 2.5 0 0 0 22 19.5'
@@ -121,8 +124,11 @@ ICONS = {
     'sleep': icon([MOON], wattle=[MOON], ink=[sparkle(18.5, 5, 3)], note='A filled moon, thick through the middle.'),
     # The tabs are flat and wide and sit right above the leg openings, so each side reads as one band of the
     # garment and the four patches are not two eyes and a mouth. The leg openings are big, which narrows the crotch.
-    'nappy': icon([NAPPY, rr(2, 7.5, 5.5, 3.5, 1.75), rr(16.5, 7.5, 5.5, 3.5, 1.75), 'M14 20.5C14 16 18 12 22 12', 'M10 20.5C10 16 6 12 2 12'],
-                  sky=[rr(2, 7.5, 5.5, 3.5, 1.75), rr(16.5, 7.5, 5.5, 3.5, 1.75), 'M22 12C22 17 18.5 20.5 14 20.5C14 16 18 12 22 12Z', 'M2 12C2 17 5.5 20.5 10 20.5C10 16 6 12 2 12Z'],
+    # The body is drawn in two pieces, top and bottom, leaving a gap at each side where a tab crosses it, so a
+    # tab reads as lying over the front. The tabs stick out past the sides (Tom, 15 November 2026, after
+    # looking at how others draw a nappy: the tab past the edge is what says "fastened").
+    'nappy': icon([NAPPY_TOP, NAPPY_BOTTOM, rr(1, 7.3, 5.5, 3.4, 1.7), rr(17.5, 7.3, 5.5, 3.4, 1.7), 'M13.5 20.5C13.5 16 17 12 20.5 12', 'M10.5 20.5C10.5 16 7 12 3.5 12'],
+                  sky=[rr(1, 7.3, 5.5, 3.4, 1.7), rr(17.5, 7.3, 5.5, 3.4, 1.7)],
                   note='One closed, padded shape. The tabs and the leg openings sit inside it, which is what says nappy and not pants.'),
     # The front of the seat swells up in the middle: the splash guard. It stands in front of the opening.
     'potty': icon([POTTY, FRONT],
@@ -370,7 +376,7 @@ DETAIL = {
     # A waistband joining the tops of the two tabs, and nothing in the middle: the leg openings do the work.
     # Before this it had an upright centre fold, which looked odd, and then two curved creases, which with
     # the tabs above them read as a face (Tom, 15 November 2026, after looking at how nappy makers draw one).
-    'nappy': dict(fine=['M7.5 7.5H16.5'], note='A waistband between the tabs.'),
+    'nappy': dict(fine=['M6.5 7.5H17.5'], note='A waistband between the tabs.'),
     'potty': dict(note='As the small one.'),
     'bath': dict(fine=[circle(11.5, 3.3, 1.2), 'M13.2 6.2L11.2 7L13.2 8'], ink=[circle(15.2, 6.4, .7)], note='A second bubble, and the duck has a beak and an eye.'),
     'growth': dict(fine=['M7.5 4.5H9.5M7.5 8.5H9.5M7.5 12.5H9.5M7.5 16.5H9.5'], note='Half marks between the marks.'),
