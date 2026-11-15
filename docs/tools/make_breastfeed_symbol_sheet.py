@@ -54,7 +54,7 @@ section{{margin-top:26px;padding-top:22px;border-top:1px solid #D9CFB8}}
 .tile{{width:140px;height:96px;border-radius:20px;background:#FBF6E9;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}}
 .tile b{{font-size:14px}}.dk .tile{{background:#2A2420;color:#EBDDC4}}
 </style></head><body><h1>Breastfeeding, a parent and baby</h1>
-<div class="lede"><div class="big">{REF}</div><p>The International Breastfeeding Symbol, by Matt Daigle, 2006. Its maker gave it to the public domain, so it can be used and redrawn. Below, after the current icon, are three of a parent holding a wrapped baby and then the symbol redrawn four ways, all for this set: the set&rsquo;s line and weight, round ends, and one spot of colour. Each is shown in light and dark, in the small sizes, in one colour for lists, and on Today tiles beside the bottle, nappy, sleep and solids icons.</p></div>
+<div class="lede"><div class="big">{REF}</div><p>The International Breastfeeding Symbol, by Matt Daigle, 2006. Its maker gave it to the public domain, so it can be used and redrawn. Below, after the current icon, are three of a parent holding a wrapped baby and then the symbol redrawn six ways, all for this set: the set&rsquo;s line and weight, round ends, and one spot of colour. Each is shown in light and dark, in the small sizes, in one colour for lists, and on Today tiles beside the bottle, nappy, sleep and solids icons.</p></div>
 {body}</body></html>'''
     out = os.path.join(M.OUT, 'breastfeeding-symbol.html')
     open(out, 'w').write(html)
@@ -71,13 +71,13 @@ def runners():
     body = block('In the app now', 'The current drawing, for comparison.', now, M.small(now))
     spec, title, text = M.ALTERNATES['held']
     body += block(title, text + ' From the first five choices.', spec, M.small(spec))
-    for group, key in ((M.SYMBOL, 'symbol'), (M.HELD, 'held')):
+    for group, key in ((M.SYMBOL, 'symbol'), (M.SYMBOL, 'symbol-hair'), (M.SYMBOL, 'symbol-face'), (M.HELD, 'held')):
         spec, simple, title, text = group[key]
         body += block(title, text, spec, simple)
     html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
     head = html[:html.index('<body>')]
     out = os.path.join(M.OUT, 'breastfeeding-runners.html')
-    open(out, 'w').write(f'{head}<body><h1>Breastfeeding, the short list</h1><p>Three in the running, each in light and dark, small, in one colour, and on Today tiles.</p>{body}</body></html>')
+    open(out, 'w').write(f'{head}<body><h1>Breastfeeding, the short list</h1><p>Three in the running, and the symbol with the baby&rsquo;s head from tummy time, each in light and dark, small, in one colour, and on Today tiles.</p>{body}</body></html>')
     print('wrote', out)
 
 

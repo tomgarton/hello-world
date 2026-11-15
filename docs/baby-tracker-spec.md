@@ -1737,3 +1737,10 @@ tile these are busier than the symbol versions; large, they are warmer. Not deci
 **The short list (later, 15 November 2026).** Tom still rates the earlier "Parent and baby" (from the first
 five choices). Three are in the running: Parent and baby, Symbol in line, and Held with the wrap in colour.
 `docs/previews/icons/breastfeeding-runners.png` shows them with the current icon. Not decided.
+
+**The symbol with tummy time's baby (later, 15 November 2026).** Tom asked for Symbol in line to use the
+baby's head from tummy time (outlined head, hair in colour, a dot for an eye). Two more in `SYMBOL`:
+"baby with hair" and "baby with hair and eye". Tummy time's head is large for its line; held inside a body it
+has to be smaller, so the body is wider, the fringe has no line of its own, and the forearm stops at the
+baby. With the eye, a ring with a dot inside the body can read as an eye or a lens; without it, it reads as a
+head with hair. Both are on `breastfeeding-runners.png`. Not decided.

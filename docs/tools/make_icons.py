@@ -364,6 +364,24 @@ SYMBOL = {
 }
 
 
+# The symbol with the baby's head drawn as tummy time draws it (15 November 2026, Tom's ask): an outlined head,
+# hair in colour and a dot for an eye. Tummy time's head is 4.5 on a 24 canvas; to keep that share of the line
+# here it would be 6 across a 32 canvas, larger than the body can hold. So the head is 4.2, the body is wider
+# to hold it, the fringe has no line of its own, and the forearm stops at the baby.
+BABE_HEAD = circle(15.6, 6.4, 4.1)
+BABE_BODY = ('M13 14H18.4C23.2 14 27.6 18 27.6 22C27.6 26.2 24.4 29.2 20 29.2H13.4C9 29.2 6 26.4 6 22.6'
+             'C6 18.6 9 14 13 14Z')
+BABE_BUB = circle(20, 22, 4.2)
+BABE_HAIR = 'M23.92 20.51C21.4 21.07 18.6 20.37 17.2 18.87A4.2 4.2 0 0 1 23.92 20.51Z'
+BABE_EYE = circle(18.32, 22.09, 0.75)
+BABE_ARM = 'M9.4 22.4C10.4 24.8 12.2 25.9 14.2 25.7'
+SYMBOL['symbol-hair'] = (icon([BABE_HEAD, BABE_BODY, BABE_BUB, BABE_ARM], box=32, weight=BIG, wattle=[BABE_HAIR]),
+                         icon([BABE_HEAD, BABE_BODY, BABE_BUB], box=32, weight=SMALL, wattle=[BABE_HAIR]),
+                         'Symbol, baby with hair', 'The baby\u2019s head as tummy time draws it, without the eye: an outlined head with hair in colour.')
+SYMBOL['symbol-face'] = (icon([BABE_HEAD, BABE_BODY, BABE_BUB, BABE_ARM], box=32, weight=BIG, wattle=[BABE_HAIR], ink=[BABE_EYE]),
+                         icon([BABE_HEAD, BABE_BODY, BABE_BUB], box=32, weight=SMALL, wattle=[BABE_HAIR]),
+                         'Symbol, baby with hair and eye', 'The same with tummy time\u2019s dot for an eye. Inside the body, a ring with a dot can read as an eye or a lens.')
+
 # A parent holding a wrapped baby (15 November 2026), after a stock line drawing Tom liked: its idea, with the
 # neckline, the sling's folds, the ear and the baby's face left out. Hair is a fine line, gone when small.
 HELD_HEAD = circle(16, 7.2, 4.3)
@@ -428,7 +446,7 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
 <p class="lede">Five ways to draw it, from the plainest to the quietest. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
 <div class="g">{cells}</div>
-<h2>After the International Breastfeeding Symbol</h2><p>Four after the symbol (Matt Daigle, 2006, given to the public domain by its maker) and three of a parent holding a wrapped baby, added 15 November 2026. All are drawn for this set: its line, its weight and one colour.</p>
+<h2>After the International Breastfeeding Symbol</h2><p>Six after the symbol (Matt Daigle, 2006, given to the public domain by its maker) and three of a parent holding a wrapped baby, added 15 November 2026. All are drawn for this set: its line, its weight and one colour.</p>
 <div class="g" style="margin-top:14px;flex-wrap:wrap">{after}</div>
 <h2>Skin tone</h2><p>The two with a breast, in five tones. The other three carry no skin colour.</p><div class="tones">{tones}</div></body></html>'''
     open(os.path.join(OUT, 'breastfeeding.html'), 'w').write(html)
