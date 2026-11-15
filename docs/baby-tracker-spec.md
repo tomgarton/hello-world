@@ -2004,3 +2004,22 @@ not measured.
 GitHub first. It carries Today children first, the greeting and its one-row line, milk today beside the
 tin, the reader for formula tins, and Banksia's name. No new fields in the data model. It does not carry
 the History fixes (sorting once, "Imported", the count of entries with no child), which came after.
+
+## Questions for Tom (started 15 November 2026)
+
+Open questions, kept here so they are not lost between sessions. Ask them when he is back; strike one out
+with its answer and the date when it is settled.
+
+1. **On Clara's phone, do the imported entries show the Sam chip in History?** For example the 02:57 bottle
+   on Saturday 14 November, which has no child on Tom's phone. Tom will check on 16 November. If yes: the
+   links are still arriving on Tom's phone, or were lost on the way; compare the "entries with no child"
+   count on the iCloud sync screen on both phones (needs a build with it, 12 or later). If no: the import
+   itself left them off, and the importer is where to look.
+2. **Build 12?** The History fixes (scroll lag, "Imported", the count of entries with no child) are
+   committed but in no build. Push and upload need his yes.
+3. **Did the Kendamil tin read properly on build 11?** Which cells were left empty or wrong.
+4. **The weather line on an empty day:** does it show on a phone, and read well?
+5. **On a save, the tile's icon:** drawn over a faint copy (as now) or from nothing.
+6. **The setting on each child for which actions show under the plus:** still wanted, or is "everything
+   they use" enough?
+7. **Sleep button for any child under 18 months:** an addition to his decision. Keep it?
