@@ -21,6 +21,8 @@ struct TimerAttributes: ActivityAttributes {
         /// Glance: when the last feed started, and when they last woke.
         var fedSince: Date?
         var awakeSince: Date?
+        /// When the last nappy was changed. Shown beside the feed and the sleep, in every mode.
+        var nappySince: Date?
     }
 
     var childID: String

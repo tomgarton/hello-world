@@ -163,9 +163,19 @@ private struct Detail: View {
     var body: some View {
         switch state.mode {
         case "glance":
-            if let awake = state.awakeSince { (Text("Awake ") + Since.text(awake)).monospacedDigit() } else { Text("Since the last feed") }
+            switch (state.awakeSince, state.nappySince) {
+            case let (awake?, nappy?): (Text("Awake ") + Since.text(awake, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)).monospacedDigit()
+            case let (awake?, nil): (Text("Awake ") + Since.text(awake)).monospacedDigit()
+            case let (nil, nappy?): (Text("Nappy ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
+            default: Text("Since the last feed")
+            }
         case "sleep":
-            if let since = state.since { Text("Since ") + Text(since, style: .time) } else { Text(state.label) }
+            switch (state.fedSince, state.nappySince) {
+            case let (fed?, nappy?): (Text("Fed ") + Since.text(fed, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)).monospacedDigit()
+            case let (fed?, nil): (Text("Fed ") + Since.text(fed) + Text(" ago")).monospacedDigit()
+            case let (nil, nappy?): (Text("Nappy ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
+            default: if let since = state.since { Text("Since ") + Text(since, style: .time) } else { Text(state.label) }
+            }
         default:
             Text(state.label)
         }
@@ -224,16 +234,22 @@ private struct LockScreenCard: View {
     var body: some View {
         let state = context.state
         VStack(alignment: .leading, spacing: 10) {
-            HStack(spacing: 12) {
+            HStack(alignment: .top, spacing: 12) {
                 Badge(attributes: context.attributes, size: 40)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(context.attributes.childName)
-                        .font(.headline)
-                        .foregroundStyle(Tone.cream)
-                        .lineLimit(1)
-                    if state.mode == "glance" {
-                        GlanceLines(state: state)
-                    } else {
+                VStack(alignment: .leading, spacing: 6) {
+                    HStack(spacing: 8) {
+                        Text(context.attributes.childName)
+                            .font(.headline)
+                            .foregroundStyle(Tone.cream)
+                            .lineLimit(1)
+                        Spacer(minLength: 0)
+                        if state.mode == "sleep" {
+                            ActionButton("Woke up", action: TimerActions.wokeUp, attributes: context.attributes,
+                                         spoken: "\(context.attributes.childName) woke up")
+                        }
+                    }
+                    .frame(minHeight: 22)
+                    if state.mode == "feed" {
                         HStack(spacing: 5) {
                             TimerGlyph(mode: state.mode, size: 15)
                             Text(state.label)
@@ -241,15 +257,10 @@ private struct LockScreenCard: View {
                         }
                         .font(.subheadline)
                         .foregroundStyle(Tone.moon)
+                    } else {
+                        // The snapshot, readable without opening anything: the feed, the sleep and the nappy.
+                        Facts(state: state)
                     }
-                }
-                Spacer(minLength: 0)
-                if state.mode == "sleep" {
-                    ActionButton("Woke up", action: TimerActions.wokeUp, attributes: context.attributes,
-                                 spoken: "\(context.attributes.childName) woke up")
-                } else if state.mode == "glance" {
-                    ActionButton("Start sleep", action: TimerActions.startSleep, attributes: context.attributes,
-                                 spoken: "Start \(context.attributes.childName)'s sleep")
                 }
             }
             if state.mode == "feed" {
@@ -281,9 +292,20 @@ private struct SmallCard: View {
                 switch state.mode {
                 case "glance":
                     if let fed = state.fedSince { Text("Fed ") + Since.text(fed, narrow: true) + Text(" ago") }
-                    if let awake = state.awakeSince { Text("Awake ") + Since.text(awake, narrow: true) }
+                    switch (state.awakeSince, state.nappySince) {
+                    case let (awake?, nappy?): Text("Awake ") + Since.text(awake, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)
+                    case let (awake?, nil): Text("Awake ") + Since.text(awake, narrow: true)
+                    case let (nil, nappy?): Text("Nappy ") + Since.text(nappy, narrow: true) + Text(" ago")
+                    default: EmptyView()
+                    }
                 case "sleep":
                     if let since = state.since { Text("Asleep ") + Since.text(since, narrow: true) }
+                    switch (state.fedSince, state.nappySince) {
+                    case let (fed?, nappy?): Text("Fed ") + Since.text(fed, narrow: true) + Text(" · nappy ") + Since.text(nappy, narrow: true)
+                    case let (fed?, nil): Text("Fed ") + Since.text(fed, narrow: true) + Text(" ago")
+                    case let (nil, nappy?): Text("Nappy ") + Since.text(nappy, narrow: true) + Text(" ago")
+                    default: EmptyView()
+                    }
                 default:
                     HStack(spacing: 5) {
                         Text(state.label)
@@ -303,27 +325,37 @@ private struct SmallCard: View {
     }
 }
 
-/// "Fed 1 hr, 29 min ago" and "Awake 1 hr, 11 min". Plain facts; nothing is due and nothing turns red.
-private struct GlanceLines: View {
+/// Up to three facts side by side, each a word over a time: "Fed 1h 29m", "Awake 1h 11m", "Nappy 45m".
+/// While asleep the first is "Asleep". Plain facts; nothing is due and nothing turns red.
+private struct Facts: View {
     let state: TimerAttributes.ContentState
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 1) {
-            // One line each: the text shrinks a little before it would wrap.
-            if let fed = state.fedSince {
-                (Text("Fed ") + Since.text(fed) + Text(" ago"))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
-            if let awake = state.awakeSince {
-                (Text("Awake ") + Since.text(awake))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-            }
+        HStack(alignment: .top, spacing: 8) {
+            if state.mode == "sleep", let since = state.since { fact("Asleep", glyph: "sleep", since) }
+            if let fed = state.fedSince { fact("Fed", glyph: "bottle", fed) }
+            if state.mode == "glance", let awake = state.awakeSince { fact("Awake", glyph: nil, awake) }
+            if let nappy = state.nappySince { fact("Nappy", glyph: "nappy", nappy) }
         }
-        .font(.subheadline)
-        .foregroundStyle(Tone.moon)
-        .monospacedDigit()
+    }
+
+    private func fact(_ title: String, glyph: String?, _ since: Date) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 3) {
+                if let glyph { Glyph(glyph, size: 12) } else { Image(systemName: "sun.max").font(.system(size: 10, weight: .semibold)) }
+                Text(title)
+            }
+            .font(.caption.weight(.medium))
+            .foregroundStyle(Tone.cream.opacity(0.7))
+            Since.text(since, narrow: true)
+                .font(.callout.weight(.semibold))
+                .foregroundStyle(Tone.moon)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
     }
 }
 

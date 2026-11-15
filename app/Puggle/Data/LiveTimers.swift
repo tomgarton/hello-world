@@ -61,6 +61,11 @@ final class LiveTimers {
         for child in children {
             guard let id = child.id?.uuidString else { continue }
             let attributes = TimerAttributes(childID: id, childName: child.displayName, colourIndex: Int(child.colourIndex))
+            // The snapshot beside whatever is running: the last feed and the last nappy, if they are recent.
+            let cutoff = Date.now.addingTimeInterval(-glanceHours * 3600)
+            let recent = { (date: Date?) -> Date? in date.flatMap { $0 > cutoff && $0 <= .now ? $0 : nil } }
+            let lastFeed = recent([store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0?.startedAt }.max())
+            let lastNappy = child.uses(.nappy) ? recent(store.latest(.nappy, for: child)?.startedAt) : nil
             if let feed = store.activeFeed(for: child) {
                 var state = TimerAttributes.ContentState(mode: "feed")
                 if let side = feed.runningSide {
@@ -76,14 +81,11 @@ final class LiveTimers {
                 result[id] = Wanted(attributes: attributes, state: state)
             } else if let sleep = store.activeSleep(for: child), let start = sleep.startedAt {
                 result[id] = Wanted(attributes: attributes,
-                                    state: .init(mode: "sleep", label: "Asleep", since: start))
+                                    state: .init(mode: "sleep", label: "Asleep", since: start, fedSince: lastFeed, nappySince: lastNappy))
             } else if glanceOn, child.ageMonths < 24, child.uses(.bottle) || child.uses(.breastfeed) {
-                let cutoff = Date.now.addingTimeInterval(-glanceHours * 3600)
                 var state = TimerAttributes.ContentState(mode: "glance")
-                let feeds = [store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)]
-                if let fed = feeds.compactMap({ $0?.startedAt }).max(), fed > cutoff, fed <= .now {
-                    state.fedSince = fed
-                }
+                state.fedSince = lastFeed
+                state.nappySince = lastNappy
                 let woke = (child.events ?? [])
                     .filter { $0.kind == .sleep }
                     .compactMap(\.endedAt)
@@ -131,10 +133,10 @@ final class LiveTimers {
         let ago = { (minutes: Double) in Date.now.addingTimeInterval(-minutes * 60) }
         var state: TimerAttributes.ContentState
         switch mode {
-        case "sleep": state = .init(mode: "sleep", label: "Asleep", since: ago(72))
+        case "sleep": state = .init(mode: "sleep", label: "Asleep", since: ago(72), fedSince: ago(125), nappySince: ago(90))
         case "feed": state = .init(mode: "feed", label: "Feeding, left", since: ago(12), runningSide: "Left")
         case "paused": state = .init(mode: "feed", label: "Feeding, paused", pausedText: "12 min")
-        default: state = .init(mode: "glance", fedSince: ago(89), awakeSince: ago(71))
+        default: state = .init(mode: "glance", fedSince: ago(89), awakeSince: ago(71), nappySince: ago(45))
         }
         var all = ["sample-ollie": Wanted(attributes: .init(childID: "sample-ollie", childName: "Ollie", colourIndex: 0), state: state)]
         // "-debugLiveTwo 1" adds a second child, to see two cards and the small round ones.
@@ -158,6 +160,7 @@ final class LiveTimers {
         return a.mode == b.mode && a.label == b.label && a.pausedText == b.pausedText
             && a.runningSide == b.runningSide
             && close(a.since, b.since) && close(a.fedSince, b.fedSince) && close(a.awakeSince, b.awakeSince)
+            && close(a.nappySince, b.nappySince)
     }
 }
 
