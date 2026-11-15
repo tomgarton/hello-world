@@ -1376,3 +1376,14 @@ iOS for time while entries are waiting:
 
 Core Data still does the sending; this only keeps the app running. iOS decides when the later task runs, and
 it never runs for an app the person has swiped away. Not yet seen on a phone.
+
+**The sync screen, reworked the same day** after two references from Tom (a usage screen: a card with a
+figure and a bar, a breakdown that opens, a plain sentence about pace, a refresh button). It now has:
+
+- a card, "Sent to iCloud", with "41% sent", a bar and "1,308 of 3,120 entries";
+- a breakdown that opens and closes: Feeds, Sleep, Nappy and potty, Health, Notes and milestones, each with
+  its colour in the bar, its total and how many are still to send;
+- one sentence about pace, from what has gone up while the screen is open: "At this pace, about 6 minutes to
+  go." If nothing has moved for a minute it says so;
+- a second card, "Since Puggle was opened": sending now, last sent, last fetched;
+- a button in the corner to count again.
