@@ -1797,3 +1797,11 @@ running on under it and the forearm stopping short. The tucked-in version is kep
 face options keep the tucked-in baby they were drawn on. `breastfeeding-runners.png` shows it with the
 current icon. Not installed: that needs its draw-on stroke order, the widget glyph, and a decision on the
 skin tone setting, which this drawing has no use for.
+
+**Where the colour goes (later, 15 November 2026).** Tom asked how Apple would handle this in SF Symbols.
+From memory, not re-checked: their figures have no faces, no hair and no gender; heads stand clear of
+bodies by a gap about a stroke wide; and the accent goes on the subject. There is no breastfeeding symbol
+to copy. Two more in `ALTERNATES` try the last point: `held-baby-colour` (the baby's head in colour, the
+parent's fringe and bun in line only) and `held-baby-plain` (the same with no hair at all).
+`docs/previews/icons/breastfeeding-accent.png` sets them beside hair in colour. On a tile the baby's head
+gives a clear spot of colour where the hair is a sliver. Not decided; not installed.

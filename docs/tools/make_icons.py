@@ -434,6 +434,16 @@ ALTERNATES['held-tucked'] = (NURSE_FACES['none'][0], 'Parent and baby, tucked in
 ALTERNATES['held-refined'] = (NURSE_APART, 'Parent and baby, refined',
                               'The chosen drawing: hair in colour, no faces, the baby\u2019s head clear of the parent\u2019s, and the body line finishing under the baby.')
 
+# As Apple might colour it (15 November 2026): the accent on the baby, who is the subject, not on the parent's
+# hair. Two ways: the hair kept in line, and no hair at all (Apple's figures have none).
+APART_BUB = circle(20.9, 20.2, 4.5)
+APART_BODY = 'M7.6 14.4C5 16.4 3.6 19.4 3.6 23C3.6 26.8 6.6 29.4 10.6 29.4H18.6C21.2 29.4 23.4 28.8 25 27.4'
+APART_ARM = 'M9 20.6C10.2 23 12.4 24.6 14.8 25'
+ALTERNATES['held-baby-colour'] = (icon([NURSE_MUM, BUN, APART_BUB, APART_BODY, NURSE_FRINGE, APART_ARM], box=32, weight=BIG, wattle=[APART_BUB]),
+                                  'Baby in colour, hair in line', 'The colour moves to the baby\u2019s head. The parent keeps the fringe and bun, in line only.')
+ALTERNATES['held-baby-plain'] = (icon([NURSE_MUM, APART_BUB, APART_BODY, APART_ARM], box=32, weight=BIG, wattle=[APART_BUB]),
+                                 'Baby in colour, no hair', 'The colour on the baby\u2019s head and a plain head for the parent, as Apple draws people.')
+
 # The symbol with the baby's head drawn as tummy time draws it (15 November 2026, Tom's ask): an outlined head,
 # hair in colour and a dot for an eye. Tummy time's head is 4.5 on a 24 canvas; to keep that share of the line
 # here it would be 6 across a 32 canvas, larger than the body can hold. So the head is 4.2, the body is wider
@@ -514,7 +524,7 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 .tiles{{display:flex;gap:8px}}
 .tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
-<p class="lede">Ten ways to draw it. The last five are Parent and baby without the blue; the very last is the one chosen, refined. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
+<p class="lede">Twelve ways to draw it. From the sixth on they are Parent and baby without the blue. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
 <div class="g" style="flex-wrap:wrap">{cells}</div>
 <h2>After the International Breastfeeding Symbol</h2><p>Six after the symbol (Matt Daigle, 2006, given to the public domain by its maker) and three of a parent holding a wrapped baby, added 15 November 2026. All are drawn for this set: its line, its weight and one colour.</p>
 <div class="g" style="margin-top:14px;flex-wrap:wrap">{after}</div>

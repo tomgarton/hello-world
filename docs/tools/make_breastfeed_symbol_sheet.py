@@ -106,7 +106,28 @@ def eyes():
     print('wrote', out)
 
 
+
+def accent():
+    """Where the colour goes (15 November 2026): the parent's hair, or the baby, as Apple might."""
+    cols = ''
+    for key, name in (('held-refined', 'Hair in colour'), ('held-baby-colour', 'Baby in colour'), ('held-baby-plain', 'Baby in colour, no hair')):
+        spec = M.ALTERNATES[key][0]
+        sm = M.small(spec)
+        row = lambda draw, cls: (f'<div class="tiles {cls}" style="margin-top:8px;padding:8px;gap:6px">' + ''.join(
+            f'<div class="tile" style="width:104px">{draw(x, 40)}<b>{n}</b></div>' for n, x in (('Breastfeed', spec), ('Bottle', M.ICONS['bottle']))) + '</div>')
+        small = ''.join(light(sm, z) for z in (24, 17)) + f'<span class="pl">{M.svg("x", spec=sm, plain=True, size=22).replace("#000000", "#3A2A20")}</span>'
+        cols += (f'<div><div class="big" style="width:236px;height:200px">{light(spec, 160)}</div>'
+                 f'<div class="big dk" style="width:236px;height:200px;margin-top:8px">{dark(spec, 160)}</div>'
+                 f'{row(light, "")}{row(dark, "dk")}<div class="r" style="justify-content:center">{small}</div>'
+                 f'<h2 style="font-size:16px;margin-top:8px;text-align:center">{name}</h2></div>')
+    html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
+    out = os.path.join(M.OUT, 'breastfeeding-accent.html')
+    open(out, 'w').write(f'{html[:html.index("<body>")]}<body><h1>Breastfeeding, where the colour goes</h1><p>The chosen drawing with the colour on the parent&rsquo;s hair, and two with it on the baby. Large in light and dark, on tiles beside the bottle, and small.</p><div style="display:flex;gap:14px;margin-top:18px">{cols}</div></body></html>')
+    print('wrote', out)
+
+
 if __name__ == '__main__':
     runners()
     faces()
     eyes()
+    accent()
