@@ -31,8 +31,8 @@ enum Room: Int, CaseIterable {
     static func at(hour: Int, dark: Bool) -> Room? {
         let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
         let evening: Room = day.isMultiple(of: 2) ? .living : .playroom
-        // Out with a grown-up: from tea time until ten, and by day when the look is dark. Bed is still bed.
-        if outTonight, !(22...23).contains(hour), !(0..<6).contains(hour), hour >= 18 || dark { return nil }
+        // Out with a grown-up: from tea time until ten. Bed is still bed.
+        if outTonight, !(22...23).contains(hour), !(0..<6).contains(hour), hour >= 18 { return nil }
         #if DEBUG
         // For checking a room at any hour: launch with "-debugRoom 0" to "3".
         if let forced = UserDefaults.standard.string(forKey: "debugRoom").flatMap(Int.init), let room = Room(rawValue: forced) { return room }
@@ -41,7 +41,8 @@ enum Room: Int, CaseIterable {
         case 18: return .dining
         case 19: return evening
         case 20...23, 0..<6: return .bedroom
-        default: return dark ? evening : nil
+        // By day she is outdoors, whatever the phone's look: where she is follows the clock.
+        default: return nil
         }
     }
 

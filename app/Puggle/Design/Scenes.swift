@@ -8,14 +8,21 @@ import SwiftUI
 enum SceneKind: Int, CaseIterable {
     case hills, beach, backyard, bush
 
-    /// A different scene each day, in turn.
+    /// A different place for each part of the day (early, late morning, afternoon, evening), and a different
+    /// start each day, so the same hour is not always the same place. Four changes a day; it was one.
     static var today: SceneKind {
         #if DEBUG
         // For checking each scene: launch with "-debugScene 2".
         if let forced = UserDefaults.standard.string(forKey: "debugScene").flatMap(Int.init), let kind = SceneKind(rawValue: forced) { return kind }
         #endif
         let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
-        return allCases[day % allCases.count]
+        let part: Int = switch Room.hourNow {
+        case 0..<9: 0
+        case 9..<13: 1
+        case 13..<17: 2
+        default: 3
+        }
+        return allCases[(day + part) % allCases.count]
     }
 
     /// Where the sun or moon sits, clear of the tree, the washing and the You button.
@@ -29,7 +36,27 @@ enum SceneKind: Int, CaseIterable {
 }
 
 /// The part of the day the sky is showing.
-enum SkyPhase { case dawn, day, dusk, night }
+enum SkyPhase {
+    case dawn, day, dusk, night
+
+    /// The sky for a moment in the day. It follows the clock, never the phone's light or dark look.
+    /// With the weather switched on it follows the real sunrise and sunset where the family is;
+    /// without, it keeps to fixed hours. `exact` is nil when an hour is being forced for checking.
+    static func at(hour: Int, exact: Date?) -> SkyPhase {
+        if let exact, let sun = WeatherWatch.sun(on: exact) {
+            if exact < sun.rise.addingTimeInterval(-40 * 60) || exact >= sun.set.addingTimeInterval(40 * 60) { return .night }
+            if exact < sun.rise.addingTimeInterval(90 * 60) { return .dawn }
+            if exact >= sun.set.addingTimeInterval(-80 * 60) { return .dusk }
+            return .day
+        }
+        switch hour {
+        case 5..<9: return .dawn
+        case 9..<17: return .day
+        case 17..<21: return .dusk
+        default: return .night
+        }
+    }
+}
 
 /// When the scene started, and what makes today's clouds unlike yesterday's.
 enum SceneClock {
@@ -123,20 +150,20 @@ struct SceneFrame: View {
         return Calendar.current.component(.hour, from: .now)
     }
 
-    private var phase: SkyPhase {
-        if dark { return .night }
-        switch hour {
-        case 5..<9: return .dawn
-        case 9..<17: return .day
-        case 17..<21: return .dusk
-        default: return .night
-        }
+    /// True when the hour is the clock's own, not one forced for the gallery or for checking.
+    private var liveHour: Bool {
+        if hourOverride != nil { return false }
+        #if DEBUG
+        if UserDefaults.standard.string(forKey: "debugHour") != nil { return false }
+        #endif
+        return true
     }
+
+    private var phase: SkyPhase { SkyPhase.at(hour: hour, exact: liveHour ? .now : nil) }
 
     fileprivate var starry: Bool { phase == .night }
 
     private var sky: [Color] {
-        if dark { return [Color(hex: 0x14163C), Color(hex: 0x25275C), Palette.sand] }
         switch phase {
         case .dawn: return [Color(hex: 0xF6CDB4), Color(hex: 0xF8E3CF), Palette.sand]
         case .dusk: return [Color(hex: 0xC9B6D9), Color(hex: 0xF4CDB0), Palette.sand]
@@ -191,6 +218,8 @@ struct SceneFrame: View {
                 surprises(w)
                     .frame(width: w, height: geometry.size.height, alignment: .top)
                 WeatherFront(weather: weather, night: starry, t: t, sceneHeight: h)
+                // In the dark look by day the sky keeps its time of day, turned down so it sits with a dark page.
+                if dark && !starry { Color(hex: 0x14110F).opacity(0.34).allowsHitTesting(false) }
             }
         }
         .accessibilityHidden(true)
@@ -253,14 +282,14 @@ struct SceneFrame: View {
 
     /// The ground in the page colour, with a little shade along the top so the hill has a shape.
     private var ground: some View {
-        let shade: Color = if dark { Color(hex: 0x3A3F7A).opacity(0.55) } else {
+        let shade: Color = {
             switch phase {
             case .dawn: Color(hex: 0xEDB48E).opacity(0.3)
             case .dusk: Color(hex: 0xC9A2C2).opacity(0.34)
             case .night: Color(hex: 0x5F5E9A).opacity(0.5)
             case .day: Color(hex: 0xCDBE98).opacity(0.3)
             }
-        }
+        }()
         let hill = Hill(rise: 0.6, left: 0.8, right: 0.78)
         return ZStack {
             hill.fill(Palette.sand)

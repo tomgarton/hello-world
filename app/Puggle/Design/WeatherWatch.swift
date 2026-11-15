@@ -15,10 +15,32 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
     static let shared = WeatherWatch()
 
     /// The parent's switch in Settings.
-    static let onKey = "weatherOn"
+    nonisolated static let onKey = "weatherOn"
     /// The last weather found, as a `Weather` raw value, and when.
     static let liveKey = "liveWeather"
     static let liveAtKey = "liveWeatherAt"
+    /// Today's sunrise and sunset where the family is, as seconds since 1970, for the scene's sky.
+    nonisolated static let sunriseKey = "liveSunrise"
+    nonisolated static let sunsetKey = "liveSunset"
+
+    /// The sun's times for the day `moment` falls on, if the weather is on and it has them. Otherwise nil,
+    /// and the sky keeps to fixed hours.
+    nonisolated static func sun(on moment: Date) -> (rise: Date, set: Date)? {
+        let defaults = UserDefaults.standard
+        guard defaults.bool(forKey: onKey) else { return nil }
+        let rise = defaults.double(forKey: sunriseKey), set = defaults.double(forKey: sunsetKey)
+        guard rise > 0, set > rise else { return nil }
+        let sunrise = Date(timeIntervalSince1970: rise), sunset = Date(timeIntervalSince1970: set)
+        // Yesterday's times are close enough for a day or two; older than that, the season has moved.
+        guard abs(moment.timeIntervalSince(sunrise)) < 3 * 86_400 else { return nil }
+        let calendar = Calendar.current
+        func today(_ time: Date) -> Date? {
+            let parts = calendar.dateComponents([.hour, .minute], from: time)
+            return calendar.date(bySettingHour: parts.hour ?? 0, minute: parts.minute ?? 0, second: 0, of: moment)
+        }
+        guard let a = today(sunrise), let b = today(sunset), b > a else { return nil }
+        return (a, b)
+    }
 
     private let manager = CLLocationManager()
     private var asking = false
@@ -56,6 +78,8 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
         UserDefaults.standard.set(false, forKey: Self.onKey)
         UserDefaults.standard.removeObject(forKey: Self.liveKey)
         UserDefaults.standard.removeObject(forKey: Self.liveAtKey)
+        UserDefaults.standard.removeObject(forKey: Self.sunriseKey)
+        UserDefaults.standard.removeObject(forKey: Self.sunsetKey)
         trouble = nil
     }
 
@@ -105,8 +129,12 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
         trouble = "This test build can't reach the weather service."
         #else
         do {
-            let now = try await WeatherService.shared.weather(for: place, including: .current)
+            let (now, days) = try await WeatherService.shared.weather(for: place, including: .current, .daily)
             let found = Self.kind(of: now)
+            if let sun = days.first?.sun, let rise = sun.sunrise, let set = sun.sunset {
+                UserDefaults.standard.set(rise.timeIntervalSince1970, forKey: Self.sunriseKey)
+                UserDefaults.standard.set(set.timeIntervalSince1970, forKey: Self.sunsetKey)
+            }
             UserDefaults.standard.set(found.rawValue, forKey: Self.liveKey)
             UserDefaults.standard.set(Date.now.timeIntervalSince1970, forKey: Self.liveAtKey)
             trouble = nil

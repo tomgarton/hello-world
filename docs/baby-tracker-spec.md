@@ -1252,3 +1252,13 @@ Tom's feedback from his phone and watch: the open island had a meaningless clock
 - A fact shows only if it is from the last twelve hours.
 - **Not seen on screen.** The simulator's widget picker would not take taps reliably, so these layouts have only been built, not looked at.
 - The Dynamic Island sitting over the Home Screen's Edit and Done buttons while widgets are being arranged: iOS places those buttons beside the bare island, and any Live Activity widens the island over them. Ours was wider than it needed to be; the narrower one is in the same build.
+
+### The scene follows the clock (15 November 2026)
+
+Tom: the scenes at the top of Today hardly change, and night should come from the time, not from the phone being in dark mode.
+
+- **Sky by the clock.** The sky (dawn, day, dusk, night) now follows the time only. Before, dark mode or the app's night look made it night at any hour, and by day in dark mode she was put indoors. In dark mode by day the sky keeps its time and is turned down by a third so it sits with a dark page.
+- **Real sunrise and sunset.** With the weather switched on, the sky follows that day's sunrise and sunset where the family is (from Apple's weather service, kept as two times and nothing else). Dawn runs from 40 minutes before sunrise to 90 after; dusk from 80 minutes before sunset to 40 after. Without the weather it keeps to fixed hours: dawn 5 to 9, day to 5 pm, dusk to 9 pm.
+- **Four places a day.** The scene changes with the part of the day (before 9, to 1 pm, to 5 pm, evening), starting from a different place each day. It used to change once a day. From 6 pm she is still indoors, as before.
+- **The weather** is off unless switched on in Settings, looks again when the app comes to the front if the last look is over half an hour old, and is dropped after three hours. That is unchanged; if the weather never shows, check it is on and location is allowed.
+- Seen in the simulator at noon in light and dark, and at 5 pm and 11 pm. The sunrise and sunset path has not run: the simulator build has no weather service.
