@@ -1836,3 +1836,9 @@ Parked by Tom, to come back to. Not planned work.
   partly drawn icon as a value.
 - **Play tab.** On hold until there are books to put in it.
 - **Documenting the flows in Figma.** After Today is rebuilt.
+
+**TestFlight, 15 November 2026, 22:28:** the tenth upload of 0.1.0, from commit 24ffe0a, pushed to GitHub
+the same evening. It carries the icons in dark (thinner line, Banksia for Wattle), the potty and nappy
+redraws, icons that move (draw on a save, breathe while a feed runs, Apple's draw on the sleep button) and
+the parent-and-baby breastfeeding icon. No new fields in the data model. Banksia's naming and the palette
+board came after and are not in it; they change no behaviour.
