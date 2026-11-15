@@ -1321,3 +1321,9 @@ What fixed it, with no new build:
 
 The rule from now on: when the model gains an attribute or an entity, run PuggleCheckDev and deploy the schema
 before that build goes to TestFlight. The Production target of Puggle Check says which fields are refused.
+
+## The Last saved bar goes by itself (15 November 2026)
+
+Clara asked for the Last saved bar to dismiss itself. It now goes after 30 seconds, and so does the Deleted
+bar. A new save or delete starts the count again. With VoiceOver on the bars stay, so Undo is not taken away
+while the bar is being read out. The time is `FamilyStore.barStays`.

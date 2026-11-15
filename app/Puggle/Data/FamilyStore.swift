@@ -1,7 +1,7 @@
 import CoreData
 import SwiftUI
 
-/// What the "Last saved" row on Today points at. It stays until the next save.
+/// What the "Last saved" row on Today points at. It stays until the next save, or for half a minute.
 struct LastSaved: Identifiable {
     enum Undo { case delete, resumeSleep, backToSleep, none }
     var id = UUID()
@@ -24,11 +24,36 @@ final class FamilyStore: ObservableObject {
                 let what = saved.events.count == 1 ? (saved.events.first.map { $0.isLive ? $0.summary : "" } ?? "") : "\(saved.events.count) entries"
                 announce(what.isEmpty ? "Saved" : "Saved. \(what). Undo is on Today.")
             }
+            if lastSaved?.id != oldValue?.id { clearLater() }
         }
     }
     /// The entry just deleted, so Today can offer to bring it back.
     @Published var justDeleted: DeletedEntry? {
-        didSet { if justDeleted != nil { announce("Deleted. Undo is at the bottom of the screen.") } }
+        didSet {
+            if justDeleted != nil { announce("Deleted. Undo is at the bottom of the screen.") }
+            if justDeleted?.id != oldValue?.id { clearLater() }
+        }
+    }
+
+    /// How long the Last saved and Deleted bars stay before they go by themselves (Clara, 15 November 2026).
+    /// Long enough to read the bar and reach Undo. The entry is still in History, and a deleted one in
+    /// Recently deleted.
+    static let barStays: Duration = .seconds(30)
+    private var clearing: Task<Void, Never>?
+
+    /// Starts the count again for whichever bar is showing. With VoiceOver on the bars stay, since a bar that
+    /// goes while it is being read out takes its Undo with it.
+    private func clearLater() {
+        clearing?.cancel()
+        guard lastSaved != nil || justDeleted != nil else { return }
+        clearing = Task { [weak self] in
+            try? await Task.sleep(for: Self.barStays)
+            guard !Task.isCancelled, let self, !UIAccessibility.isVoiceOverRunning else { return }
+            withAnimation(.easeOut(duration: 0.3)) {
+                self.lastSaved = nil
+                self.justDeleted = nil
+            }
+        }
     }
 
     private func announce(_ text: String) {

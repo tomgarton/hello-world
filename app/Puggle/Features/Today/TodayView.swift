@@ -580,7 +580,7 @@ struct TodaySoFar: View {
 
 /// Just saved, or just deleted: bars above the tab bar in the reverse of the
 /// page's colours, so they are seen. One bar for each entry, each with its own
-/// Undo, and each can be swiped away. They stay until the next save.
+/// Undo, and each can be swiped away. They stay until the next save, or go by themselves after half a minute.
 struct LastSavedRow: View {
     @EnvironmentObject private var store: FamilyStore
     @Environment(\.dynamicTypeSize) private var textSize
@@ -591,7 +591,7 @@ struct LastSavedRow: View {
     var body: some View {
         VStack(spacing: 8) {
             if let gone = store.justDeleted {
-                // Straight after deleting: a way back, until the next save.
+                // Straight after deleting: a way back, until the next save or half a minute.
                 bar(title: "Deleted",
                     text: gone.childNames.isEmpty ? gone.summary : "\(gone.childNames.joined(separator: ", ")): \(gone.summary)",
                     dismiss: { store.justDeleted = nil }) {
