@@ -66,6 +66,7 @@ final class LiveTimers {
             let recent = { (date: Date?) -> Date? in date.flatMap { $0 > cutoff && $0 <= .now ? $0 : nil } }
             let lastFeed = recent([store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0?.startedAt }.max())
             let lastNappy = child.uses(.nappy) ? recent(store.latest(.nappy, for: child)?.startedAt) : nil
+            let next = NextUp.soonest(for: child)
             if let feed = store.activeFeed(for: child) {
                 var state = TimerAttributes.ContentState(mode: "feed")
                 if let side = feed.runningSide {
@@ -81,7 +82,8 @@ final class LiveTimers {
                 result[id] = Wanted(attributes: attributes, state: state)
             } else if let sleep = store.activeSleep(for: child), let start = sleep.startedAt {
                 result[id] = Wanted(attributes: attributes,
-                                    state: .init(mode: "sleep", label: "Asleep", since: start, fedSince: lastFeed, nappySince: lastNappy))
+                                    state: .init(mode: "sleep", label: "Asleep", since: start, fedSince: lastFeed, nappySince: lastNappy,
+                                                 nextText: next?.line, nextAt: next?.at))
             } else if glanceOn, child.ageMonths < 24, child.uses(.bottle) || child.uses(.breastfeed) {
                 var state = TimerAttributes.ContentState(mode: "glance")
                 state.fedSince = lastFeed
@@ -94,6 +96,8 @@ final class LiveTimers {
                 if let woke, woke > cutoff, woke <= .now, child.ageMonths < 18, state.fedSince != nil {
                     state.awakeSince = woke
                 }
+                state.nextText = next?.line
+                state.nextAt = next?.at
                 if state.fedSince != nil {
                     result[id] = Wanted(attributes: attributes, state: state)
                 }
@@ -114,16 +118,17 @@ final class LiveTimers {
             }
             showing.insert(id)
             if !same(activity.content.state, want.state) {
+                // The stale date is when the "next" line's time passes: iOS then draws the card again, without it.
                 // Updating works with the app in the background, so "Woke up" on the
                 // Lock Screen can turn the card into "Awake" without opening the app.
-                await activity.update(ActivityContent(state: want.state, staleDate: nil))
+                await activity.update(ActivityContent(state: want.state, staleDate: want.state.nextAt))
             }
         }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         for (id, want) in wanted where !showing.contains(id) {
             // Starting needs the app on screen; if it is not, the next sync tries again.
             _ = try? Activity.request(attributes: want.attributes,
-                                      content: ActivityContent(state: want.state, staleDate: nil),
+                                      content: ActivityContent(state: want.state, staleDate: want.state.nextAt),
                                       pushType: nil)
         }
     }
@@ -137,6 +142,11 @@ final class LiveTimers {
         case "feed": state = .init(mode: "feed", label: "Feeding, left", since: ago(12), runningSide: "Left")
         case "paused": state = .init(mode: "feed", label: "Feeding, paused", pausedText: "12 min")
         default: state = .init(mode: "glance", fedSince: ago(89), awakeSince: ago(71), nappySince: ago(45))
+        }
+        if mode != "feed", mode != "paused" {
+            let guess = NextUp.Guess(kind: mode == "sleep" ? .feed : .sleep, at: NextUp.rounded(ago(-35)))
+            state.nextText = guess.line
+            state.nextAt = guess.at
         }
         var all = ["sample-ollie": Wanted(attributes: .init(childID: "sample-ollie", childName: "Ollie", colourIndex: 0), state: state)]
         // "-debugLiveTwo 1" adds a second child, to see two cards and the small round ones.
@@ -161,6 +171,7 @@ final class LiveTimers {
             && a.runningSide == b.runningSide
             && close(a.since, b.since) && close(a.fedSince, b.fedSince) && close(a.awakeSince, b.awakeSince)
             && close(a.nappySince, b.nappySince)
+            && a.nextText == b.nextText && close(a.nextAt, b.nextAt)
     }
 }
 

@@ -1327,3 +1327,24 @@ before that build goes to TestFlight. The Production target of Puggle Check says
 Clara asked for the Last saved bar to dismiss itself. It now goes after 30 seconds, and so does the Deleted
 bar. A new save or delete starts the count again. With VoiceOver on the bars stay, so Undo is not taken away
 while the bar is being read out. The time is `FamilyStore.barStays`.
+
+## What comes next, on the Lock Screen card (built 15 November 2026)
+
+`NextUp` (app/Puggle/Data/NextUp.swift) guesses the soonest of a child's next feed, sleep or nappy from their
+own last seven days, and the Lock Screen card shows it as one line under the facts: "Next sleep around 16:35".
+Seen on the simulator: `docs/previews/live-activity/next-up.png`.
+
+- **Feed and nappy:** the last one plus the usual gap, which is the middle gap of the week. Gaps under 45
+  minutes (30 for a nappy) or over 6 hours are left out, so a top-up or the night does not skew it.
+- **Sleep:** when they last woke plus how long they are usually awake before the next sleep. No sleep guess
+  while they are asleep.
+- It needs four gaps before it says anything, rounds to five minutes, and looks no further than six hours ahead.
+- **Never late.** The line carries its time. The card's stale date is that time, so iOS draws the card again
+  without the line once it has passed.
+- Not on a running feed's card. Not yet on widgets, the Dynamic Island or Today.
+
+**Found while checking it: the widget extension stopped on launch.** The One child widget's description had a
+value put into it (the word for nappy), and WidgetKit stops the whole extension on that, Live Activities
+included. The line came in with the widgets commit (6b71d85) and is in TestFlight build 6, so on build 6 the
+Lock Screen cards and widgets very likely do not draw. Fixed by passing the description as plain text. It needs
+a new build to reach the phones.

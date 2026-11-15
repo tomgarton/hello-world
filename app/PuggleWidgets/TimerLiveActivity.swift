@@ -260,6 +260,14 @@ private struct LockScreenCard: View {
                     } else {
                         // The snapshot, readable without opening anything: the feed, the sleep and the nappy.
                         Facts(state: state)
+                        // What comes next, until its time. After that the card is stale and the line goes.
+                        if !context.isStale, let next = state.nextLine() {
+                            Text(next)
+                                .font(.footnote)
+                                .foregroundStyle(Tone.cream.opacity(0.8))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.85)
+                        }
                     }
                 }
             }

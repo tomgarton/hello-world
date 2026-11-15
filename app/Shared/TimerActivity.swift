@@ -23,6 +23,16 @@ struct TimerAttributes: ActivityAttributes {
         var awakeSince: Date?
         /// When the last nappy was changed. Shown beside the feed and the sleep, in every mode.
         var nappySince: Date?
+        /// What comes next, as a guess from the child's last week: "Next feed around 2:30 pm". Shown only
+        /// until `nextAt`, so nothing ever reads as late.
+        var nextText: String?
+        var nextAt: Date?
+
+        /// The line to show at this moment, if its time is still ahead.
+        func nextLine(now: Date = .now) -> String? {
+            guard let nextText, let nextAt, nextAt > now else { return nil }
+            return nextText
+        }
     }
 
     var childID: String

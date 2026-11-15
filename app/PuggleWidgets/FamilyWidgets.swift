@@ -158,7 +158,9 @@ struct ChildWidget: Widget {
             ChildWidgetView(entry: entry)
         }
         .configurationDisplayName("One child")
-        .description("Their last feed, sleep and \(Terms.nappyLower), at a glance. Also for the Lock Screen.")
+        // As plain text: WidgetKit stops the whole extension, Live Activity included, on a description with a
+        // value put into it.
+        .description(Text(verbatim: "Their last feed, sleep and \(Terms.nappyLower), at a glance. Also for the Lock Screen."))
         .supportedFamilies([.systemSmall, .accessoryRectangular, .accessoryInline])
     }
 }
