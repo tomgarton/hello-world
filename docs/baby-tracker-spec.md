@@ -1362,3 +1362,17 @@ and nothing said whether it was still sending. Settings has a row, "iCloud sync"
 It counts the family's entries on the phone and asks Core Data which of them iCloud has a record of, every
 three seconds while the screen is open. It is for everyone, not only test builds; the iCloud check stays for
 codes. Drawn with made-up numbers ("-debugSync 0.4"): `docs/previews/sync/`. Not yet seen with a real send.
+
+## Sending to iCloud after the app is closed (built 15 November 2026)
+
+Tom asked whether sync could carry on in the background. Fetching already could: the app has the remote
+notification background mode, so iCloud's silent pushes wake it to fetch. Sending had nothing, so a big import
+only went up while the app was on screen. `BackgroundSync` (app/Puggle/Data/BackgroundSync.swift) now asks
+iOS for time while entries are waiting:
+
+- as Puggle leaves the screen, the half minute or so iOS allows any app that asks;
+- a background processing task (`com.tomgarton.puggle.sync`), which iOS runs when it chooses, usually on
+  charge and on Wi-Fi, and which asks again if entries are still waiting when its time ends.
+
+Core Data still does the sending; this only keeps the app running. iOS decides when the later task runs, and
+it never runs for an app the person has swiped away. Not yet seen on a phone.

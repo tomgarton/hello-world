@@ -29,6 +29,8 @@ struct PuggleApp: App {
         TimerActions.perform = { action, childID in
             FamilyStore.live.handleTimerAction(action, childID: childID)
         }
+        // Time to finish sending to iCloud after the app is closed.
+        BackgroundSync.register()
     }
 
     private var scheme: ColorScheme? {
@@ -94,6 +96,7 @@ struct PuggleApp: App {
                     switch phase {
                     case .active:
                         if !lock.isLocked { PrivacyShield.shared.hide() }
+                        BackgroundSync.backOnScreen()
                         LiveTimers.shared.sync(with: store)
                         ReminderStore.shared.reschedule(with: store)
                         WidgetFeed.update(from: store)
@@ -110,6 +113,7 @@ struct PuggleApp: App {
                         lock.unlock()
                         PuggleShortcuts.updateAppShortcutParameters()
                     case .background:
+                        BackgroundSync.leftScreen()
                         lock.lockIfNeeded()
                         if AppLock.isOn { PrivacyShield.shared.show(lock: lock) }
                     case .inactive:
