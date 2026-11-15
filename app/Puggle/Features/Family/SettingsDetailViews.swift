@@ -200,6 +200,11 @@ struct WeatherSettingsView: View {
     var body: some View {
         List {
             Section {
+                WeatherPreview(live: isOn && watch.trouble == nil ? Weather(rawValue: live) : nil)
+                    .listRowInsets(EdgeInsets())
+                    .listRowBackground(Color.clear)
+            }
+            Section {
                 Toggle("Match the weather outside", isOn: Binding(get: { isOn }, set: { on in
                     if on { watch.turnOn() } else { watch.turnOff() }
                 }))
@@ -210,9 +215,7 @@ struct WeatherSettingsView: View {
                         if TesterDetail.on, let detail = watch.troubleDetail {
                             Text(detail).font(.footnote.monospaced()).foregroundStyle(Palette.muted).textSelection(.enabled)
                         }
-                    } else if let now = Weather(rawValue: live) {
-                        LabeledContent("Now", value: now.name)
-                    } else {
+                    } else if Weather(rawValue: live) == nil {
                         LabeledContent("Now", value: "Checking")
                     }
                 }
@@ -245,5 +248,60 @@ struct WeatherSettingsView: View {
         .background(Palette.sand)
         .navigationTitle("Weather on Today")
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+/// Puggle in her scene, at the top of the weather page, showing what the switch does (Tom, 15 November 2026).
+/// With the weather on it is the weather outside now. With it off, it steps through a few kinds as examples,
+/// by day so each can be seen. With Reduce Motion it holds on rain.
+private struct WeatherPreview: View {
+    /// The real weather, when it is on and known.
+    let live: Weather?
+
+    @StateObject private var controller = PuggleController()
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var scheme
+    @Environment(\.puggleNight) private var night
+    @State private var step = 0
+    private static let examples: [Weather] = [.rain, .clear, .windy, .snow, .hot]
+
+    private var weather: Weather { live ?? Self.examples[step % Self.examples.count] }
+
+    var body: some View {
+        let dark = live != nil && (scheme == .dark || night)
+        let after = live != nil && PuggleScene.isNight(dark: dark)
+        let wearing = weather.outfit(night: after)
+        ZStack(alignment: .bottom) {
+            PuggleScene(kind: .today, dark: dark, hourOverride: live == nil ? 11 : nil, weather: weather)
+            PuggleView(controller: controller)
+                .environment(\.moonlit, after)
+                .environment(\.outfit, wearing)
+                .environment(\.shades, Shades.forOutfit(wearing))
+                .frame(height: 104)
+                .padding(.bottom, 22)
+                .id(wearing)
+        }
+        .frame(height: 190)
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .overlay(alignment: .topLeading) {
+            Text(live == nil ? "For example: \(weather.name.lowercased())" : weather.name)
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(Palette.fixedInk)
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Palette.fixedPaper.opacity(0.9), in: Capsule())
+                .padding(10)
+        }
+        .animation(.easeInOut(duration: 0.6), value: weather)
+        .accessibilityElement()
+        .accessibilityLabel(live == nil ? "A picture of Puggle in the \(weather.name.lowercased())" : "Puggle in today's weather: \(weather.name.lowercased())")
+        .task(id: live == nil) {
+            guard live == nil, !reduceMotion else { return }
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(3.5))
+                step += 1
+            }
+        }
     }
 }

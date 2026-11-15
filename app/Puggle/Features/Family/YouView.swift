@@ -61,7 +61,7 @@ struct YourAvatar: View {
     }
 }
 
-/// You: your photo and name. Settings and Help are one row away.
+/// You: your photo and name. Settings and Help are on the Family tab.
 struct YouView: View {
     @Environment(\.dismiss) private var dismiss
     @AppStorage(Setting.yourName) private var yourName = ""
@@ -99,14 +99,6 @@ struct YouView: View {
                          : "Your name and photo are shown to your family, beside what you log.")
                 }
                 .listRowBackground(Palette.input)
-
-                // One way in to everything else. A shortlist here repeated half of Settings and left the
-                // other half a second tap away (Tom, 15 November 2026).
-                Section {
-                    NavigationLink("Settings") { SettingsView() }
-                    NavigationLink("Help and about") { HelpView() }
-                }
-                .listRowBackground(Palette.paper)
 
                 Section {
                     EmptyView()

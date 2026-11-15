@@ -1473,3 +1473,22 @@ Apple Weather mark and a "Data sources" link, which Apple requires. The night lo
 sentence each.
 
 **Not yet reviewed:** Reminders, Your data, Help and about, Siri and shortcuts, and the tile chooser.
+
+**Settings, second pass (15 November 2026).** Apple's guidance on settings (Human Interface Guidelines,
+Settings) in short: ship good defaults, offer as few settings as possible, keep options for one screen on
+that screen, and do not repeat what the system already governs. Taken from the iPhone's own Settings: you at
+the head, in a card with your photo and name, and everything else beneath.
+
+- **You and Family are one place.** The Family tab opens with a card for the person (photo, name, "Parent ·
+  Ollie and Bea's family") that opens their photo and name. Children and Family and friends follow. Settings
+  and Help and about are two rows at the foot. Settings no longer has a You group, and the You sheet is only
+  the photo and name.
+- **Weather on Today** opens with Puggle in her scene (`WeatherPreview`). With the weather off it steps
+  through rain, fine, windy, snow and hot as examples, by day. With it on it shows the weather outside now.
+  The "Now" row went, since the picture says it.
+- **Copy** on Reminders, Your data, Help and about, and Siri and shortcuts: no "we" or "us" ("Contact us" is
+  "Send an email"; "We hold none of it" is "Nobody else has a copy"), and the lines that sold ("Never a nag",
+  "Nothing to set up", "No ads, no tracking, no analytics") are plain or gone.
+
+Open, from Apple's guidance: Tiles is an option for one screen, and Today already has its own Edit, so the
+Tiles row in Settings may not be needed. Appearance repeats the iPhone's own light and dark setting.

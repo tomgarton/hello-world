@@ -16,7 +16,7 @@ struct SiriView: View {
     private var phrases: [(symbol: String, words: String, does: String)] {
         [("moon", "Start sleep for \(name) in Puggle", "Starts the sleep timer"),
          ("sun.max", "\(name) woke up in Puggle", "Ends it"),
-         ("drop", "Log \(Terms.aNappy) for \(name) in Puggle", "Saves a wet \(Terms.nappyLower). Change it in the app if not"),
+         ("drop", "Log \(Terms.aNappy) for \(name) in Puggle", "Saves a wet \(Terms.nappyLower). Change it later in the app"),
          ("waterbottle", "Log a bottle for \(name) in Puggle", "Asks how much"),
          ("clock", "When was \(name) last fed in Puggle", "Tells you, out loud")]
     }
@@ -40,7 +40,7 @@ struct SiriView: View {
             } header: {
                 Text("Say to Siri")
             } footer: {
-                Text("Nothing to set up. Say \u{201C}Hey Siri\u{201D} or hold the side button first. Any child's name works.")
+                Text("Say \u{201C}Hey Siri\u{201D} or hold the side button first. Any child's name works.")
             }
             .listRowBackground(Palette.paper)
 
@@ -71,7 +71,7 @@ struct SiriView: View {
             } header: {
                 Text("A dark look at bedtime")
             } footer: {
-                Text("The app goes dark at bedtime; the rest of the phone doesn't change.")
+                Text("Only the app goes dark. The rest of the phone doesn't change.")
             }
             .listRowBackground(Palette.paper)
         }

@@ -40,12 +40,11 @@ enum Setting {
 /// Settings, reached from the Family tab.
 ///
 /// Grouped by what a parent is trying to do (Tom, 15 November 2026: it felt crammed and confusing):
-/// who they are, what Today shows, how the app looks, what shows away from the app, the children, privacy
+/// what Today shows, how the app looks, what shows away from the app, the children, privacy
 /// and data, and help. Every section has a heading. A line of help sits inside the row it explains, so it
 /// is never read as being about the whole group. Appearance, units, weather and reminders have their own screens.
 struct SettingsView: View {
     @EnvironmentObject private var sample: SampleFamily
-    @AppStorage(Setting.yourName) private var yourName = ""
     @AppStorage(Setting.justLog) private var justLog = false
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
@@ -58,7 +57,6 @@ struct SettingsView: View {
 
     var body: some View {
         List {
-            youSection
             todaySection
             lookSection
             awaySection
@@ -96,22 +94,6 @@ struct SettingsView: View {
             Text(help).font(.footnote).foregroundStyle(Palette.muted).fixedSize(horizontal: false, vertical: true)
         }
         .padding(.vertical, 3)
-    }
-
-    private var youSection: some View {
-        Section {
-            LabeledContent("Your name") {
-                TextField("Add your name", text: $yourName)
-                    .textContentType(.givenName)
-                    .submitLabel(.done)
-                    .multilineTextAlignment(.trailing)
-            }
-        } header: {
-            heading("You", "person")
-        } footer: {
-            Text("Shown beside what you log, so the family knows who added it.")
-        }
-        .listRowBackground(Palette.paper)
     }
 
     private var todaySection: some View {

@@ -260,7 +260,7 @@ struct RemindersView: View {
             }
             Section {
                 if reminders.reminders.isEmpty {
-                    Text("No reminders yet. They are off until you add one.")
+                    Text("No reminders yet.")
                         .foregroundStyle(Palette.muted)
                 }
                 ForEach(reminders.reminders) { reminder in
@@ -271,7 +271,7 @@ struct RemindersView: View {
                     offsets.map { reminders.reminders[$0] }.forEach(reminders.delete)
                 }
             } footer: {
-                Text("Reminders are just for you, on this iPhone. Nobody else in the family gets them.")
+                Text("Reminders show on this iPhone only.")
             }
             .listRowBackground(Palette.paper)
 
@@ -283,7 +283,7 @@ struct RemindersView: View {
                     }
             } footer: {
                 Text(justLog ? "Off while Just logging is on." :
-                     "Two days before a child reaches a new row on a tin you've read, once. It says the row changes, not how much to give.")
+                     "Once, two days before a child reaches a new row on a tin you've read. It says the row changes, not how much to give.")
             }
             .listRowBackground(Palette.paper)
             .disabled(justLog)
@@ -407,7 +407,7 @@ private struct ReminderEditor: View {
         .listRowBackground(Palette.paper)
         Section {
         } footer: {
-            Text("Counted from the last feed anyone logged. You choose the time; the app doesn't suggest one.")
+            Text("Counted from the last feed anyone logged. The app never suggests a time.")
         }
     }
 
@@ -434,7 +434,7 @@ private struct ReminderEditor: View {
             DatePicker("From", selection: minutes(\.from), displayedComponents: .hourAndMinute)
             DatePicker("Until", selection: minutes(\.until), displayedComponents: .hourAndMinute)
         } footer: {
-            Text("A gentle \"Time to try?\" during the day. Never a nag.")
+            Text("A quiet \"Time to try?\" between these times.")
         }
     }
 

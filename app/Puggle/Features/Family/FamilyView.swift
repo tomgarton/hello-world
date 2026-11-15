@@ -10,6 +10,7 @@ struct FamilyView: View {
     private var children: [Child] { store.onScreen(allChildren) }
 
     @State private var addingChild = false
+    @State private var showingYou = false
     @FetchRequest(sortDescriptors: [SortDescriptor(\Person.createdAt)]) private var allPeople: FetchedResults<Person>
     @State private var sharing: SharingItem?
     @State private var shareError: String?
@@ -31,20 +32,28 @@ struct FamilyView: View {
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                 }
+                // You, at the head of your family, as the iPhone's own Settings has it (Tom, 15 November 2026).
                 Section {
-                    NavigationLink {
-                        SettingsView()
-                    } label: {
-                        HStack(spacing: 12) {
-                            Image(systemName: "gearshape")
-                                .font(.system(size: 34))
-                                .frame(width: 40, height: 40)
-                            VStack(alignment: .leading) {
-                                Text("Settings").font(.headline)
-                                Text("Reminders, your data and help").font(.subheadline).foregroundStyle(Palette.muted)
+                    Button { showingYou = true } label: {
+                        HStack(spacing: 14) {
+                            YourAvatar(size: 56)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(yourName.trimmingCharacters(in: .whitespaces).isEmpty ? "Add your name" : yourName)
+                                    .font(.title3.weight(.semibold))
+                                    .foregroundStyle(Palette.ink)
+                                Text("\(store.role.title) · \(store.familyName.isEmpty ? store.childrenTitle : store.familyName)")
+                                    .font(.subheadline)
+                                    .foregroundStyle(Palette.muted)
+                                    .lineLimit(1)
                             }
+                            Spacer(minLength: 0)
+                            Image(systemName: "chevron.right").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted.opacity(0.6))
                         }
+                        .padding(.vertical, 4)
+                        .contentShape(Rectangle())
                     }
+                    .buttonStyle(.plain)
+                    .accessibilityHint("Your name and photo")
                     .listRowBackground(Palette.paper)
                 }
                 if store.isParent && !sample.isOn {
@@ -160,11 +169,18 @@ struct FamilyView: View {
                 if let shareError {
                     Text(shareError).font(.footnote).foregroundStyle(Palette.waratah)
                 }
+                Section {
+                    NavigationLink { SettingsView() } label: { Label("Settings", systemImage: "gearshape") }
+                    NavigationLink { HelpView() } label: { Label("Help and about", systemImage: "questionmark.circle") }
+                }
+                .foregroundStyle(Palette.ink)
+                .listRowBackground(Palette.paper)
             }
             .scrollContentBackground(.hidden)
             .background(Palette.sand)
             .navigationTitle("Family")
             .sheet(isPresented: $addingChild) { AddChildView() }
+            .sheet(isPresented: $showingYou) { YouView() }
             .sheet(isPresented: $inviting) {
                 InviteSheet { invite in
                     pending = invite

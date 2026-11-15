@@ -22,11 +22,11 @@ struct YourDataView: View {
 
     var body: some View {
         List {
-            Section("Where it lives") {
+            Section("Where it's kept") {
                 Text(Persistence.cloudSyncEnabled
-                     ? "Everything you log is kept on this iPhone and in your own iCloud, so it reaches the people you invite. We hold none of it."
+                     ? "Everything you log is kept on this iPhone and in your own iCloud, so it reaches the people you invite. Nobody else has a copy."
                      : "Everything you log is kept on this iPhone only. This build does not use iCloud, so nothing leaves the phone and nothing is shared.")
-                Text("No ads, no tracking, no analytics.")
+                Text("No ads and no tracking.")
                 if store.isSample {
                     Text("This is the sample family, so an export holds the made-up entries.")
                 }
@@ -213,7 +213,7 @@ struct HelpView: View {
     var body: some View {
         List {
             if matches.isEmpty {
-                Text("Nothing found. Try another word, or get in touch below.")
+                Text("Nothing found. Try another word, or send an email below.")
                     .foregroundStyle(Palette.muted)
                     .listRowBackground(Palette.paper)
             }
@@ -236,10 +236,10 @@ struct HelpView: View {
                 Button {
                     contact()
                 } label: {
-                    Label("Contact us", systemImage: "envelope")
+                    Label("Send an email", systemImage: "envelope")
                 }
             } footer: {
-                Text("Opens an email with the app and iOS version filled in, so it's easy to help.")
+                Text("Opens an email with the app and iOS version filled in.")
             }
             .listRowBackground(Palette.paper)
             Section("About") {

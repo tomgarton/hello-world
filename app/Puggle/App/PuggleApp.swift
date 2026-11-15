@@ -262,7 +262,7 @@ struct RootView: View {
             NavigationStack { ImportView(debug: look) }
         } else if let screen = UserDefaults.standard.string(forKey: "debugSettings") {
             // For checking Settings: "-debugSettings main", "weather" or "you".
-            if screen == "you" { YouView() }
+            if screen == "you" { YouView() } else if screen == "family" { FamilyView() }
             else { NavigationStack { if screen == "weather" { WeatherSettingsView() } else { SettingsView() } } }
         } else if UserDefaults.standard.string(forKey: "debugSync") != nil {
             // For checking the sync screen part-way through a send: "-debugSync 0.4" (or 1 for up to date).
