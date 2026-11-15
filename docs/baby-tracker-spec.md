@@ -1764,3 +1764,12 @@ with colour on the parent's hair only, and asked for cleaner lines, the eyes tou
 The drawing before is kept as `held-hair`. Not yet installed in the app: that needs the stroke order for
 drawing on, the small drawing, the widget glyph, and a decision on the skin tone setting, which this
 drawing has no use for. `breastfeeding-runners.png` shows it with the current icon and the one before.
+
+**The body line, and the faces (later, 15 November 2026).** Tom: the parent's bottom line can finish under
+the baby's head, not wrap up its far side; and should the faces have eyes or smiles? The body line now ends
+under the baby with a small lift (`NURSE_BODY`; the wrap is kept as `held-wrap`). Faces: a closed eye is a
+small arc, open side up, and one alone in the middle of a round head reads as a smile. Five faces are in
+`NURSE_FACES`: closed eyes turned to each other (now the drawing's face: the baby's eye moved to the
+parent's side of its head), the baby's eye in the middle, open eyes, parent closed and baby open, and eyes
+with smiles. At 24 points and under no face is drawn. `docs/previews/icons/breastfeeding-faces.png`.
+Not decided; not installed.

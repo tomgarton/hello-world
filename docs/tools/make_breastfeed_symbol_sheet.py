@@ -69,9 +69,9 @@ def runners():
     """The short list (15 November 2026): the earlier 'Parent and baby', the symbol in line, and held with the wrap in colour."""
     now = M.ICONS['breastfeed']
     body = block('In the app now', 'The current drawing, for comparison.', now, M.small(now))
-    for key in ('held-refined', 'held-hair'):
+    for key in ('held-refined', 'held-wrap', 'held-hair'):
         spec, title, text = M.ALTERNATES[key]
-        if key == 'held-hair': title, text = 'Before', 'Parent and baby, hair in colour, as it was.'
+        if key == 'held-hair': title, text = 'Before any refining', 'Parent and baby, hair in colour, as it was.'
         body += block(title, text, spec, M.small(spec))
     html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
     head = html[:html.index('<body>')]
@@ -80,5 +80,16 @@ def runners():
     print('wrote', out)
 
 
+
+def faces():
+    """Eyes or smiles on the chosen drawing (15 November 2026)."""
+    body = ''.join(block(title, text, spec, M.small(spec)) for spec, title, text in M.NURSE_FACES.values())
+    html = open(os.path.join(M.OUT, 'breastfeeding-symbol.html')).read()
+    out = os.path.join(M.OUT, 'breastfeeding-faces.html')
+    open(out, 'w').write(f'{html[:html.index("<body>")]}<body><h1>Breastfeeding, the faces</h1><p>The chosen drawing with five faces. At 24 points and under, no face is drawn.</p>{body}</body></html>')
+    print('wrote', out)
+
+
 if __name__ == '__main__':
     runners()
+    faces()

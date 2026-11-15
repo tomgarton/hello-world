@@ -382,12 +382,29 @@ ALTERNATES['held-hair-both'] = (icon(HELD_LINES, fine=HELD_EYES, box=32, weight=
 NURSE_MUM = circle(12.5, 9.5, 6)
 NURSE_FRINGE = 'M6.5 9.6C10.4 9.6 14.5 8 16.2 4.8'
 NURSE_BUB = circle(19.4, 18.2, 4.8)
-NURSE_BODY = 'M7.6 14.4C5 16.4 3.6 19.4 3.6 23C3.6 26.8 6.6 29.4 10.6 29.4H19C23.6 29.4 26.4 26.4 26.7 20.4'
+NURSE_WRAP = 'M7.6 14.4C5 16.4 3.6 19.4 3.6 23C3.6 26.8 6.6 29.4 10.6 29.4H19C23.6 29.4 26.4 26.4 26.7 20.4'   # first: up the baby's far side
+# Later the same day, Tom: the bottom line can finish under the baby's head. It lifts a little as it ends.
+NURSE_BODY = 'M7.6 14.4C5 16.4 3.6 19.4 3.6 23C3.6 26.8 6.6 29.4 10.6 29.4H18C20.6 29.4 22.6 28.6 23.8 27'
 NURSE_ARM = 'M9 20.6C10.4 23.2 13 24.8 16.2 25'
-ALTERNATES['held-refined'] = (icon([NURSE_MUM, BUN, NURSE_BUB, NURSE_BODY, NURSE_FRINGE, NURSE_ARM],
-                                   fine=[eye(14.2, 11.5, 1.0), eye(19.2, 18.4, 1.2)], box=32, weight=BIG,
-                                   wattle=[NURSE_FRINGE + 'A6 6 0 0 0 6.5 9.6Z', BUN + 'A6 6 0 0 1 9.1 4.6Z']),
-                              'Parent and baby, refined', 'The chosen drawing with its lines cleaned up: no eye touches an edge, and no lines pile up under the baby.')
+NURSE_HAIR = [NURSE_FRINGE + 'A6 6 0 0 0 6.5 9.6Z', BUN + 'A6 6 0 0 1 9.1 4.6Z']
+
+
+def nurse(fine, ink=(), body=NURSE_BODY):
+    return icon([NURSE_MUM, BUN, NURSE_BUB, body, NURSE_FRINGE, NURSE_ARM], fine=list(fine), ink=list(ink), box=32, weight=BIG, wattle=NURSE_HAIR)
+
+
+# The faces. A closed eye is a small arc, open side up. One alone in the middle of a round head reads as a
+# smile, so the baby's sits to the parent's side of its head, as the parent's sits to the baby's side.
+NURSE_FACES = {
+    'closed': (nurse([eye(14.2, 11.5, 1.0), eye(18.0, 18.2, 1.0)]), 'Closed eyes, turned to each other', 'Each has one closed eye on the side nearest the other, so both read as eyes and as looking at each other.'),
+    'centre': (nurse([eye(14.2, 11.5, 1.0), eye(19.2, 18.4, 1.2)]), 'Closed eyes, baby\u2019s in the middle', 'As it was. In the middle of a round head the baby\u2019s eye reads as a smile.'),
+    'dots': (nurse([], [circle(14.6, 11.3, .8), circle(17.8, 18.3, .8)]), 'Open eyes', 'A dot each, as tummy time has. Awake, and a little startled.'),
+    'mixed': (nurse([eye(14.2, 11.5, 1.0)], [circle(17.8, 18.3, .8)]), 'Parent closed, baby open', 'The parent looks down; the baby looks up.'),
+    'smiles': (nurse([eye(15.2, 13.0, .7), eye(19.6, 20.0, .8)], [circle(14.4, 10.9, .7), circle(17.9, 17.6, .7), circle(21, 17.6, .7)]), 'Eyes and smiles', 'Open eyes with a smile under them. Clear large; under 40 points the marks run together.'),
+}
+ALTERNATES['held-wrap'] = (nurse([eye(14.2, 11.5, 1.0), eye(19.2, 18.4, 1.2)], body=NURSE_WRAP), 'Parent and baby, arm up the far side', 'The first refinement: the body line comes up round the baby\u2019s far side.')
+ALTERNATES['held-refined'] = (NURSE_FACES['closed'][0], 'Parent and baby, refined',
+                              'The chosen drawing with its lines cleaned up: no eye touches an edge, no lines pile up under the baby, and the body line finishes under the baby\u2019s head.')
 
 # The symbol with the baby's head drawn as tummy time draws it (15 November 2026, Tom's ask): an outlined head,
 # hair in colour and a dot for an eye. Tummy time's head is 4.5 on a 24 canvas; to keep that share of the line
@@ -469,7 +486,7 @@ h2{{font-size:20px;margin:34px 0 4px}}h3{{margin:12px 0 2px;font-size:17px}}p{{m
 .tiles{{display:flex;gap:8px}}
 .tones{{display:flex;gap:14px;margin-top:12px}}.t{{background:#FBF6E9;border-radius:20px;padding:14px;display:flex;flex-direction:column;gap:8px}}
 </style></head><body><h1>Breastfeeding icon, the choices</h1>
-<p class="lede">Eight ways to draw it. The last three are Parent and baby without the blue; the very last is the one chosen, refined. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
+<p class="lede">Nine ways to draw it. The last four are Parent and baby without the blue; the very last is the one chosen, refined. Each is shown large, then at 32 points, then its simpler drawing at 24 and 17, in dark, in one colour for lists, and on a Today tile at 40 points, the size the app uses.</p>
 <div class="g" style="flex-wrap:wrap">{cells}</div>
 <h2>After the International Breastfeeding Symbol</h2><p>Six after the symbol (Matt Daigle, 2006, given to the public domain by its maker) and three of a parent holding a wrapped baby, added 15 November 2026. All are drawn for this set: its line, its weight and one colour.</p>
 <div class="g" style="margin-top:14px;flex-wrap:wrap">{after}</div>
