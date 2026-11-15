@@ -1545,3 +1545,11 @@ the simpler drawing with fewer inner lines.
   (Family, the child, Stamp book). `PlayShelfView` is kept in the code, unused.
 
 Raised by Tom and not decided: a tab of its own for stamps or achievements. Not yet tried by a child.
+
+**A tab for play, drawn (15 November 2026).** Tom asked whether stamps or achievements could have a tab of
+their own, and said books are to come: Puggle and friends' stories, picture books and lift-the-flap books.
+Drawn in `docs/previews/play/play-tab.png` (`docs/tools/make_play_tab_mockup.py`): the app as built with four
+tabs; a Play tab with what exists now (a big button into the pad, each child's stamp book, stickers earned);
+and the same tab once there are books, with shelves of stories and lift-the-flap books. The book titles on
+the drawing are placeholders. Not decided: whether to add the tab now or with the first book, which families
+see it, and its name.
