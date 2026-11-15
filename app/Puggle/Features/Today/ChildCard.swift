@@ -171,6 +171,14 @@ struct ChildCard: View {
                     .monospacedDigit()
                     .padding(.horizontal, 2)
             }
+            // Milk from bottles today, beside what the tin suggests. Only once there has been a bottle.
+            if !justLog, let milk = MilkDay(child: child, store: store, now: now)?.line {
+                Text(milk)
+                    .font(.footnote)
+                    .foregroundStyle(quiet)
+                    .monospacedDigit()
+                    .padding(.horizontal, 2)
+            }
             if open && store.canLog {
                 ChildActions(child: child, facts: facts.map(\.kind), inside: true, asleep: asleep, onLog: onLog, onPastSleep: onPastSleep)
                     .transition(.opacity.combined(with: .move(edge: .top)))

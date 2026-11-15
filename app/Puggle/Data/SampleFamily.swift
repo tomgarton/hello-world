@@ -164,12 +164,12 @@ private struct SampleData {
         tin.name = "Example formula"
         tin.key = "example formula"
         tin.strength = "Stage 1"
-        tin.rows = BoxTable(columns: ["Water", "Scoops"], rows: [
-            .init(age: "Up to 2 weeks", from: AgeMark(count: 0, unit: .weeks), values: ["60 ml", "2"]),
-            .init(age: "2 to 4 weeks", from: AgeMark(count: 2, unit: .weeks), values: ["90 ml", "3"]),
-            .init(age: "1 to 2 months", from: AgeMark(count: 1, unit: .months), values: ["120 ml", "4"]),
-            .init(age: "3 to 5 months", from: AgeMark(count: 3, unit: .months), values: ["180 ml", "6"]),
-            .init(age: "6 to 8 months", from: AgeMark(count: 6, unit: .months), values: ["210 ml", "7"]),
+        tin.rows = BoxTable(columns: [FormulaReader.water, FormulaReader.scoops, FormulaReader.feeds], rows: [
+            .init(age: "Up to 2 weeks", from: AgeMark(count: 0, unit: .weeks), values: ["60 ml", "2", "7"]),
+            .init(age: "2 to 4 weeks", from: AgeMark(count: 2, unit: .weeks), values: ["90 ml", "3", "6"]),
+            .init(age: "1 to 2 months", from: AgeMark(count: 1, unit: .months), values: ["120 ml", "4", "5"]),
+            .init(age: "3 to 5 months", from: AgeMark(count: 3, unit: .months), values: ["180 ml", "6", "5"]),
+            .init(age: "6 to 8 months", from: AgeMark(count: 6, unit: .months), values: ["210 ml", "7", "4"]),
         ]).json
         tin.readAt = ago(days: 12)
         tin.updatedAt = ago(days: 12)

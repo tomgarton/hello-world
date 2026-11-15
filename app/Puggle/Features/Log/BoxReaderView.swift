@@ -444,10 +444,18 @@ struct BoxReaderView: View {
             shots.append(image)
             let found = BoxReader.table(from: lines, kind: kind)
             let before = table
-            let joined = BoxReader.merged(table ?? BoxTable(columns: kind.defaultColumns, rows: []), with: found.table,
+            let joined: BoxTable
+            if let held = table, FormulaReader.reads(held), FormulaReader.reads(found.table) {
+                // Two photos of a tin's table: each fills what the other missed.
+                let both = FormulaReader.merged(held, unsure: unsure, with: found.table, unsure: found.unsure)
+                joined = both.table
+                unsure = both.unsure
+            } else {
+                joined = BoxReader.merged(table ?? BoxTable(columns: kind.defaultColumns, rows: []), with: found.table,
                                           loose: BoxReader.looseRows(from: lines), kind: kind)
+                unsure.formUnion(found.unsure)
+            }
             table = joined.rows.isEmpty ? nil : joined
-            unsure.formUnion(found.unsure)
             // A row this photo changed, or added, needs checking.
             let same = Set((before?.rows ?? []).filter { row in joined.rows.contains(row) }.map(\.id))
             ticked.formIntersection(same)

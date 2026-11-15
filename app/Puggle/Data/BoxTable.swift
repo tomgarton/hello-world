@@ -148,7 +148,7 @@ enum BoxReader {
     static func age(in text: String) -> (range: Range<String.Index>, from: AgeMark)? {
         let dash = "(?:-|–|—|to)"
         let patterns: [(String, ([String]) -> AgeMark?)] = [
-            ("(?:up to|under|birth to|newborn to|from birth to|0 ?\(dash))\\s*\(number)\\s*\(unit)\\b",
+            ("(?:up to|under|birth ?\(dash)|newborn to|from birth to|0 ?\(dash))\\s*\(number)\\s*\(unit)\\b",
              { m in unit(m[2]).map { AgeMark(count: 0, unit: $0) } }),
             ("\\b\(number)\\s*\(unit)?\\s*\(dash)\\s*\(number)\\s*\(unit)\\b",
              { m in mark(m[1], m[2].isEmpty ? m[4] : m[2]) }),
@@ -184,7 +184,7 @@ enum BoxReader {
         return parts.isEmpty ? [cell] : parts
     }
 
-    private static let shaky = try! NSRegularExpression(pattern: "\\d[.,]\\d|\\d[OoIlSB]|[OoIlSB]\\d")
+    private static let shaky = try! NSRegularExpression(pattern: "\\d[.,]\\d|\\d(?:[OoISB]|l(?!bs?\\b))|[OoIlSB]\\d")
 
     /// Whether a value is worth a second look: read with doubt, or with a decimal point or a letter that looks like a digit.
     static func isShaky(_ text: String, confidence: Float) -> Bool {
@@ -200,6 +200,8 @@ enum BoxReader {
     /// Puts the read text back into rows by where it sits, keeps the rows that start with an age,
     /// and returns the table with the cells worth a second look.
     static func table(from lines: [ReadLine], kind: GuideKind) -> (table: BoxTable, unsure: Set<Cell>) {
+        // A tin's feeding table, with feeds in a day, is read by what each thing is: see `FormulaReader`.
+        if kind == .formula, let tin = FormulaReader.table(from: lines) { return tin }
         let rows = levelRows(lines)
 
         var table = BoxTable(columns: [], rows: [])

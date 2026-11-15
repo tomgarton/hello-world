@@ -1881,3 +1881,56 @@ simulator with the sample family: both layouts, light and dark, a child asleep, 
 opening its sheet for the right child (`docs/previews/today/built.png`, `built-open.png`). Not seen: a
 family of one child, three children, the largest text sizes, a viewer, "Just logging", a running
 breastfeed, or anything on a phone.
+
+## Milk today, and reading a tin (15 November 2026, night)
+
+**Why.** Clara: it is useful to see how much milk the baby has drunk through the day. The family goes by the
+tin: at 6 months theirs says 210 ml of water and 7 scoops a feed, 4 feeds in 24 hours, so about 840 ml and
+28 scoops a day. Every baby is different, but it gives a rough figure to see a day against, and so to
+notice when something is off (unwell, a regression, a milestone). Tom tried to read their tin and sent the
+result: the reader "needs a lot of work".
+
+**What went wrong with the tin.** Tom's two photos of the tin were run through the same text recognition
+the app uses. On a round tin:
+
+- The right-hand columns (scoops, feeds) sit higher than their rows, by most of a row in the wider photo. Put
+  back into rows by height alone, numbers landed in the row above or below.
+- Some single digits out there were not read at all.
+- The tin's headings are on three lines, so the first row of the table ("Birth-1 week", an age the reader
+  did not know) was taken for the headings.
+- "7lb" was marked as doubtful, as a 7 followed by a letter that looks like a digit, and so was every weight
+  with a decimal point. Most of the table was highlighted.
+- A second photo of the same table was joined on as if it were another part of it, which made a row of its
+  own from a misread age and ran three cells together.
+
+**The tin reader now** (`Puggle/Data/FormulaReader.swift`; the medicine box keeps the plain reader).
+
+- Each piece is told apart by its unit: "210ml" is water, "8.0 kg" and "18lb" are weight, a bare number is
+  scoops or feeds. The columns are always Weight (if the tin has one), Water, Scoops, Feeds in 24 hours.
+- **Scoops are worked out, then checked.** The tin says how much water a scoop takes ("1 level scoop to
+  each 30ml"); if the photo missed that, the usual amounts are tried against the scoops that were read. A
+  scoop count that was not read is filled in from the water and marked for checking.
+- **The slant is measured** from the scoops that were read: the slant at which the most of them agree with
+  their water. The feeds are then put in their rows with the same slant.
+- **A feed count that was not read is left empty and marked.** It is never guessed. On Tom's photos three or
+  four of the seven were not read, so those are typed in from the photo.
+- **Two photos of one table** fill each other's gaps. Rows pair up in order when both found the same number,
+  so a misread age cannot add a row. Where they disagree the first stays and the cell is marked.
+- A weight is never marked. "Birth-1 week" is an age that starts at birth.
+
+**Milk today** (`Features/Today/MilkToday.swift`).
+
+- On a child's card on Today, once there has been a bottle: "510 ml today · Tin suggests about 900 ml".
+- At the top of the child's day: the total and the number of bottles, a quiet bar against the tin, and the
+  tin's own figures ("The tin suggests about 900 ml a day at 3 to 5 months: 5 feeds of 180 ml, 30 scoops.
+  Every baby is different."). The bar stops at full: there is nothing to go over.
+- The tin's figure comes from the row for the child's age, and only if that row has both water and feeds.
+  A tin saved before today has no feeds column, so it gives no figure until it is read again.
+- Bottles only. A breastfeed has no amount. "Just logging" shows none of it.
+
+**Checked.** 87 tests pass. Seven are new and use the text read from Tom's two photos: every row gets its
+water and scoops in both, the feeds that were read are in their own rows, and the two photos together make
+seven rows. In the simulator with the sample family: the line on Today and the card in the day
+(`docs/previews/today/milk-today.png`). **Not checked: reading a real tin on a phone.** The full photo on the
+phone is sharper than the screenshots used here and may read more digits or different ones; other brands'
+tables have not been tried.

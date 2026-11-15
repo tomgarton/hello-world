@@ -836,6 +836,10 @@ struct DaySoFarView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 14) {
+                    // First, so it shows without pulling the panel up.
+                    if !justLog, let milk = MilkDay(child: child, store: store) {
+                        MilkTodayCard(day: milk)
+                    }
                     if store.canLog {
                         Text("Log for \(child.displayName)")
                             .font(.footnote.weight(.semibold))
