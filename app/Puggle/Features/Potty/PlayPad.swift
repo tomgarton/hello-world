@@ -314,6 +314,9 @@ struct PaperArt: View, Equatable {
 
 /// Holding the close button for a moment closes the pad, so a stray tap does not.
 struct HoldToClose: View {
+    /// The cross closes the pad; any other symbol is another grown-up's button that opens the same way.
+    var symbol = "xmark"
+    var label = "Close"
     let action: () -> Void
     @State private var progress: CGFloat = 0
     @State private var task: Task<Void, Never>?
@@ -325,7 +328,7 @@ struct HoldToClose: View {
                 .stroke(Palette.ink, style: StrokeStyle(lineWidth: 3.5, lineCap: .round))
                 .rotationEffect(.degrees(-90))
                 .padding(2)
-            Image(systemName: "xmark").font(.subheadline.weight(.bold))
+            Image(systemName: symbol).font(.subheadline.weight(.bold))
         }
         .frame(width: 44, height: 44)
         .contentShape(Circle())
@@ -340,6 +343,9 @@ struct HoldToClose: View {
                         guard !Task.isCancelled else { return }
                         Haptics.success()
                         action()
+                        // Ready for the next hold, if this one did not close the screen.
+                        self.task = nil
+                        progress = 0
                     }
                 }
                 .onEnded { _ in
@@ -349,8 +355,8 @@ struct HoldToClose: View {
                 }
         )
         .accessibilityElement()
-        .accessibilityLabel("Close")
-        .accessibilityHint("For grown-ups. Hold to close.")
+        .accessibilityLabel(label)
+        .accessibilityHint("For grown-ups. Hold for a moment.")
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { action() }
     }
@@ -378,6 +384,7 @@ struct PlayPadView: View {
     @State private var drawing: PadMark?
     @State private var hover: CGPoint?
     @State private var confirmingClear = false
+    @State private var grownUps = false
     @State private var loaded = false
     @State private var paperSize: CGSize = .zero
     // A stamp's ink runs out, as on the stamper, until an ink pad is pressed again.
@@ -396,29 +403,16 @@ struct PlayPadView: View {
     private static let strengths: [Double] = [0, 0.3, 0.5, 0.72, 0.9, 1, 1, 1, 1]
     private var pageMarks: [PadMark] { marks[page] ?? [] }
 
+    /// The paper is the whole screen. Over the top of it sits one strip of large picture buttons: stamp or
+    /// crayon, the colours, and the stamps. Nothing is at the bottom, where a small hand rests, and everything
+    /// a grown-up needs is behind the round button that has to be held (Tom's choices, 15 November 2026,
+    /// after looking at Pok Pok and Sesame Workshop's findings for this age).
     var body: some View {
-        GeometryReader { geometry in
-            let landscape = geometry.size.width > geometry.size.height
-            Group {
-                if landscape {
-                    HStack(spacing: 12) {
-                        VStack(spacing: 8) {
-                            topBar
-                            paper
-                        }
-                        ScrollView(showsIndicators: false) { controls(columns: 4) }
-                            .frame(width: 236)
-                    }
-                } else {
-                    VStack(spacing: 10) {
-                        topBar
-                        paper
-                        controls(columns: 8)
-                    }
-                }
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 8)
+        ZStack(alignment: .top) {
+            paper.ignoresSafeArea()
+            strip
+                .padding(.horizontal, 10)
+                .padding(.top, 4)
         }
         .background(Palette.sand.ignoresSafeArea())
         .foregroundStyle(Palette.ink)
@@ -452,47 +446,177 @@ struct PlayPadView: View {
         }
         .onChange(of: paperSize) { _, _ in refreshFills() }
         .onChange(of: page) { _, _ in refreshFills() }
-        .confirmationDialog("Start a new sheet?", isPresented: $confirmingClear, titleVisibility: .visible) {
-            Button("New sheet", role: .destructive) {
-                withAnimation(.easeOut(duration: 0.25)) { marks[page] = [] }
-                changed()
+        .sheet(isPresented: $grownUps) { grownUpPanel }
+    }
+
+    // MARK: The strip
+
+    private var strip: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                HoldToClose { dismiss() }
+                Spacer(minLength: 0)
+                big(.stamp)
+                big(.crayon)
+                Spacer(minLength: 0)
+                HoldToClose(symbol: "ellipsis", label: "More, for grown-ups") { grownUps = true }
             }
-            Button("Keep it", role: .cancel) {}
+            if tool != .eraser {
+                dots.modifier(Shake(amount: 5, animatableData: CGFloat(dryNudge)))
+            }
+            if tool == .stamp { stampPictures.transition(.opacity) }
+        }
+        .animation(.easeInOut(duration: 0.2), value: tool)
+    }
+
+    /// Stamp or crayon: the two things a child chooses between. Pictures only, and big.
+    private func big(_ option: PadTool) -> some View {
+        let isOn = tool == option
+        return Button {
+            Haptics.selection()
+            tool = option
+        } label: {
+            toolIcon(option)
+                .scaleEffect(1.25)
+                .frame(width: 64, height: 60)
+                .background(Palette.paper, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                .overlay(RoundedRectangle(cornerRadius: 20, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 3 : 0))
+                .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
+        }
+        .buttonStyle(PressStyle())
+        .accessibilityLabel(option.title)
+        .accessibilityAddTraits(isOn ? .isSelected : [])
+    }
+
+    /// The eight colours as plain round dots, one tap each.
+    private var dots: some View {
+        HStack(spacing: 0) {
+            ForEach(Ink.allCases) { option in
+                let isOn = ink == option
+                Button {
+                    Haptics.selection()
+                    withAnimation(.spring(duration: 0.25, bounce: 0.4)) { ink = option }
+                    // Pressing a colour inks the stamp afresh, for when ink is set to run out.
+                    if tool == .stamp { inkLeft = 8 }
+                } label: {
+                    Circle()
+                        .fill(option.colour)
+                        .overlay(Circle().stroke(.black.opacity(0.15), lineWidth: 1))
+                        .frame(width: isOn ? 34 : 26, height: isOn ? 34 : 26)
+                        .overlay(Circle().stroke(Palette.ink, lineWidth: isOn ? 2.5 : 0).padding(-4))
+                        .frame(maxWidth: .infinity, minHeight: 48)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(option.rawValue.capitalized)
+                .accessibilityAddTraits(isOn ? .isSelected : [])
+            }
+        }
+        .padding(.horizontal, 6)
+        .background(Palette.paper, in: Capsule())
+        .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
+    }
+
+    // MARK: For grown-ups
+
+    /// Everything a child does not need: the other pages, the other tools, undo, a new sheet, saving, and how to
+    /// keep them in the app. Opened by holding the round button, so it is not opened by accident.
+    private var grownUpPanel: some View {
+        NavigationStack {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 18) {
+                    section("Paper") {
+                        HStack(spacing: 8) {
+                            round("chevron.left", label: "Previous page") { turn(-1) }
+                            Text(page.title).font(.headline).lineLimit(1).minimumScaleFactor(0.6).frame(maxWidth: .infinity)
+                            round("chevron.right", label: "Next page") { turn(1) }
+                        }
+                    }
+                    section("Tools") {
+                        toolRow
+                        if tool.draws { sizes }
+                    }
+                    section("This sheet") {
+                        HStack(spacing: 8) {
+                            plain("Undo", "arrow.uturn.backward") {
+                                guard !(marks[page] ?? []).isEmpty else { return }
+                                marks[page]?.removeLast()
+                                changed()
+                            }
+                            .disabled(pageMarks.isEmpty)
+                            plain("Save to Photos", "square.and.arrow.down") {
+                                grownUps = false
+                                saveToPhotos()
+                            }
+                            .disabled(pageMarks.isEmpty)
+                            plain("New sheet", "doc") { confirmingClear = true }
+                                .disabled(pageMarks.isEmpty)
+                        }
+                    }
+                    section("Keep them in the app") {
+                        VStack(alignment: .leading, spacing: 8) {
+                            step(1, "Open the Settings app, then Accessibility, then Guided Access, and switch it on.")
+                            step(2, "Back here, press the side button three times.")
+                            step(3, "To finish, press it three times again and enter the passcode.")
+                            Text("Guided Access is part of the iPhone. It keeps the phone on this screen until you end it.")
+                                .font(.footnote)
+                                .foregroundStyle(Palette.muted)
+                        }
+                        .padding(14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                    }
+                }
+                .padding(16)
+            }
+            .background(Palette.sand)
+            .foregroundStyle(Palette.ink)
+            .navigationTitle("For grown-ups")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) { Button("Done") { grownUps = false } }
+            }
+            .confirmationDialog("Start a new sheet?", isPresented: $confirmingClear, titleVisibility: .visible) {
+                Button("New sheet", role: .destructive) {
+                    withAnimation(.easeOut(duration: 0.25)) { marks[page] = [] }
+                    changed()
+                    grownUps = false
+                }
+                Button("Keep it", role: .cancel) {}
+            }
+        }
+        .presentationDetents([.medium, .large])
+    }
+
+    private func section(_ title: String, @ViewBuilder _ content: () -> some View) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title).font(.subheadline.weight(.semibold)).foregroundStyle(Palette.muted)
+            content()
         }
     }
 
-    // MARK: Top bar
+    private func plain(_ title: String, _ symbol: String, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.tap()
+            action()
+        } label: {
+            VStack(spacing: 4) {
+                Image(systemName: symbol).font(.body.weight(.semibold))
+                Text(title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.7)
+            }
+            .frame(maxWidth: .infinity, minHeight: 60)
+            .background(Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        }
+        .buttonStyle(PressStyle())
+    }
 
-    private var topBar: some View {
-        HStack(spacing: 8) {
-            HoldToClose { dismiss() }
-            Spacer(minLength: 0)
-            round("chevron.left", label: "Previous page") { turn(-1) }
-            Text(page.title)
-                .font(.headline)
-                .lineLimit(1)
-                .minimumScaleFactor(0.6)
-                .frame(minWidth: 96)
-            round("chevron.right", label: "Next page") { turn(1) }
-            Spacer(minLength: 0)
-            round("arrow.uturn.backward", label: "Undo") {
-                guard !(marks[page] ?? []).isEmpty else { return }
-                marks[page]?.removeLast()
-                changed()
-            }
-            .opacity(pageMarks.isEmpty ? 0.35 : 1)
-            // Grown-up things, out of the way.
-            Menu {
-                Button { saveToPhotos() } label: { Label("Save to Photos", systemImage: "square.and.arrow.down") }
-                Button(role: .destructive) { confirmingClear = true } label: { Label("New sheet", systemImage: "doc") }
-                    .disabled(pageMarks.isEmpty)
-            } label: {
-                Image(systemName: "ellipsis")
-                    .font(.subheadline.weight(.bold))
-                    .frame(width: 44, height: 44)
-                    .background(Palette.field, in: Circle())
-            }
-            .accessibilityLabel("More")
+    private func step(_ number: Int, _ text: String) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Text("\(number)")
+                .font(.footnote.weight(.bold))
+                .frame(width: 24, height: 24)
+                .background(Palette.field, in: Circle())
+            Text(text).font(.subheadline).fixedSize(horizontal: false, vertical: true)
         }
     }
 
@@ -523,7 +647,7 @@ struct PlayPadView: View {
             let size = geometry.size
             let centre = CGPoint(x: size.width / 2, y: size.height / 2)
             ZStack {
-                RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Palette.scrap)
+                Rectangle().fill(Palette.scrap)
                 Image(uiImage: Grain.image).resizable(resizingMode: .tile)
                     .foregroundStyle(Palette.ink)
                     .opacity(0.06)
@@ -559,8 +683,6 @@ struct PlayPadView: View {
                 }
                 peekingPuggle(in: size)
             }
-            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            .shadow(color: .black.opacity(0.12), radius: 6, y: 3)
             .contentShape(Rectangle())
             .gesture(
                 DragGesture(minimumDistance: 0)
@@ -769,71 +891,28 @@ struct PlayPadView: View {
 
     // MARK: Controls
 
-    private func controls(columns: Int) -> some View {
-        VStack(spacing: 10) {
-            HStack(spacing: 6) {
-                ForEach(PadTool.allCases) { option in
-                    let isOn = tool == option
-                    Button {
-                        Haptics.selection()
-                        tool = option
-                    } label: {
-                        VStack(spacing: 2) {
-                            toolIcon(option).frame(height: 32)
-                            Text(option.title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
-                        }
-                        .frame(maxWidth: .infinity, minHeight: 60)
-                        .background(isOn ? Palette.field : Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-                        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
-                    }
-                    .buttonStyle(PressStyle())
-                    .accessibilityLabel(option.title)
-                    .accessibilityAddTraits(isOn ? .isSelected : [])
-                }
-            }
-            if tool != .eraser {
-                colours(columns: columns)
-                    .modifier(Shake(amount: 5, animatableData: CGFloat(dryNudge)))
-            }
-            if tool.draws { sizes }
-            if tool == .stamp { stampPictures.transition(.opacity) }
-        }
-        .animation(.easeInOut(duration: 0.2), value: tool)
-    }
-
-    /// Ink pads for the stamp; crayons, pens or paint for the rest.
-    private func colours(columns: Int) -> some View {
-        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: columns), spacing: 6) {
-            ForEach(Ink.allCases) { option in
-                let isOn = ink == option
+    /// All five tools, for the grown-ups' panel.
+    private var toolRow: some View {
+        HStack(spacing: 6) {
+            ForEach(PadTool.allCases) { option in
+                let isOn = tool == option
                 Button {
                     Haptics.selection()
-                    withAnimation(.spring(duration: 0.25, bounce: 0.4)) { ink = option }
-                    if tool == .stamp {
-                        // Pressing a pad inks the stamp afresh.
-                        inkLeft = 8
-                        withAnimation(.spring(duration: 0.15)) { squished = option }
-                        Task {
-                            try? await Task.sleep(for: .seconds(0.15))
-                            withAnimation(.spring(duration: 0.3, bounce: 0.5)) { squished = nil }
-                        }
-                    }
+                    tool = option
                 } label: {
-                    colourPiece(option)
-                        .scaleEffect(x: squished == option ? 0.9 : 1, y: squished == option ? 0.8 : 1, anchor: .bottom)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 58, alignment: .bottom)
-                        .offset(y: isOn ? -8 : 0)
-                        .contentShape(Rectangle())
+                    VStack(spacing: 2) {
+                        toolIcon(option).frame(height: 32)
+                        Text(option.title).font(.caption.weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                    }
+                    .frame(maxWidth: .infinity, minHeight: 60)
+                    .background(isOn ? Palette.field : Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
                 }
-                .buttonStyle(.plain)
-                .accessibilityLabel("\(option.rawValue.capitalized) \(tool == .stamp ? "ink pad" : tool.title.lowercased())")
+                .buttonStyle(PressStyle())
+                .accessibilityLabel(option.title)
                 .accessibilityAddTraits(isOn ? .isSelected : [])
             }
         }
-        .padding(.top, 8)
-        .padding(.horizontal, 6)
-        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
     private var sizes: some View {
@@ -868,9 +947,9 @@ struct PlayPadView: View {
                         stamp = option
                     } label: {
                         StampPicture(stamp: option)
-                            .frame(width: 30, height: 30)
+                            .frame(width: 34, height: 34)
                             .foregroundStyle(ink.colour)
-                            .frame(width: 48, height: 48)
+                            .frame(width: 54, height: 54)
                             .background(isOn ? Palette.field : .clear, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                             .overlay(RoundedRectangle(cornerRadius: 14, style: .continuous).stroke(Palette.ink, lineWidth: isOn ? 2 : 0))
                     }
@@ -881,7 +960,8 @@ struct PlayPadView: View {
             }
             .padding(6)
         }
-        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .background(Palette.paper, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .shadow(color: .black.opacity(0.12), radius: 5, y: 2)
     }
 
     @ViewBuilder private func toolIcon(_ option: PadTool) -> some View {
@@ -900,23 +980,6 @@ struct PlayPadView: View {
         }
     }
 
-    @ViewBuilder private func colourPiece(_ option: Ink) -> some View {
-        switch tool {
-        case .stamp:
-            RoundedRectangle(cornerRadius: 9, style: .continuous)
-                .fill(option.colour)
-                .overlay(RoundedRectangle(cornerRadius: 9, style: .continuous).stroke(.black.opacity(0.18), lineWidth: 1))
-                .frame(height: 34)
-                .padding(.horizontal, 3)
-                .padding(.bottom, 8)
-        case .crayon:
-            CrayonPiece(colour: option.colour).frame(width: 20, height: 54)
-        case .marker:
-            MarkerPiece(colour: option.colour).frame(width: 17, height: 54)
-        case .fill, .eraser:
-            PaintPotPiece(colour: option.colour).frame(width: 34, height: 32).padding(.bottom, 8)
-        }
-    }
 }
 
 /// A little pot of paint, for the paint pot tool.

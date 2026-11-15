@@ -211,6 +211,7 @@ struct ChildDetailView: View {
     @State private var draft = ChildDraft()
     @State private var loaded = false
     @State private var confirmingDelete = false
+    @State private var showingStamps = false
     @State private var confirmingAgain = false
 
     var body: some View {
@@ -219,6 +220,9 @@ struct ChildDetailView: View {
                 NavigationLink { MilestonesView(child: child) } label: { Label("Milestones", systemImage: "star") }
                 NavigationLink { GrowthView(child: child) } label: { Label("Growth", systemImage: "scalemass") }
                 NavigationLink { EarnedStickersView(child: child) } label: { Label("Stickers", systemImage: "seal") }
+                if child.pottyTraining || !store.stickers(for: child).isEmpty {
+                    Button { showingStamps = true } label: { Label("Stamp book", systemImage: "star.circle") }
+                }
                 if store.isParent {
                     NavigationLink { SummaryView(child: child) } label: { Label("Summary for the doctor", systemImage: "doc.text") }
                 }
@@ -259,6 +263,7 @@ struct ChildDetailView: View {
         .scrollContentBackground(.hidden)
         .background(Palette.sand)
         .navigationTitle(child.displayName)
+        .sheet(isPresented: $showingStamps) { StampBookView(children: [child]) }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {

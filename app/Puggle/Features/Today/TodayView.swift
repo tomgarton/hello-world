@@ -137,7 +137,7 @@ struct TodayView: View {
                                     Image(systemName: "scribble.variable")
                                     VStack(alignment: .leading, spacing: 1) {
                                         Text("Play").fontWeight(.semibold)
-                                        Text(stickersOn && !stickerChildren.isEmpty ? "Draw, and the stamp book" : "Draw and colour in")
+                                        Text("Stamps and drawing")
                                             .font(.footnote)
                                             .foregroundStyle(Palette.muted)
                                     }
@@ -203,9 +203,9 @@ struct TodayView: View {
         .sheet(isPresented: $pumping) {
             PumpSheet()
         }
-        .sheet(isPresented: $showingPlay) {
-            PlayShelfView(stampChildren: stickersOn ? stickerChildren : [])
-        }
+        // One door: Play opens the pad, with the stamps ready (Tom, 15 November 2026). The stamp book is on each
+        // child's page.
+        .protectedCover(isPresented: $showingPlay) { PlayPadView() }
         .sheet(item: $editing) { target in
             if !store.canChange(target.event) && !(target.endingSleep && store.canLog) {
                 // Someone else's entry, for a helper or a viewer: to read, not to change.

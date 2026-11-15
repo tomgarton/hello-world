@@ -1533,3 +1533,15 @@ at the bottom where a resting hand lands. The paper is a card with margins, not 
 **Icons in dark, not solved.** Tom finds them hard to read. A soft body behind each icon was tried and made
 little difference, so it was taken out. Two ways on, not yet drawn: solid pale shapes with dark detail, or
 the simpler drawing with fewer inner lines.
+
+**Play pad rebuilt (15 November 2026), on Tom's four choices.** Screen: `docs/previews/play/pad-full-screen.png`.
+
+- **The paper is the whole screen.** No card, margins or corners.
+- **One strip at the top, pictures only:** stamp or crayon as two large buttons; the eight colours as round
+  dots; and, while stamping, the stamps. Nothing is at the bottom, where a small hand rests.
+- **Grown-up things are behind one round button that has to be held** (as Close is): the other pages, all
+  five tools and the sizes, undo, Save to Photos, a new sheet, and three steps for Guided Access.
+- **One door.** Play on Today opens the pad with the stamps ready. The stamp book is on each child's page
+  (Family, the child, Stamp book). `PlayShelfView` is kept in the code, unused.
+
+Raised by Tom and not decided: a tab of its own for stamps or achievements. Not yet tried by a child.
