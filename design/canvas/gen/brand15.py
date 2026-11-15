@@ -97,3 +97,23 @@ appicon = f'''<div style="width: 1080px; height: 570px; {PAGE}">
 </div></div>
 </div>'''
 wrap('App icon', appicon, 1080, 570, 'AppIcon.dc.html', 1660, tinted=False)
+
+# ---- Wordmark (chosen 15 November)
+import re as _re
+wm_src = open(REPO + '/docs/previews/logo/wordmark-B1/puggle_B1_v4.svg').read()
+wm_body = _re.sub(r'<(path)([^>]*?)/>', r'<\1\2></\1>', wm_src[wm_src.index('<g fill'):wm_src.rindex('</svg>')])
+def wm(width, colour='#3A2A20'):
+    return f'<svg role="img" aria-label="puggle" width="{width}" height="{round(width * 232 / 688)}" viewBox="65 90 688 232">{wm_body.replace("#3A2A20", colour)}</svg>'
+def ground(bg, inner, label):
+    return f'<div style="display: flex; flex-direction: column; gap: 6px"><div style="width: 300px; height: 150px; border-radius: 18px; background: {bg}; display: flex; align-items: center; justify-content: center">{inner}</div><div style="font-size: 13px; font-weight: 700">{label}</div></div>'
+small_wm = ''.join(f'<div style="display: flex; flex-direction: column; gap: 4px">{wm(s)}<div style="font-size: 12px; font-weight: 600; color: #4A3B30">{s} wide</div></div>' for s in (200, 120, 72, 48))
+wordmark = f'''<div style="width: 1080px; height: 820px; {PAGE}">
+<div style="display: flex; align-items: baseline; justify-content: space-between"><h1 style="margin: 0; font-size: 34px; font-weight: 800; letter-spacing: -0.02em">Wordmark</h1><div style="font-size: 14px; font-weight: 600; color: #4A3B30">Chosen 15 November 2026</div></div>
+<div style="{T}; max-width: 960px">Six letters drawn for the name, lower case, in one round weight that matches her shapes. The two g counters sit like her dot eyes, and the bar of the e keeps a slight slant. It is a drawing, not a typeface: do not set other words in it. Bricolage Grotesque stays the display type.</div>
+<div style="display: flex; gap: 40px; align-items: center"><div style="background: #FBF6E9; border-radius: 22px; padding: 34px 44px">{wm(520)}</div>
+<div style="display: flex; flex-direction: column; gap: 10px; width: 330px"><div style="{H}">How it is built</div><div style="{T}">Stems are 35 to 37 wide on a 688 wide drawing. Gaps are 7 between a straight side and a round one, and 11 between the g and the l. The colour is Ink, #3A2A20, or Paper on a dark ground.</div></div></div>
+<div style="display: flex; gap: 24px">{ground('#F4BE2C', wm(220), 'On Wattle')}{ground('#1B2440', wm(220, '#FBF6E9'), 'On Night, in Paper')}{ground('#BFD9F5', wm(220), 'On Sky')}</div>
+<div style="display: flex; flex-direction: column; gap: 8px"><div style="{H}">Small sizes</div><div style="display: flex; gap: 30px; align-items: flex-end">{small_wm}</div>
+<div style="{T}; max-width: 900px">The inside of the e is the first thing to fill in, so 48 wide is the smallest on screen. It has not been proofed on a woven label or a book cover yet. “Logotype E” and the logo variants beside this board show the earlier wordmark and are not redrawn.</div></div>
+</div>'''
+wrap('Wordmark', wordmark, 1080, 820, 'Wordmark.dc.html', 0, tinted=False)

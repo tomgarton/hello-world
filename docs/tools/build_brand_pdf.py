@@ -21,6 +21,8 @@ CHROME = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 sys.path.insert(0, os.path.join(CANVAS, 'gen'))
 import rig
 
+_w = open(os.path.join(REPO, 'docs', 'previews', 'logo', 'wordmark-B1', 'puggle_B1_v4.svg')).read()
+WORDMARK = _w[_w.index('<g fill'):_w.rindex('</svg>')]
 FONT = '<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&display=swap" rel="stylesheet">'
 BASE = "font-family: 'Bricolage Grotesque', system-ui, sans-serif; color: #2A1F18"
 HAIR = "Her lick of hair was added to this board on 15 November."
@@ -28,7 +30,7 @@ HAIR = "Her lick of hair was added to this board on 15 November."
 # Section, what it is about, then each board with the note under its title.
 SECTIONS = [
     ('Name and logo', 'The name, the logotype and how one name works across the app, clothing and books.', [
-        ('LogotypeE', ''), ('Logos', 'Drawn on 10 November. The line faces (G, H and I) have no lick of hair yet.'),
+        ('Wordmark', 'Chosen on 15 November.'), ('LogotypeE', 'The earlier wordmark, set in Bricolage Grotesque.'), ('Logos', 'Drawn on 10 November. The line faces (G, H and I) have no lick of hair yet.'),
         ('Architecture', ''), ('AppIcon', 'New on 15 November. Drawn from the app\'s own icon file.')]),
     ('Colour and type', 'The palette, the typefaces and how words appear inside the world.', [('Palette', ''), ('Signs', '')]),
     ('Puggle', 'How she is drawn, what her face can do and what it never does.', [
@@ -51,6 +53,7 @@ APP_NOW = ('In the app now', 'What the app itself drew on 13 and 14 November: th
            'These five pages are carried over from the last edition unchanged, so Puggle has no lick of hair in them.', range(35, 40))
 RULES = [
     ('The name', 'Appears only on the splash screen, the app icon and Help.'),
+    ('Wordmark', 'The six drawn letters, lower case, in Ink or Paper. It is a drawing, not a typeface: no other word is set in it.'),
     ('Her face', 'No mouth. The bill never moves or changes. Eyebrows appear only with a feeling: never at rest, never angry, sad or worried.'),
     ('Her view', 'She always faces the viewer. No three-quarter, side or back view.'),
     ('Her hair', 'A lick of hair, part of her head in the same fur and line. The rest of the cast have no hair and wear accessories; Pebble keeps a curl.'),
@@ -65,7 +68,8 @@ RULES = [
     ('Originality', 'Solid colours and shapes of our own. References are for study; nothing is copied.'),
     ('Children', "A child's real name never appears in the work."),
 ]
-OPEN = ["The logo: an exploration is under way in the app's previews (the little sister hatching from an egg).",
+OPEN = ["The mark that goes with the wordmark: an exploration is under way in the app's previews (the little sister hatching from an egg).",
+        'The wordmark has not been proofed on a woven label or a book cover, and the app does not use it yet.',
         "Pebble's name.", 'Trade mark checks for the name and logotype.',
         'Two proposed additions to Puggle: a patterned outfit and a flat version.',
         'Which breastfeeding drawing the app uses, and a setting for skin tone.',
@@ -98,7 +102,7 @@ def divider(number, title, about):
 def cover():
     wave = rig.render(**rig.key('greet', 0.52))
     return page(f'<div style="width: 1080px; height: 760px; box-sizing: border-box; background: #F4BE2C; padding: 84px 72px; position: relative; {BASE}">'
-                f'<div style="font-size: 120px; font-weight: 800; letter-spacing: -0.04em; line-height: 1">Puggle</div>'
+                f'<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="puggle" width="430" height="145" viewBox="65 90 688 232" style="margin-left: -6px">{WORDMARK}</svg>'
                 f'<div style="font-size: 30px; font-weight: 700; margin-top: 22px">The brand so far</div>'
                 f'<div style="font-size: 16px; font-weight: 500; margin-top: 12px; max-width: 460px; line-height: 1.4">Name and logo, colour and type, Puggle and her family, icons and stickers, and the world they live in.</div>'
                 f'<div style="position: absolute; left: 72px; bottom: 60px; font-size: 14px; font-weight: 700">{DATE} · Working document</div>'
@@ -112,16 +116,16 @@ def contents(rows):
     return page(f'<div style="width: 1080px; height: 1000px; box-sizing: border-box; background: #F2ECDD; padding: 64px 72px; {BASE}">'
                 f'<div style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em">What\'s inside</div>'
                 f'<div style="font-size: 15px; font-weight: 500; color: #4A3B30; margin: 14px 0 30px; max-width: 820px; line-height: 1.45">Each page is a board from the design canvas, as it stood on {DATE}. '
-                f'A note beside a page title says where a board is behind. Since the last edition (14 November): Puggle has her lick of hair and always faces the viewer, and the app icon and the activity icons have pages of their own.</div>{lines}</div>', 1000)
+                f'A note beside a page title says where a board is behind. Since the last edition (14 November): Puggle has her lick of hair and always faces the viewer, the wordmark is chosen, and the app icon and the activity icons have pages of their own.</div>{lines}</div>', 1000)
 
 
 def rules():
     rows = ''.join(f'<div style="display: flex; gap: 30px; padding: 18px 0; border-top: 1px solid #DDD2BC"><div style="width: 200px; flex: none; font-size: 17px; font-weight: 800">{a}</div>'
                    f'<div style="font-size: 16px; font-weight: 500; line-height: 1.45">{b}</div></div>' for a, b in RULES)
     still = ''.join(f'<li style="margin: 8px 0">{t}</li>' for t in OPEN)
-    return page(f'<div style="width: 1080px; height: 1560px; box-sizing: border-box; background: #F2ECDD; padding: 64px 72px; {BASE}">'
+    return page(f'<div style="width: 1080px; height: 1680px; box-sizing: border-box; background: #F2ECDD; padding: 64px 72px; {BASE}">'
                 f'<div style="font-size: 36px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 26px">Rules</div>{rows}'
-                f'<div style="font-size: 24px; font-weight: 800; margin: 44px 0 10px">Still open</div><ul style="margin: 0; padding-left: 20px; font-size: 16px; font-weight: 500; line-height: 1.4">{still}</ul></div>', 1560)
+                f'<div style="font-size: 24px; font-weight: 800; margin: 44px 0 10px">Still open</div><ul style="margin: 0; padding-left: 20px; font-size: 16px; font-weight: 500; line-height: 1.4">{still}</ul></div>', 1680)
 
 
 JOIN = '''
