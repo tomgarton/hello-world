@@ -1209,3 +1209,7 @@ The brand book is the design canvas's "Characters" and "Brand and world" pages; 
 - **New board, Activity icons:** the 22 drawings, the three sizes, the colour rule (Wattle by default, a colour of your own, the child's colour, fixed colours), dark, and the breastfeeding choices. The older icon board on the App page is marked superseded.
 - **Still behind the app:** boards drawn by the older scripts show Puggle without her lick of hair (expressions, hands, family, the cast line-up, glasses, scenes, wallpapers, books, logos, merchandise, onboarding). "Puggle: three additions" and the motion boards still show the side-on walk. The palette board does not show the icon colour setting.
 - Sources: `design/canvas/gen/model2.py`, `brand15.py`, `rig.py` (now reads the rig's newer conditions).
+
+### Wordmark B1 (15 November 2026, not decided)
+
+Tom drew a rounded lowercase wordmark with ChatGPT ("B1", v3). A v4 with four fixes is beside it in `docs/previews/logo/wordmark-B1/` (`docs/tools/make_wordmark_v4.py`): each g has a plain round-topped stem in place of a bulge that tapered back in; the e has a taller counter with round corners and a bar of one thickness, keeping its slant; the g tails end lower and further in, so they no longer crowd the bowl; and the gaps are even (7 units between a straight side and a round one, 11 between g and l). The p, u and l are not redrawn. The colour is the palette's Ink. Nothing in the app or the brand book uses it yet.
