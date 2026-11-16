@@ -209,32 +209,74 @@ struct ChildInsights: View {
             .background(Palette.paper, in: Capsule())
     }
 
+    /// Worked out when the child, the stretch or the entries change, and kept in between.
+    @State private var model = InsightModel()
+    @EnvironmentObject private var store: FamilyStore
+
     private var periodBody: some View {
         let days = days
-        let metrics = InsightMetric.allCases.filter { metric in days.contains { $0.value(metric) > 0 } }
+        let metrics = InsightMetric.allCases.filter { metric in model.days.contains { $0.value(metric) > 0 } }
         let showing = metrics.contains(metric) ? metric : (metrics.first ?? .sleep)
+        let name = child.displayName
         return VStack(alignment: .leading, spacing: 16) {
             periodPicker
 
-            if let first = days.first?.id, let last = days.last?.id {
-                Text(rangeTitle(first, last))
-                    .displayFont(30)
-                    .accessibilityAddTraits(.isHeader)
-            }
-
             if metrics.isEmpty {
-                Text("Nothing logged for \(child.displayName) in \(period.words).")
+                Text("Nothing logged for \(name) in \(period.words).")
                     .foregroundStyle(Palette.muted)
                     .padding(16)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
             } else {
-                chart(days, metrics: metrics, showing: showing)
-                lastNight
+                // The stretch against this child's own usual range (after Gentler Streak, 16 November 2026).
+                VStack(alignment: .leading, spacing: 14) {
+                    UsualRangeChart(name: name, title: "\(showing.title) · \(rangeTitle(model.days.first?.id ?? .now, model.days.last?.id ?? .now))",
+                                    model: model, metric: showing, picked: $picked)
+                    if metrics.count > 1 { metricPicker(metrics, showing: showing) }
+                }
+                .padding(16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+
+                Text(period == .week ? "This week" : "This month").displayFont(22).padding(.top, 4).accessibilityAddTraits(.isHeader)
+                RecapCards(name: name, model: model, before: period == .week ? "last week" : "the month before")
+
+                if model.usualDay.days >= 5, !(model.usualDay.sleepRuns.isEmpty && model.usualDay.feedTimes.isEmpty) {
+                    Text("\(name)\u{2019}s usual day").displayFont(22).padding(.top, 4).accessibilityAddTraits(.isHeader)
+                    UsualDayClock(name: name, day: model.usualDay)
+                }
+                if !model.changes.isEmpty {
+                    Text("What is changing").displayFont(22).padding(.top, 4).accessibilityAddTraits(.isHeader)
+                    ChangingList(changes: model.changes)
+                }
+                // The count of what was logged, kept at the foot until Tom says whether it stays.
                 logged(days)
             }
         }
         .foregroundStyle(Palette.ink)
+        .task(id: "\(period.rawValue)|\(child.events?.count ?? 0)|\(store.lastSaved?.id.uuidString ?? "")") {
+            model = InsightModel.make(child: child, days: period.days, store: store)
+        }
+    }
+
+    private func metricPicker(_ metrics: [InsightMetric], showing: InsightMetric) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(metrics) { one in
+                    let on = one == showing
+                    Button(one.title) {
+                        withAnimation(.easeInOut(duration: 0.2)) { metric = one; picked = nil }
+                    }
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 14)
+                    .frame(minHeight: 44)
+                    .foregroundStyle(on ? Palette.paper : Palette.ink)
+                    .background(on ? Palette.ink : Palette.field, in: Capsule())
+                    .buttonStyle(PressStyle())
+                    .accessibilityAddTraits(on ? .isSelected : [])
+                }
+            }
+        }
     }
 
     /// "7 to 13 Nov", or "28 Oct to 3 Nov" across a month's end.

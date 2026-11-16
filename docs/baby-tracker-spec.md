@@ -2083,3 +2083,29 @@ words; a recap in cards (nights, day and night, milk beside the tin, feeds, napp
 last week; the child's usual day round a 24-hour clock; and "What is changing", three sentences with
 arrows. The ring Tom liked is kept, for splits that mean something (bottle and breast). All of it is the
 child against their own past: nothing to reach and nothing to beat. Waiting on Tom to say what to build.
+
+**Built (16 November 2026).** Tom chose all four parts, and "plainly, no colour change" for a day outside the
+usual range. He was not sure which ring the question about the count meant, so "What was logged" stays for
+now, moved to the foot of the screen, until he says.
+
+- **The usual-range chart** replaces the bars. Each day is a dot on a soft band of what is usual for this
+  child: the middle half of their own four weeks before. The figure is the average for a day, not the
+  week's total, with "Within Ollie's usual", "More than Ollie's usual" or "Less than Ollie's usual" under
+  it, in the same colour whichever way. Tap a day to read it. With under a week of earlier days there is
+  no band, and a line says it shows after a week or so.
+- **Whole days only.** The stretch ends yesterday ("9 to 15 Nov"). Today is not over, and a part-day
+  beside whole ones read as a drop; today is on the Today tab.
+- **The recap in cards,** each set against the stretch before: nights (the longest stretch), day and night,
+  milk beside the tin, feeds (a ring of bottle and breast where there are both), nappies or potty as a
+  tally, and firsts. "About the same" within a twentieth.
+- **The usual day:** a 24-hour ring from the last two weeks, with the night, the naps, where feeds usually
+  fall, a marker for now, and "Asleep" or "Awake, about now, most days".
+- **What is changing:** the sentences Patterns already works out, each with an arrow. Neither way is good
+  or bad.
+- The sums are in `Puggle/Data/InsightStats.swift`, worked out once when the entries change; the views in
+  `Features/Insights/InsightCards.swift`. Year is not built; Patterns stays as the third choice.
+
+100 tests pass (eight new). Seen in the simulator on a long sample history, in light
+(`docs/previews/insights/built.png`). The sample is very regular, so its usual band is a thin line; a real
+child's will be wider. Not seen: dark, Month, a child with a few days of entries, the largest text sizes,
+or a phone with a real history.
