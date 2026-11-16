@@ -383,7 +383,7 @@ struct ChildActions: View {
                     Haptics.tap()
                     onLog(kind)
                 } label: {
-                    face(kind.title, shape: shape, ground: ground) { ActivityIcon(kind, size: inside ? 24 : 40) }
+                    face(kind.title, shape: shape, ground: ground) { icon(kind) }
                 }
                 .buttonStyle(PressStyle(scale: 0.96))
                 .accessibilityLabel("Log \(kind.title.lowercased()) for \(child.displayName)")
@@ -392,12 +392,21 @@ struct ChildActions: View {
                 Haptics.tap()
                 onPastSleep()
             } label: {
-                face("Past sleep", shape: shape, ground: ground) { ActivityIcon(.sleep, size: inside ? 24 : 40) }
+                face("Past sleep", shape: shape, ground: ground) { icon(.sleep) }
             }
             .buttonStyle(PressStyle(scale: 0.96))
             .accessibilityLabel("Add a past sleep for \(child.displayName)")
         }
         .environment(\.iconChildColour, Palette.childColour(child.colourIndex))
+    }
+
+    /// A sleeping child's card is in night colours whatever the phone's appearance, so the icons on it take
+    /// their dark drawing: a pale line. In light they were drawn in dark ink on the dark card (Tom, 16 November 2026).
+    @Environment(\.colorScheme) private var scheme
+
+    private func icon(_ kind: EventKind) -> some View {
+        ActivityIcon(kind, size: inside ? 24 : 40)
+            .environment(\.colorScheme, asleep && inside ? .dark : scheme)
     }
 
     private func face(_ title: String, shape: RoundedRectangle, ground: Color, @ViewBuilder icon: () -> some View) -> some View {

@@ -367,7 +367,9 @@ struct TodayView: View {
         var facts = TodayHeading.Facts()
         facts.asleep = children.compactMap { child in
             guard let sleep = store.activeSleep(for: child), let start = sleep.startedAt else { return nil }
-            return (child.displayName, justLog ? nil : Elapsed.short(seconds: sleep.asleepSeconds(from: start, to: now)))
+            // Under a minute there is nothing to count yet: "is asleep", not "asleep for 0 min".
+            let length = sleep.asleepSeconds(from: start, to: now)
+            return (child.displayName, justLog || length < 60 ? nil : Elapsed.short(seconds: length))
         }
         // "Just logging" counts nothing, so it says only who is asleep or feeding.
         guard !justLog else { return (hello, TodayHeading.line(facts)) }

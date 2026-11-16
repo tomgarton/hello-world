@@ -2131,3 +2131,10 @@ like a wedge, narrow inside and wide outside. They are now cut parallel to the l
 the gap to each side, so the space is the same width all the way across (`RingBlock` in `InsightsView.swift`).
 The small ring in the Feeds card uses the same shape. Before and after:
 `docs/previews/insights/ring-before-after.png`. Nothing else about the ring is changed.
+
+**Icons on a sleeping child's card, in light (16 November 2026).** Tom, on build 11: with the phone in light
+and a child asleep, the icons under the plus were drawn in dark ink on the dark card and could hardly be
+seen. An icon chose its drawing from the phone's appearance, not from the card it sits on. Icons inside a
+sleeping child's card now take their dark drawing (a pale line, Banksia for Wattle) whatever the phone's
+appearance. Seen in the simulator in light (`docs/previews/today/asleep-open-light.png`). Also: a sleep
+under a minute old now reads "Ollie is asleep.", not "asleep for 0 min".
