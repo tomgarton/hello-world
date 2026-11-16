@@ -204,6 +204,8 @@ struct SettingsView: View {
         .listRowBackground(Palette.paper)
     }
 
+    @State private var readingBook = false
+
     @ViewBuilder private var testSection: some View {
         if TesterDetail.on {
             Section {
@@ -211,6 +213,11 @@ struct SettingsView: View {
                     LabeledContent("Feedback notes", value: FeedbackNotes.load().isEmpty ? "" : "\(FeedbackNotes.load().count)")
                 }
                 NavigationLink("iCloud check") { CloudCheckView() }
+                // A first try at a board book, to get a feel for the pages and flaps (Tom, 16 November 2026).
+                Button { readingBook = true } label: {
+                    named("Board book", "One Boot, as a rough storyboard. Turn the pages and lift the flaps.")
+                }
+                .fullScreenCover(isPresented: $readingBook) { BoardBookView(book: .oneBoot) }
                 #if DEBUG
                 NavigationLink("Developer") { DeveloperView() }
                 #endif

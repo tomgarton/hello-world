@@ -3,7 +3,7 @@ import SwiftUI
 // A board book on the screen: thick card pages that turn stiffly on a spine, and flaps cut into the page
 // that lift on a hinge and leave a recess. A first try (16 November 2026), to find out how convincing card
 // can be made with nothing but SwiftUI. See docs/stories/board-book-build.md for what was weighed up.
-// Open it with "-debugBook 1"; it is not reachable from the app yet.
+// Open it from Settings, Test builds only, "Board book", or with "-debugBook 1".
 
 /// The card every page and flap is cut from.
 enum Board {
@@ -30,6 +30,7 @@ struct BoardBookView: View {
     @State private var turned = 0.0
     /// Which pages have their flap open.
     @State private var open: Set<Int> = []
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         GeometryReader { box in
@@ -153,6 +154,12 @@ struct BoardBookView: View {
 
     private func turn(to target: Int) {
         guard mover == nil, book.pages.indices.contains(target) else { return }
+        // With Reduce Motion the page does not swing: the next one fades in.
+        if reduceMotion {
+            Haptics.tap()
+            withAnimation(.easeInOut(duration: 0.25)) { index = target }
+            return
+        }
         let forward = target > index
         mover = forward ? index : index - 1
         turned = forward ? 0 : 1
@@ -177,6 +184,7 @@ struct BoardBookView: View {
     private func turning(width: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 14)
             .onChanged { drag in
+                guard !reduceMotion else { return }
                 let across = drag.translation.width
                 if mover == nil {
                     guard abs(across) > abs(drag.translation.height) else { return }
@@ -189,6 +197,10 @@ struct BoardBookView: View {
                 turned = forward ? min(max(share * (across < 0 ? 1 : 0), 0), 1) : min(max(1 - share * (across > 0 ? 1 : 0), 0), 1)
             }
             .onEnded { drag in
+                if reduceMotion {
+                    if abs(drag.translation.width) > 40 { turn(to: index + (drag.translation.width < 0 ? 1 : -1)) }
+                    return
+                }
                 guard mover != nil else { return }
                 let forward = mover == index
                 // Past a third of the way, or flicked, it goes over. Otherwise it falls back.
@@ -247,10 +259,14 @@ struct Flap<Front: View, Under: View>: View {
             .shadow(color: .black.opacity(0.12 + 0.25 * lean), radius: 1 + 9 * lean, x: 2 * lean, y: 1 + 5 * lean)
         }
         .contentShape(Rectangle())
+        // Lifted by the finger: it follows a drag away from its hinge, and on letting go it falls open or shut,
+        // whichever it is nearer, or the way it was flicked. A tap still opens and shuts it.
+        .highPriorityGesture(lifting)
         .onTapGesture {
             Haptics.tap()
             open.toggle()
         }
+        .background(GeometryReader { box in Color.clear.onAppear { size = box.size } })
         .onAppear { lift = open ? 1 : 0 }
         .onChange(of: open) { _, now in
             // Card springs a little as it lands, and falls shut faster than it lifts.
@@ -261,6 +277,47 @@ struct Flap<Front: View, Under: View>: View {
         .accessibilityElement()
         .accessibilityLabel(open ? "Flap, open" : "Flap")
         .accessibilityAddTraits(.isButton)
+    }
+
+    /// Where the drag began, as how far open the flap was then.
+    @State private var startLift: Double?
+    @State private var size: CGSize = .zero
+
+    /// How far a drag of this much would open the flap: pulling it away from its hinge by its own depth lifts it
+    /// upright, and on over.
+    private func reach(_ drag: CGSize) -> Double {
+        let depth = Double(max(hinge == .top || hinge == .bottom ? size.height : size.width, 40))
+        let along: Double = switch hinge {
+        case .top: drag.height
+        case .bottom: -drag.height
+        case .leading: drag.width
+        case .trailing: -drag.width
+        }
+        return along / (depth * 1.6)
+    }
+
+    private var lifting: some Gesture {
+        DragGesture(minimumDistance: 6)
+            .onChanged { drag in
+                if startLift == nil {
+                    startLift = lift
+                    Haptics.tap()
+                }
+                lift = min(max((startLift ?? 0) + reach(drag.translation), 0), 1)
+            }
+            .onEnded { drag in
+                let flick = reach(drag.predictedEndTranslation) - reach(drag.translation)
+                let opening = flick > 0.25 ? true : (flick < -0.25 ? false : lift > 0.5)
+                startLift = nil
+                if opening != open {
+                    open = opening
+                } else {
+                    // Back where it was: the same spring as a tap.
+                    withAnimation(opening ? .spring(response: 0.55, dampingFraction: 0.62) : .spring(response: 0.38, dampingFraction: 0.8)) {
+                        lift = opening ? 1 : 0
+                    }
+                }
+            }
     }
 
     private var axis: (x: CGFloat, y: CGFloat, z: CGFloat) {

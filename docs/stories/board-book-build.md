@@ -53,19 +53,23 @@ pop-up, a wheel), that one spread could be built in 3D on its own.
   falls back. A tap on either side edge turns it for a child who does not swipe.
 - All eight page cues above, and all six flap cues, are in.
 - A flap opens and shuts with a tap, on any of its four edges, in any of four outlines.
+- **A flap follows the finger** (16 November 2026): drag it away from its hinge and it lifts with you; let go
+  and it falls open or shut, whichever is nearer, or the way it was flicked. Dragging it back shuts it. A tap
+  still works. Recording: `docs/previews/play/flap-follows-finger.gif`.
+- **In the app to try:** Settings, Test builds only, "Board book" (Tom, 16 November 2026: to get a feel for
+  the animation). Not a separate app: one screen did not need its own app ID and signing.
 - With a flap, the page shows only the question; the answer comes when the flap is lifted.
 - The little paper boat wobbles when found.
 - "One Boot" is in it as a storyboard: eleven pages of rough flat scenes with the cast as they are in the app.
 
 ## What it does not do yet
 
-- **A flap does not follow the finger.** It opens on a tap. Dragging it up by the notch is the next thing
-  to add, and the most worth adding.
 - **No sound.** A soft thud for a page and a small card sound for a flap would do a lot, off by default.
 - **No cover.** A book wants a front, a title page and a back.
 - **No two-page spread.** On an iPad, or a phone turned on its side, a book is two pages across with the
   spine in the middle. The same page view can be used twice.
-- **Reduce Motion.** Pages and flaps ought to cross-fade, not swing. Not done.
+- **Reduce Motion for flaps.** Pages cross-fade with Reduce Motion on; flaps still swing, since they move with
+  the finger.
 - **VoiceOver.** Flaps are buttons and pages are read, but the order has not been checked.
 - **Card grain.** The app already has a paper shader (`Paper.metal`); a faint grain on the card would help.
 - **The pictures are storyboard quality.** Flat shapes placed by eye, with a few props.
