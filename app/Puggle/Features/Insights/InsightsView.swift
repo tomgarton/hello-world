@@ -575,7 +575,8 @@ struct InsightRing: View {
     /// Each part's share of the ring. A small one is given enough to be a square.
     private func shares(middle: CGFloat) -> [(start: Double, share: Double)] {
         let total = max(parts.reduce(0) { $0 + $1.value }, 0.0001)
-        let least = Double((thickness + gap) / (2 * .pi * max(middle, 1)))
+        // Wide enough at the inside of the ring, where there is least room, to be a square and not a wedge.
+        let least = Double((thickness + gap) / (2 * .pi * max(middle - thickness / 2, 1)))
         var raw = parts.map { max($0.value / total, least) }
         let sum = raw.reduce(0, +)
         raw = raw.map { $0 / sum }
@@ -600,18 +601,23 @@ struct RingBlock: Shape {
         let centre = CGPoint(x: rect.midX, y: rect.midY)
         let outer = min(rect.width, rect.height) / 2
         let middle = outer - thickness / 2
-        // Pull each end in by half the gap and by the corner.
-        let pull = Double((gap / 2 + corner) / max(middle, 1))
-        var start = from * 2 * .pi - .pi / 2 + pull
-        var end = to * 2 * .pi - .pi / 2 - pull
-        if end < start {
-            let mid = (start + end) / 2
-            start = mid - 0.001
-            end = mid + 0.001
-        }
+        // Each end is cut parallel to the line between two blocks, half the gap to one side of it, so the space
+        // between neighbours is the same width from the inside of the ring to the outside (Tom, 16 November
+        // 2026: the edges should meet up cleanly). Cut along the spoke instead, the gap opens out like a wedge.
+        // A cut parallel to a spoke meets a circle of radius r at an angle of asin(distance / r) from it.
+        let distance = Double(gap / 2 + corner)
+        let outerRadius = outer - corner, innerRadius = outer - thickness + corner
+        func pull(_ radius: CGFloat) -> Double { asin(min(distance / Double(max(radius, 1)), 1)) }
+        let first = from * 2 * .pi - .pi / 2, last = to * 2 * .pi - .pi / 2
+        var outerStart = first + pull(outerRadius), outerEnd = last - pull(outerRadius)
+        var innerStart = first + pull(innerRadius), innerEnd = last - pull(innerRadius)
+        // Too small a share to hold its cuts: a sliver about its middle, which the outline rounds into a dot.
+        let mid = (first + last) / 2
+        if outerEnd < outerStart { outerStart = mid - 0.001; outerEnd = mid + 0.001 }
+        if innerEnd < innerStart { innerStart = mid - 0.001; innerEnd = mid + 0.001 }
         var path = Path()
-        path.addArc(center: centre, radius: outer - corner, startAngle: .radians(start), endAngle: .radians(end), clockwise: false)
-        path.addArc(center: centre, radius: outer - thickness + corner, startAngle: .radians(end), endAngle: .radians(start), clockwise: true)
+        path.addArc(center: centre, radius: outerRadius, startAngle: .radians(outerStart), endAngle: .radians(outerEnd), clockwise: false)
+        path.addArc(center: centre, radius: innerRadius, startAngle: .radians(innerEnd), endAngle: .radians(innerStart), clockwise: true)
         path.closeSubpath()
         return path
     }

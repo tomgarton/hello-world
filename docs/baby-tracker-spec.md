@@ -2124,3 +2124,10 @@ not follow that, so they are given the rounded face in `PuggleApp.init`. The thr
 Screen card have it too. Headings in the display type (the greeting, "This week") are unchanged. The
 Dynamic Island keeps the system's own. 100 tests pass; the app and the widgets build. Seen on the four tabs
 in the simulator in light (`docs/previews/rounded-font.png`); the widgets and Lock Screen card not seen.
+
+**The ring's edges (16 November 2026).** Tom: refine the "What was logged" ring so the edges of each section
+meet up cleanly. Each section's ends were cut along a spoke, so the space between two sections opened out
+like a wedge, narrow inside and wide outside. They are now cut parallel to the line between the two, half
+the gap to each side, so the space is the same width all the way across (`RingBlock` in `InsightsView.swift`).
+The small ring in the Feeds card uses the same shape. Before and after:
+`docs/previews/insights/ring-before-after.png`. Nothing else about the ring is changed.
