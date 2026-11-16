@@ -2202,3 +2202,6 @@ Tom chose this next. It builds three of the decisions from 15 November.
   take taps reliably.
 - 107 tests pass, six of them new (the order, the room, old cards still reading, the links). Not on a phone yet.
 - Still to do from that list: Puggle on the small widget's empty state.
+
+**TestFlight, 16 November 2026, about 22:40:** the fifteenth upload of 0.1.0, from commit 47a707a, pushed to
+GitHub first. Build 14 plus the family card, facts that open their sheet, and the tiles widget.
