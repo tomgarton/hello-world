@@ -85,7 +85,7 @@ is hard for them at this age, what they always do, how they sound, where they li
 things go wrong, and what they never do. Ages are spaced so that each child wants, and can do, something
 different in the same game.
 
-**Three things in this draft change what the spec has now, for Tom to decide.** Kip was "can fall asleep
+**Three things in this draft change what the spec had. Tom, 16 November 2026: "Let's try it, as we can always build upon it." So they stand for now.** Kip was "can fall asleep
 anywhere", Sunny was "always smiling", and Digby was "the potty jokes". The sleepy koala and the smiling
 quokka are the stock versions of those animals, and koala and wombat are the two most crowded animals in
 Australian children's books. So each friend here has a want and a skill in place of a habit or a fault.
@@ -270,7 +270,6 @@ one fact on a page, and the feeling named.
 
 ## Still to decide
 
-- The three changed friends (Kip, Digby, Sunny) and Quill's adjustment: keep the changes, or go back.
 - The friends' ages, and whether Kip stays Puggle's best friend at 3 or is made her own age.
 - Boys and girls among the friends: this draft guesses from the drawings.
 - The paper boat as the thing hidden in every picture.

@@ -442,6 +442,8 @@ Rules: one or two syllables a toddler can say; each name hints at the character'
 
 Trademark checks needed for Puggle before launch; the others matter only if sold as products in their own right.
 
+**Superseded for the stories (16 November 2026).** The personalities in this table are the first proposal. The friends' characters now live in `docs/stories/story-bible.md`, where Kip is the climber who sees far (not the sleepy one), Sunny is the oldest who makes the rules (not the smiling one), Digby is the youngest who joins in (not the potty jokes), and Quill is the maker who likes things just so. Tom agreed to try these, to build on. Names, animals and looks are unchanged.
+
 #### Style direction: the original Puggle
 
 Explorations toward Bluey (brows, eye glints, a mouth drawn on the bill, chubbier bodies) were rejected: they lost the cuteness, and a mouth on a bill makes no sense. **Tom prefers the original Puggle**, and Puggle is a girl ("she").
@@ -2023,3 +2025,20 @@ with its answer and the date when it is settled.
 6. **The setting on each child for which actions show under the plus:** still wanted, or is "everything
    they use" enough?
 7. **Sleep button for any child under 18 months:** an addition to his decision. Keep it?
+
+## Stories: research, a story bible and a first book (16 November 2026)
+
+Tom asked for research on books for children up to five (Miffy, Spot, The Very Hungry Caterpillar, Zog,
+Mr Men, Richard Scarry, Bluey, The Gruffalo), then story outlines, character profiles and a start on the
+stories. This is the "first book for Play" from the plan.
+
+- **Research:** `reports/Picture books for under fives.md`, from five sets of notes in `research_notes/`.
+  Several sources could not be opened; the report marks what is unverified.
+- **Tom's choices:** the first stories are for toddlers of 2 to 4; the first book is a lift-the-flap search;
+  plain prose with a refrain; the friends are neighbours along the creek.
+- **Drafts:** `docs/stories/story-bible.md` (what the stories are for, the engine, the creek and its five
+  homes, the rules, profiles for all ten characters, twelve outlines) and `docs/stories/one-boot.md` (the
+  first book, eleven pictures, about 190 words).
+- **Agreed to try:** the new characters for Kip, Digby and Sunny (see the note under Character names).
+- **Not done:** nothing drawn, nothing built in the app, nothing read aloud to a child, and no name or
+  trademark search.
