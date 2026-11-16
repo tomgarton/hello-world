@@ -275,6 +275,10 @@ struct RootView: View {
             NavigationStack { AppearanceSettingsView() }
         } else if UserDefaults.standard.string(forKey: "debugPad") == "1" {
             PlayPadView()
+        } else if let start = UserDefaults.standard.string(forKey: "debugBook") {
+            // For trying the board book: "-debugBook 1".
+            let _ = start
+            BoardBookView(book: .oneBoot)
         } else if let page = UserDefaults.standard.string(forKey: "debugFx").flatMap(Int.init) {
             // For recording the icons drawing themselves: "-debugFx 1", or 2 for every icon.
             EffectsDemoView(page: page)
