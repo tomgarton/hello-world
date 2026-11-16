@@ -2022,8 +2022,7 @@ with its answer and the date when it is settled.
    links are still arriving on Tom's phone, or were lost on the way; compare the "entries with no child"
    count on the iCloud sync screen on both phones (needs a build with it, 12 or later). If no: the import
    itself left them off, and the importer is where to look.
-2. **Build 12?** The History fixes (scroll lag, "Imported", the count of entries with no child) are
-   committed but in no build. Push and upload need his yes.
+2. ~~Build 12?~~ Uploaded 16 November 2026.
 3. **Did the Kendamil tin read properly on build 11?** Which cells were left empty or wrong.
 4. **The weather line on an empty day:** does it show on a phone, and read well?
 5. **On a save, the tile's icon:** drawn over a faint copy (as now) or from nothing.
@@ -2138,3 +2137,10 @@ seen. An icon chose its drawing from the phone's appearance, not from the card i
 sleeping child's card now take their dark drawing (a pale line, Banksia for Wattle) whatever the phone's
 appearance. Seen in the simulator in light (`docs/previews/today/asleep-open-light.png`). Also: a sleep
 under a minute old now reads "Ollie is asleep.", not "asleep for 0 min".
+
+**TestFlight, 16 November 2026, about 07:40:** the twelfth upload of 0.1.0, from commit 50aab91, pushed to
+GitHub first. It carries Insights rebuilt (days against the child's own usual, recap cards, the usual day,
+what is changing, the ring's even gaps), the History fixes (sorting once, "Imported", the count of entries
+with no child on the iCloud sync screen), the rounded San Francisco throughout, and the pale icons on a
+sleeping child's card in light. The board book is in the code but cannot be reached. No new fields in the
+data model.
