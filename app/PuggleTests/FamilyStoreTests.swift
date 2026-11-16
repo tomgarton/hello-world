@@ -684,4 +684,26 @@ final class FamilyStoreTests: XCTestCase {
         XCTAssertEqual(ollieNow.events?.count, 1)
         XCTAssertTrue(store.backups.entries.contains { $0.reason == BackupReason.beforeBringingIn.rawValue })
     }
+
+    /// Build 12 stopped on Insights: a sleep with a waking, asked about a day before it began, made an interval
+    /// that ran backwards.
+    func testASleepWithAWakingIsSafeToAskAboutAnyWindow() throws {
+        let child = store.addChild(name: "Bea", birthDate: .now.addingTimeInterval(-200 * 86400), colourIndex: 0)
+        let start = Date(timeIntervalSince1970: 1_800_000_000)
+        let sleep = Event(context: store.context)
+        sleep.kindRaw = EventKind.sleep.rawValue
+        sleep.startedAt = start
+        sleep.endedAt = start.addingTimeInterval(8 * 3600)
+        sleep.children = [child]
+        sleep.addWaking(from: start.addingTimeInterval(3 * 3600), to: start.addingTimeInterval(3.5 * 3600))
+        // A waking logged after the sleep was later given an earlier end.
+        sleep.addWaking(from: start.addingTimeInterval(9 * 3600), to: start.addingTimeInterval(9.2 * 3600))
+        // The day before it began, the sleep itself, and the day after.
+        XCTAssertEqual(sleep.asleepSeconds(from: start.addingTimeInterval(-86400), to: start.addingTimeInterval(-3600)), 0)
+        XCTAssertEqual(sleep.asleepSeconds(from: start, to: start.addingTimeInterval(8 * 3600)), 7.5 * 3600, accuracy: 1)
+        XCTAssertEqual(sleep.asleepSeconds(from: start.addingTimeInterval(86400), to: start.addingTimeInterval(2 * 86400)), 0)
+        // An end before the start.
+        sleep.endedAt = start.addingTimeInterval(-600)
+        XCTAssertEqual(sleep.asleepPieces().count, 0)
+    }
 }

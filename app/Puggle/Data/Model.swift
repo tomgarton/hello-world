@@ -254,7 +254,11 @@ extension Event {
         var cursor = max(start, from)
         var pieces: [DateInterval] = []
         for waking in wakingIntervals.sorted(by: { $0.start < $1.start }) {
-            if waking.start > cursor { pieces.append(DateInterval(start: cursor, end: min(waking.start, end))) }
+            // Only while there is sleep left before the end. A waking logged after the sleep's end, or a day's
+            // window that closes before the sleep begins, would ask for an interval that runs backwards, which
+            // stops the app (the crash on Insights in build 12, 16 November 2026).
+            let until = min(waking.start, end)
+            if until > cursor { pieces.append(DateInterval(start: cursor, end: until)) }
             cursor = max(cursor, waking.end)
         }
         if end > cursor { pieces.append(DateInterval(start: cursor, end: end)) }

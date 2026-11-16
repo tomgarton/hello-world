@@ -2144,3 +2144,20 @@ what is changing, the ring's even gaps), the History fixes (sorting once, "Impor
 with no child on the iCloud sync screen), the rounded San Francisco throughout, and the pale icons on a
 sleeping child's card in light. The board book is in the code but cannot be reached. No new fields in the
 data model.
+
+## Build 12 stopped on Insights (16 November 2026)
+
+Tom opened Insights on build 12 and the app stopped. The crash report was read off his phone
+(`Puggle-2026-11-16-082442.ips`): a trap in `DateInterval.init(start:end:)`, reached from a view being drawn.
+
+**Cause.** `Event.asleepPieces` built the stretch of sleep before each waking without checking there was any.
+Asked about a window that ends before the sleep begins (Insights asks every sleep about every day), or with
+a waking logged after the sleep's end, the stretch ran backwards, and Foundation stops the app on a
+backwards interval. It needs a sleep with a waking logged, which the sample family does not have, so the
+simulator never showed it. The fault is old; the count ring at the foot of Insights still asks this way,
+and build 12 was the first time Tom opened Insights with such a sleep in the week.
+
+**Fix.** A stretch is only added while there is sleep left before the end. The same guard is in the new
+day sums. A test builds the sleep that stopped it: a waking inside, a waking after the end, windows before
+and after, and an end before the start. 101 tests pass. Not in a build yet: build 12 still stops on
+Insights for a child with a waking logged in the last week or month.

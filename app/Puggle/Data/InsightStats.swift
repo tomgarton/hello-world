@@ -70,8 +70,10 @@ enum InsightStats {
                     var day = calendar.startOfDay(for: piece.start)
                     while day < piece.end {
                         guard let next = calendar.date(byAdding: .day, value: 1, to: day) else { break }
-                        let part = DateInterval(start: max(piece.start, day), end: min(piece.end, next))
-                        if days[day] != nil, part.duration > 0 {
+                        let from = max(piece.start, day), until = min(piece.end, next)
+                        guard until > from else { day = next; continue }
+                        let part = DateInterval(start: from, end: until)
+                        if days[day] != nil {
                             days[day]?.sleep += part.duration
                             days[day]?.nightSleep += night(part, in: day)
                         }
