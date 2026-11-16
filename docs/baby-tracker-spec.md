@@ -1838,6 +1838,11 @@ Parked by Tom, to come back to. Not planned work.
   partly drawn icon as a value.
 - **Play tab.** On hold until there are books to put in it.
 - **Documenting the flows in Figma.** After Today is rebuilt.
+- **The "What was logged" ring on Insights: a second pass.** Tom, 16 November 2026: leave it untouched for
+  now, but revisit it; he likes the style. It counts entries, which is about the logging and not the baby.
+  Ideas for the pass: keep the ring's look and give it something that means more (the day shared out
+  between sleep, feeding and awake time; or the week's sleep by day and night), or keep the tally and move
+  it under a quieter heading.
 
 **TestFlight, 15 November 2026, 22:28:** the tenth upload of 0.1.0, from commit 24ffe0a, pushed to GitHub
 the same evening. It carries the icons in dark (thinner line, Banksia for Wattle), the potty and nappy
