@@ -2042,3 +2042,44 @@ stories. This is the "first book for Play" from the plan.
 - **Agreed to try:** the new characters for Kip, Digby and Sunny (see the note under Character names).
 - **Not done:** nothing drawn, nothing built in the app, nothing read aloud to a child, and no name or
   trademark search.
+
+## Insights, reviewed (16 November 2026)
+
+Tom asked for a review of Insights before build 12, going back to the references he gave for charts:
+Gentler Streak, Apple Fitness and others.
+
+**What could be found of the references.** One message on 13 November carried four pictures and two Mobbin
+links: Apple Card's weekly spending (Week, Month, Year; one big figure; a bar for each day; a list by
+category), the Apple Card home screen, and a "category breakdown" ring with a figure in the middle, which is
+the pie chart Tom liked. Insights as built follows those. Gentler Streak and Apple Fitness were named in
+words in that and other messages, but no pictures of them are in the record, so their charts were looked at
+afresh on Gentler Streak's own site.
+
+**What Gentler Streak does that Insights does not.**
+
+- **Your own usual range.** Its main chart, the Activity Path, is a soft band showing what is usual for you,
+  from your own history, with a dot for each day. There is no target. A day is inside the band or outside it.
+- **"Above typical", in words, beside the number.** One plain phrase says how today stands.
+- **A recap in cards.** Each card is a short sentence, one big figure, a small note against the month
+  before, and a small chart of its own kind: stacked bars, a ring, an area, rows. Apple's award citation
+  praised this view as "less about hard comparisons and more about progress".
+- **A ring as a clock,** with a marker for now (its cycle view).
+
+**What Apple Fitness adds.** Trends: a short list of what is changing against your own past, each with an
+arrow, in a sentence.
+
+**What is weak in Insights now.**
+
+- The week's figure is a total ("88h"). A parent thinks in days.
+- Nothing shows what is usual for this child, so an odd day cannot be seen.
+- Nothing is set against the week before.
+- The ring counts entries logged. That is about the parent's logging, not the baby.
+- Today's bar is a part-day and reads as a drop.
+- Nothing shows when in the day things happen.
+
+**Drawn, not built:** `docs/previews/insights/next.png` (`docs/tools/make_insights_mockup.py`), beside
+Insights as it is. A chart of the week against the child's own usual range, with "Within Ollie's usual" in
+words; a recap in cards (nights, day and night, milk beside the tin, feeds, nappies, firsts), each against
+last week; the child's usual day round a 24-hour clock; and "What is changing", three sentences with
+arrows. The ring Tom liked is kept, for splits that mean something (bottle and breast). All of it is the
+child against their own past: nothing to reach and nothing to beat. Waiting on Tom to say what to build.
