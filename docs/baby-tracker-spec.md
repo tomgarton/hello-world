@@ -2161,3 +2161,6 @@ and build 12 was the first time Tom opened Insights with such a sleep in the wee
 day sums. A test builds the sleep that stopped it: a waking inside, a waking after the end, windows before
 and after, and an end before the start. 101 tests pass. Not in a build yet: build 12 still stops on
 Insights for a child with a waking logged in the last week or month.
+
+**TestFlight, 16 November 2026, about 08:45:** the thirteenth upload of 0.1.0, from commit ced3a4c, pushed to
+GitHub first. Build 12 with the fix for the crash on Insights, and nothing else.
