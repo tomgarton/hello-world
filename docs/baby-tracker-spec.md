@@ -2164,3 +2164,8 @@ Insights for a child with a waking logged in the last week or month.
 
 **TestFlight, 16 November 2026, about 08:45:** the thirteenth upload of 0.1.0, from commit ced3a4c, pushed to
 GitHub first. Build 12 with the fix for the crash on Insights, and nothing else.
+
+**TestFlight, 16 November 2026, about 11:35:** the fourteenth upload of 0.1.0, from commit a7aa190, pushed to
+GitHub first. Build 13 plus the first board book, One Boot as a rough storyboard, opened from Settings under
+Test builds only. Flaps follow the finger, and pages fade instead of turning when Reduce Motion is on. The book
+reads nothing from the store and writes nothing to it.
