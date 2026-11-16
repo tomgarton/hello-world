@@ -69,7 +69,12 @@ enum WidgetFeed {
                 lastWoke: store.lastWoke(for: child),
                 today: today(for: child, in: store),
                 nextText: next?.line,
-                nextAt: next?.at)
+                nextAt: next?.at,
+                lastSolids: store.latest(.solids, for: child)?.startedAt,
+                lastPotty: store.latest(.potty, for: child)?.startedAt,
+                usesMilk: child.uses(.bottle) || child.uses(.breastfeed),
+                usesSolids: child.uses(.solids),
+                pottyTraining: child.pottyTraining && child.uses(.potty))
         }
         WidgetSnapshot(children: rows, updatedAt: .now).save()
         WidgetCenter.shared.reloadAllTimelines()

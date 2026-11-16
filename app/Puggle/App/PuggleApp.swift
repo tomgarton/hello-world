@@ -173,6 +173,9 @@ struct RootView: View {
             }
             .animation(.easeOut(duration: 0.25), value: sample.loading)
             .fullScreenCover(item: $invites.invite) { JoinView(invite: $0) }
+            // A fact tapped in a widget or on the Lock Screen: Today opens its sheet.
+            .onOpenURL { OpenedLink.shared.open($0) }
+            .onReceive(OpenedLink.shared.$pending) { if $0 != nil { tab = 0 } }
             .sheet(isPresented: $askingBringIn) { BringInView() }
             .onChange(of: children.count) { _, _ in checkBringIn() }
             .onAppear { checkBringIn() }
@@ -369,8 +372,16 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
 final class SceneDelegate: NSObject, UIWindowSceneDelegate {
     /// The invite link opened the app from cold.
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
+        // A link from a widget that opened the app from cold.
+        if let url = connectionOptions.urlContexts.first?.url { Task { @MainActor in OpenedLink.shared.open(url) } }
         guard let metadata = connectionOptions.cloudKitShareMetadata else { return }
         Task { @MainActor in InviteCenter.shared.received(metadata) }
+    }
+
+    /// A link from a widget while the app was running.
+    func scene(_ scene: UIScene, openURLContexts contexts: Set<UIOpenURLContext>) {
+        guard let url = contexts.first?.url else { return }
+        Task { @MainActor in OpenedLink.shared.open(url) }
     }
 
     /// The invite link was opened while the app was already running.

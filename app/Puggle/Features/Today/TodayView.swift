@@ -43,6 +43,9 @@ struct TodayView: View {
     @State private var staleFeed: Event?
     @State private var askedAbout: Set<NSManagedObjectID> = []
 
+    /// A fact tapped in a widget or on the Lock Screen, waiting to open its sheet.
+    @ObservedObject private var links = OpenedLink.shared
+
     @State private var wantsPastSleep: Child?
     @State private var pastSleepFor: Child?
     @State private var choosingTiles = false
@@ -214,6 +217,8 @@ struct TodayView: View {
             DaySoFarView(child: child, onAddSleep: { wantsPastSleep = child }, onLog: { wantsLog = ($0, child) })
         }
         .sheet(isPresented: $showingYou) { YouView() }
+        .onChange(of: links.pending) { _, _ in openLink() }
+        .onAppear { openLink() }
         .sheet(item: $pastSleepFor) { child in
             LogSheet(kind: .sleep, children: [child])
         }
@@ -274,6 +279,37 @@ struct TodayView: View {
             ChildActions(child: child, facts: store.facts(for: child).map(\.kind), inside: false,
                          onLog: { log($0, for: child) }, onPastSleep: { pastSleepFor = child })
         }
+    }
+
+    /// A fact tapped outside the app opens the same sheet as the fact on the child's card. Anything already
+    /// open here goes first, since only one sheet shows at a time. A viewer, or a child not in this family, is
+    /// just Today.
+    private func openLink() {
+        guard links.pending != nil, !children.isEmpty, let want = links.take() else { return }
+        var match = children.first(where: { $0.id?.uuidString == want.childID })
+        #if DEBUG
+        // For checking a link with the sample family, whose ids are made afresh: "child=first".
+        if want.childID == "first" { match = children.first }
+        #endif
+        guard store.canLog, let child = match else { return }
+        let open = {
+            let feeds = [EventKind.bottle, .breastfeed].filter { child.uses($0) }
+            switch want.fact {
+            case "fed": log(store.activeFeed(for: child) != nil ? .breastfeed : (feeds.first ?? .bottle), for: child)
+            case "ate": log(.solids, for: child)
+            case "nappy": log(.nappy, for: child)
+            case "potty": log(.potty, for: child)
+            case "asleep":
+                if let sleep = store.activeSleep(for: child) { editing = EditTarget(event: sleep, endingSleep: true) } else { pastSleepFor = child }
+            default: pastSleepFor = child
+            }
+        }
+        let busy = logging != nil || editing != nil || looking != nil || dayOf != nil || pastSleepFor != nil
+            || feedTimer || pumping || showingYou || choosingTiles || addingChild
+        guard busy else { return open() }
+        logging = nil; editing = nil; looking = nil; dayOf = nil; pastSleepFor = nil
+        feedTimer = false; pumping = false; showingYou = false; choosingTiles = false; addingChild = false
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { open() }
     }
 
     /// Opens the right sheet to log one thing for one child.

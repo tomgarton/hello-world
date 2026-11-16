@@ -31,7 +31,7 @@ OUT = os.path.join(HERE, '..', 'previews', 'icons')
 ASSETS = os.path.join(HERE, '..', '..', 'app', 'Puggle', 'Resources', 'Assets.xcassets')
 # The widget target has a small catalogue of its own: the one-colour drawings it shows, as `glyph-…`.
 WIDGET_ASSETS = os.path.join(HERE, '..', '..', 'app', 'PuggleWidgets', 'Glyphs.xcassets')
-WIDGET_GLYPHS = ['sleep', 'bottle', 'nappy']
+WIDGET_GLYPHS = ['sleep', 'bottle', 'nappy', 'solids', 'potty']
 INK, DARK, WATTLE, SKY = '#3A2A20', '#EBDDC4', '#F4BE2C', '#BFD9F5'
 W = 2
 

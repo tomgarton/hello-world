@@ -2169,3 +2169,36 @@ GitHub first. Build 12 with the fix for the crash on Insights, and nothing else.
 GitHub first. Build 13 plus the first board book, One Boot as a rough storyboard, opened from Settings under
 Test builds only. Flaps follow the finger, and pages fade instead of turning when Reduce Motion is on. The book
 reads nothing from the store and writes nothing to it.
+
+### Lock Screen and widgets, the family build (16 November 2026)
+
+Tom chose this next. It builds three of the decisions from 15 November.
+
+- **One family card.** The Live Activity is now one card for the whole family, not one per child. With one
+  child it looks as before: the badge, the three facts, what comes next. With two or more it becomes a row for
+  each child: the badge, the name over one quiet line ("Since 21:20" beside the moon, "Awake 40 min",
+  "Feeding, left"), and the number that matters at the right ("1h 12m", "Fed 2h 5m"). Order: a running feed,
+  then a running sleep, then whoever was fed longest ago. Only the first row has a button. Three rows fit, or
+  two under a feed with its Left, Right and Finish; the rest read "and 1 more in Puggle". A child over two with
+  nothing running still has no row, as before. Seen in the simulator for one child, three, four, and a feed
+  beside a sleep: `docs/previews/live-activity/family-built.png`.
+- **The Dynamic Island and the watch** follow: the closed island shows everyone's badges overlapping, the first
+  child's on top beside their number; the open island and the watch card add a line for each other child.
+  Not seen.
+- **Why one card always:** iOS only lets a card start while the app is on screen, but lets it change at any
+  time. A single card can go from one child to two in the background without needing the app. Cards from
+  before this are swapped for the family card the next time Puggle opens.
+- **Facts open their sheet.** A fact tapped on the Lock Screen card, a row on the family card, or a fact on the
+  Family snapshot widget opens Puggle at Today with that sheet open for that child: Fed opens the feed, Nappy
+  the nappy, Awake adds a past sleep, Asleep sets when they woke. Nothing is logged by the tap. Anything open
+  is closed first. A viewer just gets Today. Checked in the simulator from Insights: it switched to Today and
+  opened the nappy sheet for Ollie alone. The small One child widget still opens the app as a whole, since a
+  small widget can only take one tap.
+- **Log for one child, the tiles widget** (medium, new). Four tiles for the chosen child, from the drawing in
+  `docs/previews/widgets/family.png`: the sleep (Awake, or Asleep in night colours), Fed, the nappy or the potty
+  for a child in training, and Solids. Each shows how long since, with a plus, and opens that sheet. Only what
+  the child uses. The widgets' summary now also carries the last meal, the last potty and what the child uses,
+  and the widget target has the meal and potty icons. Built, not seen: the simulator's widget picker does not
+  take taps reliably.
+- 107 tests pass, six of them new (the order, the room, old cards still reading, the links). Not on a phone yet.
+- Still to do from that list: Puggle on the small widget's empty state.

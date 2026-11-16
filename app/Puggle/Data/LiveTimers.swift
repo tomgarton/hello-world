@@ -16,7 +16,7 @@ final class LiveTimers {
     private var syncing = false
     private var again = false
 
-    private struct Wanted {
+    struct Wanted {
         let attributes: TimerAttributes
         let state: TimerAttributes.ContentState
     }
@@ -100,7 +100,35 @@ final class LiveTimers {
                 }
             }
         }
-        return result
+        return Self.family(Array(result.values))
+    }
+
+    /// Every child's card made into one, with a row each (decided 15 November 2026, drawn in
+    /// `docs/previews/live-activity/family.png`). First a running feed, then a running sleep, then whoever was
+    /// fed longest ago. Only the first row has buttons. The Lock Screen has height for three rows, or two
+    /// under a feed with its buttons; the rest are counted.
+    static func family(_ cards: [Wanted]) -> [String: Wanted] {
+        func rank(_ state: TimerAttributes.ContentState) -> Int { state.mode == "feed" ? 0 : state.mode == "sleep" ? 1 : 2 }
+        let ordered = cards.sorted { a, b in
+            let (x, y) = (rank(a.state), rank(b.state))
+            if x != y { return x < y }
+            let (p, q) = (a.state.since ?? a.state.fedSince ?? .distantFuture, b.state.since ?? b.state.fedSince ?? .distantFuture)
+            if p != q { return p < q }
+            return a.attributes.childName < b.attributes.childName
+        }
+        guard let lead = ordered.first else { return [:] }
+        var state = lead.state
+        state.leadID = lead.attributes.childID
+        state.leadName = lead.attributes.childName
+        state.leadColour = lead.attributes.colourIndex
+        let room = lead.state.mode == "feed" ? 1 : 2
+        let rest = ordered.dropFirst()
+        state.others = rest.prefix(room).map {
+            .init(id: $0.attributes.childID, name: $0.attributes.childName, colourIndex: $0.attributes.colourIndex, state: $0.state)
+        }
+        state.more = rest.count > room ? rest.count - room : nil
+        let attributes = TimerAttributes(childID: TimerAttributes.familyID, childName: "Family", colourIndex: nil)
+        return [TimerAttributes.familyID: Wanted(attributes: attributes, state: state)]
     }
 
     private func apply(_ wanted: [String: Wanted]) async {
@@ -145,13 +173,22 @@ final class LiveTimers {
             state.nextText = guess.line
             state.nextAt = guess.at
         }
-        var all = ["sample-ollie": Wanted(attributes: .init(childID: "sample-ollie", childName: "Ollie", colourIndex: 0), state: state)]
-        // "-debugLiveTwo 1" adds a second child, to see two cards and the small round ones.
-        if UserDefaults.standard.string(forKey: "debugLiveTwo") == "1" {
-            all["sample-bea"] = Wanted(attributes: .init(childID: "sample-bea", childName: "Bea", colourIndex: 2),
-                                       state: .init(mode: "sleep", label: "Asleep", since: ago(25)))
+        var all = [Wanted(attributes: .init(childID: "sample-ollie", childName: "Ollie", colourIndex: 0), state: state)]
+        // "-debugLiveTwo 1" adds a second child, to see the family card; "2" adds a third, and "3" a fourth.
+        let others = Int(UserDefaults.standard.string(forKey: "debugLiveTwo") ?? "") ?? 0
+        if others >= 1 {
+            all.append(Wanted(attributes: .init(childID: "sample-bea", childName: "Bea", colourIndex: 2),
+                              state: .init(mode: "sleep", label: "Asleep", since: ago(72), fedSince: ago(150))))
         }
-        return all
+        if others >= 2 {
+            all.append(Wanted(attributes: .init(childID: "sample-kit", childName: "Kit", colourIndex: 1),
+                              state: .init(mode: "glance", fedSince: ago(125), awakeSince: ago(40), nappySince: ago(70))))
+        }
+        if others >= 3 {
+            all.append(Wanted(attributes: .init(childID: "sample-robin", childName: "Robin", colourIndex: 4),
+                              state: .init(mode: "glance", fedSince: ago(30))))
+        }
+        return family(all)
     }
     #endif
 
@@ -169,6 +206,11 @@ final class LiveTimers {
             && close(a.since, b.since) && close(a.fedSince, b.fedSince) && close(a.awakeSince, b.awakeSince)
             && close(a.nappySince, b.nappySince)
             && a.nextText == b.nextText && close(a.nextAt, b.nextAt)
+            && a.leadID == b.leadID && a.leadName == b.leadName && a.leadColour == b.leadColour && a.more == b.more
+            && (a.others ?? []).count == (b.others ?? []).count
+            && zip(a.others ?? [], b.others ?? []).allSatisfy { x, y in
+                x.id == y.id && x.name == y.name && x.colourIndex == y.colourIndex && same(x.state, y.state)
+            }
     }
 }
 

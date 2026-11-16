@@ -23,6 +23,13 @@ struct WidgetSnapshot: Codable {
         /// What comes next, as on the Lock Screen card: "Next feed around 2:30 pm", shown until `nextAt`.
         var nextText: String?
         var nextAt: Date?
+        /// For the tiles widget (16 November 2026). Nil in a summary written before this.
+        var lastSolids: Date?
+        var lastPotty: Date?
+        var usesMilk: Bool?
+        var usesSolids: Bool?
+        /// Training, so the potty takes the nappy's place.
+        var pottyTraining: Bool?
     }
 
     var children: [Child]
@@ -51,7 +58,8 @@ struct WidgetSnapshot: Codable {
         Child(id: "preview-ollie", name: "Ollie", colourIndex: 0, asleepSince: nil,
               lastFeed: Date.now.addingTimeInterval(-95 * 60), lastFeedText: "Bottle · 150 ml",
               lastNappy: Date.now.addingTimeInterval(-40 * 60), usesNappies: true, lastWoke: Date.now.addingTimeInterval(-71 * 60),
-              today: "4 feeds, 560 ml · 3h 10m asleep · 5 nappies"),
+              today: "4 feeds, 560 ml · 3h 10m asleep · 5 nappies",
+              lastSolids: Date.now.addingTimeInterval(-200 * 60), usesMilk: true, usesSolids: true),
         Child(id: "preview-bea", name: "Bea", colourIndex: 1, asleepSince: Date.now.addingTimeInterval(-50 * 60),
               lastFeed: Date.now.addingTimeInterval(-150 * 60), lastFeedText: "Solids", lastNappy: nil, usesNappies: false),
     ], updatedAt: .now)

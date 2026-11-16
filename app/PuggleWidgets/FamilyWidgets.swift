@@ -79,6 +79,8 @@ private struct Fact: Identifiable {
     /// One of Puggle's glyphs, or nil for the sun (awake has no glyph of ours).
     let glyph: String?
     let since: Date
+    /// Which of Today's facts it is, for the link that opens its sheet.
+    let link: String
     var id: String { title }
 }
 
@@ -88,10 +90,10 @@ private extension WidgetSnapshot.Child {
     func facts(now: Date) -> [Fact] {
         let recent = { (date: Date?) -> Date? in date.flatMap { now.timeIntervalSince($0) < 12 * 3600 && $0 <= now.addingTimeInterval(60) ? $0 : nil } }
         var all: [Fact] = []
-        if let asleep = asleepSince { all.append(Fact(title: "Asleep", glyph: "sleep", since: asleep)) }
-        if let fed = recent(lastFeed) { all.append(Fact(title: "Fed", glyph: "bottle", since: fed)) }
-        if asleepSince == nil, let woke = recent(lastWoke) { all.append(Fact(title: "Awake", glyph: nil, since: woke)) }
-        if usesNappies, let nappy = recent(lastNappy) { all.append(Fact(title: Terms.nappy, glyph: "nappy", since: nappy)) }
+        if let asleep = asleepSince { all.append(Fact(title: "Asleep", glyph: "sleep", since: asleep, link: "asleep")) }
+        if let fed = recent(lastFeed) { all.append(Fact(title: "Fed", glyph: "bottle", since: fed, link: "fed")) }
+        if asleepSince == nil, let woke = recent(lastWoke) { all.append(Fact(title: "Awake", glyph: nil, since: woke, link: "awake")) }
+        if usesNappies, let nappy = recent(lastNappy) { all.append(Fact(title: Terms.nappy, glyph: "nappy", since: nappy, link: "nappy")) }
         return all
     }
 }
@@ -123,6 +125,18 @@ private struct FactView: View {
             }
         }
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// A fact is also the way in: a tap opens Puggle at the sheet for the next one, for that child. It never
+/// logs by itself (Tom, 15 November 2026).
+private struct FactLink<Face: View>: View {
+    let fact: Fact
+    let child: WidgetSnapshot.Child
+    @ViewBuilder let face: () -> Face
+
+    var body: some View {
+        Link(destination: PuggleLink.log(fact.link, child: child.id)) { face() }
     }
 }
 
@@ -300,7 +314,7 @@ private struct SnapshotWidgetView: View {
             if facts.isEmpty {
                 Text("Nothing logged yet today").font(.subheadline).foregroundStyle(.secondary)
             } else {
-                HStack(alignment: .top, spacing: 20) { ForEach(facts) { FactView(fact: $0, now: entry.date, large: true) } }
+                HStack(alignment: .top, spacing: 20) { ForEach(facts) { fact in FactLink(fact: fact, child: child) { FactView(fact: fact, now: entry.date, large: true) } } }
                     .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
@@ -324,7 +338,7 @@ private struct SnapshotWidgetView: View {
                 Text("Nothing logged yet today").font(.subheadline).foregroundStyle(.secondary)
             } else {
                 HStack(alignment: .top, spacing: roomy ? 20 : 16) {
-                    ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date, large: roomy) }
+                    ForEach(facts.prefix(3)) { fact in FactLink(fact: fact, child: child) { FactView(fact: fact, now: entry.date, large: roomy) } }
                 }
             }
             if let today = child.today {
@@ -349,9 +363,9 @@ private struct SnapshotWidgetView: View {
             } else {
                 // The same gap between each fact, from the left, in line with "Nothing logged yet today".
                 ViewThatFits(in: .horizontal) {
-                    HStack(alignment: .top, spacing: 16) { ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date) } }
-                    HStack(alignment: .top, spacing: 10) { ForEach(facts.prefix(3)) { FactView(fact: $0, now: entry.date) } }
-                    HStack(alignment: .top, spacing: 10) { ForEach(facts.prefix(2)) { FactView(fact: $0, now: entry.date) } }
+                    HStack(alignment: .top, spacing: 16) { ForEach(facts.prefix(3)) { fact in FactLink(fact: fact, child: child) { FactView(fact: fact, now: entry.date) } } }
+                    HStack(alignment: .top, spacing: 10) { ForEach(facts.prefix(3)) { fact in FactLink(fact: fact, child: child) { FactView(fact: fact, now: entry.date) } } }
+                    HStack(alignment: .top, spacing: 10) { ForEach(facts.prefix(2)) { fact in FactLink(fact: fact, child: child) { FactView(fact: fact, now: entry.date) } } }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
@@ -480,6 +494,106 @@ private struct EmptyWidget: View {
         .foregroundStyle(WTone.ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
         .containerBackground(for: .widget) { WTone.paper }
+    }
+}
+
+// MARK: Tiles for one child (medium)
+
+/// Log for one child (built 16 November 2026, drawn as "Log for one child, tiles" in
+/// `docs/previews/widgets/family.png`). Four tiles, each the fact and the way in: it opens that sheet in
+/// Puggle. The shape is from Huckleberry; one ink and Puggle's icons, not a colour for every activity.
+struct TilesWidget: Widget {
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: "puggle.tiles", intent: ChildWidgetIntent.self, provider: ChildProvider()) { entry in
+            TilesWidgetView(entry: entry).fontDesign(.rounded)
+        }
+        .configurationDisplayName("Log for one child")
+        // Fixed text: WidgetKit stops the extension on a description with a value put into it.
+        .description("Their sleep, last feed and more as tiles. Tap one to log the next.")
+        .supportedFamilies([.systemMedium])
+    }
+}
+
+/// One tile: what it is, how long since, and where a tap goes.
+private struct Tile: Identifiable {
+    let title: String
+    let glyph: String?
+    let since: Date?
+    let link: String
+    var asleep = false
+    var id: String { link }
+}
+
+private extension WidgetSnapshot.Child {
+    /// Up to four tiles: the sleep, the feed, the nappy or the potty, and solids. Only what the child uses.
+    func tiles(now: Date) -> [Tile] {
+        let recent = { (date: Date?) -> Date? in date.flatMap { now.timeIntervalSince($0) < 24 * 3600 && $0 <= now.addingTimeInterval(60) ? $0 : nil } }
+        var all: [Tile] = []
+        if let asleep = asleepSince {
+            all.append(Tile(title: "Asleep", glyph: "sleep", since: asleep, link: "asleep", asleep: true))
+        } else {
+            all.append(Tile(title: "Awake", glyph: "sleep", since: recent(lastWoke), link: "awake"))
+        }
+        if usesMilk ?? (lastFeed != nil) { all.append(Tile(title: "Fed", glyph: "bottle", since: recent(lastFeed), link: "fed")) }
+        if pottyTraining == true {
+            all.append(Tile(title: "Potty", glyph: "potty", since: recent(lastPotty), link: "potty"))
+        } else if usesNappies {
+            all.append(Tile(title: Terms.nappy, glyph: "nappy", since: recent(lastNappy), link: "nappy"))
+        }
+        if usesSolids == true { all.append(Tile(title: "Solids", glyph: "solids", since: recent(lastSolids), link: "ate")) }
+        return Array(all.prefix(4))
+    }
+}
+
+private struct TilesWidgetView: View {
+    let entry: FamilyEntry
+
+    var body: some View {
+        if let child = entry.chosen {
+            let tiles = child.tiles(now: entry.date)
+            VStack(alignment: .leading, spacing: 8) {
+                // Whose tiles they are, small, since the widget may be one of several.
+                HStack(spacing: 6) {
+                    ChildBadge(child: child, size: 18)
+                    Text(child.name).font(.caption.weight(.semibold)).lineLimit(1)
+                }
+                let columns = [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)]
+                LazyVGrid(columns: columns, spacing: 8) {
+                    ForEach(tiles) { tile in
+                        Link(destination: PuggleLink.log(tile.link, child: child.id)) { face(tile) }
+                    }
+                }
+                .frame(maxHeight: .infinity, alignment: .top)
+            }
+            .foregroundStyle(WTone.ink)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .containerBackground(for: .widget) { WTone.paper }
+        } else {
+            EmptyWidget()
+        }
+    }
+
+    private func face(_ tile: Tile) -> some View {
+        HStack(spacing: 8) {
+            if let glyph = tile.glyph { Glyph(glyph, size: 20) }
+            VStack(alignment: .leading, spacing: 0) {
+                Text(tile.title).font(.caption2.weight(.medium)).opacity(0.75)
+                Group {
+                    if let since = tile.since { SinceValue(since: since, now: entry.date) } else { Text("–") }
+                }
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+            }
+            Spacer(minLength: 2)
+            Image(systemName: "plus").font(.caption.weight(.semibold)).opacity(0.6)
+        }
+        .lineLimit(1)
+        .padding(.horizontal, 10)
+        .frame(maxWidth: .infinity, minHeight: 46, alignment: .leading)
+        .foregroundStyle(tile.asleep ? WTone.moon : WTone.ink)
+        .background(tile.asleep ? WTone.night : WTone.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .accessibilityElement(children: .combine)
+        .accessibilityHint("Opens Puggle to log it")
     }
 }
 

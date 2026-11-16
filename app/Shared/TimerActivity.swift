@@ -28,6 +28,25 @@ struct TimerAttributes: ActivityAttributes {
         var nextText: String?
         var nextAt: Date?
 
+        /// The family card (16 November 2026): one card, a row for each child. The fields above are for the
+        /// first row, whose child is named here; it is the only row with buttons. Nil on a card made before this,
+        /// which is one child's alone and named in the attributes.
+        var leadID: String?
+        var leadName: String?
+        var leadColour: Int?
+        /// Everyone else with something to show, one quiet row each, in order. Nil or empty with one child.
+        var others: [Other]?
+        /// Children left off for want of room, counted.
+        var more: Int?
+
+        /// Another child's row: who, and what they are doing, in the same terms as the first row.
+        struct Other: Codable, Hashable {
+            var id: String
+            var name: String
+            var colourIndex: Int?
+            var state: ContentState
+        }
+
         /// The line to show at this moment, if its time is still ahead.
         func nextLine(now: Date = .now) -> String? {
             guard let nextText, let nextAt, nextAt > now else { return nil }
@@ -39,6 +58,16 @@ struct TimerAttributes: ActivityAttributes {
     var childName: String
     /// Which of the children's colours is theirs, so the card can be told apart at a glance. Nil on a card made before this.
     var colourIndex: Int?
+
+    /// The family card's id: one card for everyone, so it never has to be swapped for another while the app is
+    /// in the background (iOS only lets a card start with the app on screen).
+    static let familyID = "family"
+
+    /// Whose the first row is: the lead child on a family card, or the card's own child.
+    func lead(_ state: ContentState) -> TimerAttributes {
+        guard let id = state.leadID else { return self }
+        return TimerAttributes(childID: id, childName: state.leadName ?? childName, colourIndex: state.leadColour)
+    }
 }
 
 /// The buttons on a Lock Screen card. They run inside the app, which sets `perform` at launch.

@@ -20,6 +20,7 @@ struct PuggleWidgetsBundle: WidgetBundle {
         TimerLiveActivityWithSmall()
         SnapshotWidget()
         ChildWidget()
+        TilesWidget()
         FamilyWidget()
         StartSleepControl()
     }
@@ -30,6 +31,7 @@ struct PuggleWidgetsBundleBefore18: WidgetBundle {
         TimerLiveActivity()
         SnapshotWidget()
         ChildWidget()
+        TilesWidget()
         FamilyWidget()
     }
 }
