@@ -178,7 +178,7 @@ struct ChildProvider: AppIntentTimelineProvider {
 struct ChildWidget: Widget {
     var body: some WidgetConfiguration {
         AppIntentConfiguration(kind: "puggle.child", intent: ChildWidgetIntent.self, provider: ChildProvider()) { entry in
-            ChildWidgetView(entry: entry)
+            ChildWidgetView(entry: entry).fontDesign(.rounded)
         }
         .configurationDisplayName("One child")
         // As plain text: WidgetKit stops the whole extension, Live Activity included, on a description with a
@@ -242,7 +242,7 @@ private struct ChildWidgetView: View {
 struct SnapshotWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "puggle.snapshot", provider: FamilyProvider()) { entry in
-            SnapshotWidgetView(entry: entry)
+            SnapshotWidgetView(entry: entry).fontDesign(.rounded)
         }
         .configurationDisplayName("Family snapshot")
         .description("Every child's last feed, sleep and change, side by side.")
@@ -374,7 +374,7 @@ struct FamilyProvider: TimelineProvider {
 struct FamilyWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: "puggle.family", provider: FamilyProvider()) { entry in
-            FamilyWidgetView(entry: entry)
+            FamilyWidgetView(entry: entry).fontDesign(.rounded)
         }
         .configurationDisplayName("Quick log")
         // Fixed text: WidgetKit stops the widget if this is built from a value that changes.

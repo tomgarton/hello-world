@@ -2114,3 +2114,13 @@ now, moved to the foot of the screen, until he says.
 (`docs/previews/insights/built.png`). The sample is very regular, so its usual band is a thin line; a real
 child's will be wider. Not seen: dark, Month, a child with a few days of entries, the largest text sizes,
 or a phone with a real history.
+
+## The rounded San Francisco, everywhere (16 November 2026)
+
+Tom, after seeing the Apple Card screens again: switch the app's font to the rounded San Francisco, as it
+is more legible. Done with one line at the app's root (`.fontDesign(.rounded)`), so every piece of text in
+a system style follows it, sheets included. The navigation titles and tab labels are drawn by UIKit and do
+not follow that, so they are given the rounded face in `PuggleApp.init`. The three widgets and the Lock
+Screen card have it too. Headings in the display type (the greeting, "This week") are unchanged. The
+Dynamic Island keeps the system's own. 100 tests pass; the app and the widgets build. Seen on the four tabs
+in the simulator in light (`docs/previews/rounded-font.png`); the widgets and Lock Screen card not seen.

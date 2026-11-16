@@ -18,8 +18,15 @@ struct PuggleApp: App {
     init() {
         // Navigation titles are drawn by UIKit; give them the warm ink too.
         let bar = UINavigationBar.appearance()
-        bar.largeTitleTextAttributes = [.foregroundColor: Palette.inkUI]
-        bar.titleTextAttributes = [.foregroundColor: Palette.inkUI]
+        // UIKit's titles and tab labels do not follow SwiftUI's font design, so they are given the rounded face here.
+        func rounded(_ style: UIFont.TextStyle, _ weight: UIFont.Weight) -> UIFont {
+            let size = UIFont.preferredFont(forTextStyle: style).pointSize
+            let plain = UIFont.systemFont(ofSize: size, weight: weight)
+            return plain.fontDescriptor.withDesign(.rounded).map { UIFont(descriptor: $0, size: size) } ?? plain
+        }
+        bar.largeTitleTextAttributes = [.foregroundColor: Palette.inkUI, .font: rounded(.largeTitle, .bold)]
+        bar.titleTextAttributes = [.foregroundColor: Palette.inkUI, .font: rounded(.headline, .semibold)]
+        UITabBarItem.appearance().setTitleTextAttributes([.font: rounded(.caption2, .medium)], for: .normal)
         // Unselected tabs in warm muted ink, so nothing is near-white at night.
         UITabBar.appearance().unselectedItemTintColor = Palette.mutedUI
         // The Lock Screen buttons run here, even when the app is opened in the background for them.
@@ -62,6 +69,9 @@ struct PuggleApp: App {
             let active = sample.store ?? store
             RootView()
                 .id(sample.isOn)
+                // The rounded San Francisco throughout: easier to read at a glance (Tom, 16 November 2026).
+                // Headings keep the display type.
+                .fontDesign(.rounded)
                 // The night look reaches every colour as a trait, so the app is not rebuilt.
                 .environment(\.puggleNight, night.isNight)
                 .environment(\.managedObjectContext, active.persistence.viewContext)

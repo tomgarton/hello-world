@@ -36,6 +36,7 @@ private enum TimerCard {
     @MainActor static func configuration<Card: View>(@ViewBuilder card: @escaping (ActivityViewContext<TimerAttributes>) -> Card) -> ActivityConfiguration<TimerAttributes> {
         ActivityConfiguration(for: TimerAttributes.self) { context in
             card(context)
+                .fontDesign(.rounded)
                 .activityBackgroundTint(Tone.night)
                 .activitySystemActionForegroundColor(Tone.cream)
         } dynamicIsland: { context in

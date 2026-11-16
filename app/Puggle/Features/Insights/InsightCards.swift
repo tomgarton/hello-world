@@ -162,7 +162,8 @@ struct UsualRangeChart: View {
                         Text("\(name)\u{2019}s usual")
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(metric.colour)
-                            .offset(x: 6, y: max(y(usual.upperBound) - 16, 0))
+                            // Under the band, clear of the dots that sit on it.
+                            .offset(x: 6, y: min(y(usual.lowerBound) + 4, box.size.height - 14))
                     }
                     // A line through the days that have something; a day with nothing is a gap, not a nought.
                     Path { path in
