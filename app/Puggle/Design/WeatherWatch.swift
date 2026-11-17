@@ -139,6 +139,8 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
 
     private func look(at place: CLLocation) async {
         defer { asking = false }
+        // Which side of the equator, for the night sky. Whole degrees, nothing finer.
+        UserDefaults.standard.set(place.coordinate.latitude.rounded(), forKey: Hemisphere.latitudeKey)
         #if LOCAL_ONLY
         // The free test build has no weather service.
         trouble = "This test build can't reach the weather service."

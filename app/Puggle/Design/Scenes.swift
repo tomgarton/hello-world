@@ -533,6 +533,8 @@ struct SceneFrame: View {
         // Under cloud at night the stars, the Southern Cross, the aurora, lanterns and fireflies give way, and clouds
         // drift in as they do by day. Fireworks still go up in the rain, glowing through it, but not in a thunderstorm.
         let clear = starry && !weather.overcast
+        // The aurora and the stars that belong to this half of the world.
+        let south = Hemisphere.isSouth
         let fireworks = starry && weather != .storm
         let nightCloud = weather.cloudTint(night: true) ?? Color(hex: 0x5A5E9A).opacity(0.55)
         return ZStack(alignment: .topLeading) {
@@ -563,7 +565,7 @@ struct SceneFrame: View {
                     Balloon(dark: starry).frame(width: 40, height: 60).rotationEffect(.degrees(sway))
                 }
                 turnsUp(second, x: starry ? w * 0.5 : w * 0.28, y: pull - 118) {
-                    if clear { Aurora(t: t).frame(width: w * 0.9, height: 86) }
+                    if clear { Aurora(t: t, south: south).frame(width: w * 0.9, height: 86) }
                     else if !starry { Kite().frame(width: 44, height: 76).rotationEffect(.degrees(-sway * 2)) }
                 }
                 turnsUp(third, x: w * 0.55, y: pull - 190, from: CGSize(width: -w * 0.7, height: 0)) {
@@ -579,9 +581,9 @@ struct SceneFrame: View {
                     }
                 }
             case .beach:
-                // A beach ball, a little plane trailing a streamer, then a rainbow. After dark: the Southern Cross and fireworks.
+                // A beach ball, a little plane trailing a streamer, then a rainbow. After dark: the Southern Cross (the Plough in the north) and fireworks.
                 turnsUp(first, x: w * 0.3, y: pull - 50 - (starry ? 0 : abs(CGFloat(sin(t * 2.6))) * 12)) {
-                    if clear { SouthernCross(t: t).frame(width: 84, height: 96) }
+                    if clear { if south { SouthernCross(t: t).frame(width: 84, height: 96) } else { Plough(t: t).frame(width: 112, height: 64) } }
                     else if !starry { BeachBall().frame(width: 34, height: 34).rotationEffect(.degrees(t * 70)) }
                 }
                 turnsUp(second, x: starry ? w * 0.5 : w * 0.6, y: pull - 122 + (starry ? 0 : CGFloat(sin(t * 1.1)) * 3), from: starry ? .zero : CGSize(width: w * 0.8, height: 0)) {
@@ -634,7 +636,7 @@ struct SceneFrame: View {
                     else { GumLeaves(t: t).frame(width: 96, height: 76) }
                 }
                 turnsUp(second, x: w * 0.62, y: pull - 122, from: starry ? .zero : CGSize(width: -w * 0.7, height: 0)) {
-                    if clear { SouthernCross(t: t).frame(width: 84, height: 96) } else if !starry {
+                    if clear { if south { SouthernCross(t: t).frame(width: 84, height: 96) } else { Plough(t: t).frame(width: 112, height: 64) } } else if !starry {
                         HStack(spacing: 10) {
                             ForEach(0..<2, id: \.self) { i in
                                 Bird(dark: false, flying: true, flap: 0.5 * sin(t * 9 + Double(i) * 2), colours: (0xFBF7EC, 0xE4DCC6, 0x5A5F66), crest: 0xF4D03F)
@@ -1723,12 +1725,19 @@ struct SandMound: View {
     }
 }
 
-/// Soft ribbons of light low in the night sky, slowly moving.
+/// Soft ribbons of light low in the night sky, slowly moving. In the north, the aurora borealis: mostly green,
+/// with a lilac edge. In the south, the aurora australis as it is usually seen from Australia and New Zealand,
+/// low on the horizon: pink and purple, with green underneath.
 struct Aurora: View {
     var t = 0.0
+    var south = true
+    /// Top band first, each with how strongly it shows.
+    static let borealis: [(colour: UInt32, strength: Double)] = [(0xC7A6E8, 0.2), (0x7FE0B0, 0.5), (0x9BE8C0, 0.42)]
+    static let australis: [(colour: UInt32, strength: Double)] = [(0xF29BC4, 0.48), (0xD08FE0, 0.38), (0x7FE0B0, 0.16)]
     var body: some View {
         Canvas { context, size in
-            for (index, colour) in ([0x7FE0B0, 0x8FB4E3, 0xB9A0EA] as [UInt32]).enumerated() {
+            for (index, light) in (south ? Self.australis : Self.borealis).enumerated() {
+                let colour = light.colour
                 var band = Path()
                 let phase = t * 0.35 + Double(index) * 1.9, top = size.height * (0.12 + 0.16 * CGFloat(index))
                 let steps = 30
@@ -1740,7 +1749,7 @@ struct Aurora: View {
                 band.addLines(upper)
                 band.addLines(upper.reversed().map { CGPoint(x: $0.x, y: $0.y + 34) })
                 band.closeSubpath()
-                context.fill(band, with: .linearGradient(Gradient(colors: [Color(hex: colour).opacity(0.34), Color(hex: colour).opacity(0)]),
+                context.fill(band, with: .linearGradient(Gradient(colors: [Color(hex: colour).opacity(light.strength), Color(hex: colour).opacity(0)]),
                                                          startPoint: CGPoint(x: 0, y: top - 10), endPoint: CGPoint(x: 0, y: top + 40)))
             }
         }
@@ -1861,6 +1870,31 @@ struct Rainbow: View {
             }
         }
         .mask(LinearGradient(colors: [.black, .black, .clear], startPoint: .top, endPoint: .bottom))
+    }
+}
+
+/// The Plough (the Big Dipper), for northern skies where the Southern Cross can't be seen: the bowl and the
+/// handle, joined with faint lines.
+struct Plough: View {
+    var t = 0.0
+    var body: some View {
+        Canvas { context, size in
+            // Alkaid, Mizar, Alioth, Megrez, Phecda, Merak, Dubhe.
+            let stars: [(CGFloat, CGFloat, CGFloat)] = [(0.04, 0.18, 3), (0.2, 0.08, 3.2), (0.36, 0.14, 3.2), (0.5, 0.3, 2.4),
+                                                        (0.54, 0.72, 3), (0.9, 0.82, 3.2), (0.94, 0.38, 3.4)]
+            let points = stars.map { CGPoint(x: size.width * $0.0, y: size.height * $0.1) }
+            var lines = Path()
+            lines.addLines(points)
+            lines.addLine(to: points[3])
+            context.stroke(lines, with: .color(Color(hex: 0xF3E0B8).opacity(0.28)), style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round))
+            for (index, star) in stars.enumerated() {
+                let twinkle = 0.75 + 0.25 * sin(t * 2.3 + Double(index) * 1.9)
+                let glow = star.2 * 3
+                context.fill(Path(ellipseIn: CGRect(x: points[index].x - glow, y: points[index].y - glow, width: glow * 2, height: glow * 2)),
+                             with: .radialGradient(Gradient(colors: [Color(hex: 0xF3E0B8).opacity(0.35 * twinkle), Color(hex: 0xF3E0B8).opacity(0)]), center: points[index], startRadius: 0, endRadius: glow))
+                dot(&context, points[index].x, points[index].y, star.2 * 0.62, Color(hex: 0xFFF6DC).opacity(twinkle))
+            }
+        }
     }
 }
 

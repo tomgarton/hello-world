@@ -2389,3 +2389,18 @@ quiet "since" list. How often is learned, and a parent can set it. Reminders are
 - Pictures: `docs/previews/care/today-card.png`, `log-brushing.png`, `settings.png`, `item-nails.png`.
 - 126 tests pass, 11 of them new. Seen in the simulator, not on a phone. Reminders were not switched on in
   the simulator (the permission prompt), only tested.
+
+## The night sky follows the hemisphere (17 November 2026)
+
+Tom: account for the aurora borealis as well as the aurora australis, depending on where the family is.
+
+- **Where.** From where the weather last looked, when the weather is on: only which side of the equator,
+  kept as whole degrees of latitude. Otherwise from the phone's region. The seasons use the same answer now,
+  so they also follow a family's real place when the weather is on.
+- **North:** the aurora borealis, mostly green with a faint lilac top, and the Plough (the Big Dipper)
+  instead of the Southern Cross, which can't be seen from there.
+- **South:** the aurora australis as it is usually seen from Australia and New Zealand, low and pink over
+  purple, with a thin green base. The Southern Cross stays.
+- For checking: launch with `-debugSouth 1` or `-debugSouth 0`.
+- Picture: `docs/previews/scenes/night-sky-north-south.png`.
+- 129 tests pass. Seen in renders, not on a phone.

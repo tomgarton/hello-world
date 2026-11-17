@@ -82,8 +82,7 @@ struct SplashLook {
 
     /// The season a month falls in here: northern by month, turned half a year for the south.
     static func season(forMonth month: Int) -> Season {
-        let southern: Set<String> = ["AU", "NZ", "ZA", "AR", "CL", "UY", "PY", "BO", "PE", "BR", "FJ", "PG", "NA", "BW", "ZW", "MZ", "MG", "LS", "SZ"]
-        let south = southern.contains(Locale.current.region?.identifier ?? "")
+        let south = Hemisphere.isSouth
         let northern: Season = switch month {
         case 3...5: .spring
         case 6...8: .summer
