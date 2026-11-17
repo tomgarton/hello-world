@@ -2276,3 +2276,16 @@ Now it's lit once, in a softer grey-lilac, from low down where the bolt leaves i
 and edges, so it keeps its storm colour. The near clouds stay in front of its light. The rim on the near clouds
 is softer and in the same light, so it no longer reads as an outline. `storm-strip.png` and
 `thunderstorm.gif` redrawn. 110 tests pass.
+
+**Lightning, a storm of its own each time (17 November 2026).** Tom asked whether the bolts were random; they
+were, but the same series played every launch, a strike every 8½ seconds exactly. Agreed to vary both:
+
+- Strikes now come 5 to 13 seconds apart, never closer, so it stays calm. About one in five is followed within a
+  second by a second bolt from the cloud beside it. Most gaps have a flash inside a cloud, with no bolt, at a
+  random moment well clear of the strikes either side.
+- The cloud, the bolt's shape, its fork and the timing all mix in the launch's seed, as the clouds already did, so
+  each opening of the app is a new storm. For a given moment it's always the same, so Puggle ducks in time.
+  She ducks at each first bolt, not the second.
+- `docs/previews/scenes/thunderstorm-rhythm.gif`: 26 seconds at the beach at night. 112 tests pass, two new (gaps
+  between 5 and 13 seconds with real variety, about one in five doubled, nothing overlapping the next strike, and
+  a different storm for a different launch).

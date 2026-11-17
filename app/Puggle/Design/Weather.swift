@@ -306,27 +306,68 @@ struct WeatherFront: View {
 }
 
 /// When the far-off lightning strikes in a thunderstorm, so the scene and Puggle keep the same time.
+///
+/// Irregular, like a real storm (17 November 2026): time is cut into slots of `slot` seconds and each slot's
+/// strike falls somewhere in its first `wobble` seconds, so strikes are 5 to 13 seconds apart, never closer.
+/// About one in five is followed by a second bolt from another cloud within a second. Most long gaps have a flash
+/// inside a cloud, with no bolt, somewhere in the middle. Everything is mixed with the launch's seed, so each
+/// time the app opens the storm is a new one; for a given moment it is always the same, so Puggle and the sky agree.
 enum Thunder {
-    static let every = 8.5
+    static let slot = 9.0
+    static let wobble = 4.0
     /// A strike flickers for this long: a bright stroke, a dip, and a second stroke down the same path.
     static let length = 0.55
-    /// Halfway between strikes, lightning inside a cloud lights it without a bolt.
-    static let sheetAt = 4.6
     static let sheetLength = 0.4
+    /// What makes this launch's storm unlike the last. Tests and pictures can fix it.
+    nonisolated(unsafe) static var seed: UInt64 = SceneClock.seed
 
-    /// Which strike this is, and how bright it is now, 0 to 1.
-    static func strike(at t: Double) -> (number: Int, glow: Double) {
-        let number = Int((t / every).rounded(.down))
-        let since = t - Double(number) * every
-        return (number, pulses(since))
+    private static func random(_ slot: Int, _ salt: UInt64) -> SeededRandom {
+        SeededRandom(UInt64(bitPattern: Int64(slot)) &* 2_654_435_761 &+ seed &* 31 &+ salt)
     }
 
-    /// The flash inside a cloud between strikes, 0 to 1, and which one it is.
+    /// When the strike in a slot happens.
+    static func strikeTime(_ slot: Int) -> Double {
+        var random = random(slot, 1)
+        return Double(slot) * Self.slot + random.range(0, wobble)
+    }
+
+    /// When the second bolt after a slot's strike happens, if there is one.
+    static func doubleTime(_ slot: Int) -> Double? {
+        var random = random(slot, 2)
+        guard random.unit() < 0.2 else { return nil }
+        return strikeTime(slot) + random.range(0.6, 1.0)
+    }
+
+    /// When a cloud lights up on its own in a slot, if one does: well clear of the strikes either side.
+    static func sheetTime(_ slot: Int) -> Double? {
+        var random = random(slot, 3)
+        guard random.unit() < 0.7 else { return nil }
+        let from = (doubleTime(slot) ?? strikeTime(slot)) + 1.6, to = strikeTime(slot + 1) - 1.6
+        guard to > from else { return nil }
+        return from + random.range(0, 1) * (to - from)
+    }
+
+    /// The flash showing now, and which one it is: even numbers are a slot's strike, odd ones its second bolt,
+    /// so each has its own cloud and shape. Brightness 0 to 1.
+    static func strike(at t: Double) -> (number: Int, glow: Double) {
+        let here = Int((t / slot).rounded(.down))
+        for slot in [here, here - 1] {
+            if let second = doubleTime(slot), t >= second, t - second < length { return (slot * 2 + 1, pulses(t - second)) }
+            let at = strikeTime(slot)
+            if t >= at, t - at < length { return (slot * 2, pulses(t - at)) }
+        }
+        return (here * 2, 0)
+    }
+
+    /// The flash inside a cloud, 0 to 1, and which one it is.
     static func sheet(at t: Double) -> (number: Int, glow: Double) {
-        let number = Int((t / every).rounded(.down))
-        let since = t - Double(number) * every - sheetAt
-        guard since >= 0, since < sheetLength else { return (number, 0) }
-        return (number, 0.55 * sin(since / sheetLength * .pi) * (0.8 + 0.2 * sin(since * 50)))
+        let here = Int((t / slot).rounded(.down))
+        for slot in [here, here - 1] {
+            guard let at = sheetTime(slot), t >= at, t - at < sheetLength else { continue }
+            let since = t - at
+            return (slot, 0.55 * sin(since / sheetLength * .pi) * (0.8 + 0.2 * sin(since * 50)))
+        }
+        return (here, 0)
     }
 
     /// Two quick strokes: up fast, down a little slower, then again a touch fainter.
@@ -340,9 +381,11 @@ enum Thunder {
         return min(1, pulse(0, 1, 0.22) + pulse(0.28, 0.8, 0.27))
     }
 
-    /// Seconds from `t` to the next strike.
+    /// Seconds from `t` to the next strike that Puggle ducks at. A second bolt close behind is part of the same one.
     static func untilNext(after t: Double) -> Double {
-        every - t.truncatingRemainder(dividingBy: every)
+        let here = Int((t / slot).rounded(.down))
+        for slot in here...(here + 2) where strikeTime(slot) > t { return strikeTime(slot) - t }
+        return slot
     }
 }
 
@@ -379,7 +422,7 @@ struct StormSky: View {
 
             // Which cloud each flash is in: one well on screen.
             func pick(_ number: Int, salt: UInt64) -> Int {
-                var random = SeededRandom(UInt64(max(number, 0)) &* 7_717 &+ salt)
+                var random = SeededRandom(UInt64(bitPattern: Int64(number)) &* 7_717 &+ Thunder.seed &* 13 &+ salt)
                 let start = Int(random.range(0, 5))
                 for step in 0..<5 {
                     let index = (start + step) % 5
@@ -387,8 +430,14 @@ struct StormSky: View {
                 }
                 return start
             }
-            let struck = pick(strike.number, salt: 13)
-            let sheeted = pick(strike.number, salt: 71)
+            // A second bolt comes from a cloud beside the first one's.
+            let struck: Int = {
+                guard strike.number % 2 != 0 else { return pick(strike.number, salt: 13) }
+                let first = pick(strike.number - 1, salt: 13)
+                let beside = [first + 1, first - 1].filter { (0..<5).contains($0) && bank[$0].midX > w * 0.1 && bank[$0].midX < w * 0.9 }
+                return beside.first ?? first
+            }()
+            let sheeted = pick(sheet.number, salt: 71)
 
             let dark = Color(hex: night ? 0x2B2D58 : 0x7C8299)
             let darker = Color(hex: night ? 0x222348 : 0x6A7089)
@@ -420,7 +469,7 @@ struct StormSky: View {
 
             // The bolt, behind its cloud, so it comes out of the underside; it ends behind the far hills.
             if strike.glow > 0 {
-                var random = SeededRandom(UInt64(max(strike.number, 0)) &* 4_409 &+ 3)
+                var random = SeededRandom(UInt64(bitPattern: Int64(strike.number)) &* 4_409 &+ Thunder.seed &* 17 &+ 3)
                 let cloud = bank[struck]
                 var point = CGPoint(x: cloud.midX + CGFloat(random.range(-12, 12)), y: cloud.maxY - 8)
                 let ground = h * CGFloat(random.range(0.56, 0.62))

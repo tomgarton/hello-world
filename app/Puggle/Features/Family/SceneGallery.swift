@@ -410,8 +410,8 @@ struct SceneGalleryView: View {
             }
         }
         let sheet = VStack(spacing: 4) {
-            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Thunderstorm, a strike", hour: 13, t: Thunder.every * Double($0.rawValue + 3) + 0.12, weather: .storm) } }
-            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Thunderstorm at night", hour: 22, t: Thunder.every * Double($0.rawValue + 7) + 0.12, weather: .storm) } }
+            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Thunderstorm, a strike", hour: 13, t: Thunder.strikeTime($0.rawValue + 3) + 0.12, weather: .storm) } }
+            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Thunderstorm at night", hour: 22, t: Thunder.strikeTime($0.rawValue + 7) + 0.12, weather: .storm) } }
             HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Sun showers", hour: 13, t: 2, weather: .showers) } }
             HStack(spacing: 4) {
                 ForEach([3.0, 4.6, 6.2], id: \.self) { at in cell(.bush, "Willy-willy, hot", hour: 13, t: WillyWilly.every * 2 + at, weather: .hot) }
@@ -424,15 +424,22 @@ struct SceneGalleryView: View {
         save(sheet, as: name, scale: 1)
     }
 
+    /// A moment around a slot's strike, or (for nan) the next flash inside a cloud.
+    private static func stormMoment(slot: Int, _ offset: Double) -> Double {
+        guard offset.isNaN else { return Thunder.strikeTime(slot) + offset }
+        let found = (slot...(slot + 20)).lazy.compactMap(Thunder.sheetTime).first
+        return (found ?? Thunder.strikeTime(slot) + 4) + 0.2
+    }
+
     /// A thunderstorm strike frame by frame, by day and at night, then the flash inside a cloud between strikes.
     @MainActor static func writeStormStrip(name: String) {
         let moments: [(String, Double)] = [("Before", -0.3), ("0.03 s", 0.03), ("0.1 s", 0.1), ("0.2 s", 0.2), ("0.33 s", 0.33), ("0.45 s", 0.45),
-                                            ("Between", Thunder.sheetAt + 0.2)]
+                                            ("Between", .nan)]
         let sheet = VStack(spacing: 4) {
             ForEach([(SceneKind.hills, 13), (.beach, 22), (.bush, 13)], id: \.0.rawValue) { kind, hour in
                 HStack(spacing: 4) {
                     ForEach(Array(moments.enumerated()), id: \.offset) { _, moment in
-                        SceneFrame(kind: kind, dark: false, hourOverride: hour, t: Thunder.every * Double(5 + kind.rawValue * 2) + moment.1, weather: .storm)
+                        SceneFrame(kind: kind, dark: false, hourOverride: hour, t: stormMoment(slot: 5 + kind.rawValue * 2, moment.1), weather: .storm)
                             .frame(width: 300, height: PuggleHeader.sceneHeight)
                             .clipped()
                             .overlay(alignment: .topLeading) {

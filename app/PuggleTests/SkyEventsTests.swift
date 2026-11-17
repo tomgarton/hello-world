@@ -21,9 +21,38 @@ final class SkyEventsTests: XCTestCase {
         XCTAssertFalse(SkyEvents.meteors(utc("2026-03-10T22:00:00Z"), calendar: calendar))
     }
 
-    func testLightningIsBriefAndRegular() {
-        XCTAssertGreaterThan(Thunder.strike(at: Thunder.every * 3 + 0.1).glow, 0)
-        XCTAssertEqual(Thunder.strike(at: Thunder.every * 3 + 1).glow, 0)
-        XCTAssertEqual(Thunder.untilNext(after: Thunder.every * 3 + 2), Thunder.every - 2, accuracy: 0.001)
+    func testLightningIsBrief() {
+        let at = Thunder.strikeTime(3)
+        XCTAssertGreaterThan(Thunder.strike(at: at + 0.1).glow, 0)
+        if Thunder.doubleTime(3) == nil { XCTAssertEqual(Thunder.strike(at: at + 1.2).glow, 0) }
+        XCTAssertEqual(Thunder.untilNext(after: at - 2), 2, accuracy: 0.001)
+    }
+
+    func testStrikesAreIrregularButNeverTooClose() {
+        for seed: UInt64 in [1, 99, 123_456] {
+            Thunder.seed = seed
+            let times = (0..<400).map(Thunder.strikeTime)
+            let gaps = zip(times.dropFirst(), times).map { $0 - $1 }
+            XCTAssertGreaterThanOrEqual(gaps.min() ?? 0, 5 - 0.001)
+            XCTAssertLessThanOrEqual(gaps.max() ?? 99, 13 + 0.001)
+            // Not a metronome: the gaps really vary.
+            XCTAssertGreaterThan((gaps.max() ?? 0) - (gaps.min() ?? 0), 5)
+            let doubles = (0..<400).compactMap(Thunder.doubleTime).count
+            XCTAssertTrue((40...120).contains(doubles), "\(doubles) doubles in 400")
+            // Every second bolt and every flash inside a cloud is clear of the next strike.
+            for slot in 0..<400 {
+                if let second = Thunder.doubleTime(slot) { XCTAssertLessThan(second + Thunder.length, Thunder.strikeTime(slot + 1)) }
+                if let sheet = Thunder.sheetTime(slot) { XCTAssertLessThan(sheet + Thunder.sheetLength, Thunder.strikeTime(slot + 1)) }
+            }
+        }
+    }
+
+    func testEachLaunchHasItsOwnStorm() {
+        Thunder.seed = 1
+        let one = (0..<20).map(Thunder.strikeTime)
+        Thunder.seed = 2
+        let two = (0..<20).map(Thunder.strikeTime)
+        XCTAssertNotEqual(one, two)
+        Thunder.seed = SceneClock.seed
     }
 }
