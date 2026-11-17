@@ -2269,3 +2269,10 @@ light up. Drawn in `docs/previews/scenes/storm-strip.png` (frame by frame) and `
 - 110 tests pass. Not seen on a phone. Puggle's duck after a strike is still untested in the running app,
   because the simulator ignored the launch settings this session (Today opened with no family). That needs a
   look.
+
+**The struck cloud, toned down (17 November 2026).** Tom: the cloud the lightning comes from looked too light and
+stood out on top of the other clouds. It was being lit twice, once in each layer, and pale right to its edges.
+Now it's lit once, in a softer grey-lilac, from low down where the bolt leaves it and fading towards its top
+and edges, so it keeps its storm colour. The near clouds stay in front of its light. The rim on the near clouds
+is softer and in the same light, so it no longer reads as an outline. `storm-strip.png` and
+`thunderstorm.gif` redrawn. 110 tests pass.

@@ -393,6 +393,8 @@ struct StormSky: View {
             let dark = Color(hex: night ? 0x2B2D58 : 0x7C8299)
             let darker = Color(hex: night ? 0x222348 : 0x6A7089)
             let lit = Color(hex: night ? 0xB4B0EE : 0xF3F1FF)
+            // A cloud lit from inside stays a cloud: a softer, greyer light than the rims and the bolt.
+            let inside = Color(hex: night ? 0x8C88CC : 0xD6D5EA)
             let bolt = Color(hex: 0xFFF6D6)
 
             // How lit a cloud is: full for the one the flash is in, less with distance.
@@ -410,10 +412,10 @@ struct StormSky: View {
             }
 
             // A soft light in the sky behind the flash.
-            for (index, glow) in [(struck, strike.glow), (sheeted, sheet.glow * 0.7)] where glow > 0 {
+            for (index, glow) in [(struck, strike.glow), (sheeted, sheet.glow * 0.7)] where glow > 0 && lightOnly {
                 let centre = CGPoint(x: bank[index].midX, y: bank[index].midY + 6)
                 context.fill(Path(ellipseIn: CGRect(x: centre.x - 110, y: centre.y - 60, width: 220, height: 120)),
-                             with: .radialGradient(Gradient(colors: [lit.opacity(0.45 * glow), lit.opacity(0)]), center: centre, startRadius: 0, endRadius: 110))
+                             with: .radialGradient(Gradient(colors: [inside.opacity(0.3 * glow), inside.opacity(0)]), center: centre, startRadius: 0, endRadius: 110))
             }
 
             // The bolt, behind its cloud, so it comes out of the underside; it ends behind the far hills.
@@ -463,15 +465,19 @@ struct StormSky: View {
             }
 
             // The bank, each cloud lit from inside by however near the flash is.
+            // Lit once, in the light pass, and never over the near clouds, which stay in front.
+            let inFront = near.reduce(Path()) { $0.union(CloudShape().path(in: $1)) }
             for rect in bank {
                 let path = CloudShape().path(in: rect)
                 if !lightOnly { context.fill(path, with: .color(dark)) }
                 let amount = light(rect)
-                if amount > 0 {
-                    // Brightest in the middle, as if the light is inside it.
-                    context.fill(path, with: .radialGradient(Gradient(colors: [lit.opacity(amount), lit.opacity(amount * 0.35)]),
-                                                             center: CGPoint(x: rect.midX, y: rect.midY + rect.height * 0.15),
-                                                             startRadius: 0, endRadius: rect.width * 0.55))
+                if amount > 0 && lightOnly {
+                    // Lit from low down, where the bolt leaves it, fading towards the top and the edges, so the
+                    // cloud keeps its storm colour around the light rather than turning pale all over.
+                    let base = CGPoint(x: rect.midX, y: rect.maxY - rect.height * 0.15)
+                    context.fill(path.subtracting(inFront),
+                                 with: .radialGradient(Gradient(colors: [inside.opacity(0.6 * amount), inside.opacity(0.22 * amount), inside.opacity(0)]),
+                                                       center: base, startRadius: 0, endRadius: rect.width * 0.5))
                 }
             }
             // The near clouds, darker, caught along their tops by the light behind them.
@@ -481,7 +487,8 @@ struct StormSky: View {
                 if lightOnly {
                     // Only the rim that shows above the cloud.
                     if amount > 0 {
-                        context.fill(path.offsetBy(dx: 0, dy: -3).subtracting(path), with: .color(lit.opacity(min(1, amount * 1.3))))
+                        // Soft and in the cloud's own light, so it never reads as an outline: the scenery has none.
+                        context.fill(path.offsetBy(dx: 0, dy: -2).subtracting(path), with: .color(inside.opacity(min(0.65, amount * 0.75))))
                     }
                 } else {
                     // The near cloud hides the bank's light where it is in front of it.
