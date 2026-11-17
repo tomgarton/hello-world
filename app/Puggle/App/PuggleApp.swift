@@ -210,6 +210,9 @@ struct RootView: View {
                     SceneGalleryView.writeOptions(name: "options.png")
                     SceneGalleryView.writeWeather(name: "weather.png", dark: false)
                     SceneGalleryView.writeWeather(name: "weather-night.png", dark: true)
+                    // The pulled-down sky in every weather, where a seam once showed on grey days.
+                    SceneGalleryView.writeWeather(name: "weather-pulled.png", dark: false, pull: 260)
+                    SceneGalleryView.writeWeather(name: "weather-night-pulled.png", dark: true, pull: 260)
                     SceneGalleryView.writeStrip(move: "splash", seconds: 1.3, every: 0.1, name: "strip-splash.png")
                     SceneGalleryView.writeDrawingStyles(name: "drawing.png")
                     SceneGalleryView.writeLineStyles(name: "lines.png")

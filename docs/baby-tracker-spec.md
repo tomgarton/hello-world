@@ -2205,3 +2205,21 @@ Tom chose this next. It builds three of the decisions from 15 November.
 
 **TestFlight, 16 November 2026, about 22:40:** the fifteenth upload of 0.1.0, from commit 47a707a, pushed to
 GitHub first. Build 14 plus the family card, facts that open their sheet, and the tiles widget.
+
+### The pulled-down sky on grey days (17 November 2026)
+
+Tom saw a hard line across the sky on Today when he pulled it down in the rain. Reviewed every scene in every
+weather, by day and at night, pulled down 260 points (`docs/previews/scenes/pulled-sky-weather.png`, before
+and after).
+
+- **The seam.** On a grey day (rain, storm, snow, fog) the scene's own sky takes the weather's wash twice: once
+  over the whole sky, and again over the far scenery so it doesn't glow. The second wash stopped at the top of
+  the scene, so the sky pulled down above it was lighter and a line showed where they met. The pulled-down sky
+  now takes the second wash too. Fixed in all four scenes; no seam on fine, hot, windy or cold days, or at night.
+- **The clouds in the pulled-down sky** stayed white on grey days. They now take the weather's grey like the
+  scene's own clouds.
+- Rooms after dark were already right: the wall is drawn from the top of the pull.
+- Left as it is, for Tom to say: the rainbow still turns up in a storm, and the fireworks and stars still turn
+  up at night in the rain.
+- `-debugSheet 1` now also writes `weather-pulled.png` and `weather-night-pulled.png`. 107 tests pass. Not on
+  a phone yet.

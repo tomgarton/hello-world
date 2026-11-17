@@ -336,19 +336,19 @@ struct SceneGalleryView: View {
     }
 
     /// Every kind of weather in every scene, by day, with what she wears for it.
-    @MainActor static func writeWeather(name: String, dark: Bool) {
+    @MainActor static func writeWeather(name: String, dark: Bool, pull: CGFloat = 0) {
         let controller = PuggleController()
         let sheet = VStack(spacing: 4) {
             ForEach(Weather.allCases) { weather in
                 HStack(spacing: 4) {
                     ForEach(SceneKind.allCases, id: \.rawValue) { kind in
                         ZStack(alignment: .bottom) {
-                            PuggleScene(kind: kind, dark: dark, hourOverride: dark ? 22 : 13, still: true, weather: weather)
+                            PuggleScene(kind: kind, dark: dark, pull: pull, hourOverride: dark ? 22 : 13, still: true, weather: weather)
                             PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
                                 .environment(\.moonlit, dark)
                                 .environment(\.outfit, weather.outfit(night: dark))
                         }
-                        .frame(width: 402, height: PuggleHeader.sceneHeight)
+                        .frame(width: 402, height: PuggleHeader.sceneHeight + pull)
                         .clipped()
                         .overlay(alignment: .topLeading) {
                             Text(weather.name).font(.caption2.weight(.semibold)).padding(4)
@@ -361,13 +361,17 @@ struct SceneGalleryView: View {
         }
         .background(Color.gray)
         .environment(\.lineStyle, .tinted)
-        save(sheet, as: name)
+        // A pulled sheet is twice as tall: at full scale it is too big to render.
+        save(sheet, as: name, scale: pull > 0 ? 1 : 2)
     }
 
-    @MainActor private static func save(_ view: some View, as name: String) {
+    @MainActor private static func save(_ view: some View, as name: String, scale: CGFloat = 2) {
         let renderer = ImageRenderer(content: view)
-        renderer.scale = 2
-        guard let data = renderer.uiImage?.pngData() else { return }
+        renderer.scale = scale
+        guard let data = renderer.uiImage?.pngData() else {
+            print("Sheet \(name) did not render")
+            return
+        }
         let url = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0].appendingPathComponent(name)
         try? data.write(to: url)
     }

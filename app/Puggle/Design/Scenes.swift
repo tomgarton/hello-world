@@ -191,6 +191,13 @@ struct SceneFrame: View {
                 // The weather turns the sky grey, pale or warm, down to the horizon.
                 if let wash = weather.skyWash(night: starry) {
                     wash
+                    // On a grey day the scene's own sky takes the wash twice (see below), so the
+                    // pulled-down sky above it does too, or a hard line shows where they meet.
+                    if weather.overcast, pull > 0 {
+                        wash.opacity(0.55)
+                            .frame(width: w, height: pull)
+                            .frame(maxHeight: .infinity, alignment: .top)
+                    }
                 }
                 // One sky from the top of the pull to the horizon, so nothing is left bare.
                 if starry && !weather.overcast {
@@ -412,7 +419,7 @@ struct SceneFrame: View {
                 ForEach(0..<6, id: \.self) { i in
                     var random = SeededRandom(UInt64(i) &* 4243 &+ 9)
                     let depth = CGFloat(i) * 70 + 90
-                    Cloud(width: random.range(46, 84))
+                    Cloud(width: random.range(46, 84), tint: weather.cloudTint(night: false) ?? Color.white.opacity(0.8))
                         .position(x: random.range(0.12, 0.88) * w, y: pull - depth)
                         .offset(x: pull > depth ? 0 : (i.isMultiple(of: 2) ? -40 : 40))
                         .opacity(pull > depth ? 0.9 : 0)
