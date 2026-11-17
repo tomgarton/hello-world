@@ -2289,3 +2289,24 @@ were, but the same series played every launch, a strike every 8½ seconds exactl
 - `docs/previews/scenes/thunderstorm-rhythm.gif`: 26 seconds at the beach at night. 112 tests pass, two new (gaps
   between 5 and 13 seconds with real variety, about one in five doubled, nothing overlapping the next strike, and
   a different storm for a different launch).
+
+### Rain that lands (17 November 2026)
+
+Tom asked for little rain "pops" on the characters, objects and animals, then drips. Drawn in
+`docs/previews/scenes/rain.gif`: the backyard in rain by day, the bush in a thunderstorm at night.
+
+- **Pops.** Where a drop lands, a tiny crown: a flat splash and three droplets thrown up and falling back, gone in
+  about a fifth of a second. On Puggle's hat brim, crown and shoulders (measured from her drawing, and moving with
+  her when she's walked); on the bird's back, the snail's shell, the kookaburra and his branch; along the fence
+  rail and the picket tops; across the ground in pale blue, so they show on the sand; and on the sea as small
+  rings. A few a second: more in a thunderstorm, fewer in sun showers.
+- **Drips.** Water gathers into a drop on an edge, hangs and stretches a little, lets go, falls and pops where it
+  lands. Off both ends of Puggle's brim, under the fence rail clear of her, off the washing line, and off the
+  kookaburra's branch.
+- **Rain in depth.** A far layer behind the scenery, thinner, slower and fainter, and a few long near drops in
+  front of Puggle, so the rain falls through the scene and not only over it.
+- **Gusts in a thunderstorm.** The rain's slant swings slowly with the wind; the speed stays the same.
+- Rain, thunderstorms and sun showers only, never snow. With Reduce Motion nothing lands or drips.
+- Not on the friend who stands with Puggle on Today: they often hold an umbrella, whose shape needs measuring
+  first. A follow-up if wanted.
+- 115 tests pass, three new. Not seen on a phone.

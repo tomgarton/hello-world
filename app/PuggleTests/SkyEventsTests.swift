@@ -56,3 +56,34 @@ final class SkyEventsTests: XCTestCase {
         Thunder.seed = SceneClock.seed
     }
 }
+
+/// Rain that lands on things (17 November 2026).
+final class RainTests: XCTestCase {
+    func testOnlyRainLands() {
+        XCTAssertNil(Rain.strength(.snow))
+        XCTAssertNil(Rain.strength(.clear))
+        XCTAssertGreaterThan(Rain.strength(.storm) ?? 0, Rain.strength(.rain) ?? 0)
+        XCTAssertGreaterThan(Rain.strength(.rain) ?? 0, Rain.strength(.showers) ?? 0)
+    }
+
+    func testTheStormLeansInGustsButNeverWildly() {
+        let leans = stride(from: 0.0, to: 120, by: 0.5).map { Rain.lean(.storm, t: $0) }
+        XCTAssertGreaterThan((leans.max() ?? 0) - (leans.min() ?? 0), 0.12)
+        XCTAssertGreaterThan(leans.min() ?? 0, 0.1)
+        XCTAssertLessThan(leans.max() ?? 1, 0.5)
+        XCTAssertEqual(Rain.lean(.rain, t: 0), Rain.lean(.rain, t: 40))
+    }
+
+    func testDropsLandOnTheirTarget() {
+        var random = SeededRandom(7)
+        let ledge = RainTarget.ledge(CGPoint(x: 0, y: 10), CGPoint(x: 100, y: 10))
+        let ground = RainTarget.area(.ground, CGRect(x: 0, y: 50, width: 100, height: 20))
+        for _ in 0..<50 {
+            let on = ledge.point(&random)
+            XCTAssertEqual(on.y, 10, accuracy: 0.001)
+            XCTAssertTrue((0...100).contains(on.x))
+            let down = ground.point(&random)
+            XCTAssertTrue((50...70).contains(down.y))
+        }
+    }
+}

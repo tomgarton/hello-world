@@ -233,27 +233,34 @@ struct WeatherFront: View {
     let t: Double
     /// The height of the scene at the bottom, so heat rises from its ground and not from the pulled-down sky.
     let sceneHeight: CGFloat
+    /// The far rain, behind the scenery: thinner, slower and fainter, so the rain has depth.
+    var far = false
 
     var body: some View {
         Canvas { context, size in
+            // The far layer is only rain.
+            if far && Rain.strength(weather) == nil { return }
             switch weather {
             case .rain, .storm, .showers:
                 let heavy = weather == .storm, light = weather == .showers
-                let lean: CGFloat = heavy ? 0.34 : (light ? 0.1 : 0.14)
-                let colour = (night ? Color(hex: 0xB9BEEA) : Color.white).opacity(heavy ? 0.5 : (light ? 0.55 : 0.42))
+                // In a thunderstorm the slant swings with the gusts; far rain leans the same way.
+                let lean = Rain.lean(weather, t: t)
+                let colour = (night ? Color(hex: 0xB9BEEA) : Color.white).opacity((heavy ? 0.5 : (light ? 0.55 : 0.42)) * (far ? 0.5 : 1))
                 var streaks = Path()
-                for i in 0..<(heavy ? 110 : (light ? 38 : 70)) {
-                    var random = SeededRandom(UInt64(i) &* 9973 &+ 5)
-                    let speed = random.range(heavy ? 520 : 380, heavy ? 700 : 520)
-                    let length = CGFloat(random.range(9, 16))
+                let count = heavy ? 110 : (light ? 38 : 70)
+                for i in 0..<(far ? count * 3 / 4 : count) {
+                    var random = SeededRandom(UInt64(i) &* 9973 &+ (far ? 61 : 5))
+                    let speed = random.range(heavy ? 520 : 380, heavy ? 700 : 520) * (far ? 0.6 : 1)
+                    let length = CGFloat(random.range(9, 16)) * (far ? 0.55 : 1)
                     let span = Double(size.height + 40)
                     let y = CGFloat((random.range(0, 1) * span + speed * t).truncatingRemainder(dividingBy: span)) - 20
                     let x = CGFloat(random.range(-0.1, 1.1)) * size.width - y * lean
                     streaks.move(to: CGPoint(x: x, y: y))
                     streaks.addLine(to: CGPoint(x: x - length * lean, y: y + length))
                 }
-                context.stroke(streaks, with: .color(colour), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
+                context.stroke(streaks, with: .color(colour), style: StrokeStyle(lineWidth: far ? 1 : 1.4, lineCap: .round))
             case .snow:
+                guard !far else { break }
                 for i in 0..<64 {
                     var random = SeededRandom(UInt64(i) &* 6151 &+ 3)
                     let speed = random.range(22, 46)

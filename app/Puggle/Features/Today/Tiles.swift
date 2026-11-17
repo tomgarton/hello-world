@@ -553,6 +553,11 @@ struct PuggleHeader: View {
                     try? await Task.sleep(for: .seconds(Double.random(in: 35...60)))
                 }
             }
+            // Out in the rain: the nearest drops in front of her, pops on her hat and shoulders, drips off her brim.
+            if room == nil {
+                PuggleRain(weather: weather, night: PuggleScene.isNight(dark: dim), puggleX: x)
+                    .opacity(appeared ? 1 : 0)
+            }
             // The tea table stands in front of her.
             if let room { RoomFront(room: room, dark: dim).opacity(appeared ? 1 : 0) }
         }

@@ -347,6 +347,9 @@ struct SceneGalleryView: View {
                             PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
                                 .environment(\.moonlit, dark)
                                 .environment(\.outfit, weather.outfit(night: dark))
+                            if let strength = Rain.strength(weather) {
+                                PuggleRain(weather: weather, night: dark).frame(strength: strength, t: 0.5)
+                            }
                         }
                         .frame(width: 402, height: PuggleHeader.sceneHeight + pull)
                         .clipped()

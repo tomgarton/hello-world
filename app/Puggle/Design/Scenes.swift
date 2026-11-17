@@ -93,7 +93,7 @@ struct PuggleScene: View {
         if still || reduceMotion {
             // Half a second in, so rain and snow are already falling in a still picture.
             SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather, rooms: rooms, puggleX: puggleX,
-                       seasonOverride: season)
+                       seasonOverride: season, stillRain: reduceMotion)
         } else {
             // Thirty times a second is plenty for things that drift and sway.
             TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
@@ -145,6 +145,8 @@ struct SceneFrame: View {
     var rooms = false
     var puggleX: CGFloat = 0
     var seasonOverride: SplashLook.Season?
+    /// With Reduce Motion nothing lands or drips: the scene is a still picture then.
+    var stillRain = false
 
     private var hour: Int {
         if let hourOverride { return hourOverride }
@@ -225,6 +227,8 @@ struct SceneFrame: View {
                     clouds(w, h)
                     // A thunderstorm's clouds and lightning, behind the far scenery so a bolt strikes behind the hills.
                     if weather == .storm { StormSky(night: starry, t: t).frame(width: w, height: h).opacity(appeared ? 1 : 0) }
+                    // The far rain, behind the scenery, so the rain falls through the scene and not only over it.
+                    WeatherFront(weather: weather, night: starry, t: t, sceneHeight: h, far: true)
                     scenery(w, h)
                     if kind == .bush && !starry && (weather == .hot || weather == .windy) {
                         // A willy-willy spinning across the far paddock now and then.
@@ -242,6 +246,11 @@ struct SceneFrame: View {
                     Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
                         .frame(width: 72, height: 9).position(x: w / 2 + puggleX, y: h - 27)
                     friend(w, h)
+                    // Drops landing on the friend, the fence, the ground and the water, and drips off edges.
+                    if let strength = Rain.strength(weather), !stillRain {
+                        RainHits(targets: rainTargets(w, h), drips: rainDrips(w, h), strength: strength, night: starry, t: t, salt: UInt64(kind.rawValue))
+                            .opacity(appeared ? 1 : 0)
+                    }
                     WeatherNear(weather: weather, t: t)
                 }
                 .frame(width: w, height: h)
@@ -426,6 +435,49 @@ struct SceneFrame: View {
                 .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.7 * 9)), anchor: .bottom).position(x: w * 0.7, y: h * 0.75)
             GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9)
                 .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.9 * 9)), anchor: .bottom).position(x: w * 0.9, y: h * 0.81)
+        }
+    }
+
+    // MARK: Rain landing
+
+    /// Where drops land in each scene: the friend's back, the tops of things, and the ground or the water.
+    /// Measured from the drawings, close enough at this size.
+    private func rainTargets(_ w: CGFloat, _ h: CGFloat) -> [RainTarget] {
+        var targets: [RainTarget] = []
+        switch kind {
+        case .hills:
+            let hop = CGFloat(birdMoves().hop) * 7
+            targets.append(.ledge(CGPoint(x: w * 0.26 - 13, y: h * 0.8 - 11 - hop), CGPoint(x: w * 0.26 + 9, y: h * 0.8 - 16 - hop)))
+            targets.append(.area(.ground, CGRect(x: 0, y: h * 0.74, width: w, height: h * 0.22)))
+        case .beach:
+            targets.append(.area(.water, CGRect(x: 0, y: h * 0.6, width: w, height: h * 0.16)))
+            targets.append(.area(.ground, CGRect(x: 0, y: h * 0.8, width: w, height: h * 0.17)))
+        case .backyard:
+            let drift = CGFloat(snailMoves().drift)
+            targets.append(.ledge(CGPoint(x: w * 0.77 + drift - 12, y: h * 0.85 - 12), CGPoint(x: w * 0.77 + drift + 6, y: h * 0.85 - 16)))
+            // The top of the fence's rail, and the tops of the pickets.
+            targets.append(.ledge(CGPoint(x: 0, y: h * 0.592), CGPoint(x: w, y: h * 0.592)))
+            targets.append(.ledge(CGPoint(x: 0, y: h * 0.523), CGPoint(x: w, y: h * 0.523)))
+            targets.append(.area(.ground, CGRect(x: 0, y: h * 0.76, width: w, height: h * 0.2)))
+        case .bush:
+            targets.append(.ledge(CGPoint(x: w * 0.25 - 8, y: h * 0.415 - 22), CGPoint(x: w * 0.25 + 10, y: h * 0.415 - 20)))
+            targets.append(.ledge(CGPoint(x: w * 0.13 + 30, y: h * 0.485), CGPoint(x: w * 0.13 + 64, y: h * 0.47)))
+            targets.append(.area(.ground, CGRect(x: 0, y: h * 0.76, width: w, height: h * 0.2)))
+        }
+        return targets
+    }
+
+    /// Edges water gathers on and drips from. Not on a sunny shower's light rain alone: only where it is wet enough.
+    private func rainDrips(_ w: CGFloat, _ h: CGFloat) -> [DripSpot] {
+        switch kind {
+        case .backyard:
+            // Under the fence rail, clear of Puggle, and off the washing line.
+            return [0.08, 0.27, 0.71, 0.93].map { DripSpot(at: CGPoint(x: w * $0, y: h * 0.592 + 5), lands: h * 0.74) }
+                + [0.12, 0.3].map { DripSpot(at: CGPoint(x: w * $0, y: h * 0.42), lands: h * 0.76) }
+        case .bush:
+            return [DripSpot(at: CGPoint(x: w * 0.13 + 52, y: h * 0.48 + 3), lands: h * 0.8)]
+        default:
+            return []
         }
     }
 
