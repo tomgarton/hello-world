@@ -219,6 +219,9 @@ struct BoardBookView: View {
 struct Flap<Front: View, Under: View>: View {
     let shape: FlapShape
     let hinge: Edge
+    /// A raised flap is a piece of card stuck on top of the page, so it stands proud with its edge showing and
+    /// leaves no recess. The others are cut into the page.
+    var raised = false
     @Binding var open: Bool
     @ViewBuilder var front: Front
     @ViewBuilder var under: Under
@@ -231,32 +234,20 @@ struct Flap<Front: View, Under: View>: View {
         let lean = sin(angle * .pi / 180)
         ZStack {
             // The recess. Always there, so it shows through the thumb notch even when the flap is shut.
-            under
-                .clipShape(shape)
-                .overlay(Color.black.opacity(0.10).clipShape(shape))
-                // The wall of the recess, lit from the top left: dark along the top and left, a thin light lip opposite.
-                .overlay(shape.stroke(Color.black.opacity(0.55), lineWidth: Board.thick * 1.6).blur(radius: 3)
-                    .offset(x: Board.thick * 0.5, y: Board.thick * 0.7).clipShape(shape))
-                .overlay(shape.stroke(Color.white.opacity(0.5), lineWidth: 1).offset(x: -0.5, y: -0.5).clipShape(shape))
-                .overlay(shape.stroke(Board.edgeDark, lineWidth: 1))
-            // The flap.
-            Group {
-                if angle < 90 {
-                    front
-                        .overlay(Color.black.opacity(0.28 * lean))
-                } else {
-                    // Its back: bare card, a little in shade.
-                    Board.face.overlay(Color.black.opacity(0.06 + 0.2 * lean))
-                }
+            if raised {
+                // Printed on the page under the card, so it is seen as the card comes up.
+                under.opacity(min(1, lift * 4))
+            } else {
+                recess
             }
-            .clipShape(NotchedFlap(shape: shape, hinge: hinge))
-            // The cut: a hairline all round, light on the side the light comes from.
-            .overlay(NotchedFlap(shape: shape, hinge: hinge).stroke(Color.black.opacity(0.32), lineWidth: 0.9))
-            .overlay(NotchedFlap(shape: shape, hinge: hinge).stroke(Color.white.opacity(0.55), lineWidth: 0.8).offset(x: -0.7, y: -0.7)
-                .clipShape(NotchedFlap(shape: shape, hinge: hinge)))
-            .rotation3DEffect(.degrees(sign * angle), axis: axis, anchor: anchor, perspective: 0.55)
-            // Shut, it is level with the page. Lifted, it throws a soft shadow that grows.
-            .shadow(color: .black.opacity(0.12 + 0.25 * lean), radius: 1 + 9 * lean, x: 2 * lean, y: 1 + 5 * lean)
+            // The card's own thickness, under a raised flap, which turns with it.
+            if raised {
+                shape.fill(Board.edgeDark)
+                    .offset(x: 1.2, y: 2.2)
+                    .opacity(angle < 90 ? 1 : 0)
+                    .rotation3DEffect(.degrees(sign * angle), axis: axis, anchor: anchor, perspective: 0.55)
+            }
+            flap(angle: angle, lean: lean)
         }
         .contentShape(Rectangle())
         // Lifted by the finger: it follows a drag away from its hinge, and on letting go it falls open or shut,
@@ -277,6 +268,44 @@ struct Flap<Front: View, Under: View>: View {
         .accessibilityElement()
         .accessibilityLabel(open ? "Flap, open" : "Flap")
         .accessibilityAddTraits(.isButton)
+    }
+
+    private var outline: NotchedFlap { NotchedFlap(shape: shape, hinge: hinge, notch: !raised) }
+
+    /// The hole a cut-in flap leaves, as deep as the card, with what was hidden at the bottom.
+    private var recess: some View {
+        let wide: CGFloat = Board.thick * 1.6
+        let dx: CGFloat = Board.thick * 0.5, dy: CGFloat = Board.thick * 0.7
+        // The wall of the recess, lit from the top left: dark along the top and left, a thin light lip opposite.
+        let wall = shape.stroke(Color.black.opacity(0.55), lineWidth: wide).blur(radius: 3).offset(x: dx, y: dy).clipShape(shape)
+        let lip = shape.stroke(Color.white.opacity(0.5), lineWidth: 1).offset(x: -0.5, y: -0.5).clipShape(shape)
+        return under
+            .clipShape(shape)
+            .overlay(Color.black.opacity(0.10).clipShape(shape))
+            .overlay(wall)
+            .overlay(lip)
+            .overlay(shape.stroke(Board.edgeDark, lineWidth: 1))
+    }
+
+    private func flap(angle: Double, lean: Double) -> some View {
+            Group {
+                if angle < 90 {
+                    front
+                        .overlay(Color.black.opacity(0.28 * lean))
+                } else {
+                    // Its back: bare card, a little in shade.
+                    Board.face.overlay(Color.black.opacity(0.06 + 0.2 * lean))
+                }
+            }
+            .clipShape(outline)
+            // The cut: a hairline all round, light on the side the light comes from.
+            .overlay(outline.stroke(Color.black.opacity(0.32), lineWidth: 0.9))
+            .overlay(outline.stroke(Color.white.opacity(0.55), lineWidth: 0.8).offset(x: -0.7, y: -0.7).clipShape(outline))
+            .rotation3DEffect(.degrees(sign * angle), axis: axis, anchor: anchor, perspective: 0.55)
+            // A cut-in flap shut is level with the page; a raised one always throws a little shadow. Lifted, the
+            // shadow grows.
+            .shadow(color: .black.opacity((raised ? 0.22 : 0.12) + 0.25 * lean), radius: (raised ? 3 : 1) + 9 * lean,
+                    x: (raised ? 1 : 0) + 2 * lean, y: (raised ? 2.5 : 1) + 5 * lean)
     }
 
     /// Where the drag began, as how far open the flap was then.
@@ -339,8 +368,11 @@ struct Flap<Front: View, Under: View>: View {
 /// The outline a flap is cut to.
 enum FlapShape: Shape {
     case rounded, capsule, dome, blob
+    /// For One Boot's flaps: a pile of logs, a patch of dirt, Pop's hat, a blanket over a basket.
+    case logs, dirt, hat, blanket
 
     func path(in rect: CGRect) -> Path {
+        if let extra = FlapShape.extraPath(self, in: rect) { return extra }
         switch self {
         case .rounded: return Path(roundedRect: rect, cornerRadius: min(rect.width, rect.height) * 0.18, style: .continuous)
         case .capsule: return Path(roundedRect: rect, cornerRadius: min(rect.width, rect.height) / 2, style: .continuous)
@@ -353,12 +385,13 @@ enum FlapShape: Shape {
             path.closeSubpath()
             return path
         case .blob:
-            var path = Path()
             let w = rect.width, h = rect.height
-            path.addEllipse(in: CGRect(x: rect.minX, y: rect.minY + h * 0.2, width: w * 0.6, height: h * 0.8))
-            path.addEllipse(in: CGRect(x: rect.minX + w * 0.3, y: rect.minY, width: w * 0.55, height: h * 0.75))
-            path.addEllipse(in: CGRect(x: rect.minX + w * 0.45, y: rect.minY + h * 0.25, width: w * 0.55, height: h * 0.75))
-            return path
+            // One shape, so the cut runs round the outside only.
+            return Path(ellipseIn: CGRect(x: rect.minX, y: rect.minY + h * 0.2, width: w * 0.6, height: h * 0.8))
+                .union(Path(ellipseIn: CGRect(x: rect.minX + w * 0.3, y: rect.minY, width: w * 0.55, height: h * 0.75)))
+                .union(Path(ellipseIn: CGRect(x: rect.minX + w * 0.45, y: rect.minY + h * 0.25, width: w * 0.55, height: h * 0.75)))
+        default:
+            return Path(rect)
         }
     }
 }
@@ -367,8 +400,10 @@ enum FlapShape: Shape {
 struct NotchedFlap: Shape {
     let shape: FlapShape
     let hinge: Edge
+    var notch = true
 
     func path(in rect: CGRect) -> Path {
+        guard notch else { return shape.path(in: rect) }
         let r: CGFloat = 9
         let centre: CGPoint = switch hinge {
         case .top: CGPoint(x: rect.midX, y: rect.maxY)
@@ -385,6 +420,8 @@ struct NotchedFlap: Shape {
 
 /// What is on one page: a picture, the question above the flap if there is one, and the words.
 struct BookPage {
+    /// A place drawn behind everything, in place of the plain sky and ground.
+    var place: BookPlace?
     var sky = Color(hex: 0xBFD9F5)
     var ground = Color(hex: 0xCFE5D2)
     /// Where the ground meets the sky, from the top, as a share of the picture.
@@ -429,6 +466,17 @@ struct BookPage {
         /// Who is under it, and the yellow thing with them.
         let who: String?
         let found: Thing
+        /// What the flap is: drawn on its face, raised or cut in. Without it, a plain colour cut into the page.
+        var art: FlapArt?
+
+        init(shape: FlapShape, hinge: Edge, rect: CGRect, colour: Color, who: String?, found: Thing) {
+            self.shape = shape; self.hinge = hinge; self.rect = rect; self.colour = colour; self.who = who; self.found = found
+        }
+
+        init(_ art: FlapArt, hinge: Edge, rect: CGRect, who: String?, found: Thing) {
+            self.init(shape: art.shape, hinge: hinge, rect: rect, colour: .clear, who: who, found: found)
+            self.art = art
+        }
     }
 }
 
@@ -530,12 +578,16 @@ struct BookPageView: View {
 
     private func picture(_ size: CGSize) -> some View {
         ZStack(alignment: .topLeading) {
-            page.sky
-            page.ground
-                .frame(height: size.height * (1 - page.horizon) + 40)
-                .clipShape(FlapShape.dome.scale(x: 1.4, y: 1, anchor: .bottom))
-                .frame(maxHeight: .infinity, alignment: .bottom)
-            page.ground.frame(height: size.height * (1 - page.horizon) - 10).frame(maxHeight: .infinity, alignment: .bottom)
+            if let place = page.place {
+                Canvas { context, size in place.draw(&context, size) }
+            } else {
+                page.sky
+                page.ground
+                    .frame(height: size.height * (1 - page.horizon) + 40)
+                    .clipShape(FlapShape.dome.scale(x: 1.4, y: 1, anchor: .bottom))
+                    .frame(maxHeight: .infinity, alignment: .bottom)
+                page.ground.frame(height: size.height * (1 - page.horizon) - 10).frame(maxHeight: .infinity, alignment: .bottom)
+            }
             ForEach(Array(page.props.enumerated()), id: \.offset) { _, prop in
                 prop.thing.view(colour: prop.colour)
                     .frame(width: size.width * prop.wide)
@@ -558,16 +610,37 @@ struct BookPageView: View {
             if let spot = page.flap {
                 let rect = CGRect(x: spot.rect.minX * size.width, y: spot.rect.minY * size.height,
                                   width: spot.rect.width * size.width, height: spot.rect.height * size.height)
-                Flap(shape: spot.shape, hinge: spot.hinge, open: $open) {
-                    spot.colour
+                let raised = spot.art?.raised ?? false
+                Flap(shape: spot.shape, hinge: spot.hinge, raised: raised, open: $open) {
+                    if let art = spot.art {
+                        Canvas { context, size in art.front(&context, size) }
+                    } else {
+                        spot.colour
+                    }
                 } under: {
-                    ZStack {
-                        Color(hex: 0x5B4636)
-                        HStack(spacing: 4) {
-                            if let who = spot.who {
-                                BookFigure(who: who, tall: rect.height * 1.5, hat: nil).offset(y: rect.height * 0.3)
+                    if raised {
+                        // Under a raised flap is the page itself, printed: whoever was there, standing, and what
+                        // they found. Inside a tin or a basket, its inside colour.
+                        ZStack(alignment: .bottom) {
+                            if let inside = spot.art?.inside { inside.clipShape(spot.shape) }
+                            HStack(alignment: .bottom, spacing: 2) {
+                                if let who = spot.who {
+                                    BookFigure(who: who, tall: rect.height * 0.92, hat: nil)
+                                }
+                                spot.found.view().frame(width: min(rect.width * (spot.who == nil ? 0.42 : 0.26), 44))
+                                    .padding(.bottom, spot.who == nil ? rect.height * 0.2 : 2)
                             }
-                            spot.found.view().frame(width: min(rect.width * 0.3, 44))
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
+                    } else {
+                        ZStack {
+                            Color(hex: 0x5B4636)
+                            HStack(spacing: 4) {
+                                if let who = spot.who {
+                                    BookFigure(who: who, tall: rect.height * 1.5, hat: nil).offset(y: rect.height * 0.3)
+                                }
+                                spot.found.view().frame(width: min(rect.width * 0.3, 44))
+                            }
                         }
                     }
                 }

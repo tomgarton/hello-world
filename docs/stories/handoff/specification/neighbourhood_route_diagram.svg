@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="670" viewBox="0 0 1200 670">
+<rect width="1200" height="670" rx="24" fill="#f8f2e8"/>
+<text x="65" y="74" font-family="Arial,sans-serif" font-weight="bold" font-size="33" fill="#49352d">Puggle's neighbourhood — proposed story geography</text>
+<text x="65" y="104" font-family="Arial,sans-serif" font-size="18" fill="#78695c">Conceptual route only · not drawn to scale · not yet approved as canon</text>
+<path d="M 158 352 C 250 310 276 348 345 321 S 478 279 535 317 S 692 341 762 315 S 902 351 1027 439" fill="none" stroke="#d7ad78" stroke-width="37" stroke-linecap="round"/>
+<path d="M 158 352 C 250 310 276 348 345 321 S 478 279 535 317 S 692 341 762 315 S 902 351 1027 439" fill="none" stroke="#fff0d9" stroke-width="30" stroke-linecap="round"/>
+<path d="M 760 315 Q 830 200 956 181" fill="none" stroke="#d7ad78" stroke-width="29" stroke-linecap="round"/>
+<path d="M 760 315 Q 830 200 956 181" fill="none" stroke="#fff0d9" stroke-width="23" stroke-linecap="round"/>
+<path d="M 880 579 Q 1030 525 1090 365" fill="none" stroke="#a8d1d9" stroke-width="92" stroke-linecap="round"/>
+<path d="M 880 579 Q 1030 525 1090 365" fill="none" stroke="#7eb5c6" stroke-width="74" stroke-linecap="round"/>
+<g font-family="Arial,sans-serif" text-anchor="middle"><circle cx="150" cy="350" r="68" fill="#f7d9bb" stroke="#cd7e69" stroke-width="3"/><text x="150" y="343" font-size="22" fill="#49352d" font-weight="bold">Puggle's</text><text x="150" y="370" font-size="22" fill="#49352d" font-weight="bold">home</text>
+<circle cx="350" cy="320" r="64" fill="#d9e6bd" stroke="#9cad73" stroke-width="3"/><text x="350" y="314" font-size="20" fill="#49352d" font-weight="bold">Garden</text><text x="350" y="339" font-size="20" fill="#49352d">path</text>
+<circle cx="540" cy="313" r="67" fill="#d2d9a3" stroke="#87985c" stroke-width="3"/><text x="540" y="307" font-size="20" fill="#49352d" font-weight="bold">Logs, hole</text><text x="540" y="332" font-size="20" fill="#49352d">and tree</text>
+<circle cx="756" cy="310" r="76" fill="#ead5b4" stroke="#a8865c" stroke-width="3"/><text x="756" y="304" font-size="20" fill="#49352d" font-weight="bold">Nan and</text><text x="756" y="330" font-size="20" fill="#49352d" font-weight="bold">Pop's</text>
+<circle cx="969" cy="167" r="65" fill="#f7e8c0" stroke="#c4a46c" stroke-width="3"/><text x="969" y="161" font-size="21" fill="#49352d" font-weight="bold">Village</text><text x="969" y="188" font-size="20" fill="#49352d">centre</text>
+<circle cx="1000" cy="447" r="69" fill="#d1eced" stroke="#68a1ad" stroke-width="3"/><text x="1000" y="440" font-size="20" fill="#49352d" font-weight="bold">Creek and</text><text x="1000" y="467" font-size="20" fill="#49352d">picnic spot</text></g>
+<rect x="63" y="571" width="754" height="58" rx="9" fill="#fffaf2" stroke="#e4d7c6"/><text x="84" y="594" font-size="17" font-family="Arial,sans-serif" fill="#665347">One Boot route: Home → garden → logs/hole/tree → Nan and Pop → creek</text><text x="84" y="618" font-size="15" font-family="Arial,sans-serif" fill="#8b7a67">Village centre is an optional branch for later stories; no on-page village visit in One Boot</text>
+</svg>

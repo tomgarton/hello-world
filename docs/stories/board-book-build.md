@@ -61,6 +61,9 @@ pop-up, a wheel), that one spread could be built in 3D on its own.
 - With a flap, the page shows only the question; the answer comes when the flap is lifted.
 - The little paper boat wobbles when found.
 - "One Boot" is in it as a storyboard: eleven pages of rough flat scenes with the cast as they are in the app.
+- **At the house** (17 November 2026): the pages follow the ChatGPT pack's dummy and route, with places drawn
+  in `BookPlaces.swift`. Flaps are now of two kinds: **raised** (card stuck on the page, standing proud with its
+  edge and a shadow, cut to the thing's shape, no recess) and **cut in** (the dirt, with a notch and a recess).
 
 ## What it does not do yet
 

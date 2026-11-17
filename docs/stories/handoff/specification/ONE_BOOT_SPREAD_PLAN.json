@@ -1,0 +1,211 @@
+{
+  "status": "WORKING STORYBOARD / NOT PRODUCTION ART",
+  "structure": "11 story openings; separate cover and back cover; one flap or none per opening",
+  "spreads": [
+    {
+      "n": 1,
+      "area": "HOME / FRONT STEP",
+      "scene": "concepts/connecting_garden_path_concept_01.png",
+      "pre": [
+        "It is a puddle day.",
+        "Puggle has her boots."
+      ],
+      "post": [],
+      "refrain": "One boot on. One boot gone.",
+      "kind": null,
+      "people": [
+        "puggle"
+      ],
+      "prop": "boot",
+      "note": "Introduce one boot on / one boot gone using separate footwear prop. Artwork must be reblocked around the approved character."
+    },
+    {
+      "n": 2,
+      "area": "GARDEN / LOGS",
+      "scene": "concepts/connecting_garden_path_concept_01.png",
+      "pre": [
+        "Is it under the logs?"
+      ],
+      "post": [
+        "No boot. A cone! And Quill.",
+        "\"Not yet,\" says Quill. Then she comes too."
+      ],
+      "refrain": "One boot on. One boot gone.",
+      "kind": "logs",
+      "people": [
+        "quill"
+      ],
+      "prop": "cone",
+      "note": "Raised log flap. Quill revealed beneath and then joins the growing search party."
+    },
+    {
+      "n": 3,
+      "area": "GARDEN / HOLE",
+      "scene": "concepts/connecting_garden_path_concept_01.png",
+      "pre": [
+        "Is it down the hole?"
+      ],
+      "post": [
+        "No boot. A flower! And Digby.",
+        "\"Me too!\" says Digby."
+      ],
+      "refrain": "One boot on. One boot gone.",
+      "kind": "dirt",
+      "people": [
+        "digby"
+      ],
+      "prop": "flower",
+      "note": "Recessed/flush fitted earth flap with a thumb notch; test thickness and cavity depth."
+    },
+    {
+      "n": 4,
+      "area": "TREE / CREEK VIEW",
+      "scene": "concepts/creek_and_picnic_spot_concept_01.png",
+      "pre": [
+        "Is it up the tree?"
+      ],
+      "post": [
+        "No boot. A leaf! And Kip.",
+        "\"I can see the whole creek,\" says Kip. \"Wait for me.\""
+      ],
+      "refrain": null,
+      "kind": "leaves",
+      "people": [
+        "kip"
+      ],
+      "prop": "leaf",
+      "note": "Leaves conceal Kip. Keep distant creek visible to support Kip’s line."
+    },
+    {
+      "n": 5,
+      "area": "NAN & POP / WASHING",
+      "scene": "concepts/nan_and_pop_house_concept_01.png",
+      "pre": [
+        "Is it under the towel?"
+      ],
+      "post": [
+        "No boot. A bucket! And Sunny.",
+        "\"The rule is,\" says Sunny, \"we look together.\""
+      ],
+      "refrain": "One boot on. One boot gone.",
+      "kind": "towel",
+      "people": [
+        "sunny"
+      ],
+      "prop": "bucket",
+      "note": "Towel as a real hinged shape on a washing line, not a fabric simulation in printed 2D art."
+    },
+    {
+      "n": 6,
+      "area": "NAN & POP / VERANDA",
+      "scene": "concepts/nan_and_pop_house_concept_01.png",
+      "pre": [
+        "Is it under Pop's hat?"
+      ],
+      "post": [
+        "No boot. A duck!",
+        "\"Well, I never,\" says Nan."
+      ],
+      "refrain": null,
+      "kind": "hat",
+      "people": [],
+      "prop": "duck",
+      "note": "Pop’s hat is an object, not a newly drawn full character. Nan visible beside the action.",
+      "externalPeople": [
+        "nan"
+      ]
+    },
+    {
+      "n": 7,
+      "area": "NAN & POP / TABLE",
+      "scene": "concepts/nan_and_pop_house_concept_01.png",
+      "pre": [
+        "Is it in the tin?"
+      ],
+      "post": [
+        "No boot. A biscuit.",
+        "Two, at Nan's."
+      ],
+      "refrain": null,
+      "kind": "lid",
+      "people": [],
+      "prop": "biscuit",
+      "note": "Make tin and biscuit visibly separate. Preserve the author’s wording and ambiguity."
+    },
+    {
+      "n": 8,
+      "area": "PATH / PUDDLES",
+      "scene": "concepts/connecting_garden_path_concept_01.png",
+      "pre": [
+        "Step, squelch. Step, squelch."
+      ],
+      "post": [],
+      "refrain": "One boot on. One boot gone.",
+      "kind": null,
+      "people": [
+        "puggle",
+        "quill",
+        "digby",
+        "kip",
+        "sunny"
+      ],
+      "prop": "puddle",
+      "note": "Wordless visual progression in the path; no interactive hotspots or auto-playing sound."
+    },
+    {
+      "n": 9,
+      "area": "CREEK / BASKET",
+      "scene": "concepts/creek_and_picnic_spot_concept_01.png",
+      "pre": [
+        "Is it in the basket?"
+      ],
+      "post": [
+        "Ba!"
+      ],
+      "refrain": null,
+      "kind": "blanket",
+      "people": [
+        "pebble"
+      ],
+      "prop": "boot",
+      "note": "Big reveal. Pebble and the missing boot must be legible after lifting the blanket without spoiling in the closed state."
+    },
+    {
+      "n": 10,
+      "area": "CREEK / DISCOVERY",
+      "scene": "concepts/creek_and_picnic_spot_concept_01.png",
+      "pre": [
+        "Puggle looks at the boot.",
+        "Pebble looks at Puggle.",
+        "\"Mine,\" says Puggle. Then: \"Ba.\""
+      ],
+      "post": [],
+      "refrain": null,
+      "kind": null,
+      "people": [
+        "puggle",
+        "pebble"
+      ],
+      "prop": "boot",
+      "note": "An emotional beat, not a moral. Use established front-facing characters with minimal approved expression cues."
+    },
+    {
+      "n": 11,
+      "area": "CREEK / SPLASH",
+      "scene": "concepts/creek_and_picnic_spot_concept_01.png",
+      "pre": [
+        "No boots on.",
+        "Splash.",
+        "And the creek went on by."
+      ],
+      "post": [],
+      "refrain": null,
+      "kind": null,
+      "people": [
+        "puggle"
+      ],
+      "prop": "splash",
+      "note": "Quiet full-spread ending. Both boots off; allow the creek and silence to finish the story."
+    }
+  ]
+}

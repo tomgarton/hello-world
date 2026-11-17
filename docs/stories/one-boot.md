@@ -22,6 +22,11 @@ is said by the grown-up and, by the third time, by the child.
 
 Each picture has its words, what is drawn, and what the flap is. Words in bold are the line that comes back.
 
+> **17 November 2026:** home is now the house, and the pages follow the route in the ChatGPT pack
+> (`docs/stories/handoff/`): front step, logs, hole, big gum, Nan and Pop's washing line, veranda and table,
+> the wet path, the creek picnic, the rug, the shallows. The plan below is the first version, at the burrow,
+> kept as written.
+
 **1. The burrow, morning.**
 Puggle at the round door, one yellow boot on, one bare foot. Mum behind, with tea.
 

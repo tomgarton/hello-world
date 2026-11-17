@@ -2310,3 +2310,30 @@ Tom asked for little rain "pops" on the characters, objects and animals, then dr
 - Not on the friend who stands with Puggle on Today: they often hold an umbrella, whose shape needs measuring
   first. A follow-up if wanted.
 - 115 tests pass, three new. Not seen on a phone.
+
+### One Boot, at the house (17 November 2026)
+
+Tom chose **the house** as Puggle's home (from the ChatGPT world pack) and asked to bring the pack into the
+book already built, keeping build 14's approach: flat SwiftUI pages turned in 3D, not RealityKit.
+
+- **The pack is filed** in `docs/stories/handoff/`: its specification (world bible, dummy decisions, spread
+  plan, storyboard, the RealityKit notes for the record), the six concept pictures, the cast crops and the
+  interactive dummy. The manuscript in it is word for word `docs/stories/one-boot-story.md`.
+- **Home is the house.** A cream house with a coral roof, a round coral door and a garden with a white gate;
+  the app's rooms are its inside. The story bible and world kit say so. **The burrow is kept, unchosen,** in
+  both. Nan and Pop's is now the green-roofed house with a veranda along the path before the creek.
+- **Eleven openings, one beat each, in the pack's order:** the front step; the logs; the hole; the big gum
+  with the creek far off; Nan and Pop's washing line; their veranda; their outdoor table; the wet path; the
+  creek picnic; Pebble and the boot on the rug; the shallows. The words are unchanged.
+- **Seven flaps, as the pack lists them.** Six are **raised**: card stuck on top of the page, standing proud
+  with its edge showing and a shadow, cut to the thing's own shape (a pile of six logs, a clump of leaves, a
+  striped towel pegged on the line, Pop's hat, the tin lid, the blanket over the basket). Lifting one shows
+  what is printed on the page beneath. One, **the dirt, is cut into the page**, with a notch for a finger and
+  a recess as deep as the card.
+- **The places are redrawn** the app's way (`BookPlaces.swift`): flat shapes, no outline, the scenes'
+  colours, and bottlebrush, wattle, gums and paperbarks in place of the pack's tulips and daisies.
+- The first storyboard, at the burrow, is kept in code as `Book.oneBootBurrow`.
+- Pictures: `docs/previews/play/one-boot-1-house.png`, `-2-`, `-3-` (each flap page shut, then open).
+- Still open from the pack, written in the world kit: whether the roof is an attic room, which side of the
+  house the creek is on, whether the bridge crowds the last page, and the village (not visited yet).
+- 115 tests pass. Storyboard quality, placed by eye. Seen in renders only, not on a phone.

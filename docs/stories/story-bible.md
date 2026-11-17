@@ -44,12 +44,18 @@ is a real place.
 
 | Place | Who lives there | What happens there |
 |---|---|---|
-| **The burrow** | Puggle, Pebble, Mum and Dad | In the bank by the still pool, with a round door. Every story starts or ends here. |
+| **The house** | Puggle, Pebble, Mum and Dad | A cream house with a coral roof, a round door and a garden with a white gate. The path to the creek starts at the gate. The app's rooms are its inside. Every story starts or ends here. |
 | **The log pile** | Quill and family | Up the bank, dry and quiet, full of small gaps. The place for making and sorting. |
 | **The big gum** | Kip and family | The tallest tree, by the bridge. You can see the whole creek from the top, if you are allowed up. |
 | **The paddock** | Digby and family | Past the fence, all soft dirt, with more doors than anyone has counted. |
 | **The sandy bend** | Sunny and family | Where the creek goes wide and warm. The place for running and for picnics. |
-| **The stepping stones** | Nan and Pop, on the far side | Seven stones across the creek. Their house has a porch, a kettle and looser rules. |
+| **Nan and Pop's** | Nan and Pop | Along the path, before the creek: a cream house with a green roof, a veranda, a washing line and vegetable beds. A kettle and looser rules. |
+| **The stepping stones** | Nobody | Seven stones across the creek, by the picnic spot. |
+
+**Home was the burrow until 17 November 2026.** Tom chose the house from the ChatGPT world pack
+(`docs/stories/handoff/`): a house the family lives in like people do, with the rooms the app already has.
+The burrow is kept here, unchosen: *a round door in the creek bank by the still pool, a window beside it, a
+chimney pipe in the grass above.* It would make Puggle more of a platypus and less like the child reading.
 
 A map of the creek is the first picture in every book, the same each time, with the homes in the same
 places. It is also the natural busy scene to explore.
@@ -102,7 +108,7 @@ The names, animals and looks are unchanged.
 - **Hard at this age:** waiting, sharing, and stopping.
 - **Always does:** puts things in her pocket. Whatever is in the pocket matters by the end.
 - **Sounds like:** a few words used hard. "Me do it." "Again." "Mine." "Uh oh."
-- **Home:** the burrow.
+- **Home:** the house.
 - **When it goes wrong:** she goes still, then loud, then needs a lap. It passes quickly.
 - **Never:** is mean on purpose, and is never called naughty.
 
@@ -235,8 +241,8 @@ the milestone stories.
 
 | | Animal | Age | Is good at | Says | Lives |
 |---|---|---|---|---|---|
-| Puggle | Platypus | 2½ | Water, and trying | "Me do it." | The burrow |
-| Pebble | Platypus | 6 months | Grabbing and dropping | "Ba!" | The burrow |
+| Puggle | Platypus | 2½ | Water, and trying | "Me do it." | The house |
+| Pebble | Platypus | 6 months | Grabbing and dropping | "Ba!" | The house |
 | Digby | Wombat | 2 | Digging | "Me too!" | The paddock |
 | Kip | Koala | 3 | Climbing and seeing far | "I can see..." | The big gum |
 | Quill | Echidna | 3½ | Making and sorting | "Not yet." | The log pile |
@@ -263,7 +269,7 @@ The first is written out in `one-boot.md`.
 | 9 | **Bath** | A first experience, with a turn | Puggle, Mum | Puggle will not have a bath. She will, though, swim, splash, dive and float, and is surprised to be clean. | "No bath." |
 | 10 | **Show Me** | The grandparent is taught | Puggle, Nan | Puggle shows Nan how to make a paper boat. Nan gets each fold a little wrong. | "Show me," said Nan. |
 | 11 | **Along the Creek** | A busy scene to explore | Everyone | The map, come to life: one big picture for each home, things to name, small things going on, the paper boat to find. No story. | None. |
-| 12 | **Goodnight, Creek** | A quiet sequence | Everyone, one at a time | Each home at dusk, one picture each, getting quieter, ending in the burrow. | "And the creek went on by." |
+| 12 | **Goodnight, Creek** | A quiet sequence | Everyone, one at a time | Each home at dusk, one picture each, getting quieter, ending at the house. | "And the creek went on by." |
 
 Hard things, when they come (a new baby, a goodbye, a visit to the doctor), are told in the usual format:
 one fact on a page, and the feeling named.
