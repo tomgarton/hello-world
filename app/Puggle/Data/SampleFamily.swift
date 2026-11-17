@@ -140,6 +140,7 @@ private struct SampleData {
                                  feeding: .neither, pottyTraining: true)
         baby(ollie)
         toddler(bea)
+        lookingAfter(ollie, bea)
         let family = store.currentFamily()
         let grownUps: [(String, Role, Bool, Bool)] = [("Alex", .parent, true, true), ("Robin", .parent, false, true),
                                                       ("Nan", .helper, false, true), ("Pop", .viewer, false, true),
@@ -176,6 +177,28 @@ private struct SampleData {
         tin.family = family
         store.persistence.save()
         store.lastSaved = nil
+    }
+
+    /// Baths, teeth, nails, a haircut and a dentist visit booked, so Looking after has something to show.
+    /// Ollie's nails have gone a while past their usual week, so the soft mark shows.
+    private func lookingAfter(_ ollie: Child, _ bea: Child) {
+        for back in stride(from: 1, through: 13, by: 2) {
+            add(.care, bea, time(back, 18, 30, slot: 70), detail: "bath", by: back)
+            add(.care, ollie, time(back, 18, 0, slot: 71), detail: "bath", by: back)
+        }
+        for back in [30, 23, 16, 10] { add(.care, ollie, time(back, 10, 0, slot: 72), detail: "nails") }
+        for back in [27, 18, 8] { add(.care, bea, time(back, 9, 0, slot: 73), detail: "nails", by: 1) }
+        add(.care, bea, ago(days: 37), detail: "haircut")
+        for back in 1...6 {
+            add(.care, bea, time(back, 7, 40, slot: 74), detail: "brushing")
+            add(.care, bea, time(back, 19, 10, slot: 75), detail: "brushing", by: 1)
+        }
+        add(.care, bea, time(0, 7, 35, slot: 76), detail: "brushing")
+        // Booked: a visit in three days. Logged directly, as `add` leaves out anything still to come.
+        if let visit = calendar.date(byAdding: .day, value: 3, to: calendar.startOfDay(for: now))?.addingTimeInterval(10.5 * 3600) {
+            store.log(.care, for: [bea], at: visit, detail: "dentist", dose: Event.booked)
+        }
+        add(.care, bea, ago(months: 6, days: 4), detail: "dentist")
     }
 
     private func baby(_ child: Child) {

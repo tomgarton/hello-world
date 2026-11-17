@@ -20,6 +20,8 @@ struct LogSheet: View {
     let children: [Child]
     var editing: Event?
     var endingSleep = false
+    /// For looking after: which item to start on.
+    var careKey: String? = nil
     /// Called with the new entries after a save (not after an edit).
     var onSaved: ([Event]) -> Void = { _ in }
 
@@ -47,6 +49,10 @@ struct LogSheet: View {
     @State private var vaccine = ""
     @State private var grams: Double?
     @State private var milestone = ""
+    /// Looking after: which item, and whether it is a visit booked for later.
+    @State private var care = ""
+    @State private var bookedVisit = false
+    @State private var visitTime = Date.now.addingTimeInterval(86_400)
     /// Each child's own amount when a bottle is logged for several at once.
     @State private var amounts: [NSManagedObjectIDWrapper: Double] = [:]
     @State private var loadedFeed: (side: String, minutes: Double)?
@@ -63,6 +69,14 @@ struct LogSheet: View {
     @Environment(\.dynamicTypeSize) private var textSize
 
     private var isEditing: Bool { editing != nil }
+
+    private var saveTitle: String {
+        guard kind == .care else { return "Save \(kind.title.lowercased())" }
+        let name = CareItem.name(forKey: care).lowercased()
+        return bookedVisit ? "Book \(name)" : "Save \(name)"
+    }
+
+    private var careItem: CareItem? { store.careItem(care) }
 
     var body: some View {
         NavigationStack {
@@ -102,7 +116,7 @@ struct LogSheet: View {
                 if needsSaveButton {
                     // Solid on purpose: as glass, the main action let the form show through
                     // and all but vanished when disabled.
-                    Button(isEditing ? "Save changes" : "Save \(kind.title.lowercased())") { save() }
+                    Button(isEditing ? "Save changes" : saveTitle) { save() }
                         .buttonStyle(PillButtonStyle())
                         .disabled(!canSave)
                         .opacity(canSave ? 1 : 0.5)
@@ -183,10 +197,15 @@ struct LogSheet: View {
                 grams = event.value > 0 ? event.value : nil
             case .milestone:
                 milestone = event.detail ?? ""
+            case .care:
+                care = event.detail ?? ""
+                bookedVisit = event.isBooked
+                if bookedVisit { visitTime = event.startedAt ?? visitTime }
             case .sleep, .note, .pump:
                 break
             }
         } else {
+            care = careKey ?? CareItem.bath.key
             chooseDefaultChild()
             rememberLastBottle()
         }
@@ -275,6 +294,7 @@ struct LogSheet: View {
         case .vaccination: return !vaccine.trimmingCharacters(in: .whitespaces).isEmpty
         case .weight: return (grams ?? 0) > 0
         case .milestone: return !milestone.trimmingCharacters(in: .whitespaces).isEmpty
+        case .care: return !care.isEmpty
         default: return true
         }
     }
@@ -685,6 +705,61 @@ struct LogSheet: View {
             }
         case .pump:
             EmptyView()
+        case .care:
+            careDetails
+        }
+    }
+
+    /// Looking after: which thing, then when. A dentist or doctor visit can be booked for later, and marked
+    /// done once it has happened.
+    private var careDetails: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(store.careItems()) { item in
+                        Button {
+                            Haptics.selection()
+                            care = item.key
+                            if !item.appointment { bookedVisit = false }
+                        } label: {
+                            HStack(spacing: 6) {
+                                item.image().frame(width: 18, height: 18)
+                                Text(item.name).font(.subheadline.weight(.semibold))
+                            }
+                            .padding(.horizontal, 12)
+                            .frame(minHeight: 44)
+                            .background(care == item.key ? Palette.wattle.opacity(0.45) : Palette.field, in: Capsule())
+                        }
+                        .buttonStyle(PressStyle())
+                        .foregroundStyle(Palette.ink)
+                        .accessibilityAddTraits(care == item.key ? .isSelected : [])
+                    }
+                }
+                .padding(.vertical, 2)
+            }
+            if careItem?.appointment == true {
+                Toggle("Booked for later", isOn: $bookedVisit)
+                    .padding(.horizontal, 14)
+                    .frame(minHeight: 52)
+                    .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            if bookedVisit {
+                DatePicker("When", selection: $visitTime, in: Date.now.addingTimeInterval(-86_400 * 30)...)
+                    .padding(.horizontal, 14)
+                    .frame(minHeight: 52)
+                    .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                if let editing, editing.isBooked {
+                    Button("Mark as done") {
+                        Haptics.success()
+                        store.markDone(editing)
+                        dismiss()
+                    }
+                    .buttonStyle(PillButtonStyle())
+                }
+            } else {
+                timeRow("When", $time)
+                timeShortcuts
+            }
         }
     }
 
@@ -973,6 +1048,10 @@ struct LogSheet: View {
             case .milestone:
                 event.startedAt = time
                 event.detail = milestoneName
+            case .care:
+                event.startedAt = bookedVisit ? visitTime : time
+                event.detail = care
+                event.dose = bookedVisit ? Event.booked : nil
             case .pump:
                 break
             }
@@ -1011,6 +1090,9 @@ struct LogSheet: View {
                 events = store.logEach(.weight, for: who, at: time, note: noteValue, value: grams ?? 0)
             case .milestone:
                 events = store.logEach(.milestone, for: who, at: time, detail: milestoneName, note: noteValue)
+            case .care:
+                events = store.logEach(.care, for: who, at: bookedVisit ? visitTime : time, detail: care, note: noteValue,
+                                       dose: bookedVisit ? Event.booked : nil)
             case .pump:
                 events = []
             }

@@ -28,6 +28,8 @@ struct HistoryView: View {
 
     private var filtered: [Event] {
         events.filter { event in
+            // A visit booked ahead is on Today's care card until it is done; History is what has happened.
+            guard !event.isBooked else { return false }
             let kindOK = kindFilter.isEmpty || event.kindRaw == kindFilter
             let childOK = childFilter.isEmpty
                 || (event.children ?? []).contains { $0.id?.uuidString == childFilter }

@@ -6,6 +6,8 @@ import Vision
 /// A medicine box or a formula tin.
 enum GuideKind: String {
     case medicine, formula
+    /// Something the family looks after: one of its own, or how often a built-in one happens. See Care.swift.
+    case care
 
     var thing: String { self == .medicine ? "box" : "tin" }
     var readTitle: String { self == .medicine ? "Read a box" : "Read a tin" }

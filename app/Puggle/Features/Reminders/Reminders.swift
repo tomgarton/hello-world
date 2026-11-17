@@ -9,6 +9,8 @@ import UserNotifications
 struct Reminder: Codable, Identifiable, Hashable {
     enum Kind: String, Codable, CaseIterable, Identifiable {
         case feed, medicine, potty
+        /// Looking after: set from the item's own page, not added from this list.
+        case care
         var id: String { rawValue }
 
         var title: String {
@@ -16,8 +18,12 @@ struct Reminder: Codable, Identifiable, Hashable {
             case .feed: "Time since a feed"
             case .medicine: "A regular medicine"
             case .potty: "Time to try the potty"
+            case .care: "Looking after"
             }
         }
+
+        /// The kinds added from the reminders list.
+        static let addable: [Kind] = [.feed, .medicine, .potty]
     }
 
     var id = UUID()
@@ -35,6 +41,8 @@ struct Reminder: Codable, Identifiable, Hashable {
     /// Potty: only between these times, in minutes after midnight.
     var from = 8 * 60
     var until = 18 * 60
+    /// Looking after: which item. Optional, so reminders saved before it existed still load.
+    var careKey: String?
 }
 
 /// Keeps this phone's reminders, and keeps the notifications in step with them.
@@ -154,8 +162,33 @@ final class ReminderStore: ObservableObject {
                     minutes += step
                     index += 1
                 }
+            case .care:
+                guard let item = store.careItem(reminder.careKey) else { continue }
+                if let (at, body) = Self.careMoment(item, child: child, minutes: reminder.times.first ?? 18 * 60, store: store) {
+                    add("\(reminder.id)", title: "\(item.name) for \(name)", body: body,
+                        trigger: UNCalendarNotificationTrigger(
+                            dateMatching: Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: at), repeats: false))
+                }
             }
         }
+    }
+
+    /// When to remind about looking after, and what to say. A booked visit: the evening before. Anything else:
+    /// on the day it has been the usual time since the last one, or the next evening if that has passed. Plain
+    /// facts, never "overdue".
+    static func careMoment(_ item: CareItem, child: Child, minutes: Int, store: FamilyStore, now: Date = .now) -> (Date, String)? {
+        let calendar = Calendar.current
+        func evening(of day: Date) -> Date? { calendar.date(bySettingHour: minutes / 60, minute: minutes % 60, second: 0, of: day) }
+        if item.appointment {
+            guard let visit = store.booked(item.key, for: child), let at = visit.startedAt,
+                  let before = calendar.date(byAdding: .day, value: -1, to: at), let when = evening(of: before), when > now else { return nil }
+            return (when, "Booked for tomorrow at \(at.formatted(date: .omitted, time: .shortened)).")
+        }
+        guard let last = store.lastCare(item.key, for: child)?.startedAt, let gap = store.careGap(item, for: child), gap.days >= 1,
+              var when = evening(of: last.addingTimeInterval(gap.days * 86_400)) else { return nil }
+        if when <= now, let next = evening(of: calendar.date(byAdding: .day, value: 1, to: now) ?? now) { when = next }
+        let since = CareLine.since(last, now: when).lowercased()
+        return (when, "Last time was \(since).")
     }
 
     /// On unless switched off, and never in Just logging.
@@ -290,7 +323,7 @@ struct RemindersView: View {
 
             if let first = children.first {
                 Section {
-                    ForEach(Reminder.Kind.allCases) { kind in
+                    ForEach(Reminder.Kind.addable) { kind in
                         Button("Add: \(kind.title.lowercased())") {
                             editing = Reminder(kind: kind, childID: first.id?.uuidString ?? "")
                         }
@@ -335,6 +368,7 @@ struct RemindersView: View {
         case .feed: "\(name): time since a feed"
         case .medicine: "\(name): \(reminder.medicine.isEmpty ? "medicine" : reminder.medicine)"
         case .potty: "\(name): time to try"
+        case .care: "\(name): \(CareItem.name(forKey: reminder.careKey).lowercased())"
         }
     }
 
@@ -344,6 +378,7 @@ struct RemindersView: View {
         case .feed: return "\(hours) hours after the last feed"
         case .medicine: return reminder.times.sorted().map(ReminderStore.clock).joined(separator: " · ")
         case .potty: return "Every \(hours) hours, \(ReminderStore.clock(reminder.from)) to \(ReminderStore.clock(reminder.until))"
+        case .care: return "From Looking after on Today"
         }
     }
 }
@@ -370,6 +405,12 @@ private struct ReminderEditor: View {
                 case .feed: feedFields
                 case .medicine: medicineFields
                 case .potty: pottyFields
+                case .care:
+                    Section {
+                        DatePicker("At", selection: timeBinding(0), displayedComponents: .hourAndMinute)
+                    } footer: {
+                        Text("How often is set on Today, under Looking after.")
+                    }
                 }
             }
             .scrollContentBackground(.hidden)

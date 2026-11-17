@@ -198,6 +198,7 @@ extension EventKind {
         case .vaccination: "icon-vaccine"
         case .milestone: "icon-milestone"
         case .pump: "icon-pump"
+        case .care: "icon-bath"
         }
     }
 }

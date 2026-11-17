@@ -2354,3 +2354,38 @@ book already built, keeping build 14's approach: flat SwiftUI pages turned in 3D
   being installed. "Puggle Local" builds into `DerivedData/Build/Products/Local-iphonesimulator`, not
   `Debug-iphonesimulator`. With the right copy, `-debugSheet 1` writes every sheet again.
 - 115 tests pass. Seen in the simulator and in renders, not on a phone.
+
+## Looking after: baths, teeth, nails, haircuts, the dentist (17 November 2026)
+
+Tom asked to track the things that come round again for a child. His choices: baths, haircuts and nails; the
+dentist and the doctor; brushing teeth, which earns a stamp; and anything a family adds of its own. On Today, a
+quiet "since" list. How often is learned, and a parent can set it. Reminders are optional, per item.
+
+- **Logging.** One new kind of entry, Looking after. The log sheet picks the item from a row of chips (Bath,
+  Brushing teeth, Nails, Haircut, Dentist, Doctor, then the family's own), for one child or Everyone. The save
+  button names it: "Save bath".
+- **Booking ahead.** The dentist and the doctor have "Booked for later": a date in the future, saved as
+  "Book dentist". A booked visit shows on Today with a Done button, and stays out of History and Today so far
+  until it is marked done. Marked done early, it counts as happening now.
+- **Today.** A card, Looking after, under the children. It lists only what has been logged or booked, each
+  with one line per child: "Bea · 9 days ago", "Bea · Twice today" for brushing, "Bea · Booked · Friday 10:30".
+  When something has gone a quarter past its usual gap, a small Wattle dot and "· usually every 7 days". Never
+  red, never "overdue". Before anything is logged, one quiet row: "Bath, teeth, nails, haircuts". Tapping a
+  row opens the log sheet on that item. Edit opens the settings.
+- **How often.** Each child's gap is learned from the middle of their last six gaps once there are three
+  entries, so one long gap doesn't pull it. Before that, a starting guess by age (bath every 2 days under one,
+  then daily; nails weekly under one, then every 10 days; haircut 6 weeks; dentist 6 months). A parent can set
+  it for the whole family with "Set it myself".
+- **Your own.** Add a name and pick an icon ("Swimming lessons", with a swimmer). Swipe to remove one. They
+  share between parents like everything else.
+- **Brushing earns a stamp.** After brushing is logged for one child, the stamp screen opens, as after a potty
+  try. Brushing and potty share one stamp book.
+- **Reminders, on this iPhone only.** In each item, a switch per child. For a booked visit, 6 pm the evening
+  before: "Booked for tomorrow at 10:30." For the rest, 6 pm on the day the usual gap is up: "Last time was 9
+  days ago." Off by default.
+- The sample family has baths, brushing, nails (Ollie's past usual), a haircut 5 weeks ago and a dentist visit
+  booked for Friday.
+- Fixed while checking: tapping a row first opened the sheet on Bath, whatever was tapped.
+- Pictures: `docs/previews/care/today-card.png`, `log-brushing.png`, `settings.png`, `item-nails.png`.
+- 126 tests pass, 11 of them new. Seen in the simulator, not on a phone. Reminders were not switched on in
+  the simulator (the permission prompt), only tested.

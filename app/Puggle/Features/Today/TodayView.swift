@@ -39,6 +39,9 @@ struct TodayView: View {
     @State private var pendingSticker: Event?
     @State private var stickerFor: EditTarget?
     @State private var showingPlay = false
+    /// Looking after: which item the log sheet opens on, and its settings.
+    @State private var careKey: String?
+    @State private var showingCare = false
     @State private var staleSleep: Event?
     @State private var staleFeed: Event?
     @State private var askedAbout: Set<NSManagedObjectID> = []
@@ -111,6 +114,11 @@ struct TodayView: View {
                         } else {
                             childrenFirst
                         }
+                        CareCard(children: Array(children), onLog: { item in
+                            careKey = item.key
+                            loggingChild = nil
+                            logging = .care
+                        }, onSettings: { showingCare = true })
                         // One door to everything for the child: drawing, and the stamp book if there is one.
                         Button { showingPlay = true } label: {
                                 HStack {
@@ -157,16 +165,22 @@ struct TodayView: View {
         }
         .sheet(item: $logging, onDismiss: {
             loggingChild = nil
+            careKey = nil
             offerSticker()
-        }) { kind in
-            LogSheet(kind: kind, children: loggingChild.map { [$0] } ?? relevant(kind)) { events in
-                // After a wee, a poo or a try, the child picks a sticker.
+        }) { [careKey] kind in
+            // careKey is captured here so the body reads it and the sheet opens on the item tapped.
+            LogSheet(kind: kind, children: loggingChild.map { [$0] } ?? relevant(kind), careKey: careKey) { events in
+                // After a wee, a poo or a try, the child picks a sticker. And after brushing their teeth.
                 if kind == .potty, stickersOn, events.count == 1,
                    let event = events.first, event.detail != "Accident" {
                     pendingSticker = event
                 }
+                if kind == .care, stickersOn, events.count == 1, let event = events.first, event.detail == CareItem.brushing.key {
+                    pendingSticker = event
+                }
             }
         }
+        .sheet(isPresented: $showingCare) { CareSettingsView(children: Array(children)) }
         .sheet(isPresented: $feedTimer, onDismiss: {
             if pastFeed {
                 pastFeed = false
@@ -640,7 +654,7 @@ struct TodaySoFar: View {
     var body: some View {
         let midnight = Calendar.current.startOfDay(for: .now)
         let today = store.onScreen(events)
-            .filter { !($0.kind == .pump && $0.detail == Pump.count) && ($0.listedAt ?? .distantPast) >= midnight }
+            .filter { !($0.kind == .pump && $0.detail == Pump.count) && !$0.isBooked && ($0.listedAt ?? .distantPast) >= midnight }
             .sorted { ($0.listedAt ?? .distantPast) > ($1.listedAt ?? .distantPast) }
         let shown = showingAll ? today : Array(today.prefix(6))
         VStack(alignment: .leading, spacing: 0) {

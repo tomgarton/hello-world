@@ -15,7 +15,7 @@ struct SyncProgress: Equatable {
     }
 
     enum Group: String, CaseIterable {
-        case feeds = "Feeds", sleep = "Sleep", changes = "Nappies and potty", health = "Health", other = "Notes and milestones"
+        case feeds = "Feeds", sleep = "Sleep", changes = "Nappies and potty", health = "Health", other = "Notes, milestones and care"
 
         init(_ kind: EventKind) {
             switch kind {
@@ -23,7 +23,7 @@ struct SyncProgress: Equatable {
             case .sleep: self = .sleep
             case .nappy, .potty: self = .changes
             case .medicine, .temperature, .vaccination, .weight: self = .health
-            case .note, .milestone: self = .other
+            case .note, .milestone, .care: self = .other
             }
         }
 

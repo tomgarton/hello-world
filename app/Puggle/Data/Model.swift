@@ -140,6 +140,9 @@ final class Event: NSManagedObject, Identifiable {
 enum EventKind: String, CaseIterable, Identifiable {
     case bottle, breastfeed, solids, sleep, nappy, potty, note
     case weight, medicine, temperature, vaccination, milestone
+    /// Looking after: a bath, brushing teeth, nails, a haircut, the dentist, the doctor, or the family's own.
+    /// `detail` says which. See Care.swift.
+    case care
     /// Pumping belongs to the parent, not a child: it has no children.
     case pump
 
@@ -164,6 +167,7 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .vaccination: "Vaccination"
         case .milestone: "Milestone"
         case .pump: "Pump"
+        case .care: "Looking after"
         }
     }
 
@@ -183,6 +187,7 @@ enum EventKind: String, CaseIterable, Identifiable {
         case .vaccination: "syringe"
         case .milestone: "star"
         case .pump: "drop.halffull"
+        case .care: "heart"
         }
     }
 }
@@ -333,6 +338,10 @@ extension Event {
             return (detail ?? "").isEmpty ? "Vaccination" : "Vaccination · \(detail!)"
         case .milestone:
             return (detail ?? "").isEmpty ? "Milestone" : detail!
+        case .care:
+            let name = CareItem.name(forKey: detail)
+            guard isBooked, let at = startedAt else { return name }
+            return "\(name) · \(CareLine.booked(at))"
         case .pump:
             if detail == Pump.count {
                 return "Milk on hand · Fridge \(Units.volume(value)) · Freezer \(Units.volume(amountML))"
@@ -365,7 +374,7 @@ extension Child {
         case .potty: return pottyTraining || feeding == nil
         case .weight: return ageMonths < 24
         case .pump: return feeding == .breast || feeding == .both
-        case .sleep, .note, .medicine, .temperature, .vaccination, .milestone: return true
+        case .sleep, .note, .medicine, .temperature, .vaccination, .milestone, .care: return true
         }
     }
 

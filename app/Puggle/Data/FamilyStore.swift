@@ -489,7 +489,8 @@ final class FamilyStore: ObservableObject {
     /// The child's potty stickers, oldest first. Accidents never appear here.
     func stickers(for child: Child) -> [Event] {
         (child.events ?? [])
-            .filter { $0.kind == .potty && !($0.sticker ?? "").isEmpty }
+            // Potty tries, and brushing teeth (Tom, 17 November 2026): one stamp book for both.
+            .filter { ($0.kind == .potty || ($0.kind == .care && $0.detail == CareItem.brushing.key)) && !($0.sticker ?? "").isEmpty }
             .sorted { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
     }
 
@@ -519,7 +520,7 @@ final class FamilyStore: ObservableObject {
     func latest(for child: Child) -> Event? {
         remembered("latest", for: child) {
             (child.events ?? [])
-                .filter { $0.kind != .milestone }
+                .filter { $0.kind != .milestone && !$0.isBooked }
                 .max { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
         }
     }

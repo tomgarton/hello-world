@@ -364,7 +364,7 @@ struct ChildActions: View {
     /// What the card's facts leave out, in the usual order.
     static func kinds(for child: Child, facts: [ChildFact.Kind]) -> [EventKind] {
         let order: [EventKind] = [.bottle, .breastfeed, .solids, .nappy, .potty, .pump, .weight,
-                                  .medicine, .temperature, .vaccination, .milestone, .note]
+                                  .medicine, .temperature, .vaccination, .milestone, .care, .note]
         var covered: Set<EventKind> = []
         if facts.contains(.fed) { covered.formUnion([.bottle, .breastfeed]) }
         if facts.contains(.ate) { covered.insert(.solids) }
