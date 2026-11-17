@@ -253,29 +253,6 @@ struct WeatherFront: View {
                     streaks.addLine(to: CGPoint(x: x - length * lean, y: y + length))
                 }
                 context.stroke(streaks, with: .color(colour), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
-                if heavy {
-                    // Lightning a long way off: a soft glow in the clouds and a small bolt in it, never a flash of the
-                    // whole screen (Tom, 17 November 2026). Each strike is in its own place and its own shape.
-                    let strike = Thunder.strike(at: t)
-                    if strike.glow > 0 {
-                        var random = SeededRandom(UInt64(strike.number) &* 7_717 &+ 13)
-                        let centre = CGPoint(x: size.width * random.range(0.58, 0.86), y: size.height - sceneHeight * random.range(0.66, 0.74))
-                        context.fill(Path(ellipseIn: CGRect(x: centre.x - 130, y: centre.y - 70, width: 260, height: 140)),
-                                     with: .radialGradient(Gradient(colors: [Color.white.opacity(strike.glow * 0.22), Color.white.opacity(0)]),
-                                                           center: centre, startRadius: 0, endRadius: 130))
-                        // The bolt: down from the cloud base to the far hills, in four zigzags.
-                        var bolt = Path()
-                        var point = CGPoint(x: centre.x, y: centre.y - 22)
-                        bolt.move(to: point)
-                        for step in 0..<4 {
-                            point = CGPoint(x: point.x + CGFloat(random.range(-11, 11)) + (step.isMultiple(of: 2) ? 5 : -5), y: point.y + CGFloat(random.range(11, 16)))
-                            bolt.addLine(to: point)
-                        }
-                        let yellow = Color(hex: 0xFFF1B8)
-                        context.stroke(bolt, with: .color(yellow.opacity(strike.glow * 0.35)), style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
-                        context.stroke(bolt, with: .color(yellow.opacity(strike.glow)), style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
-                    }
-                }
             case .snow:
                 for i in 0..<64 {
                     var random = SeededRandom(UInt64(i) &* 6151 &+ 3)
@@ -331,22 +308,187 @@ struct WeatherFront: View {
 /// When the far-off lightning strikes in a thunderstorm, so the scene and Puggle keep the same time.
 enum Thunder {
     static let every = 8.5
-    /// Lightning flickers for this long.
-    static let length = 0.5
+    /// A strike flickers for this long: a bright stroke, a dip, and a second stroke down the same path.
+    static let length = 0.55
+    /// Halfway between strikes, lightning inside a cloud lights it without a bolt.
+    static let sheetAt = 4.6
+    static let sheetLength = 0.4
 
     /// Which strike this is, and how bright it is now, 0 to 1.
     static func strike(at t: Double) -> (number: Int, glow: Double) {
         let number = Int((t / every).rounded(.down))
         let since = t - Double(number) * every
-        guard since < length else { return (number, 0) }
-        // A quick flicker: bright, a dip, bright again.
-        let shape = sin(since / length * .pi)
-        let flicker = since < length * 0.45 ? 1 : 0.55 + 0.45 * sin((since - length * 0.45) * 40)
-        return (number, max(0, shape * flicker))
+        return (number, pulses(since))
+    }
+
+    /// The flash inside a cloud between strikes, 0 to 1, and which one it is.
+    static func sheet(at t: Double) -> (number: Int, glow: Double) {
+        let number = Int((t / every).rounded(.down))
+        let since = t - Double(number) * every - sheetAt
+        guard since >= 0, since < sheetLength else { return (number, 0) }
+        return (number, 0.55 * sin(since / sheetLength * .pi) * (0.8 + 0.2 * sin(since * 50)))
+    }
+
+    /// Two quick strokes: up fast, down a little slower, then again a touch fainter.
+    static func pulses(_ since: Double) -> Double {
+        func pulse(_ at: Double, _ peak: Double, _ width: Double) -> Double {
+            let x = since - at
+            guard x >= 0, x < width else { return 0 }
+            let rise = width * 0.2
+            return peak * (x < rise ? x / rise : 1 - (x - rise) / (width - rise))
+        }
+        return min(1, pulse(0, 1, 0.22) + pulse(0.28, 0.8, 0.27))
     }
 
     /// Seconds from `t` to the next strike.
     static func untilNext(after t: Double) -> Double {
         every - t.truncatingRemainder(dividingBy: every)
+    }
+}
+
+/// The thunderstorm's own sky (second pass, 17 November 2026): a bank of storm clouds high up, lower clouds in
+/// front of it, and lightning. A strike lights its cloud from inside and the clouds near it on their edges; the bolt
+/// comes out from under the cloud and strikes behind the far hills, with a fork. Between strikes a cloud lights
+/// up on its own now and then, with no bolt. Nothing lights the whole screen.
+struct StormSky: View {
+    let night: Bool
+    let t: Double
+    /// The light alone, drawn again above the grey that dims the far scenery, so a flash is bright. The clouds
+    /// and the bolt are drawn once, underneath, so the bolt stays behind the hills.
+    var lightOnly = false
+
+    var body: some View {
+        Canvas { context, size in
+            let w = size.width, h = size.height
+            let strike = Thunder.strike(at: t)
+            let sheet = Thunder.sheet(at: t)
+            // The bank: five clouds across the top, drifting slowly. The near layer: three lower, wider ones.
+            let drift = CGFloat(t * 2.2)
+            func place(_ i: Int, layer: Int) -> CGRect {
+                var random = SeededRandom(UInt64(i) &* 3_571 &+ UInt64(layer) &* 97 &+ 11)
+                let width = CGFloat(layer == 0 ? random.range(84, 120) : random.range(96, 136))
+                let span = w + width
+                let x = (CGFloat(i) / CGFloat(layer == 0 ? 5 : 3) * span + CGFloat(random.range(0, 30)) + drift * (layer == 0 ? 1 : 1.6))
+                    .truncatingRemainder(dividingBy: span) - width / 2
+                // High up, so the sky under them is clear for the bolt.
+                let y = h * CGFloat(layer == 0 ? random.range(-0.02, 0.06) : random.range(0.1, 0.15))
+                return CGRect(x: x - width / 2, y: y, width: width, height: width * 0.5)
+            }
+            let bank = (0..<5).map { place($0, layer: 0) }
+            let near = (0..<2).map { place($0, layer: 1) }
+
+            // Which cloud each flash is in: one well on screen.
+            func pick(_ number: Int, salt: UInt64) -> Int {
+                var random = SeededRandom(UInt64(max(number, 0)) &* 7_717 &+ salt)
+                let start = Int(random.range(0, 5))
+                for step in 0..<5 {
+                    let index = (start + step) % 5
+                    if bank[index].midX > w * 0.12 && bank[index].midX < w * 0.88 { return index }
+                }
+                return start
+            }
+            let struck = pick(strike.number, salt: 13)
+            let sheeted = pick(strike.number, salt: 71)
+
+            let dark = Color(hex: night ? 0x2B2D58 : 0x7C8299)
+            let darker = Color(hex: night ? 0x222348 : 0x6A7089)
+            let lit = Color(hex: night ? 0xB4B0EE : 0xF3F1FF)
+            let bolt = Color(hex: 0xFFF6D6)
+
+            // How lit a cloud is: full for the one the flash is in, less with distance.
+            func light(_ rect: CGRect) -> Double {
+                var amount = 0.0
+                if strike.glow > 0 {
+                    let d = hypot(rect.midX - bank[struck].midX, rect.midY - bank[struck].midY)
+                    amount = max(amount, strike.glow * max(0, 1 - Double(d / (w * 0.42))))
+                }
+                if sheet.glow > 0 {
+                    let d = hypot(rect.midX - bank[sheeted].midX, rect.midY - bank[sheeted].midY)
+                    amount = max(amount, sheet.glow * max(0, 1 - Double(d / (w * 0.3))))
+                }
+                return amount
+            }
+
+            // A soft light in the sky behind the flash.
+            for (index, glow) in [(struck, strike.glow), (sheeted, sheet.glow * 0.7)] where glow > 0 {
+                let centre = CGPoint(x: bank[index].midX, y: bank[index].midY + 6)
+                context.fill(Path(ellipseIn: CGRect(x: centre.x - 110, y: centre.y - 60, width: 220, height: 120)),
+                             with: .radialGradient(Gradient(colors: [lit.opacity(0.45 * glow), lit.opacity(0)]), center: centre, startRadius: 0, endRadius: 110))
+            }
+
+            // The bolt, behind its cloud, so it comes out of the underside; it ends behind the far hills.
+            if strike.glow > 0 {
+                var random = SeededRandom(UInt64(max(strike.number, 0)) &* 4_409 &+ 3)
+                let cloud = bank[struck]
+                var point = CGPoint(x: cloud.midX + CGFloat(random.range(-12, 12)), y: cloud.maxY - 8)
+                let ground = h * CGFloat(random.range(0.56, 0.62))
+                var main = Path()
+                main.move(to: point)
+                var joints: [CGPoint] = []
+                let steps = 6
+                for step in 0..<steps {
+                    let down = (ground - point.y) / CGFloat(steps - step)
+                    point = CGPoint(x: point.x + CGFloat(random.range(-14, 14)), y: point.y + down * CGFloat(random.range(0.8, 1.15)))
+                    main.addLine(to: point)
+                    joints.append(point)
+                }
+                // A fork from partway down, thinner and fading out.
+                var fork = Path()
+                var branch = joints[1]
+                fork.move(to: branch)
+                let side: CGFloat = random.unit() < 0.5 ? -1 : 1
+                for _ in 0..<3 {
+                    branch = CGPoint(x: branch.x + side * CGFloat(random.range(6, 14)), y: branch.y + CGFloat(random.range(8, 14)))
+                    fork.addLine(to: branch)
+                }
+                let joins = StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round)
+                var wide = joins; wide.lineWidth = 10
+                var core = joins; core.lineWidth = 3.2
+                var thin = joins; thin.lineWidth = 1.8
+                if lightOnly {
+                    // Bright where it leaves the cloud, fading into the rain before it reaches the hills, so the
+                    // part behind them is only ever the dimmer one underneath.
+                    let fade = { (strength: Double) in
+                        GraphicsContext.Shading.linearGradient(Gradient(colors: [bolt.opacity(strength), bolt.opacity(0)]),
+                                                               startPoint: CGPoint(x: 0, y: cloud.maxY), endPoint: CGPoint(x: 0, y: h * 0.46))
+                    }
+                    context.stroke(main, with: fade(strike.glow), style: core)
+                    context.stroke(fork, with: fade(0.75 * strike.glow), style: thin)
+                } else {
+                    context.stroke(main, with: .color(lit.opacity(0.45 * strike.glow)), style: wide)
+                    context.stroke(fork, with: .color(lit.opacity(0.3 * strike.glow)), style: wide)
+                    context.stroke(main, with: .color(bolt.opacity(strike.glow)), style: core)
+                    context.stroke(fork, with: .color(bolt.opacity(0.75 * strike.glow)), style: thin)
+                }
+            }
+
+            // The bank, each cloud lit from inside by however near the flash is.
+            for rect in bank {
+                let path = CloudShape().path(in: rect)
+                if !lightOnly { context.fill(path, with: .color(dark)) }
+                let amount = light(rect)
+                if amount > 0 {
+                    // Brightest in the middle, as if the light is inside it.
+                    context.fill(path, with: .radialGradient(Gradient(colors: [lit.opacity(amount), lit.opacity(amount * 0.35)]),
+                                                             center: CGPoint(x: rect.midX, y: rect.midY + rect.height * 0.15),
+                                                             startRadius: 0, endRadius: rect.width * 0.55))
+                }
+            }
+            // The near clouds, darker, caught along their tops by the light behind them.
+            for rect in near {
+                let path = CloudShape().path(in: rect)
+                let amount = light(rect)
+                if lightOnly {
+                    // Only the rim that shows above the cloud.
+                    if amount > 0 {
+                        context.fill(path.offsetBy(dx: 0, dy: -3).subtracting(path), with: .color(lit.opacity(min(1, amount * 1.3))))
+                    }
+                } else {
+                    // The near cloud hides the bank's light where it is in front of it.
+                    context.fill(path, with: .color(darker))
+                }
+            }
+        }
+        .allowsHitTesting(false)
     }
 }

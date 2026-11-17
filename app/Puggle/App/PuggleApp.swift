@@ -216,6 +216,7 @@ struct RootView: View {
                     SceneGalleryView.writeSeasons(name: "seasons.png")
                     // Set "-debugMoon full -debugMeteors 1" for the night row.
                     SceneGalleryView.writeSkyEvents(name: "sky-events.png")
+                    SceneGalleryView.writeStormStrip(name: "storm-strip.png")
                     SceneGalleryView.writeStrip(move: "splash", seconds: 1.3, every: 0.1, name: "strip-splash.png")
                     SceneGalleryView.writeDrawingStyles(name: "drawing.png")
                     SceneGalleryView.writeLineStyles(name: "lines.png")

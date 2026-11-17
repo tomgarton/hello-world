@@ -223,6 +223,8 @@ struct SceneFrame: View {
                             .opacity(appeared ? 1 : 0)
                     }
                     clouds(w, h)
+                    // A thunderstorm's clouds and lightning, behind the far scenery so a bolt strikes behind the hills.
+                    if weather == .storm { StormSky(night: starry, t: t).frame(width: w, height: h).opacity(appeared ? 1 : 0) }
                     scenery(w, h)
                     if kind == .bush && !starry && (weather == .hot || weather == .windy) {
                         // A willy-willy spinning across the far paddock now and then.
@@ -230,6 +232,7 @@ struct SceneFrame: View {
                     }
                     // The same light falls on the far scenery, or it would glow under a dark sky.
                     if weather.overcast, let wash = weather.skyWash(night: starry) { wash.opacity(0.55) }
+                    if weather == .storm { StormSky(night: starry, t: t, lightOnly: true).frame(width: w, height: h).opacity(appeared ? 1 : 0) }
                     WeatherBehind(weather: weather, night: starry, t: t)
                     ground
                     WeatherGround(weather: weather, night: starry, t: t)

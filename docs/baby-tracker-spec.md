@@ -2252,3 +2252,20 @@ and `docs/previews/scenes/seasons.png`.
   `sky-events.png`. 110 tests pass, three new (the moon, the meteor nights, the lightning's timing).
 - Not seen moving or on a phone: the pictures are single frames. Puggle's duck after a strike is untested
   in the running app.
+
+**Lightning, second pass (17 November 2026).** Tom felt the bolts could look better, with clouds in layers that
+light up. Drawn in `docs/previews/scenes/storm-strip.png` (frame by frame) and `thunderstorm.gif` (moving).
+
+- A thunderstorm now has its own sky (`StormSky`): a bank of storm clouds high up, drifting, and two lower,
+  darker clouds in front of it.
+- A strike lights its cloud from inside, brightest in the middle, and the clouds near it less. The near clouds
+  catch the light along their tops, as a rim.
+- The bolt comes out from under its cloud and strikes behind the far hills, with a thinner fork partway down.
+  It's bright where it leaves the cloud and fades into the rain lower down.
+- Each strike is two quick strokes down the same path, the second a touch fainter.
+- Halfway between strikes, a cloud lights up on its own with no bolt.
+- The light is drawn twice: once with the clouds, and again above the grey that dims the far scenery, so a flash
+  is bright without anything lighting the whole screen.
+- 110 tests pass. Not seen on a phone. Puggle's duck after a strike is still untested in the running app,
+  because the simulator ignored the launch settings this session (Today opened with no family). That needs a
+  look.

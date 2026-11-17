@@ -424,6 +424,29 @@ struct SceneGalleryView: View {
         save(sheet, as: name, scale: 1)
     }
 
+    /// A thunderstorm strike frame by frame, by day and at night, then the flash inside a cloud between strikes.
+    @MainActor static func writeStormStrip(name: String) {
+        let moments: [(String, Double)] = [("Before", -0.3), ("0.03 s", 0.03), ("0.1 s", 0.1), ("0.2 s", 0.2), ("0.33 s", 0.33), ("0.45 s", 0.45),
+                                            ("Between", Thunder.sheetAt + 0.2)]
+        let sheet = VStack(spacing: 4) {
+            ForEach([(SceneKind.hills, 13), (.beach, 22), (.bush, 13)], id: \.0.rawValue) { kind, hour in
+                HStack(spacing: 4) {
+                    ForEach(Array(moments.enumerated()), id: \.offset) { _, moment in
+                        SceneFrame(kind: kind, dark: false, hourOverride: hour, t: Thunder.every * Double(5 + kind.rawValue * 2) + moment.1, weather: .storm)
+                            .frame(width: 300, height: PuggleHeader.sceneHeight)
+                            .clipped()
+                            .overlay(alignment: .topLeading) {
+                                Text(moment.0).font(.caption2.weight(.semibold)).padding(4)
+                                    .background(.black.opacity(0.35), in: Capsule()).foregroundStyle(.white).padding(6)
+                            }
+                    }
+                }
+            }
+        }
+        .background(Color.gray)
+        save(sheet, as: name, scale: 1)
+    }
+
     @MainActor private static func save(_ view: some View, as name: String, scale: CGFloat = 2) {
         let renderer = ImageRenderer(content: view)
         renderer.scale = scale
