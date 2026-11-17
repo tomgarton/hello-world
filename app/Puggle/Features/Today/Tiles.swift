@@ -479,7 +479,8 @@ struct PuggleHeader: View {
                                            afterDark: room == nil && (PuggleScene.isNight(dark: dim) || Room.hourNow >= 18)) {
                 // Dressed for the weather when they are out in it, as she is.
                 let wearing = room == nil ? weather.outfit(night: PuggleScene.isNight(dark: dim)) : "none"
-                CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim, rain: wearing == "rain")
+                CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim, rain: wearing == "rain",
+                            weather: room == nil ? weather : nil, night: PuggleScene.isNight(dark: dim))
                     .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
                     .environment(\.outfit, wearing)
                     .environment(\.shades, Shades.forOutfit(wearing))

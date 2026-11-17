@@ -2337,3 +2337,20 @@ book already built, keeping build 14's approach: flat SwiftUI pages turned in 3D
 - Still open from the pack, written in the world kit: whether the roof is an attic room, which side of the
   house the creek is on, whether the bridge crowds the last page, and the village (not visited yet).
 - 115 tests pass. Storyboard quality, placed by eye. Seen in renders only, not on a phone.
+
+### Three leftovers (17 November 2026)
+
+- **A cloudy night hides the sky.** In rain, a thunderstorm, snow or fog after dark, the pulled-down sky has
+  no stars or shooting stars, and the Southern Cross, aurora, sky lanterns and fireflies give way. Night-tinted
+  clouds drift in instead, as they do by day. Fireworks on the beach still go up in rain, a little softer, as
+  if seen through it, but not in a thunderstorm, where the lightning is the show. The owl, balloon, flying foxes
+  and sugar glider still come out. Sun showers keep the stars, as the sky is not covered. Easy to change if
+  fireworks in the rain feel wrong. Picture: `docs/previews/scenes/weather-night-pulled-cloud.png`.
+- **Rain on the friend's umbrella.** When whoever is with Puggle holds an umbrella in the rain, drops pop
+  along the top of the canopy, and drips fall off its two outer points. They fall clear of the friend, not
+  through their face. Measured from the canopy that every rig with an umbrella shares. Hidden with Reduce Motion.
+  Picture: `docs/previews/scenes/umbrella-rain.png`.
+- **Launch settings in the simulator were not being ignored:** an old copy of the app from 11 November was
+  being installed. "Puggle Local" builds into `DerivedData/Build/Products/Local-iphonesimulator`, not
+  `Debug-iphonesimulator`. With the right copy, `-debugSheet 1` writes every sheet again.
+- 115 tests pass. Seen in the simulator and in renders, not on a phone.

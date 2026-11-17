@@ -203,11 +203,16 @@ struct CompanyView: View {
     let quiet: Bool
     let appeared: Bool
     let dark: Bool
+    /// The weather they are out in, for the rain landing on their umbrella. Nil indoors.
+    var weather: Weather?
+    var night = false
     @StateObject private var controller: CastController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.outfit) private var outfit
 
-    init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool, rain: Bool = false) {
+    init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool, rain: Bool = false, weather: Weather? = nil, night: Bool = false) {
+        self.weather = weather
+        self.night = night
         self.company = company
         self.puggleReacted = puggleReacted
         self.quiet = quiet
@@ -245,6 +250,16 @@ struct CompanyView: View {
             }
             CastView(controller: controller)
                 .frame(height: company.member.height)
+                .overlay {
+                    // Rain landing on the umbrella, and dripping off its points. Turned with them below.
+                    if outfit == "rain", umbrellaUp, let weather, let strength = Rain.strength(weather), !reduceMotion, let rig = controller.rig?.rig {
+                        TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
+                            UmbrellaRain(drawing: CGSize(width: rig.size[0], height: rig.size[1]), strength: strength, night: night,
+                                         t: timeline.date.timeIntervalSince(SceneClock.start))
+                        }
+                        .accessibilityHidden(true)
+                    }
+                }
                 // An umbrella is held out to one side. Standing to her right, they are turned round so it is
                 // on the side nearer her, and its canopy stays clear of the edge of the screen.
                 .scaleEffect(x: umbrellaUp && company.x > 0 ? -1 : 1, y: 1)
@@ -375,5 +390,42 @@ struct CharacterPicker: View {
         }
         .foregroundStyle(Palette.ink)
         .presentationDetents([.medium, .large])
+    }
+}
+
+/// Rain on a friend's umbrella: pops along the top of the canopy and drips off its points. Measured from the
+/// canopy every rig with an umbrella shares (in the drawing's own units, the canopy runs from 84 to 296 across,
+/// its top at 14 and its points at 92), placed the way the rig is drawn: centred, standing on the bottom.
+struct UmbrellaRain: View {
+    let drawing: CGSize
+    let strength: Double
+    let night: Bool
+    let t: Double
+
+    var body: some View {
+        GeometryReader { box in
+            let scale = box.size.height / drawing.height
+            let place = { (x: CGFloat, y: CGFloat) -> CGPoint in
+                CGPoint(x: box.size.width / 2 + (x - drawing.width / 2) * scale, y: box.size.height - (drawing.height - y) * scale)
+            }
+            // The canopy's top, two curves from point to crown to point, in short straight pieces.
+            let curves: [(CGPoint, CGPoint, CGPoint)] = [(CGPoint(x: 84, y: 92), CGPoint(x: 90, y: 18), CGPoint(x: 190, y: 14)),
+                                                         (CGPoint(x: 190, y: 14), CGPoint(x: 290, y: 18), CGPoint(x: 296, y: 92))]
+            let ledges: [RainTarget] = curves.flatMap { a, c, b in
+                (0..<4).map { i -> RainTarget in
+                    func at(_ u: CGFloat) -> CGPoint {
+                        let v = 1 - u
+                        return place(v * v * a.x + 2 * v * u * c.x + u * u * b.x, v * v * a.y + 2 * v * u * c.y + u * u * b.y)
+                    }
+                    return .ledge(at(CGFloat(i) / 4), at(CGFloat(i + 1) / 4))
+                }
+            }
+            let ground = box.size.height - 2
+            RainHits(targets: ledges,
+                     // Only off the points clear of them: the others would fall through their face.
+                     drips: [243, 296].map { DripSpot(at: place($0, 94), lands: ground) },
+                     strength: strength, night: night, t: t, rate: 4.5, salt: 11)
+        }
+        .allowsHitTesting(false)
     }
 }

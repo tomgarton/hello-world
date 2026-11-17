@@ -530,8 +530,13 @@ struct SceneFrame: View {
     private func surprises(_ w: CGFloat) -> some View {
         let first = pull > 60, second = pull > 130, third = pull > 200
         let sway = Double(pull).truncatingRemainder(dividingBy: 40) / 40 * 8 - 4
+        // Under cloud at night the stars, the Southern Cross, the aurora, lanterns and fireflies give way, and clouds
+        // drift in as they do by day. Fireworks still go up in the rain, glowing through it, but not in a thunderstorm.
+        let clear = starry && !weather.overcast
+        let fireworks = starry && weather != .storm
+        let nightCloud = weather.cloudTint(night: true) ?? Color(hex: 0x5A5E9A).opacity(0.55)
         return ZStack(alignment: .topLeading) {
-            if starry {
+            if clear {
                 // Shooting stars, one more at each stretch of the pull.
                 ForEach(Array([(150.0, 0.62, 70.0), (250.0, 0.2, 40.0), (340.0, 0.75, 150.0), (430.0, 0.35, 90.0)].enumerated()), id: \.offset) { _, star in
                     if pull > star.0 {
@@ -544,7 +549,7 @@ struct SceneFrame: View {
                 ForEach(0..<6, id: \.self) { i in
                     var random = SeededRandom(UInt64(i) &* 4243 &+ 9)
                     let depth = CGFloat(i) * 70 + 90
-                    Cloud(width: random.range(46, 84), tint: weather.cloudTint(night: false) ?? Color.white.opacity(0.8))
+                    Cloud(width: random.range(46, 84), tint: starry ? nightCloud : (weather.cloudTint(night: false) ?? Color.white.opacity(0.8)))
                         .position(x: random.range(0.12, 0.88) * w, y: pull - depth)
                         .offset(x: pull > depth ? 0 : (i.isMultiple(of: 2) ? -40 : 40))
                         .opacity(pull > depth ? 0.9 : 0)
@@ -558,8 +563,8 @@ struct SceneFrame: View {
                     Balloon(dark: starry).frame(width: 40, height: 60).rotationEffect(.degrees(sway))
                 }
                 turnsUp(second, x: starry ? w * 0.5 : w * 0.28, y: pull - 118) {
-                    if starry { Aurora(t: t).frame(width: w * 0.9, height: 86) }
-                    else { Kite().frame(width: 44, height: 76).rotationEffect(.degrees(-sway * 2)) }
+                    if clear { Aurora(t: t).frame(width: w * 0.9, height: 86) }
+                    else if !starry { Kite().frame(width: 44, height: 76).rotationEffect(.degrees(-sway * 2)) }
                 }
                 turnsUp(third, x: w * 0.55, y: pull - 190, from: CGSize(width: -w * 0.7, height: 0)) {
                     if starry {
@@ -576,16 +581,17 @@ struct SceneFrame: View {
             case .beach:
                 // A beach ball, a little plane trailing a streamer, then a rainbow. After dark: the Southern Cross and fireworks.
                 turnsUp(first, x: w * 0.3, y: pull - 50 - (starry ? 0 : abs(CGFloat(sin(t * 2.6))) * 12)) {
-                    if starry { SouthernCross(t: t).frame(width: 84, height: 96) }
-                    else { BeachBall().frame(width: 34, height: 34).rotationEffect(.degrees(t * 70)) }
+                    if clear { SouthernCross(t: t).frame(width: 84, height: 96) }
+                    else if !starry { BeachBall().frame(width: 34, height: 34).rotationEffect(.degrees(t * 70)) }
                 }
                 turnsUp(second, x: starry ? w * 0.5 : w * 0.6, y: pull - 122 + (starry ? 0 : CGFloat(sin(t * 1.1)) * 3), from: starry ? .zero : CGSize(width: w * 0.8, height: 0)) {
-                    if starry { Fireworks(t: t).frame(width: w * 0.86, height: 110) }
-                    else { StreamerPlane(t: t).frame(width: 118, height: 34) }
+                    if fireworks { Fireworks(t: t).frame(width: w * 0.86, height: 110).opacity(clear ? 1 : 0.75) }
+                    else if !starry { StreamerPlane(t: t).frame(width: 118, height: 34) }
                 }
                 turnsUp(third, x: w * 0.5, y: pull - 204) {
                     // The finale: one that opens into her face.
-                    if starry { PuggleFirework(t: t).frame(width: 150, height: 130) }
+                    if fireworks { PuggleFirework(t: t).frame(width: 150, height: 130).opacity(clear ? 1 : 0.75) }
+                    else if starry { EmptyView() }
                     // A rainbow needs the sun: on a grey day a kite goes up instead.
                     else if weather.overcast { Kite().frame(width: 44, height: 76).rotationEffect(.degrees(-sway * 2)) }
                     else { Rainbow().frame(width: w * 0.72, height: w * 0.36) }
@@ -594,22 +600,24 @@ struct SceneFrame: View {
                 // A balloon that got away, a paper plane, and seeds or leaves on the wind. After dark: fireflies, a shooting star
                 // and a lantern let go. Bubbles are kept for when Puggle or a friend is making them.
                 turnsUp(first, x: w * 0.3 + (starry ? 0 : CGFloat(sin(t * 0.7)) * 8), y: pull - 60 + (starry ? 0 : CGFloat(sin(t * 1.3)) * 4)) {
-                    if starry { Fireflies(t: t).frame(width: 90, height: 64) }
-                    else { LostBalloon(t: t).frame(width: 40, height: 84) }
+                    if clear { Fireflies(t: t).frame(width: 90, height: 64) }
+                    else if !starry { LostBalloon(t: t).frame(width: 40, height: 84) }
                 }
                 turnsUp(second, x: w * 0.68 + CGFloat(sin(t * 0.8)) * (starry ? 4 : 14), y: pull - 124 + CGFloat(sin(t * 1.6)) * (starry ? 3 : 6), from: starry ? .zero : CGSize(width: -w * 0.8, height: 30)) {
-                    if starry { SkyLantern(t: t).frame(width: 44, height: 64) }
-                    else { PaperPlane().frame(width: 46, height: 30).rotationEffect(.degrees(-8 + 10 * sin(t * 1.6))) }
+                    if clear { SkyLantern(t: t).frame(width: 44, height: 64) }
+                    else if !starry { PaperPlane().frame(width: 46, height: 30).rotationEffect(.degrees(-8 + 10 * sin(t * 1.6))) }
                 }
                 turnsUp(third, x: w * 0.5, y: pull - 196) {
                     if starry {
-                        // More lanterns, further off.
+                        // More lanterns, further off, on a clear night.
+                        if clear {
                         HStack(spacing: 34) {
                             ForEach(0..<3, id: \.self) { i in
                                 SkyLantern(t: t + Double(i) * 1.7).frame(width: 44, height: 64)
                                     .scaleEffect(i == 1 ? 0.5 : 0.68)
                                     .offset(y: (i == 1 ? -14 : 6) + CGFloat(sin(t * 0.7 + Double(i))) * 4)
                             }
+                        }
                         }
                     } else if season == .spring || season == .summer {
                         // Dandelion clocks belong to the warm months.
@@ -626,7 +634,7 @@ struct SceneFrame: View {
                     else { GumLeaves(t: t).frame(width: 96, height: 76) }
                 }
                 turnsUp(second, x: w * 0.62, y: pull - 122, from: starry ? .zero : CGSize(width: -w * 0.7, height: 0)) {
-                    if starry { SouthernCross(t: t).frame(width: 84, height: 96) } else {
+                    if clear { SouthernCross(t: t).frame(width: 84, height: 96) } else if !starry {
                         HStack(spacing: 10) {
                             ForEach(0..<2, id: \.self) { i in
                                 Bird(dark: false, flying: true, flap: 0.5 * sin(t * 9 + Double(i) * 2), colours: (0xFBF7EC, 0xE4DCC6, 0x5A5F66), crest: 0xF4D03F)
