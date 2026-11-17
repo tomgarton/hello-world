@@ -63,6 +63,7 @@ enum TodayHeading {
         case .cold: "cold"
         case .snow: "snowing"
         case .fog: "foggy"
+        case .showers: "showery"
         }
         guard let degrees else { return word.prefix(1).uppercased() + word.dropFirst() + " outside." }
         return "\(degrees)° and \(word) outside."

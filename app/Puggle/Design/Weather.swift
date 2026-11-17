@@ -7,6 +7,8 @@ import SwiftUI
 /// change without the scenes changing.
 enum Weather: String, CaseIterable, Identifiable {
     case clear, rain, storm, hot, windy, cold, snow, fog
+    /// Rain with the sun out, and a rainbow in the scene itself (17 November 2026).
+    case showers
 
     var id: String { rawValue }
 
@@ -22,19 +24,21 @@ enum Weather: String, CaseIterable, Identifiable {
         switch self {
         case .clear: "Fine"
         case .rain: "Rain"
-        case .storm: "Storm"
+        // A thunderstorm, with lightning far off. The raw value stays "storm" so a saved choice still reads.
+        case .storm: "Thunderstorm"
         case .hot: "Hot"
         case .windy: "Windy"
         case .cold: "Cold"
         case .snow: "Snow"
         case .fog: "Fog"
+        case .showers: "Sun showers"
         }
     }
 
     /// No sun, moon or stars to be seen.
     var overcast: Bool { self == .rain || self == .storm || self == .snow || self == .fog }
     /// Something is falling.
-    var wet: Bool { self == .rain || self == .storm || self == .snow }
+    var wet: Bool { self == .rain || self == .storm || self == .snow || self == .showers }
     /// How fast the clouds go, against a fine day.
     var windiness: Double { self == .windy ? 4 : (self == .storm ? 2.6 : 1) }
     /// How far grass and washing swing, against a fine day.
@@ -43,6 +47,7 @@ enum Weather: String, CaseIterable, Identifiable {
         switch self {
         case .rain, .snow: 3
         case .storm: 4
+        case .showers: 2
         case .fog, .windy: 1
         default: 0
         }
@@ -51,7 +56,7 @@ enum Weather: String, CaseIterable, Identifiable {
     /// What Puggle wears: "rain" (boots, a coat and a rain hat), "warm" (scarf and beanie), "sun" (hat and zinc) or "none".
     var outfit: String {
         switch self {
-        case .rain, .storm: "rain"
+        case .rain, .storm, .showers: "rain"
         case .cold, .snow: "warm"
         case .hot: "sun"
         default: "none"
@@ -68,6 +73,8 @@ enum Weather: String, CaseIterable, Identifiable {
         case .storm: night ? Color(hex: 0x12132C).opacity(0.55) : Color(hex: 0x5F6684).opacity(0.62)
         case .snow: night ? Color(hex: 0x3A3F6E).opacity(0.3) : Color(hex: 0xC9D2E2).opacity(0.55)
         case .fog: night ? Color(hex: 0x4A4E82).opacity(0.35) : Color(hex: 0xE6E8EC).opacity(0.6)
+        // Only a little grey: the sun is out.
+        case .showers: night ? Color(hex: 0x1A1C3A).opacity(0.22) : Color(hex: 0xB4BDD2).opacity(0.22)
         case .cold: night ? nil : Color(hex: 0xCFE2F2).opacity(0.3)
         // A pale haze: yellow over a blue sky would only turn it green.
         case .hot: night ? nil : Color(hex: 0xFFF6E2).opacity(0.3)
@@ -80,6 +87,7 @@ enum Weather: String, CaseIterable, Identifiable {
         switch self {
         case .rain, .snow: night ? Color(hex: 0x6F70A8).opacity(0.5) : Color(hex: 0xD3D7E2).opacity(0.92)
         case .storm: night ? Color(hex: 0x4A4C82).opacity(0.6) : Color(hex: 0x9499B0).opacity(0.92)
+        case .showers: night ? Color(hex: 0x6F70A8).opacity(0.4) : Color(hex: 0xE4E7EF).opacity(0.92)
         default: nil
         }
     }
@@ -229,12 +237,12 @@ struct WeatherFront: View {
     var body: some View {
         Canvas { context, size in
             switch weather {
-            case .rain, .storm:
-                let heavy = weather == .storm
-                let lean: CGFloat = heavy ? 0.34 : 0.14
-                let colour = (night ? Color(hex: 0xB9BEEA) : Color.white).opacity(heavy ? 0.5 : 0.42)
+            case .rain, .storm, .showers:
+                let heavy = weather == .storm, light = weather == .showers
+                let lean: CGFloat = heavy ? 0.34 : (light ? 0.1 : 0.14)
+                let colour = (night ? Color(hex: 0xB9BEEA) : Color.white).opacity(heavy ? 0.5 : (light ? 0.55 : 0.42))
                 var streaks = Path()
-                for i in 0..<(heavy ? 110 : 70) {
+                for i in 0..<(heavy ? 110 : (light ? 38 : 70)) {
                     var random = SeededRandom(UInt64(i) &* 9973 &+ 5)
                     let speed = random.range(heavy ? 520 : 380, heavy ? 700 : 520)
                     let length = CGFloat(random.range(9, 16))
@@ -246,14 +254,26 @@ struct WeatherFront: View {
                 }
                 context.stroke(streaks, with: .color(colour), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
                 if heavy {
-                    // Lightning a long way off: a soft glow in the clouds, never a flash of the whole screen.
-                    let since = t.truncatingRemainder(dividingBy: 8.5)
-                    let glow = since < 0.5 ? sin(since / 0.5 * .pi) * 0.22 : 0
-                    if glow > 0 {
-                        let centre = CGPoint(x: size.width * 0.72, y: size.height - sceneHeight * 0.7)
+                    // Lightning a long way off: a soft glow in the clouds and a small bolt in it, never a flash of the
+                    // whole screen (Tom, 17 November 2026). Each strike is in its own place and its own shape.
+                    let strike = Thunder.strike(at: t)
+                    if strike.glow > 0 {
+                        var random = SeededRandom(UInt64(strike.number) &* 7_717 &+ 13)
+                        let centre = CGPoint(x: size.width * random.range(0.58, 0.86), y: size.height - sceneHeight * random.range(0.66, 0.74))
                         context.fill(Path(ellipseIn: CGRect(x: centre.x - 130, y: centre.y - 70, width: 260, height: 140)),
-                                     with: .radialGradient(Gradient(colors: [Color.white.opacity(glow), Color.white.opacity(0)]),
+                                     with: .radialGradient(Gradient(colors: [Color.white.opacity(strike.glow * 0.22), Color.white.opacity(0)]),
                                                            center: centre, startRadius: 0, endRadius: 130))
+                        // The bolt: down from the cloud base to the far hills, in four zigzags.
+                        var bolt = Path()
+                        var point = CGPoint(x: centre.x, y: centre.y - 22)
+                        bolt.move(to: point)
+                        for step in 0..<4 {
+                            point = CGPoint(x: point.x + CGFloat(random.range(-11, 11)) + (step.isMultiple(of: 2) ? 5 : -5), y: point.y + CGFloat(random.range(11, 16)))
+                            bolt.addLine(to: point)
+                        }
+                        let yellow = Color(hex: 0xFFF1B8)
+                        context.stroke(bolt, with: .color(yellow.opacity(strike.glow * 0.35)), style: StrokeStyle(lineWidth: 7, lineCap: .round, lineJoin: .round))
+                        context.stroke(bolt, with: .color(yellow.opacity(strike.glow)), style: StrokeStyle(lineWidth: 2.4, lineCap: .round, lineJoin: .round))
                     }
                 }
             case .snow:
@@ -305,5 +325,28 @@ struct WeatherFront: View {
             }
         }
         .allowsHitTesting(false)
+    }
+}
+
+/// When the far-off lightning strikes in a thunderstorm, so the scene and Puggle keep the same time.
+enum Thunder {
+    static let every = 8.5
+    /// Lightning flickers for this long.
+    static let length = 0.5
+
+    /// Which strike this is, and how bright it is now, 0 to 1.
+    static func strike(at t: Double) -> (number: Int, glow: Double) {
+        let number = Int((t / every).rounded(.down))
+        let since = t - Double(number) * every
+        guard since < length else { return (number, 0) }
+        // A quick flicker: bright, a dip, bright again.
+        let shape = sin(since / length * .pi)
+        let flicker = since < length * 0.45 ? 1 : 0.55 + 0.45 * sin((since - length * 0.45) * 40)
+        return (number, max(0, shape * flicker))
+    }
+
+    /// Seconds from `t` to the next strike.
+    static func untilNext(after t: Double) -> Double {
+        every - t.truncatingRemainder(dividingBy: every)
     }
 }

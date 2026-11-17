@@ -365,6 +365,65 @@ struct SceneGalleryView: View {
         save(sheet, as: name, scale: pull > 0 ? 1 : 2)
     }
 
+    /// Each season in each scene, on a morning (frost shows before ten) and at night.
+    @MainActor static func writeSeasons(name: String) {
+        let controller = PuggleController()
+        let looks: [(SplashLook.Season, Int)] = SplashLook.Season.allCases.flatMap { [($0, 9), ($0, 13)] }
+        let sheet = VStack(spacing: 4) {
+            ForEach(Array(looks.enumerated()), id: \.offset) { _, look in
+                HStack(spacing: 4) {
+                    ForEach(SceneKind.allCases, id: \.rawValue) { kind in
+                        ZStack(alignment: .bottom) {
+                            SceneFrame(kind: kind, dark: false, hourOverride: look.1, t: 3.3, weather: .clear, seasonOverride: look.0)
+                            PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                        }
+                        .frame(width: 402, height: PuggleHeader.sceneHeight)
+                        .clipped()
+                        .overlay(alignment: .topLeading) {
+                            Text("\(String(describing: look.0).capitalized), \(look.1):00").font(.caption2.weight(.semibold)).padding(4)
+                                .background(.black.opacity(0.35), in: Capsule()).foregroundStyle(.white).padding(6)
+                        }
+                    }
+                }
+            }
+        }
+        .background(Color.gray)
+        .environment(\.lineStyle, .tinted)
+        save(sheet, as: name, scale: 1)
+    }
+
+    /// The sky's events: a strike in a thunderstorm, sun showers, a willy-willy, and a full moon with meteors.
+    @MainActor static func writeSkyEvents(name: String) {
+        let controller = PuggleController()
+        func cell(_ kind: SceneKind, _ label: String, hour: Int, t: Double, weather: Weather) -> some View {
+            ZStack(alignment: .bottom) {
+                SceneFrame(kind: kind, dark: false, hourOverride: hour, t: t, weather: weather)
+                PuggleView(controller: controller, frozen: true).frame(height: 118).padding(.bottom, 26)
+                    .environment(\.moonlit, hour >= 21)
+                    .environment(\.outfit, weather.outfit(night: hour >= 21))
+            }
+            .frame(width: 402, height: PuggleHeader.sceneHeight)
+            .clipped()
+            .overlay(alignment: .topLeading) {
+                Text(label).font(.caption2.weight(.semibold)).padding(4)
+                    .background(.black.opacity(0.35), in: Capsule()).foregroundStyle(.white).padding(6)
+            }
+        }
+        let sheet = VStack(spacing: 4) {
+            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Thunderstorm, a strike", hour: 13, t: Thunder.every * Double($0.rawValue + 3) + 0.12, weather: .storm) } }
+            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Thunderstorm at night", hour: 22, t: Thunder.every * Double($0.rawValue + 7) + 0.12, weather: .storm) } }
+            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Sun showers", hour: 13, t: 2, weather: .showers) } }
+            HStack(spacing: 4) {
+                ForEach([3.0, 4.6, 6.2], id: \.self) { at in cell(.bush, "Willy-willy, hot", hour: 13, t: WillyWilly.every * 2 + at, weather: .hot) }
+                cell(.bush, "Willy-willy, windy", hour: 13, t: WillyWilly.every + 2.2, weather: .windy)
+            }
+            HStack(spacing: 4) { ForEach(SceneKind.allCases, id: \.rawValue) { cell($0, "Full moon and meteors", hour: 22, t: 0.35 + Double($0.rawValue) * 0.9, weather: .clear) } }
+        }
+        .background(Color.gray)
+        .environment(\.lineStyle, .tinted)
+        save(sheet, as: name, scale: 1)
+    }
+
     @MainActor private static func save(_ view: some View, as name: String, scale: CGFloat = 2) {
         let renderer = ImageRenderer(content: view)
         renderer.scale = scale

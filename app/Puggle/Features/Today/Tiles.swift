@@ -372,6 +372,11 @@ struct PuggleHeader: View {
 
     static let sceneHeight: CGFloat = 250
 
+    /// Out in a thunderstorm, awake, and moving: the strikes reach her.
+    private var thundery: Bool {
+        weather == .storm && appeared && !quiet && !reduceMotion && PuggleScene.room(dark: scheme == .dark || night) == nil
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             scene
@@ -420,6 +425,16 @@ struct PuggleHeader: View {
             guard controller.rig == nil else { return }
             withAnimation(.easeOut(duration: 0.14)) { nod = quiet ? 0.5 : 1 }
             withAnimation(.spring(duration: 0.35, bounce: 0.3).delay(0.14)) { nod = 0 }
+        }
+        // In a thunderstorm she ducks a little just after each far-off strike, then peeks out again.
+        .task(id: thundery) {
+            guard thundery else { return }
+            while !Task.isCancelled {
+                let t = Date.now.timeIntervalSince(SceneClock.start)
+                try? await Task.sleep(for: .seconds(Thunder.untilNext(after: t) + 0.2))
+                guard !Task.isCancelled else { return }
+                controller.rig?.feel(.shy, for: 1.4)
+            }
         }
         .task {
             // Once a day, after the splash has gone.

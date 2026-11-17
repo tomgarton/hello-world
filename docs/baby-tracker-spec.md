@@ -2223,3 +2223,32 @@ and after).
   up at night in the rain.
 - `-debugSheet 1` now also writes `weather-pulled.png` and `weather-night-pulled.png`. 107 tests pass. Not on
   a phone yet.
+
+### More weather, the seasons and the night sky (17 November 2026)
+
+Tom asked for a thunderstorm and picked the rest from a list. Drawn in `docs/previews/scenes/sky-events.png`
+and `docs/previews/scenes/seasons.png`.
+
+- **Thunderstorm.** Storm is now called Thunderstorm. Every 8½ seconds there's a small zigzag of lightning in the
+  far clouds, in its own place and shape each time, inside the soft glow that was there before. Still no flash
+  of the whole screen, so it's safe at 3 am. Just after each strike Puggle ducks a little (her shy pose) and
+  peeks out again, only outdoors, awake and without Reduce Motion.
+- **Sun showers**, a new weather. Light rain with the sun out, a little grey, and a rainbow across the sky away
+  from the sun, behind the far scenery. Real weather's "sun showers" now shows it, where it showed plain rain
+  before. Today says "showery". Puggle wears her rain things.
+- **The rainbow in the pulled-down sky** at the beach now needs the sun: on a grey day a kite goes up instead.
+- **The four seasons**, by the phone's region (the south of the world has summer in December):
+  - Spring: jacaranda and blossom petals drifting down (not in the rain), the big tree on the hills a
+    jacaranda in flower, and a wattle in flower in the bush.
+  - Summer: long grass at the front and a cicada on a stalk by day; a striped umbrella on the beach.
+  - Autumn: fallen leaves on the ground, clear of where Puggle stands. Not on the beach.
+  - Winter: the trees on the hills are bare, and frost lies along the hill before 10 am.
+- **Willy-willy.** On a hot or windy day in the bush, a little whirl of dust spins across the far paddock every
+  26 seconds.
+- **Full moon** on the real nights it is full, a day and a half each side, with two faint seas on it.
+- **Meteor showers** on the real peak nights and a night either side (January, April, May, July, August,
+  October, November and December): a shooting star every second or two. The Leonids peak tonight.
+- Checking: `-debugMoon full` and `-debugMeteors 1`; `-debugSheet 1` also writes `seasons.png` and
+  `sky-events.png`. 110 tests pass, three new (the moon, the meteor nights, the lightning's timing).
+- Not seen moving or on a phone: the pictures are single frames. Puggle's duck after a strike is untested
+  in the running app.

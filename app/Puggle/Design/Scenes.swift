@@ -81,6 +81,8 @@ struct PuggleScene: View {
     var rooms = false
     /// How far Puggle stands from the middle, so her shadow is under her.
     var puggleX: CGFloat = 0
+    /// For pictures of each season. Nil means the season it is.
+    var season: SplashLook.Season?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @AppStorage("debugWeather") private var chosenWeather = ""
     @AppStorage(WeatherWatch.liveKey) private var liveWeather = ""
@@ -90,12 +92,14 @@ struct PuggleScene: View {
         let weather = weather ?? WeatherWatch.resolve(chosen: chosenWeather, live: liveWeather, on: weatherOn)
         if still || reduceMotion {
             // Half a second in, so rain and snow are already falling in a still picture.
-            SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather, rooms: rooms, puggleX: puggleX)
+            SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather, rooms: rooms, puggleX: puggleX,
+                       seasonOverride: season)
         } else {
             // Thirty times a second is plenty for things that drift and sway.
             TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
                 SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride,
-                           t: timeline.date.timeIntervalSince(SceneClock.start), weather: weather, rooms: rooms, puggleX: puggleX)
+                           t: timeline.date.timeIntervalSince(SceneClock.start), weather: weather, rooms: rooms, puggleX: puggleX,
+                           seasonOverride: season)
             }
         }
     }
@@ -140,6 +144,7 @@ struct SceneFrame: View {
     var weather: Weather = .clear
     var rooms = false
     var puggleX: CGFloat = 0
+    var seasonOverride: SplashLook.Season?
 
     private var hour: Int {
         if let hourOverride { return hourOverride }
@@ -203,18 +208,33 @@ struct SceneFrame: View {
                 if starry && !weather.overcast {
                     StarField(sceneHeight: h, moon: CGPoint(x: w * kind.lightSpot, y: pull + h * 0.36), t: t)
                         .opacity(appeared ? 1 : 0)
+                    // On the nights a meteor shower peaks, shooting stars now and then.
+                    if SkyEvents.meteors() {
+                        Meteors(t: t, sceneHeight: h).opacity(appeared ? 1 : 0)
+                    }
                 }
                 // The scene itself keeps its height and sits at the bottom.
                 ZStack {
                     if !weather.overcast { light(w, h) }
+                    // Sun showers: a rainbow across the sky from the sun, behind the far scenery.
+                    if weather == .showers && !starry {
+                        Rainbow().frame(width: w * 0.62, height: w * 0.31).opacity(0.72)
+                            .position(x: kind.lightSpot < 0.5 ? w * 0.68 : w * 0.32, y: h * 0.6 - w * 0.155)
+                            .opacity(appeared ? 1 : 0)
+                    }
                     clouds(w, h)
                     scenery(w, h)
+                    if kind == .bush && !starry && (weather == .hot || weather == .windy) {
+                        // A willy-willy spinning across the far paddock now and then.
+                        WillyWilly(t: t).frame(width: w, height: h)
+                    }
                     // The same light falls on the far scenery, or it would glow under a dark sky.
                     if weather.overcast, let wash = weather.skyWash(night: starry) { wash.opacity(0.55) }
                     WeatherBehind(weather: weather, night: starry, t: t)
                     ground
                     WeatherGround(weather: weather, night: starry, t: t)
                     details(w, h)
+                    seasonal(w, h)
                     // Puggle's shadow, so she stands on the hill.
                     Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
                         .frame(width: 72, height: 9).position(x: w / 2 + puggleX, y: h - 27)
@@ -243,7 +263,11 @@ struct SceneFrame: View {
                 Circle().fill(RadialGradient(colors: [Color(hex: 0xF3E0B8).opacity(0.22), Color(hex: 0xF3E0B8).opacity(0)],
                                              center: .center, startRadius: 8, endRadius: 46))
                     .frame(width: 92, height: 92)
-                Crescent().fill(Color(hex: 0xF3E0B8)).frame(width: 28, height: 28)
+                if SkyEvents.fullMoon() {
+                    FullMoon().frame(width: 30, height: 30)
+                } else {
+                    Crescent().fill(Color(hex: 0xF3E0B8)).frame(width: 28, height: 28)
+                }
             }
             .position(x: x, y: h * 0.36)
             .opacity(appeared ? 1 : 0)
@@ -311,12 +335,14 @@ struct SceneFrame: View {
         switch kind {
         case .hills:
             Hill(rise: 0.34, left: 0.58, right: 0.76, peak: 0.2).fill(tone(0xD7E7C6, 0x2E3468))
-            RoundTree(leaf: tone(0xB7D2A4, 0x263A62), trunk: tone(0xB89A78, 0x3A3560)).frame(width: 16, height: 24).position(x: w * 0.1, y: h * 0.47)
+            RoundTree(leaf: tone(0xB7D2A4, 0x263A62), trunk: tone(0xB89A78, 0x3A3560), bare: season == .winter).frame(width: 16, height: 24).position(x: w * 0.1, y: h * 0.47)
             // Someone is home on the far hill: a warm window after dark.
             Cottage(night: starry).frame(width: 26, height: 24).position(x: w * 0.36, y: h * 0.415)
             Hill(rise: 0.44, left: 0.82, right: 0.56, peak: 0.84).fill(tone(0xBFD8AA, 0x272C5A))
-            RoundTree(leaf: tone(0x9CC08C, 0x1F3258), trunk: tone(0xA98A68, 0x332E58)).frame(width: 26, height: 38).position(x: w * 0.78, y: h * 0.47)
-            RoundTree(leaf: tone(0xA9C998, 0x22365C), trunk: tone(0xA98A68, 0x332E58)).frame(width: 18, height: 27).position(x: w * 0.87, y: h * 0.48)
+            // In spring the big one is a jacaranda in flower; in winter the trees are bare.
+            RoundTree(leaf: season == .spring ? tone(0xB9A3DE, 0x3A3870) : tone(0x9CC08C, 0x1F3258), trunk: tone(0xA98A68, 0x332E58), bare: season == .winter)
+                .frame(width: 26, height: 38).position(x: w * 0.78, y: h * 0.47)
+            RoundTree(leaf: tone(0xA9C998, 0x22365C), trunk: tone(0xA98A68, 0x332E58), bare: season == .winter).frame(width: 18, height: 27).position(x: w * 0.87, y: h * 0.48)
             Hill(rise: 0.56, left: 0.74, right: 0.72).fill(tone(0xA9CB93, 0x1F2450))
         case .beach:
             // The sea, lighter where it is shallow, with a boat out on it.
@@ -359,7 +385,9 @@ struct SceneFrame: View {
             // A far ridge with gums on it, then the nearer rise.
             Hill(rise: 0.46, left: 0.66, right: 0.5, peak: 0.9).fill(tone(0xD9DDBA, 0x2F3266))
             SmallGum(leaf: tone(0xB4C7A6, 0x263A62), trunk: tone(0xD9CDB6, 0x5A5890)).frame(width: 26, height: 34).position(x: w * 0.6, y: h * 0.5)
-            SmallGum(leaf: tone(0xA9BF9C, 0x22365C), trunk: tone(0xD9CDB6, 0x5A5890)).frame(width: 34, height: 44).position(x: w * 0.9, y: h * 0.43)
+            // In spring the near one is a wattle, gold with flowers.
+            SmallGum(leaf: tone(0xA9BF9C, 0x22365C), trunk: tone(0xD9CDB6, 0x5A5890), bloom: season == .spring ? tone(0xF4C842, 0x6A6A4A) : nil)
+                .frame(width: 34, height: 44).position(x: w * 0.9, y: h * 0.43)
             Hill(rise: 0.54, left: 0.8, right: 0.62, peak: 0.85).fill(tone(0xCBC596, 0x272A56))
             GumTree(dark: starry).frame(width: 120, height: h * 0.78).position(x: w * 0.13, y: h * 0.5)
         }
@@ -395,6 +423,48 @@ struct SceneFrame: View {
                 .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.7 * 9)), anchor: .bottom).position(x: w * 0.7, y: h * 0.75)
             GrassTuft().stroke(dry, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 12, height: 9)
                 .rotationEffect(.degrees(6 * weather.sway * sin(t * 1.3 * min(weather.sway, 2) + 0.9 * 9)), anchor: .bottom).position(x: w * 0.9, y: h * 0.81)
+        }
+    }
+
+    // MARK: Seasons
+
+    /// What the season adds at the front (17 November 2026): blossom drifting down in spring, long grass and a cicada
+    /// in summer (an umbrella on the beach), leaves on the ground in autumn, frost on a winter morning.
+    @ViewBuilder private func seasonal(_ w: CGFloat, _ h: CGFloat) -> some View {
+        switch season {
+        case .spring:
+            if !weather.wet || weather == .showers {
+                Petals(t: t, colours: starry ? [Color(hex: 0x6E64A8), Color(hex: 0x8A6A9A)] : [Color(hex: 0xB9A3DE), Color(hex: 0xF5C6D6)],
+                       gust: weather.sway)
+                    .frame(width: w, height: h).opacity(appeared ? 1 : 0)
+            }
+        case .summer:
+            if kind == .beach {
+                if !starry && !weather.wet { BeachUmbrella().frame(width: 46, height: 44).position(x: w * 0.93, y: h * 0.78) }
+            } else {
+                let grass = tone(0xA9C48F, 0x3E5682)
+                LongGrass().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 26, height: 34)
+                    .rotationEffect(.degrees(5 * weather.sway * sin(t * 1.1)), anchor: .bottom).position(x: w * 0.04, y: h * 0.86)
+                LongGrass().stroke(grass, style: StrokeStyle(lineWidth: 2, lineCap: .round)).frame(width: 22, height: 30)
+                    .scaleEffect(x: -1).rotationEffect(.degrees(5 * weather.sway * sin(t * 1.1 + 0.8)), anchor: .bottom).position(x: w * 0.97, y: h * 0.87)
+                if !starry && !weather.wet {
+                    // A cicada on a stalk, her wings catching the light.
+                    Cicada(shimmer: 0.5 + 0.5 * sin(t * 30)).frame(width: 9, height: 13)
+                        .rotationEffect(.degrees(-12 + 5 * weather.sway * sin(t * 1.1 + 0.8)))
+                        .position(x: w * 0.972, y: h * 0.81)
+                }
+            }
+        case .autumn:
+            if kind != .beach {
+                GroundLeaves(dark: starry).frame(width: w, height: h)
+            }
+        case .winter:
+            if !starry && hour < 10 && weather != .snow && weather != .cold {
+                // Frost along the top of the hill on a winter morning.
+                HillEdge(rise: 0.6, left: 0.8, right: 0.78)
+                    .stroke(Color(hex: 0xF4F8FF).opacity(0.95), style: StrokeStyle(lineWidth: 5, lineCap: .round))
+                    .offset(y: 2)
+            }
         }
     }
 
@@ -461,6 +531,8 @@ struct SceneFrame: View {
                 turnsUp(third, x: w * 0.5, y: pull - 204) {
                     // The finale: one that opens into her face.
                     if starry { PuggleFirework(t: t).frame(width: 150, height: 130) }
+                    // A rainbow needs the sun: on a grey day a kite goes up instead.
+                    else if weather.overcast { Kite().frame(width: 44, height: 76).rotationEffect(.degrees(-sway * 2)) }
                     else { Rainbow().frame(width: w * 0.72, height: w * 0.36) }
                 }
             case .backyard:
@@ -530,7 +602,7 @@ struct SceneFrame: View {
 
     /// What a friend is doing changes with the time of day, the season and the weather,
     /// so the same scene is not the same picture all year.
-    private var season: SplashLook.Season { SplashLook.now.season }
+    private var season: SplashLook.Season { seasonOverride ?? SplashLook.now.season }
     private var chilly: Bool { season == .winter || weather == .cold || weather == .snow }
 
     /// The bird on the hill: sings at dawn, pecks and hops by day, preens at dusk, sleeps at night.
@@ -924,12 +996,24 @@ struct MoonPath: Shape {
 struct RoundTree: View {
     let leaf: Color
     let trunk: Color
+    /// Winter: the branches without their leaves.
+    var bare = false
     var body: some View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
             ZStack {
                 RoundedRectangle(cornerRadius: 1.5).fill(trunk).frame(width: max(w * 0.16, 3), height: h * 0.45).position(x: w / 2, y: h * 0.78)
-                Ellipse().fill(leaf).frame(width: w, height: h * 0.72).position(x: w / 2, y: h * 0.36)
+                if bare {
+                    Path { p in
+                        p.move(to: CGPoint(x: w / 2, y: h * 0.6)); p.addLine(to: CGPoint(x: w * 0.5, y: h * 0.08))
+                        p.move(to: CGPoint(x: w / 2, y: h * 0.48)); p.addQuadCurve(to: CGPoint(x: w * 0.12, y: h * 0.16), control: CGPoint(x: w * 0.22, y: h * 0.42))
+                        p.move(to: CGPoint(x: w / 2, y: h * 0.4)); p.addQuadCurve(to: CGPoint(x: w * 0.88, y: h * 0.12), control: CGPoint(x: w * 0.8, y: h * 0.36))
+                        p.move(to: CGPoint(x: w * 0.3, y: h * 0.3)); p.addLine(to: CGPoint(x: w * 0.3, y: h * 0.1))
+                    }
+                    .stroke(trunk, style: StrokeStyle(lineWidth: max(w * 0.07, 1.4), lineCap: .round))
+                } else {
+                    Ellipse().fill(leaf).frame(width: w, height: h * 0.72).position(x: w / 2, y: h * 0.36)
+                }
             }
         }
     }
@@ -939,6 +1023,8 @@ struct RoundTree: View {
 struct SmallGum: View {
     let leaf: Color
     let trunk: Color
+    /// Wattle in flower: dots of gold over the leaves.
+    var bloom: Color?
     var body: some View {
         GeometryReader { g in
             let w = g.size.width, h = g.size.height
@@ -950,6 +1036,13 @@ struct SmallGum: View {
                 .stroke(trunk, style: StrokeStyle(lineWidth: max(w * 0.09, 2), lineCap: .round))
                 Ellipse().fill(leaf).frame(width: w * 0.7, height: h * 0.34).position(x: w * 0.4, y: h * 0.26)
                 Ellipse().fill(leaf).frame(width: w * 0.62, height: h * 0.3).position(x: w * 0.68, y: h * 0.16)
+                if let bloom {
+                    ForEach(0..<9, id: \.self) { i in
+                        var random = SeededRandom(UInt64(i) &* 811 &+ 5)
+                        Circle().fill(bloom).frame(width: w * 0.13, height: w * 0.13)
+                            .position(x: w * random.range(0.14, 0.92), y: h * random.range(0.06, 0.38))
+                    }
+                }
             }
         }
     }

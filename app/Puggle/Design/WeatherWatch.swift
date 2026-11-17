@@ -171,7 +171,9 @@ final class WeatherWatch: NSObject, ObservableObject, CLLocationManagerDelegate 
         switch now.condition {
         case .thunderstorms, .isolatedThunderstorms, .scatteredThunderstorms, .strongStorms, .tropicalStorm, .hurricane:
             return .storm
-        case .rain, .heavyRain, .drizzle, .freezingDrizzle, .freezingRain, .sunShowers, .hail:
+        case .sunShowers:
+            return .showers
+        case .rain, .heavyRain, .drizzle, .freezingDrizzle, .freezingRain, .hail:
             return .rain
         case .snow, .heavySnow, .flurries, .sleet, .blizzard, .blowingSnow, .wintryMix, .sunFlurries:
             return .snow
