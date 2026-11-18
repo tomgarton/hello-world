@@ -21,6 +21,8 @@ enum Room: Int, CaseIterable {
         // For checking: "-debugOut 1" (out tonight) or "0" (in).
         if let forced = UserDefaults.standard.string(forKey: "debugOut") { return forced == "1" }
         #endif
+        // On Bonfire Night she is out to see the bonfire.
+        if SpecialDay.today == .bonfireNight { return true }
         let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
         return day % 3 == 0
     }
@@ -118,6 +120,8 @@ struct RoomPainter {
     let w: CGFloat, top: CGFloat, dark: Bool, t: Double, hour: Int, weather: Weather, style: LineStyle
     /// How far Puggle stands from the middle of the room.
     var puggleX: CGFloat = 0
+    /// Fireworks in the window on New Year's Eve and Bonfire Night, lights along the wall at Christmas.
+    var special: SpecialDay? = SpecialDay.today
 
     init(context: inout GraphicsContext, w: CGFloat, top: CGFloat, dark: Bool, t: Double, hour: Int, weather: Weather, style: LineStyle) {
         self.context = context
@@ -224,6 +228,22 @@ struct RoomPainter {
                 // The last of the sun, low in the window.
                 glow(x + width * 0.3, y + height * 0.86, 30, 0xF79A72, 0.6)
             }
+            if night, special?.fireworks == true {
+                // Fireworks far off, through the glass.
+                var glassOnly = context
+                glassOnly.clip(to: Path(roundedRect: glass, cornerRadius: 8, style: .continuous))
+                for (index, burst) in ([(0.3, 0.42, 0xF4BE2C, 0.0), (0.72, 0.36, 0xF58A70, 1.4)] as [(CGFloat, CGFloat, UInt32, Double)]).enumerated() {
+                    let life = ((t + burst.3) / 2.6).truncatingRemainder(dividingBy: 1)
+                    let open = 1 - pow(1 - min(life / 0.45, 1), 3), fade = life < 0.45 ? 1 : max(0, 1 - (life - 0.45) / 0.55)
+                    let centre = CGPoint(x: x + width * burst.0, y: glass.minY + height * burst.1)
+                    for ray in 0..<10 {
+                        let angle = Double(ray) / 10 * 2 * .pi + Double(index)
+                        let reach = 13 * open
+                        glassOnly.fill(Path(ellipseIn: CGRect(x: centre.x + CGFloat(cos(angle)) * reach - 1.2, y: centre.y + CGFloat(sin(angle)) * reach - 1.2 + CGFloat(life * life) * 5,
+                                                              width: 2.4, height: 2.4)), with: .color(Color(hex: burst.2).opacity(fade)))
+                    }
+                }
+            }
         } else if weather.wet {
             for index in 0..<7 {
                 var random = SeededRandom(UInt64(index) &* 131 &+ 7)
@@ -248,6 +268,27 @@ struct RoomPainter {
         case .living: living()
         case .playroom: playroom()
         case .bedroom: bedroom()
+        }
+        if special == .christmas { fairyLights() }
+    }
+
+    /// Christmas: a string of lights in swags along the top of the wall.
+    private func fairyLights() {
+        let y: CGFloat = 26, swags = 3
+        for swag in 0..<swags {
+            let x0 = w * CGFloat(swag) / CGFloat(swags), x1 = w * CGFloat(swag + 1) / CGFloat(swags), dip: CGFloat = 22
+            var points: [CGPoint] = []
+            for step in 0...12 {
+                let along = CGFloat(step) / 12
+                points.append(CGPoint(x: x0 + (x1 - x0) * along, y: y + dip * 4 * along * (1 - along)))
+            }
+            line(points, col(0x5E6A5A, 0x2A2A44).opacity(0.6), 1)
+            for (index, point) in points.enumerated() where index % 2 == 1 {
+                let colour: UInt32 = [0xF58A70, 0xF4BE2C, 0x8FD3A8, 0xBFD9F5][(index / 2 + swag) % 4]
+                let twinkle = 0.6 + 0.4 * sin(t * 2.1 + Double(index + swag * 7) * 2.3)
+                if night || dark { glow(point.x, point.y + 3, 8, colour, 0.4 * twinkle) }
+                oval(point.x, point.y + 3, 2, 2.8, Color(hex: colour).opacity(night || dark ? 0.6 + 0.4 * twinkle : 1))
+            }
         }
     }
 

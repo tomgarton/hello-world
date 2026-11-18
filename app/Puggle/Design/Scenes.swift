@@ -147,6 +147,8 @@ struct SceneFrame: View {
     var seasonOverride: SplashLook.Season?
     /// With Reduce Motion nothing lands or drips: the scene is a still picture then.
     var stillRain = false
+    /// Today's special day, if any, where the family is. Set for pictures of each one.
+    var special: SpecialDay? = SpecialDay.today
 
     private var hour: Int {
         if let hourOverride { return hourOverride }
@@ -225,6 +227,7 @@ struct SceneFrame: View {
                             .opacity(appeared ? 1 : 0)
                     }
                     clouds(w, h)
+                    specialSky(w, h)
                     // A thunderstorm's clouds and lightning, behind the far scenery so a bolt strikes behind the hills.
                     if weather == .storm { StormSky(night: starry, t: t).frame(width: w, height: h).opacity(appeared ? 1 : 0) }
                     // The far rain, behind the scenery, so the rain falls through the scene and not only over it.
@@ -242,6 +245,7 @@ struct SceneFrame: View {
                     WeatherGround(weather: weather, night: starry, t: t)
                     details(w, h)
                     seasonal(w, h)
+                    specialGround(w, h)
                     // Puggle's shadow, so she stands on the hill.
                     Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
                         .frame(width: 72, height: 9).position(x: w / 2 + puggleX, y: h - 27)
@@ -520,6 +524,43 @@ struct SceneFrame: View {
                     .stroke(Color(hex: 0xF4F8FF).opacity(0.95), style: StrokeStyle(lineWidth: 5, lineCap: .round))
                     .offset(y: 2)
             }
+        }
+    }
+
+    // MARK: Special days
+
+    /// Fireworks far off in the night sky on New Year's Eve and Bonfire Night. Through rain, softer; not in a storm.
+    @ViewBuilder private func specialSky(_ w: CGFloat, _ h: CGFloat) -> some View {
+        if let special, special.fireworks, starry, weather != .storm {
+            Fireworks(t: t).frame(width: w * 0.8, height: h * 0.36)
+                .position(x: w * 0.5, y: h * 0.22)
+                .opacity((weather.overcast ? 0.7 : 1) * (appeared ? 1 : 0))
+        }
+    }
+
+    /// What the day leaves on the ground, at the side away from the scene's friend, and lights across the top.
+    @ViewBuilder private func specialGround(_ w: CGFloat, _ h: CGFloat) -> some View {
+        let near: CGFloat = kind == .backyard ? 0.1 : 0.9, far: CGFloat = 1 - near
+        switch special {
+        case .halloween:
+            Pumpkin(night: starry, t: t).frame(width: 28, height: 24).position(x: w * near, y: h * 0.88)
+            Pumpkin(night: starry, t: t + 1.3).frame(width: 18, height: 15).position(x: w * (near + (near > 0.5 ? -0.08 : 0.08)), y: h * 0.91)
+        case .easter:
+            ForEach(Array([(0.0, 0.9, 0xF5C6D6, 0x9DB7D9), (0.07, 0.93, 0xBFD9F5, 0xF4BE2C), (-0.06, 0.92, 0xF4D98A, 0xF58A70)].enumerated()), id: \.offset) { _, egg in
+                PaintedEgg(colour: UInt32(egg.2), band: UInt32(egg.3), night: starry).frame(width: 14, height: 18)
+                    .rotationEffect(.degrees(egg.0 * 200))
+                    .position(x: w * (near + CGFloat(egg.0)), y: h * CGFloat(egg.1))
+            }
+            PaintedEgg(colour: 0xB9A3DE, band: 0xFFFDF6, night: starry).frame(width: 13, height: 16).position(x: w * far, y: h * 0.92)
+        case .christmas:
+            FairyLights(t: t, night: starry).frame(width: w, height: 18).position(x: w / 2, y: h * 0.06)
+            LittleTree(night: starry, t: t).frame(width: 30, height: 44).position(x: w * near, y: h * 0.9 - 22)
+            Present(night: starry).frame(width: 18, height: 16).position(x: w * (near + (near > 0.5 ? -0.07 : 0.07)), y: h * 0.9)
+            Present(colour: 0x2A62B8, ribbon: 0xFFFDF6, night: starry).frame(width: 13, height: 12).position(x: w * far, y: h * 0.91)
+        case .bonfireNight:
+            if starry { Bonfire(t: t).frame(width: 44, height: 54).position(x: w * near, y: h * 0.88 - 22) }
+        case .newYearsEve, nil:
+            EmptyView()
         }
     }
 

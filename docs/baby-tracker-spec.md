@@ -2425,3 +2425,31 @@ only where the day is marked, in the right season for the hemisphere, with a swi
 - **Christmas, as lights and presents:** fairy lights, a small tree and a present from 24 to 26 December.
   Summer in the south: on the beach, with a Santa hat on the umbrella.
 - Still to settle: the costume, whether the friends join in, and how many days before each one it starts.
+
+## Special days: built (18 November 2026)
+
+Built as decided the day before: secular, by place, a switch to turn them off. One at a time.
+
+- **When and where** (`Design/SpecialDays.swift`, from the phone's region):
+  - New Year's Eve: all of 31 December and the first two hours of 1 January. Everywhere.
+  - Bonfire Night: 5 November. Britain, the Isle of Man, Jersey, Guernsey and New Zealand.
+  - Halloween: 29 to 31 October. Britain, Ireland, the US, Canada, Australia and New Zealand.
+  - Easter: Good Friday to Easter Monday, Western dates. Places that keep the Orthodox Easter (Greece, Cyprus,
+    Romania, Bulgaria, Ukraine) are left out rather than shown on the wrong weekend.
+  - Christmas: 24 to 26 December, where it is a public holiday. The region lists are a starting point.
+- **Outdoors**, at the side away from the scene's friend:
+  - Halloween: two round pumpkins. After dark they glow, with round eyes and a small smile, never teeth.
+  - Easter: painted eggs in the grass or sand.
+  - Christmas: fairy lights across the top of the picture, a little tree with a star, and presents.
+  - Bonfire Night: a bonfire after dark, with sparks, and fireworks in the sky. She is out with a grown-up
+    that evening, to see it.
+  - New Year's Eve: fireworks in the night sky. Not in a thunderstorm; softer through rain.
+- **Indoors:** fireworks through the window on New Year's Eve and Bonfire Night, and fairy lights along the top
+  of the wall at Christmas.
+- **Settings → Today → Special days**, on unless turned off.
+- For checking: launch with `-debugDay halloween` (or `newYearsEve`, `bonfireNight`, `easter`, `christmas`).
+- Pictures: `docs/previews/special-days/` (hills and beach by day, backyard, bush and bedroom by night).
+- Not done, still open: Puggle's costume, the friends joining in, starting any day early (lights all of
+  December?), and Christmas on the beach in the south. The beach is just one of the four scenes, not chosen
+  for the day.
+- 133 tests pass, 5 of them new. Seen in renders, not on a phone.

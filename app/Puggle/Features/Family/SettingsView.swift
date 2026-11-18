@@ -58,6 +58,7 @@ struct SettingsView: View {
     @AppStorage(Setting.appLock) private var lockOn = false
     @AppStorage(Setting.appearance) private var appearance = "system"
     @AppStorage(WeatherWatch.onKey) private var weatherOn = false
+    @AppStorage(SpecialDay.onKey) private var specialDaysOn = true
     @EnvironmentObject private var store: FamilyStore
 
     var body: some View {
@@ -124,6 +125,9 @@ struct SettingsView: View {
             .onChange(of: justLog) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
             NavigationLink { WeatherSettingsView() } label: {
                 LabeledContent("Weather", value: weatherOn ? "On" : "Off")
+            }
+            Toggle(isOn: $specialDaysOn) {
+                named("Special days", "Fireworks, pumpkins, eggs and lights in the picture, on the days they're marked where you are.")
             }
         } header: {
             heading("Today", "sun.max")
