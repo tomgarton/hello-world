@@ -2404,3 +2404,24 @@ Tom: account for the aurora borealis as well as the aurora australis, depending 
 - For checking: launch with `-debugSouth 1` or `-debugSouth 0`.
 - Picture: `docs/previews/scenes/night-sky-north-south.png`.
 - 129 tests pass. Seen in renders, not on a phone.
+
+## Special days in the scenes: decided, not built (17 November 2026)
+
+Tom asked about scenes for key days, wary of tying in too many religious holidays. For reference, Animal
+Crossing: New Horizons mostly renames religious days into secular ones (Bunny Day for Easter, Toy Day for
+Christmas Eve, Turkey Day for Thanksgiving), keeps Halloween and the New Year countdown by name, and leans on
+nature seasons (cherry blossom, fireflies, mushrooms) and some regional festivals, many depending on the
+hemisphere. That is from memory, not checked against the game.
+
+**Decided:** secular, by place. Celebrations without the religion: fireworks, eggs, lights, pumpkins. Shown
+only where the day is marked, in the right season for the hemisphere, with a switch to turn them off.
+
+**First days, as proposed:**
+- **New Year's Eve:** fireworks over every scene on the night, the finale at midnight. Everywhere.
+- **Bonfire Night (5 November):** a bonfire, sparklers and fireworks in the backyard after dark. UK only.
+- **Halloween (31 October):** pumpkins by the door, Puggle in a soft costume. Where Halloween is marked (UK,
+  US, Ireland, Canada, Australia, New Zealand). In the south it falls in spring, so no autumn leaves.
+- **Easter, as an egg hunt:** painted eggs hidden in the grass over the Easter weekend. Autumn in the south.
+- **Christmas, as lights and presents:** fairy lights, a small tree and a present from 24 to 26 December.
+  Summer in the south: on the beach, with a Santa hat on the umbrella.
+- Still to settle: the costume, whether the friends join in, and how many days before each one it starts.
