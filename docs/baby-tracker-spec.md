@@ -2584,3 +2584,12 @@ pushed to GitHub first. App Store Connect gives it its number (probably build 17
 from the first Mac, rebuilt from patches (the speed pass, carrying Puggle, tea, bedtime and sleepovers, the
 entrance, the sleep button under four, "2½y", icons on fact lines, potty and nappy together), and the armchair
 with the grown-ups' new sitting pose. No new synced fields.
+
+## The one-child Lock Screen card, rearranged (19 November 2026)
+
+Tom, from his phone: move what comes next to the top right, so the three facts have more room and the name
+lines up with the badge. The badge and the name now share a row, the name level with the middle of the badge,
+and "Next sleep around 19:35" sits at the right end of that row. The three facts run below, lined up with the
+left of the name (Tom asked to keep that), with the room the line used to take. While a child is asleep the top right keeps the Woke up button, so what comes
+next stays under the facts there. A running feed is laid out as before, under the name's row. The family card
+is unchanged. Seen on the simulator's Lock Screen with the sample family (`-debugLive glance`), not on a phone.

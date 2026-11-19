@@ -309,52 +309,64 @@ private struct LockScreenCard: View {
         .padding(14)
     }
 
-    /// One child: the badge, the name, their three facts and what comes next.
+    /// One child: the badge and the name in a row with what comes next at the right, then their three facts
+    /// under the name, lined up with it (Tom, 19 November 2026: more room for the facts, and the name level with
+    /// the badge).
     private func alone(lead: TimerAttributes, state: TimerAttributes.ContentState) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .top, spacing: 12) {
+        // What comes next, until its time. After that the card is stale and the line goes.
+        let next = context.isStale || state.mode == "feed" ? nil : state.nextLine()
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .center, spacing: 12) {
                 Badge(attributes: lead, size: 40)
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 8) {
-                        Text(lead.childName)
-                            .font(.headline)
-                            .foregroundStyle(Tone.cream)
-                            .lineLimit(1)
-                        Spacer(minLength: 0)
-                        if state.mode == "sleep" {
-                            ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead,
-                                         spoken: "\(lead.childName) woke up")
-                        }
-                    }
-                    .frame(minHeight: 22)
-                    if state.mode == "feed" {
-                        HStack(spacing: 5) {
-                            TimerGlyph(mode: state.mode, size: 15)
-                            Text(state.label)
-                            Clock(state: state, alignment: .leading)
-                        }
-                        .font(.subheadline)
-                        .foregroundStyle(Tone.moon)
-                    } else {
-                        // The snapshot, readable without opening anything: the feed, the sleep and the nappy.
-                        // Each opens Puggle at the sheet for the next one.
-                        Facts(state: state, childID: lead.childID)
-                        // What comes next, until its time. After that the card is stale and the line goes.
-                        if !context.isStale, let next = state.nextLine() {
-                            Text(next)
-                                .font(.footnote)
-                                .foregroundStyle(Tone.cream.opacity(0.8))
-                                .lineLimit(1)
-                                .minimumScaleFactor(0.85)
-                        }
-                    }
+                Text(lead.childName)
+                    .font(.headline)
+                    .foregroundStyle(Tone.cream)
+                    .lineLimit(1)
+                    .layoutPriority(1)
+                Spacer(minLength: 8)
+                if state.mode == "sleep" {
+                    ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead,
+                                 spoken: "\(lead.childName) woke up")
+                } else if let next {
+                    Text(next)
+                        .font(.footnote)
+                        .foregroundStyle(Tone.cream.opacity(0.8))
+                        .multilineTextAlignment(.trailing)
+                        .lineLimit(2)
+                        .minimumScaleFactor(0.85)
                 }
             }
             if state.mode == "feed" {
+                HStack(spacing: 5) {
+                    TimerGlyph(mode: state.mode, size: 15)
+                    Text(state.label)
+                    Clock(state: state, alignment: .leading)
+                }
+                .font(.subheadline)
+                .foregroundStyle(Tone.moon)
+                .padding(.leading, Self.underName)
                 FeedButtons(attributes: lead, state: state)
+            } else {
+                // The snapshot, readable without opening anything: the feed, the sleep and the nappy.
+                // Each opens Puggle at the sheet for the next one. Lined up with the name.
+                VStack(alignment: .leading, spacing: 6) {
+                    Facts(state: state, childID: lead.childID)
+                    // While asleep the button has the top right, so what comes next stays under the facts.
+                    if state.mode == "sleep", let next {
+                        Text(next)
+                            .font(.footnote)
+                            .foregroundStyle(Tone.cream.opacity(0.8))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
+                    }
+                }
+                .padding(.leading, Self.underName)
             }
         }
     }
+
+    /// How far in the name starts: the badge and the gap after it.
+    private static let underName: CGFloat = 40 + 12
 
     /// Two or more children: a row each, the busiest first, and only the first with buttons.
     private func family(lead: TimerAttributes, state: TimerAttributes.ContentState, others: [TimerAttributes.ContentState.Other]) -> some View {
