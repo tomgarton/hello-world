@@ -51,10 +51,11 @@ struct ChildFact: Identifiable, Equatable {
     }
 
     /// Whether the sleep button belongs on a child's card: while they are asleep, in the evening and at night,
-    /// for a child who naps (a daytime sleep in the last two weeks), and for the very young, who nap whether
-    /// or not anyone has logged it yet.
+    /// for a child who naps (a daytime sleep in the last two weeks), and for anyone under four, who mostly still
+    /// nap whether or not anyone has logged it yet (Tom, 19 November 2026: it was missing for a two-and-a-half
+    /// year old with no naps logged).
     static func offersSleep(asleep: Bool, hour: Int, napped: Bool, months: Int) -> Bool {
-        asleep || hour >= 17 || hour < 7 || napped || months < 18
+        asleep || hour >= 17 || hour < 7 || napped || months < 48
     }
 }
 

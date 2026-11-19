@@ -18,15 +18,17 @@ final class ChildFactTests: XCTestCase {
     }
 
     func testTheSleepButtonIsForNappersTheVeryYoungAndTheEvening() {
-        // A three-year-old who no longer naps: nothing at midday, there again from five.
-        XCTAssertFalse(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 40))
-        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 17, napped: false, months: 40))
-        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 3, napped: false, months: 40))
+        // A five-year-old who no longer naps: nothing at midday, there again from five.
+        XCTAssertFalse(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 60))
+        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 17, napped: false, months: 60))
+        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 3, napped: false, months: 60))
         // One who napped in the last two weeks keeps it all day.
-        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: true, months: 40))
+        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: true, months: 60))
+        // Two and a half, no naps logged yet: still offered, as most still nap.
+        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 30))
         // A baby has it whether or not a nap has been logged yet.
         XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 5))
         // Asleep: always, so they can be woken.
-        XCTAssertTrue(ChildFact.offersSleep(asleep: true, hour: 13, napped: false, months: 40))
+        XCTAssertTrue(ChildFact.offersSleep(asleep: true, hour: 13, napped: false, months: 60))
     }
 }

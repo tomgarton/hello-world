@@ -2028,7 +2028,8 @@ with its answer and the date when it is settled.
 5. **On a save, the tile's icon:** drawn over a faint copy (as now) or from nothing.
 6. **The setting on each child for which actions show under the plus:** still wanted, or is "everything
    they use" enough?
-7. **Sleep button for any child under 18 months:** an addition to his decision. Keep it?
+7. **Sleep button for any child under 18 months:** an addition to his decision. Keep it? *Answered
+   19 November 2026: Tom found it missing for a 2½-year-old with no naps logged. Now any child under four.*
 
 ## Stories: research, a story bible and a first book (16 November 2026)
 
@@ -2530,3 +2531,9 @@ entrance), `-debugBed reading|asleep|stirring|up`, `-debugSleepover kip|none`, `
 Not yet checked on a phone: the entrance's timing as the app opens from cold, which in the simulator is held
 up by the sample family loading.
 
+
+**The sleep button for toddlers (19 November 2026).** Tom noticed there was no sleep button on a 2½-year-old's
+card at midday: the button showed in the day only for children under 18 months or with a nap logged in the
+last two weeks, and none had been logged. Most children still nap until three or four, so the age is now under
+four. Older children keep the rule as it was: in the day only if they have napped lately, and always in the
+evening and at night.
