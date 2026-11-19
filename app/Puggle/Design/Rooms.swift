@@ -66,6 +66,26 @@ enum Room: Int, CaseIterable {
     var outfit: String { self == .bedroom ? "night" : "none" }
 }
 
+/// The tea table. Both are kept.
+enum TeaTable: String {
+    /// A cloth to the floor, hiding everyone's legs (19 November 2026).
+    case cloth
+    /// A bare wooden table on legs, everyone seated on a chair with their knees and feet showing underneath
+    /// (Tom, 19 November 2026: the sitting pose at the tea table too).
+    case bare
+
+    static var current: TeaTable {
+        #if DEBUG
+        // For checking: "-debugTable cloth" or "bare".
+        if let forced = UserDefaults.standard.string(forKey: "debugTable").flatMap(TeaTable.init) { return forced }
+        #endif
+        return .bare
+    }
+
+    /// How much lower the bare table stands, so heads clear it once everyone sits down onto their lap.
+    var lower: CGFloat { self == .bare ? 9 : 0 }
+}
+
 /// Where the armchair and the table by the bed stand in her bedroom. Both layouts are kept.
 /// The cast has no sitting pose, so whoever is in the chair is drawn standing, lowered behind its seat.
 enum BedroomLayout: String {
@@ -382,6 +402,17 @@ struct RoomPainter {
         context.fill(shade, with: .color(Color(hex: 0xE5553B).opacity(dark ? 0.85 : 1)))
         oval(x, 86, 9, 4, Color(hex: 0xFFF3B8))
         rug(col(0xF3D9C9, 0x4A3A48), col(0xE5553B, 0x7A3A34).opacity(0.55))
+        // At a bare table, a chair under each of them: its legs show either side of their knees.
+        if TeaTable.current == .bare {
+            let (others, puggle) = Company.tea()
+            let chair = col(0xB89A78, 0x5E4A3C)
+            for spot in others.map(\.x) + [puggle] {
+                let x = w / 2 + spot * w
+                rect(x - 26, 214, 52, 8, 4, chair)
+                rect(x - 23, 220, 5, 30, 2.5, chair)
+                rect(x + 18, 220, 5, 30, 2.5, chair)
+            }
+        }
         // Higher up the wall: a clock that tells the time, a shelf, and paper stars on a string.
         if shown(64) > 0 { clock(w * 0.76, -64, shown(64)) }
         if shown(136) > 0 {
@@ -676,47 +707,56 @@ struct RoomPainter {
     func table() {
         let cloth = col(0xFFFCF6, 0x6A6890), wood = col(0xD9B48A, 0x5E4A3C)
         let left: CGFloat = 10, width = w - 20
-        rect(left + 14, 214, 10, 32, 4, wood); rect(left + width - 24, 214, 10, 32, 4, wood)
-        rect(left, 200, width, 14, 7, wood)
-        // The cloth hangs almost to the floor, in scallops, so no one's feet show under it.
-        rect(left + 8, 198, width - 16, 44, 4, cloth)
-        let scallops = Int((width - 16) / 26)
-        for index in 0..<scallops {
-            let each = (width - 16) / CGFloat(scallops)
-            oval(left + 8 + each * (CGFloat(index) + 0.5), 242, each / 2, 8, cloth)
+        let style = TeaTable.current, dy = style.lower
+        if style == .bare {
+            // Bare wood on a leg at each end, so the knees and feet of everyone sitting at it show underneath.
+            let leg = col(0xC9A27A, 0x544234)
+            for x in [left + 8, left + width - 18] { rect(x, 212 + dy, 10, 38 - dy, 4, leg) }
+            rect(left, 200 + dy, width, 14, 7, wood)
+            rect(left + 8, 212 + dy, width - 16, 6, 3, leg)
+        } else {
+            rect(left + 14, 214, 10, 32, 4, wood); rect(left + width - 24, 214, 10, 32, 4, wood)
+            rect(left, 200, width, 14, 7, wood)
+            // The cloth hangs almost to the floor, in scallops, so no one's feet show under it.
+            rect(left + 8, 198, width - 16, 44, 4, cloth)
+            let scallops = Int((width - 16) / 26)
+            for index in 0..<scallops {
+                let each = (width - 16) / CGFloat(scallops)
+                oval(left + 8 + each * (CGFloat(index) + 0.5), 242, each / 2, 8, cloth)
+            }
+            rect(left + 8, 198, width - 16, 5, 2.5, Color(hex: 0xE5553B).opacity(dark ? 0.6 : 0.85))
         }
-        rect(left + 8, 198, width - 16, 5, 2.5, Color(hex: 0xE5553B).opacity(dark ? 0.6 : 0.85))
         // A plate and a cup at each grown-up's or friend's place.
         let (others, puggle) = Company.tea()
         for (index, person) in others.enumerated() {
             let x = w / 2 + person.x * w
-            oval(x, 196, 24, 5, col(0xF3D9C9, 0x6A5560))
-            oval(x, 195, 16, 3, col(0xE9B872, 0x8A6F5A))
+            oval(x, 196 + dy, 24, 5, col(0xF3D9C9, 0x6A5560))
+            oval(x, 195 + dy, 16, 3, col(0xE9B872, 0x8A6F5A))
             let colour: UInt32 = [0x3C9A5F, 0x2A62B8, 0xE5553B][index % 3]
-            rect(x + 26, 180, 13, 16, 4, Color(hex: colour).opacity(dark ? 0.7 : 1))
+            rect(x + 26, 180 + dy, 13, 16, 4, Color(hex: colour).opacity(dark ? 0.7 : 1))
         }
         // Her bowl and spoon, with steam coming off, and her cup.
         let x = w / 2 + puggle * w
-        oval(x, 195, 25, 6, col(0xA6C6EC, 0x4A5F8A))
+        oval(x, 195 + dy, 25, 6, col(0xA6C6EC, 0x4A5F8A))
         var bowl = Path()
-        bowl.move(to: CGPoint(x: x - 25, y: top + 195))
-        bowl.addQuadCurve(to: CGPoint(x: x + 25, y: top + 195), control: CGPoint(x: x, y: top + 222))
+        bowl.move(to: CGPoint(x: x - 25, y: top + 195 + dy))
+        bowl.addQuadCurve(to: CGPoint(x: x + 25, y: top + 195), control: CGPoint(x: x, y: top + 222 + dy))
         bowl.closeSubpath()
         context.fill(bowl, with: .color(col(0xBFD9F5, 0x56709E)))
-        oval(x, 195, 20, 4, col(0xF4E7B0, 0xA8985E))
-        line([CGPoint(x: x + 12, y: 194), CGPoint(x: x + 34, y: 182)], col(0xB9B4AC, 0x8A88A0), 3)
+        oval(x, 195 + dy, 20, 4, col(0xF4E7B0, 0xA8985E))
+        line([CGPoint(x: x + 12, y: 194 + dy), CGPoint(x: x + 34, y: 182 + dy)], col(0xB9B4AC, 0x8A88A0), 3)
         for index in 0..<3 {
             let rise = (t * 0.35 + Double(index) * 0.33).truncatingRemainder(dividingBy: 1)
             var wisp = Path()
-            let base = CGPoint(x: x - 10 + CGFloat(index) * 9, y: top + 188 - CGFloat(rise) * 26)
+            let base = CGPoint(x: x - 10 + CGFloat(index) * 9, y: top + 188 + dy - CGFloat(rise) * 26)
             wisp.move(to: base)
             wisp.addQuadCurve(to: CGPoint(x: base.x + 2, y: base.y - 10), control: CGPoint(x: base.x + 5 * CGFloat(sin(rise * 6 + Double(index))), y: base.y - 5))
             context.stroke(wisp, with: .color(Color.white.opacity((dark ? 0.35 : 0.7) * sin(rise * .pi))), style: StrokeStyle(lineWidth: 2, lineCap: .round))
         }
         let cup = x - 36
-        rect(cup - 9, 174, 18, 24, 6, Color(hex: 0xF4BE2C).opacity(dark ? 0.75 : 1))
-        rect(cup - 10, 171, 20, 6, 3, Color(hex: 0xE5553B).opacity(dark ? 0.75 : 1))
-        rect(cup - 2.5, 164, 5, 9, 2.5, Color(hex: 0xE5553B).opacity(dark ? 0.75 : 1))
+        rect(cup - 9, 174 + dy, 18, 24, 6, Color(hex: 0xF4BE2C).opacity(dark ? 0.75 : 1))
+        rect(cup - 10, 171 + dy, 20, 6, 3, Color(hex: 0xE5553B).opacity(dark ? 0.75 : 1))
+        rect(cup - 2.5, 164 + dy, 5, 9, 2.5, Color(hex: 0xE5553B).opacity(dark ? 0.75 : 1))
     }
 
     /// A clock on the wall, showing the real time.

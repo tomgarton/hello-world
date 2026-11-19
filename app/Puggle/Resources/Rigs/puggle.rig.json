@@ -437,6 +437,33 @@
    ]
   },
   {
+   "id": "lap",
+   "parent": "body",
+   "pivot": [
+    120.0,
+    246
+   ],
+   "when": "seat=sitting",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M82.0 251.6 L114.0 251.6 L114.0 259.8 Q114.0 272.8 101.0 272.8 L95.0 272.8 Q82.0 272.8 82.0 259.8 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M126.0 251.6 L158.0 251.6 L158.0 259.8 Q158.0 272.8 145.0 272.8 L139.0 272.8 Q126.0 272.8 126.0 259.8 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    }
+   ]
+  },
+  {
    "id": "rabbit",
    "parent": "upper",
    "pivot": [
@@ -5719,5 +5746,10 @@
   "outfit": "none",
   "shades": "none"
  },
- "sideroom": 30
+ "sideroom": 30,
+ "sitting": {
+  "upper": {
+   "y": 13.4
+  }
+ }
 }

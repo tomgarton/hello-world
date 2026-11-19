@@ -2593,3 +2593,20 @@ and "Next sleep around 19:35" sits at the right end of that row. The three facts
 left of the name (Tom asked to keep that), with the room the line used to take. While a child is asleep the top right keeps the Woke up button, so what comes
 next stays under the facts there. A running feed is laid out as before, under the name's row. The family card
 is unchanged. Seen on the simulator's Lock Screen with the sample family (`-debugLive glance`), not on a phone.
+
+## Sitting at the tea table (19 November 2026)
+
+Tom: use the sitting pose at the tea table too. After a first try (the cloth hid every lap, so people only
+sank lower) and a look at how picture books and children's TV stage a family table, he chose to try a bare
+table with everyone seated.
+
+- **The table is bare wood** on a leg at each end, a little lower than before so heads clear it once everyone
+  sits down. Under it: each person's knees and feet, and the legs of the chair they sit on.
+- **Puggle sits too.** Her own rig now has a lap (her legs' brown, since her dress ends at her hips), added by
+  `python3 tools/sitting_lap.py puggle`. The copy in `design/canvas/gen/puggle.rig.json` is updated to match.
+  The lap's size now follows each character's leg, so one rule fits her and the grown-ups.
+- **The friends don't have a lap yet.** Several are drawn with no separate legs. A friend at tea on a sleepover
+  night shows their dungarees or legs under the table, standing.
+- **The cloth is kept** (`TeaTable.cloth`; launch with `-debugTable cloth`).
+- Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator with Nan, with Kip, and
+  with no guest, in light; not in dark, not on a phone.

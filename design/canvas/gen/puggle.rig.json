@@ -437,6 +437,33 @@
    ]
   },
   {
+   "id": "lap",
+   "parent": "body",
+   "pivot": [
+    120.0,
+    246
+   ],
+   "when": "seat=sitting",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M82.0 251.6 L114.0 251.6 L114.0 259.8 Q114.0 272.8 101.0 272.8 L95.0 272.8 Q82.0 272.8 82.0 259.8 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M126.0 251.6 L158.0 251.6 L158.0 259.8 Q158.0 272.8 145.0 272.8 L139.0 272.8 Q126.0 272.8 126.0 259.8 Z",
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 6
+    }
+   ]
+  },
+  {
    "id": "rabbit",
    "parent": "upper",
    "pivot": [
@@ -5496,6 +5523,219 @@
      }
     }
    ]
+  },
+  "held": {
+   "about": "Picked up and carried: lifted under her arms, legs kicking in turn, tail swinging, delighted. Goes round until she is put down.",
+   "loops": true,
+   "length": 0.9,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "arm-left": {
+       "r": 36
+      },
+      "forearm-left": {
+       "r": 44
+      },
+      "arm-right": {
+       "r": -36
+      },
+      "forearm-right": {
+       "r": -44
+      },
+      "upper": {
+       "sy": 1.03
+      },
+      "blush": {
+       "sx": 1.12,
+       "sy": 1.12
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "leg-left": {
+       "r": 0,
+       "y": 3
+      },
+      "leg-right": {
+       "r": 0,
+       "y": 3
+      },
+      "tail": {
+       "r": 14
+      },
+      "head": {
+       "r": -3
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.22,
+     "pose": {
+      "arm-left": {
+       "r": 36
+      },
+      "forearm-left": {
+       "r": 44
+      },
+      "arm-right": {
+       "r": -36
+      },
+      "forearm-right": {
+       "r": -44
+      },
+      "upper": {
+       "sy": 1.03
+      },
+      "blush": {
+       "sx": 1.12,
+       "sy": 1.12
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "leg-left": {
+       "r": -20.4,
+       "y": 1
+      },
+      "foot-left": {
+       "r": -30.0
+      },
+      "leg-right": {
+       "r": 0,
+       "y": 3
+      },
+      "tail": {
+       "r": -6
+      },
+      "head": {
+       "r": 1
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.45,
+     "pose": {
+      "arm-left": {
+       "r": 36
+      },
+      "forearm-left": {
+       "r": 44
+      },
+      "arm-right": {
+       "r": -36
+      },
+      "forearm-right": {
+       "r": -44
+      },
+      "upper": {
+       "sy": 1.03
+      },
+      "blush": {
+       "sx": 1.12,
+       "sy": 1.12
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "leg-left": {
+       "r": 0,
+       "y": 3
+      },
+      "leg-right": {
+       "r": 0,
+       "y": 3
+      },
+      "tail": {
+       "r": -14
+      },
+      "head": {
+       "r": 3
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    },
+    {
+     "t": 0.67,
+     "pose": {
+      "arm-left": {
+       "r": 36
+      },
+      "forearm-left": {
+       "r": 44
+      },
+      "arm-right": {
+       "r": -36
+      },
+      "forearm-right": {
+       "r": -44
+      },
+      "upper": {
+       "sy": 1.03
+      },
+      "blush": {
+       "sx": 1.12,
+       "sy": 1.12
+      },
+      "brow-left": {
+       "y": -4,
+       "r": -6
+      },
+      "brow-right": {
+       "y": -4,
+       "r": 6
+      },
+      "leg-right": {
+       "r": 20.4,
+       "y": 1
+      },
+      "foot-right": {
+       "r": 30.0
+      },
+      "leg-left": {
+       "r": 0,
+       "y": 3
+      },
+      "tail": {
+       "r": 6
+      },
+      "head": {
+       "r": -1
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "brows": "on"
+     }
+    }
+   ]
   }
  },
  "face": {
@@ -5506,5 +5746,10 @@
   "outfit": "none",
   "shades": "none"
  },
- "sideroom": 30
+ "sideroom": 30,
+ "sitting": {
+  "upper": {
+   "y": 13.4
+  }
+ }
 }

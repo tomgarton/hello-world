@@ -8,8 +8,13 @@ legs and under their arms. And while sitting their upper half comes down onto it
 app adds). Both happen only while the face says "seat=sitting", so standing is unchanged.
 
 Used by make_cast_rigs.py. The knees are the garment's own colour, so the wardrobe's colour swaps
-change them with the rest of the outfit.
+change them with the rest of the outfit. Puggle's own rig is drawn by hand, so her lap is added to it
+in place: `python3 tools/sitting_lap.py puggle` from app/ (run again after her rig changes; it replaces
+the lap it added before). Her dress ends at her hips, so her knees are her own colour.
+
+Everything is in proportion to the leg, from the hip to the ankle, so it fits any size of character.
 """
+import json, os, sys
 
 # What covers their thighs, by outfit: the garment ('c'), the trim ('t'), or a colour of its own.
 CHINO = '#D3BE97'
@@ -20,8 +25,9 @@ COVER = {
     ('pop', ''): CHINO, ('pop', 'waistcoat'): 't', ('pop', 'jumper'): 't',
 }
 INK = '#3A2A20'
-# How far their upper half comes down when they sit, in the drawing's units.
-DROP = 24
+# As parts of the leg's length, from the hip to the ankle: how far their upper half comes down when they
+# sit, where the knee starts above the hip's new place, and how deep it is.
+DROP, KNEE_TOP, KNEE_DEPTH = 0.48, 0.28, 0.76
 
 
 def knee(cx, top, half, depth, r):
@@ -38,23 +44,44 @@ def add_lap(rig, kind, variant, garment, trim, shade):
     if cover is None:
         return rig
     fill = {'c': garment, 't': trim}.get(cover, cover)
-    parts = rig['parts']
-    legs = {p['id']: p for p in parts if p['id'] in ('leg-left', 'leg-right')}
-    if len(legs) < 2:
+    return lap(rig, fill, shade(fill))
+
+
+def lap(rig, fill, tint, half=21):
+    """The lap itself: a knee on each leg in `fill`, outlined in `tint`, and the upper half's drop."""
+    parts = [p for p in rig['parts'] if p['id'] != 'lap']
+    by_id = {p['id']: p for p in parts}
+    if 'leg-left' not in by_id or 'leg-right' not in by_id:
         return rig
-    hip = legs['leg-left']['pivot'][1]
+    hip = by_id['leg-left']['pivot'][1]
+    ankle = by_id['foot-left']['pivot'][1]
+    leg = ankle - hip
+    drop = round(DROP * leg, 1)
     shapes = []
     for side in ('left', 'right'):
-        cx = legs[f'leg-{side}']['pivot'][0]
+        cx = by_id[f'leg-{side}']['pivot'][0]
         # Each knee a little wider than the leg, the two just apart, from the hips to where the shin begins.
         cx += -2 if side == 'left' else 2
-        shapes.append({'kind': 'path', 'd': knee(cx, hip + DROP - 14, 21, 38, 17), 'fill': fill, 'stroke': INK,
-                       'tint': shade(fill), 'width': 7})
-    lap = {'id': 'lap', 'parent': 'body', 'pivot': [rig['size'][0] / 2, hip], 'when': 'seat=sitting', 'shapes': shapes}
+        shapes.append({'kind': 'path', 'd': knee(cx, hip + drop - KNEE_TOP * leg, half, KNEE_DEPTH * leg, min(17, half - 3)),
+                       'fill': fill, 'stroke': INK, 'tint': tint, 'width': 7 if half > 18 else 6})
+    part = {'id': 'lap', 'parent': 'body', 'pivot': [rig['size'][0] / 2, hip], 'when': 'seat=sitting', 'shapes': shapes}
     # Over the hips and the trouser legs, under the arms and anything held.
     at = next(i for i, p in enumerate(parts) if p['id'] == 'upper') + 1
-    while at < len(parts) and parts[at]['id'].startswith('trouser-'):
+    while at < len(parts) and parts[at]['id'] in ('dress', 'coat', 'pyjamas') or (at < len(parts) and parts[at]['id'].startswith('trouser-')):
         at += 1
-    parts.insert(at, lap)
-    rig['sitting'] = {'upper': {'y': DROP}}
+    parts.insert(at, part)
+    rig['parts'] = parts
+    rig['sitting'] = {'upper': {'y': drop}}
     return rig
+
+
+if __name__ == '__main__' and sys.argv[1:] == ['puggle']:
+    # Puggle's own rig: her knees are her legs' colour, below a dress that ends at her hips.
+    here = os.path.dirname(os.path.abspath(__file__))
+    path = os.path.join(here, '..', 'Puggle', 'Resources', 'Rigs', 'puggle.rig.json')
+    rig = json.load(open(path))
+    leg = next(p for p in rig['parts'] if p['id'] == 'leg-left')['shapes'][0]
+    rig = lap(rig, leg['fill'], leg['tint'], half=16)
+    with open(path, 'w') as out:
+        json.dump(rig, out, indent=1, ensure_ascii=False)
+    print('puggle: lap added')

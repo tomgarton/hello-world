@@ -541,8 +541,8 @@ struct PuggleHeader: View {
                     .environment(\.moonlit, room == nil && isNight)
                     .environment(\.outfit, wearing)
                     .environment(\.shades, Shades.forOutfit(wearing))
-                    // In the armchair with their legs in front of the seat: sitting, so their lap shows.
-                    .environment(\.seat, company.pose == .armchair && BedroomLayout.current.legsInFront ? "sitting" : "standing")
+                    // In the armchair with their legs in front of the seat, or at the tea table: sitting, so their lap shows.
+                    .environment(\.seat, (company.pose == .armchair && BedroomLayout.current.legsInFront) || (company.pose == .atTable && TeaTable.current == .bare) ? "sitting" : "standing")
                     // In the armchair: as far back as the chair stands, so smaller and higher up.
                     .scaleEffect(company.pose == .armchair ? BedroomLayout.current.chairScale : 1, anchor: .bottom)
                     .offset(x: company.x * width, y: company.pose == .armchair ? BedroomLayout.current.sitterLift : 0)
@@ -555,6 +555,8 @@ struct PuggleHeader: View {
                           warmLight: room.map { dim ? $0.lamp : nil } ?? PuggleScene.lamp(for: .today, night: isNight),
                           lift: lift, tilt: tilt, nod: nod, drop: drop,
                           onTap: tapped, onPutDown: { walkedTo = $0; land() })
+                // At a bare tea table she sits on her chair, her knees and feet showing under it.
+                .environment(\.seat, room == .dining && TeaTable.current == .bare && !holding ? "sitting" : "standing")
                 // She arrives a moment after whoever is with her, so they seem to have been waiting.
                 .arrival(entrance, arrive, edge: Self.edge(from: x, width: width, awayFrom: gathering.first.map { $0.x },
                                                   mine: width > 0 ? x / width : PuggleScene.stand(for: .today)), delay: Self.beat + (gathering.isEmpty ? 0 : 0.2), away: away) { [controller] in
