@@ -38,3 +38,13 @@ final class EveningTests: XCTestCase {
         XCTAssertEqual(evening.pose(minute: 2 * 60, at: now.addingTimeInterval(600)), .asleep)
     }
 }
+
+/// The short age beside a child's name (19 November 2026).
+final class AgeTextTests: XCTestCase {
+    func testTheHalfYearHasItsUnit() {
+        let child = Child(context: Persistence(inMemory: true).viewContext)
+        child.birthDate = Calendar.current.date(byAdding: .month, value: -31, to: .now)
+        XCTAssertEqual(child.ageText, "2½y")
+        XCTAssertEqual(child.ageTextFull, "2½ years")
+    }
+}

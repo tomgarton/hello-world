@@ -179,7 +179,7 @@ struct KidsPiece: View {
     var body: some View {
         let asleep = t >= 1.12
         VStack(spacing: 10) {
-            card("Bea", "2½", initial: "B", colour: 0, asleep: asleep,
+            card("Bea", "2½y", initial: "B", colour: 0, asleep: asleep,
                  status: asleep ? "Asleep · \(t < 3 ? 0 : t < 5 ? 1 : 2)m" : "Awake · 2h", tapAt: 1.0)
             card("Ollie", "5mo", initial: "O", colour: 1, asleep: true, status: "Asleep · \(t < 3 ? 42 : t < 5 ? 43 : 44)m", tapAt: nil)
         }

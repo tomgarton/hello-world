@@ -381,7 +381,7 @@ extension Child {
     var displayName: String { name ?? "Child" }
     var initial: String { String(displayName.prefix(1)).uppercased() }
 
-    /// Compact age for tight spots: "6mo", "1y 3mo", "3w", "2½".
+    /// Compact age for tight spots: "6mo", "1y 3mo", "3w", "2½y".
     var ageText: String { age(.abbreviated) }
 
     /// Their age on a given day, spelled out: for milestones and measurements.
@@ -399,7 +399,8 @@ extension Child {
         let years = comps.year ?? 0, months = comps.month ?? 0
 
         if years >= 2, months >= 6 {
-            return style == .full ? "\(years)½ years" : "\(years)½"
+            // "y" as the formatter writes whole years ("2y"), so the half year reads as an age beside "6mo" (Tom, 19 November 2026).
+            return style == .full ? "\(years)½ years" : "\(years)½y"
         }
 
         let formatter = DateComponentsFormatter()
