@@ -165,20 +165,30 @@ struct ChildCard: View {
             row {
                 ForEach(facts) { fact in factButton(fact, sleep: sleep, asleep: asleep, quiet: quiet) }
             }
-            if let line = underLine(now: now, asleep: asleep) {
-                Text(line)
-                    .font(.footnote)
-                    .foregroundStyle(quiet)
-                    .monospacedDigit()
-                    .padding(.horizontal, 2)
-            }
-            // Milk from bottles today, beside what the tin suggests. Only once there has been a bottle.
-            if !justLog, let milk = MilkDay(child: child, store: store, now: now)?.line {
-                Text(milk)
-                    .font(.footnote)
-                    .foregroundStyle(quiet)
-                    .monospacedDigit()
-                    .padding(.horizontal, 2)
+            // What comes next, and the milk today: a line each, led by its activity's icon (Tom, 19 November 2026).
+            let extras = [underLine(now: now, asleep: asleep),
+                          // Milk from bottles today, beside what the tin suggests. Only once there has been a bottle.
+                          justLog ? nil : MilkDay(child: child, store: store, now: now)?.line.map { (icon: EventKind.bottle.iconName, text: $0) }]
+                .compactMap { $0 }
+            if !extras.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(extras, id: \.text) { extra in
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Image(extra.icon + "-plain")
+                                .renderingMode(.template)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 13, height: 13)
+                                .alignmentGuide(.firstTextBaseline) { $0[.bottom] - 1.5 }
+                                .accessibilityHidden(true)
+                            Text(extra.text)
+                        }
+                    }
+                }
+                .font(.footnote)
+                .foregroundStyle(quiet)
+                .monospacedDigit()
+                .padding(.horizontal, 2)
             }
             if open && store.canLog {
                 ChildActions(child: child, facts: facts.map(\.kind), inside: true, asleep: asleep, onLog: onLog, onPastSleep: onPastSleep)
@@ -192,18 +202,24 @@ struct ChildCard: View {
         .animation(.easeInOut(duration: 0.35), value: asleep)
     }
 
-    /// A medicine that is due comes first; then what comes next, until its time has passed.
-    private func underLine(now: Date, asleep: Bool) -> String? {
+    /// A medicine that is due comes first; then a feed running; then what comes next, until its time has passed.
+    private func underLine(now: Date, asleep: Bool) -> (icon: String, text: String)? {
         if let due = ReminderStore.shared.due(for: child, in: store, now: now).map({ "Due · \($0)" }) ?? store.nextDoseLine(for: child, now: now) {
-            return due
+            return (EventKind.medicine.iconName, due)
         }
         if let feed = store.activeFeed(for: child) {
-            guard !justLog else { return "Feeding" }
-            guard let side = feed.runningSide else { return "Feeding · Paused" }
-            return "Feeding · \(side) · \(Elapsed.minutes(feed.feedSeconds(side, now: now)))"
+            let icon = feed.kind.iconName
+            guard !justLog else { return (icon, "Feeding") }
+            guard let side = feed.runningSide else { return (icon, "Feeding · Paused") }
+            return (icon, "Feeding · \(side) · \(Elapsed.minutes(feed.feedSeconds(side, now: now)))")
         }
         guard !justLog, !asleep, let next = NextUp.soonest(for: child, now: now), next.at > now else { return nil }
-        return next.line
+        let icon = switch next.kind {
+        case .feed: EventKind.bottle.iconName
+        case .sleep: EventKind.sleep.iconName
+        case .nappy: EventKind.nappy.iconName
+        }
+        return (icon, next.line)
     }
 
     private func factButton(_ fact: ChildFact, sleep: Event?, asleep: Bool, quiet: Color) -> some View {
