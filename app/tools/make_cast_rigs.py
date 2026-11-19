@@ -13,7 +13,7 @@ Run it again whenever the canvas drawings change.
 import json, math, os, re, sys
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import bend_arms, sunglasses, sitting_lap
+import bend_arms, sunglasses, sitting_lap, air
 import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -1152,9 +1152,11 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
     for move_name in ('nod', 'greet', 'celebrate', 'wake', 'walk'):
         move = json.loads(json.dumps(moves[move_name]))
         for key in move.get('keys', []):
-            key.pop('face', None)
+            # Only what is in the air comes with it: the same sparkles as hers (see air.py).
+            face = key.pop('face', None) or {}
+            if 'air' in face: key['face'] = {'air': face['air']}
             pose = key.get('pose', {})
-            key['pose'] = {k: v for k, v in pose.items() if k in ids}
+            key['pose'] = {k: v for k, v in pose.items() if k in ids or k in air.IDS}
         borrowed[move_name] = move
     borrowed['greet'] = bend_arms.bend_wave(borrowed['greet'], parts)
     # The shoulders move with the body.
@@ -1191,6 +1193,8 @@ def main():
             rig['wardrobe'] = wardrobe
             if name in TRIM: rig = sitting_lap.add_lap(rig, name, variant, colour, TRIM[name], shade)
             if name in ('kip', 'quill', 'digby', 'sunny'): rig = sitting_lap.friend_lap(rig, shade)
+            # The same Zs and sparkles beside everyone's face as beside Puggle's.
+            rig = air.add_air(rig)
             if name in UMBRELLA: rig = lowered(rig, HEADROOM)
             # Anything drawn above the top of the drawing (Digby's pompom) would be cut off: room is made for it.
             elif top_of(rig) < 2: rig = lowered(rig, math.ceil(2 - top_of(rig)))

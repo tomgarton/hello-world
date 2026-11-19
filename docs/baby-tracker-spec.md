@@ -2662,3 +2662,9 @@ Tom asked for the evening's work to be checked in the simulator before the build
   sometimes a hop, and now and then none) at their own moment, between 1 and 2.6 seconds (`CompanyView.hello`).
 - Also seen: asleep, Puggle's feet poke out below her quilt. Left for Tom to say.
 - Not seen: pulling Today down from on the lamp (the screenshots come after letting go).
+
+## 20 November 2026: the avatar stays put, and the same Zs for everyone
+
+- Your avatar on Today no longer moves down as Today is pulled down. Only the sky stretches.
+- Zs and sparkles are now one shared set (`app/tools/air.py`), placed from the middle of each character's eyes and carried by their head. Everyone who dozes now has Zs, where only Puggle had them before. A celebration brings the same sparkles for a friend as for Puggle.
+- Splashes in puddles stay Puggle's alone, as they belong to her boots rather than to a feeling.

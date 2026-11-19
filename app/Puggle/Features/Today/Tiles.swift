@@ -602,7 +602,8 @@ struct PuggleHeader: View {
         }
         .overlay(alignment: .topTrailing) {
             YouButton(action: onYou)
-                .padding(.top, 58 + pull)
+                // Stays put under the clock while Today is pulled down; only the sky stretches (Tom, 20 November 2026).
+                .padding(.top, 58)
                 .padding(.trailing, 16)
         }
     }

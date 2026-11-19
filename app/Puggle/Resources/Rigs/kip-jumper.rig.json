@@ -2196,6 +2196,95 @@
      "cap": "round"
     }
    ]
+  },
+  {
+   "id": "zed-a",
+   "parent": "head",
+   "pivot": [
+    196.0,
+    93.0
+   ],
+   "when": "air=zzz",
+   "spring": 40,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M190.5 87.5 L201.5 87.5 L190.5 98.5 L201.5 98.5",
+     "stroke": "#8FA3D6",
+     "width": 3.3,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "zed-b",
+   "parent": "head",
+   "pivot": [
+    214.0,
+    71.0
+   ],
+   "when": "air=zzz",
+   "spring": 30,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M210 67 L218 67 L210 75 L218 75",
+     "stroke": "#8FA3D6",
+     "width": 2.4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "sparkle-a",
+   "parent": "head",
+   "pivot": [
+    38.0,
+    109.0
+   ],
+   "when": "air=sparkle",
+   "spring": 120,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M38 98 Q40.4 106.6 49 109 Q40.4 111.4 38 120 Q35.6 111.4 27 109 Q35.6 106.6 38 98 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "sparkle-b",
+   "parent": "head",
+   "pivot": [
+    212.0,
+    151.0
+   ],
+   "when": "air=sparkle",
+   "spring": 90,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M212 143 Q213.8 149.2 220 151 Q213.8 152.8 212 159 Q210.2 152.8 204 151 Q210.2 149.2 212 143 Z",
+     "fill": "#F4C95D"
+    }
+   ]
+  },
+  {
+   "id": "sparkle-c",
+   "parent": "head",
+   "pivot": [
+    66.0,
+    69.0
+   ],
+   "when": "air=sparkle",
+   "spring": 150,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M66 62.5 Q67.4 67.6 72.5 69 Q67.4 70.4 66 75.5 Q64.6 70.4 59.5 69 Q64.6 67.6 66 62.5 Z",
+     "fill": "#F4C95D"
+    }
+   ]
   }
  ],
  "moves": {
@@ -2374,7 +2463,20 @@
       },
       "leg-right": {
        "r": -10
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
       }
+     },
+     "face": {
+      "air": "sparkle"
      }
     },
     {
@@ -2388,7 +2490,19 @@
       },
       "arm-right": {
        "r": -40
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
       }
+     },
+     "face": {
+      "air": "sparkle"
      }
     },
     {
@@ -2414,7 +2528,20 @@
       },
       "head": {
        "r": 5
+      },
+      "sparkle-a": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": 25
+      },
+      "sparkle-b": {
+       "sx": 1.25,
+       "sy": 1.25,
+       "r": -25
       }
+     },
+     "face": {
+      "air": "sparkle"
      }
     },
     {
@@ -2428,7 +2555,19 @@
       },
       "arm-right": {
        "r": -62
+      },
+      "sparkle-a": {
+       "sx": 0.7,
+       "sy": 0.7
+      },
+      "sparkle-c": {
+       "sx": 1.3,
+       "sy": 1.3,
+       "r": 40
       }
+     },
+     "face": {
+      "air": "sparkle"
      }
     },
     {
@@ -2443,11 +2582,17 @@
       "head": {
        "r": -4
       }
+     },
+     "face": {
+      "air": "sparkle"
      }
     },
     {
      "t": 1.5,
-     "pose": {}
+     "pose": {},
+     "face": {
+      "air": "sparkle"
+     }
     },
     {
      "t": 1.9,
