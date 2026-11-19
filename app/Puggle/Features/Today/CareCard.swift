@@ -1,3 +1,4 @@
+import CoreData
 import SwiftUI
 
 /// Looking after, on Today: one quiet card listing, for each thing the family has logged or booked, how long
@@ -9,15 +10,19 @@ struct CareCard: View {
     var onLog: (CareItem) -> Void
     var onSettings: () -> Void
 
-    /// What has been logged or booked for anyone here, in the usual order.
-    private var shown: [CareItem] {
-        store.careItems().filter { item in
-            children.contains { store.lastCare(item.key, for: $0) != nil || store.booked(item.key, for: $0) != nil }
-        }
+    /// Each child's care entries by item, worked out once per drawing of the card.
+    private typealias Index = [NSManagedObjectID: [String: (done: [Event], booked: Event?)]]
+
+    private func has(_ item: CareItem, _ child: Child, in index: Index) -> Bool {
+        guard let entry = index[child.objectID]?[item.key] else { return false }
+        return !entry.done.isEmpty || entry.booked != nil
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        let index: Index = Dictionary(uniqueKeysWithValues: children.map { ($0.objectID, store.careIndex(for: $0)) })
+        // What has been logged or booked for anyone here, in the usual order.
+        let items = store.careItems().filter { item in children.contains { has(item, $0, in: index) } }
+        return VStack(alignment: .leading, spacing: 0) {
             HStack {
                 Text("Looking after").font(.headline)
                 Spacer()
@@ -29,7 +34,6 @@ struct CareCard: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 4)
-            let items = shown
             if items.isEmpty {
                 Button { onLog(.bath) } label: {
                     HStack(spacing: 12) {
@@ -50,7 +54,7 @@ struct CareCard: View {
                 .disabled(!store.canLog)
             } else {
                 ForEach(items) { item in
-                    row(item)
+                    row(item, index)
                     if item.id != items.last?.id {
                         Divider().padding(.leading, 54)
                     }
@@ -62,14 +66,14 @@ struct CareCard: View {
         .background(Palette.paper, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
     }
 
-    private func row(_ item: CareItem) -> some View {
+    private func row(_ item: CareItem, _ index: Index) -> some View {
         Button { onLog(item) } label: {
             HStack(alignment: .top, spacing: 12) {
                 item.image().frame(width: 26, height: 26).padding(.top, 2)
                 VStack(alignment: .leading, spacing: 3) {
                     Text(item.name).fontWeight(.semibold)
-                    ForEach(children.filter { store.lastCare(item.key, for: $0) != nil || store.booked(item.key, for: $0) != nil }) { child in
-                        line(item, child)
+                    ForEach(children.filter { has(item, $0, in: index) }) { child in
+                        line(item, child, index[child.objectID]?[item.key] ?? ([], nil))
                     }
                 }
                 Spacer(minLength: 0)
@@ -84,9 +88,9 @@ struct CareCard: View {
     }
 
     /// One child's line: "Bea · 9 days ago", with the soft mark if it has been a while, or the booking.
-    @ViewBuilder private func line(_ item: CareItem, _ child: Child) -> some View {
+    @ViewBuilder private func line(_ item: CareItem, _ child: Child, _ entry: (done: [Event], booked: Event?)) -> some View {
         let who = children.count > 1 ? "\(child.displayName) · " : ""
-        if let visit = store.booked(item.key, for: child), let at = visit.startedAt {
+        if let visit = entry.booked, let at = visit.startedAt {
             HStack(spacing: 8) {
                 Text(who + CareLine.booked(at)).font(.subheadline).foregroundStyle(Palette.muted)
                 if store.canLog {
@@ -101,14 +105,14 @@ struct CareCard: View {
                     .accessibilityLabel("Mark \(item.name.lowercased()) for \(child.displayName) as done")
                 }
             }
-        } else if let last = store.lastCare(item.key, for: child)?.startedAt {
-            let gap = store.careGap(item, for: child)
+        } else if let last = entry.done.last?.startedAt {
+            let gap = store.careGap(item, for: child, done: entry.done)
             let pastUsual = CareLine.pastUsual(last: last, gap: gap)
             HStack(spacing: 6) {
                 if pastUsual {
                     Circle().fill(Palette.wattle).frame(width: 7, height: 7)
                 }
-                Text(who + text(item, child, last: last)).font(.subheadline).foregroundStyle(Palette.muted)
+                Text(who + text(item, entry.done, last: last)).font(.subheadline).foregroundStyle(Palette.muted)
                 if pastUsual, let gap {
                     Text("· usually \(gap.text.lowercased())").font(.footnote).foregroundStyle(Palette.muted)
                 }
@@ -118,9 +122,9 @@ struct CareCard: View {
     }
 
     /// For brushing, today's count ("Twice today"); for the rest, how long since.
-    private func text(_ item: CareItem, _ child: Child, last: Date) -> String {
+    private func text(_ item: CareItem, _ done: [Event], last: Date) -> String {
         if item.key == CareItem.brushing.key {
-            let today = store.careDone(item.key, for: child).filter { Calendar.current.isDateInToday($0.startedAt ?? .distantPast) }.count
+            let today = done.filter { Calendar.current.isDateInToday($0.startedAt ?? .distantPast) }.count
             switch today {
             case 0: break
             case 1: return "Once today"

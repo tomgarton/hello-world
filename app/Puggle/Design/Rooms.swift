@@ -74,6 +74,7 @@ struct RoomFrame: View {
     var hour = 20
     var weather: Weather = .clear
     var puggleX: CGFloat = 0
+    var puggleShadow = true
     @Environment(\.lineStyle) private var lineStyle
 
     var body: some View {
@@ -81,6 +82,7 @@ struct RoomFrame: View {
         return Canvas { context, size in
             var painter = RoomPainter(context: &context, w: size.width, top: size.height - 250, dark: dark, t: t, hour: hour, weather: weather, style: style)
             painter.puggleX = puggleX
+            painter.puggleShadow = puggleShadow
             painter.paint(room)
         }
         .opacity(appeared ? 1 : 0.6)
@@ -120,6 +122,7 @@ struct RoomPainter {
     let w: CGFloat, top: CGFloat, dark: Bool, t: Double, hour: Int, weather: Weather, style: LineStyle
     /// How far Puggle stands from the middle of the room.
     var puggleX: CGFloat = 0
+    var puggleShadow = true
     /// Fireworks in the window on New Year's Eve and Bonfire Night, lights along the wall at Christmas.
     var special: SpecialDay? = SpecialDay.today
 
@@ -179,16 +182,27 @@ struct RoomPainter {
     private func walls(_ wall: Color, pattern: String, tint: Color) {
         context.fill(Path(CGRect(x: 0, y: 0, width: w, height: top + Self.floor)), with: .color(wall))
         // A quiet repeat of one brand shape, tone on tone, all the way up.
-        var row = 0
-        var y = Self.floor - 34
-        while top + y > -30 {
-            var x: CGFloat = row.isMultiple(of: 2) ? 30 : 64
-            while x < w + 20 {
-                soft(pattern, x, y, 18, tint, turn: row.isMultiple(of: 2) ? 0 : 20)
-                x += 68
+        // The whole repeat is drawn into one layer and coloured once. It was a layer for each shape, dozens
+        // of them twenty times a second, the slowest thing on Today.
+        let image = context.resolve(Image("shape-\(pattern)"))
+        let wallTop = top + Self.floor
+        context.drawLayer { layer in
+            var row = 0
+            var y = Self.floor - 34
+            while top + y > -30 {
+                var x: CGFloat = row.isMultiple(of: 2) ? 30 : 64
+                while x < w + 20 {
+                    var copy = layer
+                    copy.translateBy(x: x, y: top + y)
+                    if !row.isMultiple(of: 2) { copy.rotate(by: .degrees(20)) }
+                    copy.draw(image, in: CGRect(x: -9, y: -9, width: 18, height: 18))
+                    x += 68
+                }
+                y -= 46
+                row += 1
             }
-            y -= 46
-            row += 1
+            layer.blendMode = .sourceIn
+            layer.fill(Path(CGRect(x: 0, y: 0, width: w, height: wallTop)), with: .color(tint))
         }
         // The skirting board, then the floor in the page's own colour with a little shade by the wall.
         rect(0, Self.floor - 7, w, 7, 0, tint.opacity(dark ? 0.9 : 0.75))
@@ -201,8 +215,8 @@ struct RoomPainter {
     private func rug(_ colour: Color, _ edge: Color) {
         oval(w / 2, 228, 96, 15, edge)
         oval(w / 2, 228, 86, 11.5, colour)
-        // Her shadow on it.
-        oval(w / 2 + puggleX, 224, 36, 4.5, Palette.fixedInk.opacity(dark ? 0.3 : 0.12))
+        // Her shadow on it, unless she is being carried.
+        if puggleShadow { oval(w / 2 + puggleX, 224, 36, 4.5, Palette.fixedInk.opacity(dark ? 0.3 : 0.12)) }
     }
 
     /// A window with whatever is outside: the evening sky, or the moon and stars, and rain on the glass.

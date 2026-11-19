@@ -361,7 +361,10 @@ struct PuggleHeader: View {
     @State private var tilt: Double = 0
     /// Where she has been walked to, in points from the middle. Nil until she is moved: she starts a little to one side.
     @State private var walkedTo: CGFloat?
-    @State private var walkStart: CGFloat?
+    /// Where she is while being carried. Read only by her own view, so a drag moves her and nothing else.
+    @State private var carry = Carry()
+    /// True while a finger is carrying her: the scene leaves out her shadow and she draws her own.
+    @State private var holding = false
     /// True for a moment after a walk, so letting go of her is not taken for a tap.
     @State private var justWalked = false
     @State private var lastTap: Date?
@@ -471,68 +474,34 @@ struct PuggleHeader: View {
         let x = canWalk ? min(max(walkedTo ?? home, -reach), reach) : 0
         // In the backyard on a fine day she gets her bubble wand out now and then.
         let fine = ["none", "sun"].contains(weather.outfit(night: false))
-        let canBubble = room == nil && SceneKind.today == .backyard && !PuggleScene.isNight(dark: dim) && fine && !quiet && !reduceMotion && appeared
+        // Asked once here: working it out means drawing a frame of the scene.
+        let isNight = PuggleScene.isNight(dark: dim)
+        let canBubble = room == nil && SceneKind.today == .backyard && !isNight && fine && !quiet && !reduceMotion && appeared && !holding
         return ZStack(alignment: .bottom) {
-            PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x)
+            PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x, puggleShadow: !holding)
             // Whoever is with her today stands behind her, on the same ground.
             if let company = Company.today(kind: .today, room: room,
-                                           afterDark: room == nil && (PuggleScene.isNight(dark: dim) || Room.hourNow >= 18)) {
+                                           afterDark: room == nil && (isNight || Room.hourNow >= 18)) {
                 // Dressed for the weather when they are out in it, as she is.
-                let wearing = room == nil ? weather.outfit(night: PuggleScene.isNight(dark: dim)) : "none"
+                let wearing = room == nil ? weather.outfit(night: isNight) : "none"
                 CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim, rain: wearing == "rain",
-                            weather: room == nil ? weather : nil, night: PuggleScene.isNight(dark: dim))
-                    .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
+                            weather: room == nil ? weather : nil, night: isNight)
+                    .environment(\.moonlit, room == nil && isNight)
                     .environment(\.outfit, wearing)
                     .environment(\.shades, Shades.forOutfit(wearing))
                     .offset(x: company.x * width)
                     .padding(.bottom, 26)
                     .id("\(company.member.rawValue)-\(wearing)")
             }
-            Button {
-                if justWalked { justWalked = false } else {
-                    // The first tap in a while takes her by surprise: she is shy for a moment, then herself.
-                    let first = lastTap.map { Date.now.timeIntervalSince($0) > 600 } ?? true
-                    lastTap = .now
-                    if first { controller.rig?.feel(.shy, for: 1.3) } else { react() }
-                    reactions += 1
-                }
-            } label: {
-                PuggleView(controller: controller)
-                    .environment(\.moonlit, room == nil && PuggleScene.isNight(dark: dim))
-                    .environment(\.outfit, room?.outfit ?? weather.outfit(night: PuggleScene.isNight(dark: dim)))
-                    .environment(\.shades, Shades.forOutfit(room?.outfit ?? weather.outfit(night: PuggleScene.isNight(dark: dim))))
-                    .environment(\.warmLight, room.map { dim ? $0.lamp : nil } ?? PuggleScene.lamp(for: .today, night: PuggleScene.isNight(dark: dim)))
-                    .frame(height: 118)
-                    .scaleEffect(x: 1, y: 1 - nod * 0.06, anchor: .bottom)
-                    .offset(y: lift + nod * 3)
-                    .rotationEffect(.degrees(tilt), anchor: .bottom)
-            }
-            .buttonStyle(.plain)
-            // Drag her sideways and she walks there, and stays.
-            .simultaneousGesture(DragGesture(minimumDistance: 12)
-                .onChanged { drag in
-                    guard canWalk, walkStart != nil || abs(drag.translation.width) > abs(drag.translation.height) else { return }
-                    if walkStart == nil { walkStart = x }
-                    justWalked = true
-                    walkedTo = min(max((walkStart ?? 0) + drag.translation.width, -reach), reach)
-                    if !quiet && !reduceMotion { controller.walking = true }
-                }
-                .onEnded { _ in
-                    guard walkStart != nil else { return }
-                    walkStart = nil
-                    controller.walking = false
-                    Haptics.tap()
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { justWalked = false }
-                })
-            .offset(x: x)
-            // She pops up from behind the hill when Today first opens.
-            .offset(y: appeared ? 0 : 60)
-            .opacity(appeared ? 1 : 0)
-            .padding(.bottom, 26)
-            .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
-            .accessibilityHint("Says hello")
-            .accessibilityAction(named: "Walk left") { if canWalk { walkedTo = max(x - 60, -reach) } }
-            .accessibilityAction(named: "Walk right") { if canWalk { walkedTo = min(x + 60, reach) } }
+            CarriedPuggle(controller: controller, carry: carry, restX: x, reach: reach, canWalk: canWalk, quiet: quiet,
+                          holding: $holding, justWalked: $justWalked, shadowNight: room == nil && isNight,
+                          outfit: room?.outfit ?? weather.outfit(night: isNight),
+                          warmLight: room.map { dim ? $0.lamp : nil } ?? PuggleScene.lamp(for: .today, night: isNight),
+                          lift: lift, tilt: tilt, nod: nod, onTap: tapped, onPutDown: { walkedTo = $0; land() })
+                // She pops up from behind the hill when Today first opens.
+                .offset(y: appeared ? 0 : 60)
+                .opacity(appeared ? 1 : 0)
+                .padding(.bottom, 26)
             // Her bubbles, rising from the wand in her right hand. Only while she is making them.
             TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !controller.makingBubbles)) { timeline in
                 Bubbles(t: timeline.date.timeIntervalSince(SceneClock.start), margin: 20)
@@ -555,8 +524,8 @@ struct PuggleHeader: View {
                 }
             }
             // Out in the rain: the nearest drops in front of her, pops on her hat and shoulders, drips off her brim.
-            if room == nil {
-                PuggleRain(weather: weather, night: PuggleScene.isNight(dark: dim), puggleX: x)
+            if room == nil, !holding {
+                PuggleRain(weather: weather, night: isNight, puggleX: x)
                     .opacity(appeared ? 1 : 0)
             }
             // The tea table stands in front of her.
@@ -581,12 +550,31 @@ struct PuggleHeader: View {
     private func pulled(to amount: CGFloat) {
         pull = amount
         // While the sky is being pulled down she walks on the spot.
-        controller.walking = amount > 24 && !quiet
+        let walk = amount > 24 && !quiet
+        if controller.walking != walk { controller.walking = walk }
         if amount > furthest { furthest = amount }
         if amount < 4 {
             if furthest > 120 { react() }
             furthest = 0
         }
+    }
+
+    private func tapped() {
+        if justWalked { justWalked = false; return }
+        // The first tap in a while takes her by surprise: she is shy for a moment, then herself.
+        let first = lastTap.map { Date.now.timeIntervalSince($0) > 600 } ?? true
+        lastTap = .now
+        if first { controller.rig?.feel(.shy, for: 1.3) } else { react() }
+        reactions += 1
+    }
+
+    /// Put down: she lands with a little squash and a wag.
+    private func land() {
+        Haptics.tap()
+        guard !reduceMotion else { return }
+        controller.rig?.play("wag")
+        withAnimation(.easeOut(duration: 0.08)) { nod = quiet ? 0.5 : 1 }
+        withAnimation(.spring(duration: 0.35, bounce: 0.35).delay(0.08)) { nod = 0 }
     }
 
     private func react() {
@@ -611,6 +599,116 @@ struct PuggleHeader: View {
             withAnimation(.spring(duration: 0.4, bounce: 0.45).delay(0.18)) { lift = 0 }
         }
     }
+}
+
+/// Where Puggle is while a finger carries her, and how far she swings. Watched only by `CarriedPuggle`.
+@Observable final class Carry {
+    var x: CGFloat?
+    var start: CGFloat?
+    var sway: Double = 0
+    @ObservationIgnored var settle: Task<Void, Never>?
+}
+
+/// Puggle on Today. Tap her and she answers; pick her up and carry her sideways and she is lifted off the
+/// ground, legs kicking, swinging a little behind the finger, then lands where she is put down. Only this
+/// view follows the finger, so a drag never redraws the scene behind her.
+private struct CarriedPuggle: View {
+    @ObservedObject var controller: PuggleController
+    let carry: Carry
+    let restX: CGFloat
+    let reach: CGFloat
+    let canWalk: Bool
+    let quiet: Bool
+    @Binding var holding: Bool
+    @Binding var justWalked: Bool
+    let shadowNight: Bool
+    let outfit: String
+    let warmLight: UnitPoint?
+    let lift: CGFloat
+    let tilt: Double
+    let nod: CGFloat
+    let onTap: () -> Void
+    let onPutDown: (CGFloat) -> Void
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        let x = carry.x ?? restX
+        let up = holding && !reduceMotion
+        ZStack(alignment: .bottom) {
+            // Her shadow stays on the ground while she is up, smaller and fainter.
+            if holding {
+                Ellipse().fill(shadowNight ? Color(hex: 0x15163A).opacity(0.2) : Palette.fixedInk.opacity(0.06))
+                    .frame(width: 48, height: 7)
+                    .offset(y: 3.5)
+                    .transition(.opacity)
+            }
+            Button(action: onTap) {
+                PuggleView(controller: controller)
+                    .environment(\.moonlit, shadowNight)
+                    .environment(\.outfit, outfit)
+                    .environment(\.shades, Shades.forOutfit(outfit))
+                    .environment(\.warmLight, warmLight)
+                    .frame(height: 118)
+                    // Held up, she hangs a little longer; put down, she squashes as she lands.
+                    .scaleEffect(x: up ? 0.97 : 1, y: (1 - nod * 0.06) * (up ? 1.04 : 1), anchor: .bottom)
+                    .offset(y: lift + nod * 3 + (up ? -26 : 0))
+                    .rotationEffect(.degrees(tilt), anchor: .bottom)
+                    // She hangs from the finger, so she swings from the top.
+                    .rotationEffect(.degrees(carry.sway), anchor: .top)
+                    .animation(.spring(duration: 0.32, bounce: 0.25), value: up)
+                    .animation(.spring(response: 0.5, dampingFraction: 0.42), value: carry.sway)
+            }
+            // Not dimmed while pressed: she is held for as long as she is carried, and stays herself.
+            .buttonStyle(Undimmed())
+            .simultaneousGesture(carrying)
+        }
+        .offset(x: x)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(quiet ? "Puggle, being quiet" : "Puggle")
+        .accessibilityHint("Says hello")
+        .accessibilityAction(named: "Walk left") { if canWalk { onPutDown(max(x - 60, -reach)) } }
+        .accessibilityAction(named: "Walk right") { if canWalk { onPutDown(min(x + 60, reach)) } }
+    }
+
+    private var carrying: some Gesture {
+        DragGesture(minimumDistance: 12)
+            .onChanged { drag in
+                guard canWalk, carry.start != nil || abs(drag.translation.width) > abs(drag.translation.height) else { return }
+                if carry.start == nil {
+                    carry.start = restX
+                    justWalked = true
+                    withAnimation(.easeOut(duration: 0.2)) { holding = true }
+                    controller.held = true
+                    Haptics.tap()
+                }
+                carry.x = min(max((carry.start ?? 0) + drag.translation.width, -reach), reach)
+                guard !reduceMotion else { return }
+                // She swings behind the finger, more the faster it goes, and back to hanging straight when it stops.
+                carry.sway = Double(min(max(drag.velocity.width / 70, -14), 14))
+                carry.settle?.cancel()
+                carry.settle = Task { @MainActor in
+                    try? await Task.sleep(for: .milliseconds(90))
+                    if !Task.isCancelled { carry.sway = 0 }
+                }
+            }
+            .onEnded { _ in
+                guard carry.start != nil else { return }
+                let at = carry.x ?? restX
+                carry.settle?.cancel()
+                carry.start = nil
+                carry.sway = 0
+                controller.held = false
+                holding = false
+                onPutDown(at)
+                carry.x = nil
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { justWalked = false }
+            }
+    }
+}
+
+/// A button that shows no pressed look of its own.
+private struct Undimmed: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View { configuration.label.contentShape(Rectangle()) }
 }
 
 /// Your photo (or initial), top right of Today. Opens the "You" sheet.

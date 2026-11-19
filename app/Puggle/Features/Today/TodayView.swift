@@ -29,8 +29,9 @@ struct TodayView: View {
     @State private var editing: EditTarget?
     /// An entry opened to read, from Today so far.
     @State private var looking: EditTarget?
-    /// How far Today has scrolled up, for the soft edge under the clock.
-    @State private var scrolledUp: CGFloat = 0
+    /// How far Today has scrolled up, for the soft edge under the clock. Kept outside Today's own state and
+    /// read only by the edge, so scrolling redraws the edge and not the whole page on every frame.
+    @State private var scroll = ScrollDepth()
     @State private var dayOf: Child?
     @State private var addingChild = false
     /// True once this phone has ever shown a child, so an empty Today is never the cheerful first-time one again.
@@ -101,7 +102,7 @@ struct TodayView: View {
                     header
                         .background(GeometryReader { geometry in
                             Color.clear.onChange(of: geometry.frame(in: .named("todayScroll")).minY) { _, y in
-                                scrolledUp = max(-y, 0)
+                                scroll.up = max(-y, 0)
                             }
                         })
                     SampleBanner()
@@ -150,7 +151,7 @@ struct TodayView: View {
             .ignoresSafeArea(edges: .top)
             // Only once the cards reach the clock; over the sky it isn't needed.
             .overlay(alignment: .top) {
-                TopScrim(strength: Double(min(max((scrolledUp - PuggleHeader.sceneHeight + 110) / 60, 0), 1)))
+                ScrollScrim(scroll: scroll)
             }
             .toolbar(.hidden, for: .navigationBar)
             // Floats above the tab bar, so saving never moves the tile under your thumb.
@@ -489,6 +490,19 @@ struct TodayView: View {
 
 /// One row per child: who is asleep, or what happened last. Tapping the row
 /// shows their day so far; the button starts and stops their sleep.
+/// How far Today has scrolled. Only the views that read `up` are redrawn when it changes.
+@Observable final class ScrollDepth {
+    var up: CGFloat = 0
+}
+
+/// The soft edge under the clock, once the cards reach it; over the sky it isn't needed.
+private struct ScrollScrim: View {
+    let scroll: ScrollDepth
+    var body: some View {
+        TopScrim(strength: Double(min(max((scroll.up - PuggleHeader.sceneHeight + 110) / 60, 0), 1)))
+    }
+}
+
 struct ChildStatusRow: View {
     @EnvironmentObject private var store: FamilyStore
     @ObservedObject var child: Child

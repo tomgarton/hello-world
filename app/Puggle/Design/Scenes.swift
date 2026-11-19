@@ -43,6 +43,20 @@ enum SkyPhase {
     /// With the weather switched on it follows the real sunrise and sunset where the family is;
     /// without, it keeps to fixed hours. `exact` is nil when an hour is being forced for checking.
     static func at(hour: Int, exact: Date?) -> SkyPhase {
+        // The scene asks many times a frame; the answer only changes from one minute to the next.
+        if let exact {
+            let minute = Int(exact.timeIntervalSince1970 / 60)
+            if let kept, kept.minute == minute, kept.hour == hour { return kept.phase }
+            let phase = work(hour: hour, exact: exact)
+            kept = (minute, hour, phase)
+            return phase
+        }
+        return work(hour: hour, exact: nil)
+    }
+
+    nonisolated(unsafe) private static var kept: (minute: Int, hour: Int, phase: SkyPhase)?
+
+    private static func work(hour: Int, exact: Date?) -> SkyPhase {
         if let exact, let sun = WeatherWatch.sun(on: exact) {
             if exact < sun.rise.addingTimeInterval(-40 * 60) || exact >= sun.set.addingTimeInterval(40 * 60) { return .night }
             if exact < sun.rise.addingTimeInterval(90 * 60) { return .dawn }
@@ -81,6 +95,8 @@ struct PuggleScene: View {
     var rooms = false
     /// How far Puggle stands from the middle, so her shadow is under her.
     var puggleX: CGFloat = 0
+    /// False while she is carried: she draws her own shadow then.
+    var puggleShadow = true
     /// For pictures of each season. Nil means the season it is.
     var season: SplashLook.Season?
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -93,13 +109,13 @@ struct PuggleScene: View {
         if still || reduceMotion {
             // Half a second in, so rain and snow are already falling in a still picture.
             SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride, t: 0.5, weather: weather, rooms: rooms, puggleX: puggleX,
-                       seasonOverride: season, stillRain: reduceMotion)
+                       puggleShadow: puggleShadow, seasonOverride: season, stillRain: reduceMotion)
         } else {
             // Thirty times a second is plenty for things that drift and sway.
             TimelineView(.animation(minimumInterval: 1.0 / 30)) { timeline in
                 SceneFrame(kind: kind, dark: dark, appeared: appeared, pull: pull, hourOverride: hourOverride,
                            t: timeline.date.timeIntervalSince(SceneClock.start), weather: weather, rooms: rooms, puggleX: puggleX,
-                           seasonOverride: season)
+                           puggleShadow: puggleShadow, seasonOverride: season)
             }
         }
     }
@@ -144,6 +160,7 @@ struct SceneFrame: View {
     var weather: Weather = .clear
     var rooms = false
     var puggleX: CGFloat = 0
+    var puggleShadow = true
     var seasonOverride: SplashLook.Season?
     /// With Reduce Motion nothing lands or drips: the scene is a still picture then.
     var stillRain = false
@@ -186,7 +203,7 @@ struct SceneFrame: View {
 
     var body: some View {
         if rooms, let room = Room.at(hour: hour, dark: dark) {
-            RoomFrame(room: room, dark: dark, appeared: appeared, pull: pull, t: t, hour: hour, weather: weather, puggleX: puggleX)
+            RoomFrame(room: room, dark: dark, appeared: appeared, pull: pull, t: t, hour: hour, weather: weather, puggleX: puggleX, puggleShadow: puggleShadow)
         } else {
             outdoors
         }
@@ -247,8 +264,10 @@ struct SceneFrame: View {
                     seasonal(w, h)
                     specialGround(w, h)
                     // Puggle's shadow, so she stands on the hill.
-                    Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
-                        .frame(width: 72, height: 9).position(x: w / 2 + puggleX, y: h - 27)
+                    if puggleShadow {
+                        Ellipse().fill(starry ? Color(hex: 0x15163A).opacity(0.32) : Palette.fixedInk.opacity(0.1))
+                            .frame(width: 72, height: 9).position(x: w / 2 + puggleX, y: h - 27)
+                    }
                     friend(w, h)
                     // Drops landing on the friend, the fence, the ground and the water, and drips off edges.
                     if let strength = Rain.strength(weather), !stillRain {

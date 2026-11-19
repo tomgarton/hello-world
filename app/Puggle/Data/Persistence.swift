@@ -87,8 +87,12 @@ final class Persistence {
         viewContext.transactionAuthor = "app"
     }
 
+    /// True while many entries are being made at once (the sample family): each save waits, and one
+    /// save at the end keeps them all. Saving after each of hundreds made opening the sample take seconds.
+    var holdingSaves = false
+
     func save() {
-        guard viewContext.hasChanges else { return }
+        guard viewContext.hasChanges, !holdingSaves else { return }
         if readOnly {
             viewContext.rollback()
             return

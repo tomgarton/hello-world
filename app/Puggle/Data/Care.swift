@@ -119,12 +119,30 @@ extension FamilyStore {
             .min { ($0.startedAt ?? .distantFuture) < ($1.startedAt ?? .distantFuture) }
     }
 
+    /// Every care entry for a child in one pass, by item: done ones oldest first, and the next booked.
+    /// For Today, which would otherwise go through all the child's entries once per item, per line.
+    func careIndex(for child: Child) -> [String: (done: [Event], booked: Event?)] {
+        var index: [String: (done: [Event], booked: Event?)] = [:]
+        for event in child.events ?? [] where event.kind == .care && event.isLive {
+            guard let key = event.detail else { continue }
+            if event.isBooked {
+                let kept = index[key]?.booked
+                if kept == nil || (event.startedAt ?? .distantFuture) < (kept?.startedAt ?? .distantFuture) { index[key, default: ([], nil)].booked = event }
+            } else {
+                index[key, default: ([], nil)].done.append(event)
+            }
+        }
+        for key in index.keys { index[key]?.done.sort { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) } }
+        return index
+    }
+
     /// How often it happens for this child: as a parent set it, else as learned, else a starting guess.
-    func careGap(_ item: CareItem, for child: Child) -> CareGap? {
+    /// `done` is the child's done entries for the item, if already to hand.
+    func careGap(_ item: CareItem, for child: Child, done: [Event]? = nil) -> CareGap? {
         if let set = guides(.care).first(where: { $0.key == item.key }), set.gapHours > 0 {
             return CareGap(days: set.gapHours / 24, source: .set)
         }
-        if let learned = Self.learnedGap(careDone(item.key, for: child).compactMap(\.startedAt)) {
+        if let learned = Self.learnedGap((done ?? careDone(item.key, for: child)).compactMap(\.startedAt)) {
             return CareGap(days: learned, source: .learned)
         }
         return item.startingGap(ageMonths: child.ageMonths).map { CareGap(days: $0, source: .starting) }

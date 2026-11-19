@@ -2462,3 +2462,32 @@ doctor, a family's own), the night sky by hemisphere, the five special days, clo
 friend's umbrella, and One Boot at the house. No new synced fields, so no CloudKit deploy is needed; a phone
 still on an older build shows care entries as notes. Apple warned that from April 2027 uploads need the iOS 27
 SDK (Xcode 27).
+
+## Speed pass, and carrying Puggle (19 November 2026)
+
+Tom found the app laggy, and dragging Puggle stuttery. Measured by sampling the app in the simulator on Today,
+idle, scrolling and dragging, then fixed what showed up most:
+
+- **The room's wallpaper** was drawn as a separate layer for every shape, dozens of them twenty times a
+  second: the single slowest thing on Today. Now the whole repeat is drawn into one layer and coloured once.
+- **The characters** re-read every outline from text on every frame. Each outline is now read once and kept;
+  each drawing file is read once too.
+- **Scrolling Today** rebuilt the whole page on every frame, because the scroll position was kept in Today's
+  own state. Only the soft edge under the clock reads it now.
+- **Looking after** went through every entry for each child several times per item each time it drew. It now
+  goes through them once per child.
+- **Dragging Puggle** rebuilt the sky, the room and her friend on every finger movement, and asked several
+  times whether it was night. Now only she follows the finger, and the scene changes once when she is picked up
+  and once when she is put down.
+- **Today's special day and the sky's part of the day** were worked out many times a frame; now once a minute.
+- **The sample family** saved after each of several hundred entries, and opened in about fifteen seconds in
+  the simulator. It saves once at the end now, in about six.
+
+**Carrying Puggle.** Picking her up lifts her off the ground: arms out and hands up, legs kicking in turn,
+tail swinging, happy eyes and raised brows (a new looping move, `held`, in her rig). She swings a little
+behind the finger, more the faster it moves, and hangs straight when it stops. Her shadow stays on the ground,
+smaller and fainter. Put down, she lands with a small squash, a wag and a tap. She is no longer dimmed while
+pressed. While the children are asleep she stays asleep when carried: lifted and swinging, without the kicks.
+With Reduce Motion she moves along the ground as before, without the lift or the swing.
+
+Not yet checked on a phone: the frame rate there, and how the held move feels under a real finger.

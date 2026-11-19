@@ -30,10 +30,14 @@ enum PuggleRive {
 /// the view shows the still image, so the app works either way.
 @MainActor
 final class PuggleController: ObservableObject {
-    @Published var asleep = false { didSet { push() } }
+    // Each pushes only when it changes: a drag sets them on every movement, and publishing each time
+    // redrew the whole of Today's header under the finger.
+    @Published var asleep = false { didSet { if asleep != oldValue { push() } } }
     /// Her rig, drawn and moved by the app itself (Design/Rig.swift). Used whenever there is no Rive file.
     let rig: RigRuntime? = Rig.load("puggle").map(RigRuntime.init)
-    @Published var walking = false { didSet { push() } }
+    @Published var walking = false { didSet { if walking != oldValue { push() } } }
+    /// Picked up and carried by a finger.
+    @Published var held = false { didSet { if held != oldValue { push() } } }
     /// She has her bubble wand out. Anything else she is asked to do puts it away.
     @Published private(set) var makingBubbles = false
 
@@ -111,9 +115,10 @@ final class PuggleController: ObservableObject {
     }
 
     private func push() {
-        if asleep || walking { bubbles(false) }
+        if asleep || walking || held { bubbles(false) }
         rig?.asleep = asleep
         rig?.walking = walking
+        rig?.carried = held
         #if canImport(RiveRuntime)
         rive?.setInput(PuggleRive.Input.asleep, value: asleep)
         rive?.setInput(PuggleRive.Input.walking, value: walking)

@@ -113,10 +113,20 @@ struct Rig: Codable {
         var sx: Double?, sy: Double?
     }
 
+    /// Drawings already read, by name. Each file is read and decoded once; a portrait or a friend
+    /// appearing again takes the copy kept here.
+    nonisolated(unsafe) private static var loaded: [String: Rig] = [:]
+    private static let loadLock = NSLock()
+
     static func load(_ name: String) -> Rig? {
+        loadLock.lock()
+        defer { loadLock.unlock() }
+        if let kept = loaded[name] { return kept }
         guard let url = Bundle.main.url(forResource: "\(name).rig", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else { return nil }
-        return try? JSONDecoder().decode(Rig.self, from: data)
+              let data = try? Data(contentsOf: url),
+              let rig = try? JSONDecoder().decode(Rig.self, from: data) else { return nil }
+        loaded[name] = rig
+        return rig
     }
 }
 
@@ -317,8 +327,22 @@ enum RigRenderer {
         }
     }
 
+    /// Paths already read, by their text. Every character is drawn many times a second from the same few
+    /// hundred paths, so each is read once.
+    nonisolated(unsafe) private static var read: [String: Path] = [:]
+    private static let readLock = NSLock()
+
     /// Reads "M88 166 Q120 156 152 166 L180 244 Z": absolute M, L, Q, C and Z.
     static func path(from d: String) -> Path {
+        readLock.lock()
+        defer { readLock.unlock() }
+        if let kept = read[d] { return kept }
+        let path = parse(d)
+        read[d] = path
+        return path
+    }
+
+    private static func parse(_ d: String) -> Path {
         var path = Path()
         var command: Character = "M"
         var numbers: [CGFloat] = []
@@ -445,6 +469,14 @@ final class RigRuntime {
         didSet {
             guard walking != oldValue else { return }
             if walking { play("walk") } else if playing["body"]?.name == "walk" { playing["body"] = nil }
+        }
+    }
+
+    /// Being carried, for as long as this is true: lifted, legs kicking.
+    var carried = false {
+        didSet {
+            guard carried != oldValue else { return }
+            if carried { play("held") } else if playing["body"]?.name == "held" { playing["body"] = nil }
         }
     }
 

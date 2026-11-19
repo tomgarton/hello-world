@@ -25,7 +25,10 @@ final class SampleFamily: ObservableObject {
             #endif
             let sample = FamilyStore(persistence: big ? Persistence(scratch: true) : Persistence(inMemory: true))
             sample.isSample = true
+            sample.persistence.holdingSaves = true
             SampleData(store: sample).fill()
+            sample.persistence.holdingSaves = false
+            sample.persistence.save()
             sample.authorOverride = nil
             #if DEBUG
             // For checking the app with a long history, as after an import: "-debugBig 150" adds that many

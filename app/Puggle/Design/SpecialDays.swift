@@ -88,8 +88,15 @@ enum SpecialDay: String, CaseIterable, Identifiable {
         if let forced = defaults.string(forKey: "debugDay") { return SpecialDay(rawValue: forced) }
         #endif
         guard defaults.object(forKey: onKey) as? Bool ?? true else { return nil }
-        return on(.now, region: Locale.current.region?.identifier)
+        // Asked for by every frame of the scene, so worked out once a minute, not each time.
+        let now = Date.now
+        if let kept = Self.kept, now < kept.until { return kept.day }
+        let day = on(now, region: Locale.current.region?.identifier)
+        kept = (now.addingTimeInterval(60), day)
+        return day
     }
+
+    nonisolated(unsafe) private static var kept: (until: Date, day: SpecialDay?)?
 
     /// Fireworks in the night sky, and in the window after dark.
     var fireworks: Bool { self == .newYearsEve || self == .bonfireNight }
