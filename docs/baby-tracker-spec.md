@@ -2578,3 +2578,9 @@ sitting pose, so whoever sits there is drawn standing and lowered behind the sea
 - Not done: the same pose at the tea table, where the cloth still hides everyone's legs.
 - Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator for all four
   grown-ups, one outfit each, reading time only; not dozing, not on a phone.
+
+**TestFlight, 19 November 2026, about 18:48 UTC:** an upload of 0.1.0 from the second Mac, from commit 96eb56b,
+pushed to GitHub first. App Store Connect gives it its number (probably build 17). It carries the seven commits
+from the first Mac, rebuilt from patches (the speed pass, carrying Puggle, tea, bedtime and sleepovers, the
+entrance, the sleep button under four, "2½y", icons on fact lines, potty and nappy together), and the armchair
+with the grown-ups' new sitting pose. No new synced fields.
