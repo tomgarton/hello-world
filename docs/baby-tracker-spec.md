@@ -2625,7 +2625,8 @@ lamp hanging over the tea table.
   **tap** pushes it away from the side tapped. One light haptic tick when let go or tapped.
 - **Gentle:** it never swings past about 34°, it settles in a few seconds, and nothing flashes. A longer cord
   (Today pulled down) swings a little slower.
-- **Reduce Motion:** it only leans and comes back, with no swing.
+- **Reduce Motion:** the lamp takes no touches, and a drag on it pulls Today down like anywhere else. Reduce
+  Motion already stops the scene redrawing as time passes, so a swing could not be seen (found checking it).
 - **Only the lamp catches touches:** a patch over where it hangs. A drag anywhere else on the scene still pulls
   Today down.
 - `Design/LampSwing.swift` (the swing, worked out each time the room is drawn, and the patch that takes the
@@ -2641,3 +2642,23 @@ d006065 (not yet pushed to GitHub when it was sent). App Store Connect gives it 
 rearranged one-child Lock Screen card, everyone seated at a bare tea table (the grown-ups, Puggle and the
 friends, each with a lap), the tea lamp that swings when tapped or dragged, and Puggle watching it. The first
 attempt stopped at "Failed to Use Accounts" until Tom signed in to Xcode on this Mac again. No new synced fields.
+
+## Checks, and three fixes (19 November 2026, evening)
+
+Tom asked for the evening's work to be checked in the simulator before the build reached him.
+
+- **Seen and fine:** the tea table and the armchair in dark; Nan dozing in the armchair at 21:00, in light and dark;
+  Quill in dungarees and his jumper, Digby in dungarees and Kip in her jumper at tea; the one-child Lock Screen card
+  while asleep (Woke up at the top right, what comes next under the facts) and while feeding.
+- **The empty bedroom at 19:00** seen earlier was the phone being locked: going to the background hides everyone so
+  they can arrive again on return. Not a fault.
+- **Fixed: the lamp under Reduce Motion.** It never moved, since Reduce Motion stops the scene redrawing. Now it
+  takes no touches there, and a drag on it pulls Today down. The spec above is updated.
+- **Fixed: Digby's hat** (Tom). The pompom reached above the top of his drawing and was cut off. Any drawing that
+  reaches above its top now gets room made for it by `make_cast_rigs.py` (`top_of`); only Digby's two rigs changed,
+  by 11 units. He is the same size.
+- **Fixed: the hellos** (Tom: randomise them). Everyone used to wave the same wave 1.4 seconds after arriving, so a
+  tea table waved in step. Each now picks their own hello (a wave with either hand, a nod, for the children
+  sometimes a hop, and now and then none) at their own moment, between 1 and 2.6 seconds (`CompanyView.hello`).
+- Also seen: asleep, Puggle's feet poke out below her quilt. Left for Tom to say.
+- Not seen: pulling Today down from on the lamp (the screenshots come after letting go).

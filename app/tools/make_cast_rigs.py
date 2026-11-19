@@ -531,6 +531,19 @@ UMBRELLA = {'nan', 'quill', 'kip', 'sunny'}     # the rest wear a raincoat
 SIDEROOM = 60                                   # how far the canopy reaches past their side, held beside the face
 HEADROOM = 62                                   # space above the head for an open umbrella, in the drawing's units
 
+def top_of(rig):
+    """How high the drawing reaches, in its own units: below 0 is above the top of its box. Parts shown only for a
+    face (a held thing, a feeling) count too; parts for rain or sun only when their outfit is the everyday one."""
+    top = rig['size'][1]
+    for part in rig['parts']:
+        for shp in part['shapes']:
+            if 'd' in shp: ys = [float(v) for v in re.findall(r'-?[\d.]+', shp['d'])[1::2]]
+            elif shp.get('kind') == 'ellipse': ys = [shp['y'] - shp.get('ry', 0)]
+            elif shp.get('kind') == 'rect': ys = [shp['y']]
+            else: continue
+            if ys: top = min(top, min(ys) - shp.get('width', 0) / 2)
+    return top
+
 def lowered(rig, by):
     """The whole drawing moved down, to leave room above it."""
     for part in rig['parts']:
@@ -1179,6 +1192,8 @@ def main():
             if name in TRIM: rig = sitting_lap.add_lap(rig, name, variant, colour, TRIM[name], shade)
             if name in ('kip', 'quill', 'digby', 'sunny'): rig = sitting_lap.friend_lap(rig, shade)
             if name in UMBRELLA: rig = lowered(rig, HEADROOM)
+            # Anything drawn above the top of the drawing (Digby's pompom) would be cut off: room is made for it.
+            elif top_of(rig) < 2: rig = lowered(rig, math.ceil(2 - top_of(rig)))
             if name in UMBRELLA: rig['sideroom'] = SIDEROOM
             elif any(p['id'] == 'wand' for p in rig['parts']): rig['sideroom'] = 30
             with open(f'{RIGS}/{name}{"-" + variant if variant else ""}.rig.json', 'w') as out:

@@ -303,6 +303,16 @@ struct CompanyView: View {
         _controller = StateObject(wrappedValue: CastController(company.member, rig: outfit.rig, look: outfit.look, rain: rain))
     }
 
+    /// A hello, picked each time: a wave with either hand or a nod, and for the children sometimes a hop.
+    /// Now and then none at all: they just look up and carry on.
+    static func hello(for member: CastMember, has: (String) -> Bool) -> String? {
+        var choices = ["greet", "greet", "greet-left", "greet-left", "nod"]
+        if !member.grownUp { choices += ["celebrate"] }
+        choices += [""]
+        let pick = choices.filter { $0.isEmpty || has($0) }.randomElement() ?? "greet"
+        return pick.isEmpty ? nil : pick
+    }
+
     private var sleeps: Bool { company.activity == .dozing || (quiet && !company.member.grownUp) }
 
     /// They are holding an umbrella: in the rain, or Nan's as a parasol in the heat.
@@ -380,9 +390,12 @@ struct CompanyView: View {
         }
         .task(id: appeared) {
             guard appeared, !sleeps, !reduceMotion else { return }
-            // A wave hello a moment after she arrives, then small things at their own pace.
-            try? await Task.sleep(for: .seconds(1.4))
-            controller.play("greet")
+            // A hello a moment after she arrives, then small things at their own pace. Each has their own hello and
+            // their own moment, so a table of them never waves in step (Tom, 19 November 2026).
+            try? await Task.sleep(for: .seconds(Double.random(in: 1.0...2.6)))
+            if let hello = Self.hello(for: company.member, has: { controller.rig?.rig.moves?[$0] != nil }) {
+                controller.play(hello)
+            }
             var turn = 0
             while !Task.isCancelled {
                 let digging = company.activity == .digging

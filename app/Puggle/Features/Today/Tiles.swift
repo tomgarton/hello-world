@@ -595,9 +595,10 @@ struct PuggleHeader: View {
             // The tea table in front of everyone at it; at bedtime her quilt, the armchair's arms, a sleeping bag.
             if let room { RoomFront(room: room, dark: dim).opacity(appeared ? 1 : 0) }
         }
-        // At tea, the lamp over the table swings when it is tapped or dragged.
+        // At tea, the lamp over the table swings when it is tapped or dragged. Not with Reduce Motion, where the
+        // scene is not redrawn as time passes: there a drag on it pulls Today down like anywhere else.
         .overlay(alignment: .top) {
-            if room == .dining { LampHandle(pull: pull, width: width) { watchLamp(width: width) } }
+            if room == .dining, !reduceMotion { LampHandle(pull: pull, width: width) { watchLamp(width: width) } }
         }
         .overlay(alignment: .topTrailing) {
             YouButton(action: onYou)

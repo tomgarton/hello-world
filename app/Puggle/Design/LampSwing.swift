@@ -5,7 +5,7 @@ import SwiftUI
 /// A pendulum hanging from the middle of the ceiling: drag the lamp and it follows the finger on its cord;
 /// let go and it swings back and forth, slowing until it hangs still. A tap gives it a push away from the
 /// finger. Gentle by design: it never swings far, it settles in a few seconds, and nothing flashes.
-/// With Reduce Motion it only leans and comes back, with no swing.
+/// With Reduce Motion the scene is not redrawn as time passes, so the lamp takes no touches at all (see Today).
 ///
 /// The room is drawn many times a second, so the swing is worked out when it is drawn (`angle(at:length:)`),
 /// from the time since the last frame. One lamp, so one shared swing.
@@ -22,8 +22,6 @@ final class LampSwing {
     /// Where the finger holds it, while it is held.
     private var held: Double?
     private var last: Date?
-    /// Leans and comes back with no swing.
-    var calm = false
 
     /// Its angle now, moved on from the last frame. `length` is the cord, in points, so a longer cord
     /// (Today pulled down) swings a little slower, as a real one would.
@@ -39,13 +37,7 @@ final class LampSwing {
         guard angle != 0 || speed != 0 else { return 0 }
         // Gravity over the cord's length, made a touch quicker than real so it reads at this size.
         let pull = 1500 / Double(max(length, 60))
-        if calm {
-            // Critically damped: back to straight down without passing it.
-            let damping = 2 * pull.squareRoot()
-            speed += (-pull * angle - damping * speed) * dt
-        } else {
-            speed += (-pull * sin(angle) - 0.9 * speed) * dt
-        }
+        speed += (-pull * sin(angle) - 0.9 * speed) * dt
         angle = min(max(angle + speed * dt, -Self.reach), Self.reach)
         if abs(angle) < 0.002, abs(speed) < 0.01 { angle = 0; speed = 0 }
         return angle
@@ -62,17 +54,13 @@ final class LampSwing {
     /// Let go, moving at this many radians a second.
     func release(speed: Double) {
         held = nil
-        self.speed = calm ? 0 : min(max(speed, -4), 4)
+        self.speed = min(max(speed, -4), 4)
     }
 
     /// A tap: a push this way, in radians a second.
     func push(_ by: Double) {
         held = nil
-        if calm {
-            angle = min(max(angle + by * 0.12, -Self.reach), Self.reach)
-        } else {
-            speed = min(max(speed + by, -4), 4)
-        }
+        speed = min(max(speed + by, -4), 4)
     }
 }
 
@@ -84,7 +72,6 @@ struct LampHandle: View {
     let width: CGFloat
     /// Called as it is touched, so Puggle can watch it.
     var onSwing: () -> Void = {}
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start: CGPoint?
 
     /// The top of the cord, in this patch's own space.
@@ -97,7 +84,6 @@ struct LampHandle: View {
             .gesture(
                 DragGesture(minimumDistance: 0)
                     .onChanged { value in
-                        LampSwing.shared.calm = reduceMotion
                         if start == nil { start = value.startLocation; onSwing() }
                         // A drag of more than a few points: the lamp follows the finger on its cord.
                         if hypot(value.translation.width, value.translation.height) > 6 {
