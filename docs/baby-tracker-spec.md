@@ -2491,3 +2491,42 @@ pressed. While the children are asleep she stays asleep when carried: lifted and
 With Reduce Motion she moves along the ground as before, without the lift or the swing.
 
 Not yet checked on a phone: the frame rate there, and how the held move feels under a real finger.
+
+## Tea, bedtime, sleepovers and the entrance (19 November 2026)
+
+Tom asked for Puggle to go to bed in her bedroom at night, for her not to eat alone at the tea table, for
+bedtime to follow the real children, for sleepovers now and then, and for a better entrance.
+
+**Tea with the family.** At tea time Puggle sits at the table between Mum and Dad, each with a plate and a cup,
+her bowl steaming. Some days a guest joins: Nan or Pop one day in three, or the friend sleeping over. The
+table runs the width of the room and its cloth hides everyone's feet.
+
+**Bedtime follows the children.** If the family has logged a sleep in the last two days, Puggle follows the
+logs: she reads in bed while any child is still up, and sleeps once they all are, even straight after tea. If
+not, she follows a usual bedtime for the oldest child's age: about 19:00 for a baby, 19:15 under three, 19:45
+under six, 20:00 after that. She reads in bed for the half hour before. In the night, for a few minutes after
+something is logged for a child, she sits up, sleepy, then settles again. Asleep, she is tucked in with the
+quilt to her chin and her rabbit beside her, upright like everyone in the cast, since their faces are drawn
+from the front.
+
+**Night company.** While she reads, a grown-up sits in the armchair (Mum, Dad, Nan or Pop, in turn). Once she is
+asleep, Mum and Dad leave; Nan or Pop dozes in the chair until late. One evening in five a friend comes for tea
+and stays the night, in a sleeping bag on the floor: sitting up while she reads, asleep when she is.
+
+**The entrance.** Everyone arrives with weight now, one after another: whoever is with her first, Puggle a
+moment later, then she glances over at them.
+- Outdoors they mostly come up from behind the hill: a crouch, a stretch on the way up, a squash as they land.
+  One day in four they walk in along the ground instead.
+- Indoors, standing, they walk in, each from the edge of the screen nearest where they will stand. With a
+  friend there, Puggle comes from the other side, so the two walk towards each other.
+- Sat at the table or in bed, they fade in where they are.
+- Back within twenty minutes, she is already there: a blink, and she looks up.
+- With Reduce Motion, everyone fades in.
+
+For checking, in the Developer launch arguments: `-debugArrive walk` or `rise` (and every return plays the full
+entrance), `-debugBed reading|asleep|stirring|up`, `-debugSleepover kip|none`, `-debugTea nan|none`,
+`-debugMinute`.
+
+Not yet checked on a phone: the entrance's timing as the app opens from cold, which in the simulator is held
+up by the sample family loading.
+

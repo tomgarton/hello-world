@@ -402,9 +402,25 @@ struct TodayView: View {
         }
     }
 
+    /// What the scene needs to know about the children's evening: see `Evening`.
+    private var evening: Evening {
+        let kids = Array(children)
+        let twoDays = Date.now.addingTimeInterval(-2 * 86_400)
+        let logs = kids.contains { child in
+            store.activeSleep(for: child) != nil || (store.lastWoke(for: child) ?? .distantPast) > twoDays
+        }
+        let oldest = kids.map(\.ageMonths).max() ?? 30
+        return Evening(bedtime: Evening.bedtime(ageMonths: oldest), followsLogs: logs,
+                       allAsleep: !kids.isEmpty && kids.allSatisfy { store.activeSleep(for: $0) != nil },
+                       lastLogged: store.lastSaved?.events.compactMap(\.createdAt).max())
+    }
+
     private var header: some View {
         let words = headerWords
-        return PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil }, title: words.title, line: words.line) {
+        // Set before the scene draws, so the rooms follow the children.
+        let evening = evening
+        let _ = { Evening.now = evening }()
+        return PuggleHeader(quiet: children.contains { store.activeSleep(for: $0) != nil }, evening: evening, title: words.title, line: words.line) {
             showingYou = true
         }
     }

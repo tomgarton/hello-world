@@ -9,6 +9,7 @@ enum CastMember: String, CaseIterable, Identifiable {
     var id: String { rawValue }
     var name: String { rawValue.capitalized }
     var grownUp: Bool { self == .nan || self == .mum || self == .dad || self == .pop }
+    var isParent: Bool { self == .mum || self == .dad }
 
     /// Each drawing's size and headroom, read once.
     private static let drawn: [CastMember: (height: CGFloat, headroom: CGFloat)] = Dictionary(uniqueKeysWithValues: allCases.map { member in
@@ -81,12 +82,75 @@ enum CastActivity {
     case digging
 }
 
+/// How someone is placed in the scene.
+enum CastPose: Equatable {
+    case standing
+    /// Sitting at the tea table: lower, behind it.
+    case atTable
+    /// In the armchair by the bed, for a story, or dozing while babysitting.
+    case armchair
+    /// In a sleeping bag on the bedroom floor on a sleepover: sitting up, or tucked in asleep.
+    case bagSitting, bagLying
+
+}
+
 /// Who is with Puggle today, where they stand, and what they are doing.
 struct Company: Equatable {
     let member: CastMember
     /// Where they stand, as a share of the width from the middle.
     let x: CGFloat
     var activity: CastActivity = .with
+    var pose: CastPose = .standing
+
+    /// Everyone with her: at tea her family round the table, at bedtime whoever is reading or sleeping over,
+    /// anywhere else today's one companion (or nobody).
+    static func gathering(kind: SceneKind, room: Room?, afterDark: Bool, bed: BedPose?, minute: Int) -> [Company] {
+        switch room {
+        case .dining: return tea().others
+        case .bedroom: return bedtime(bed ?? .asleep, minute: minute)
+        default: return today(kind: kind, room: room, afterDark: afterDark).map { [$0] } ?? []
+        }
+    }
+
+    /// Tea: Mum and Dad either side of her every evening; Nan or Pop some evenings, or the friend staying
+    /// the night. Four at most, so everyone fits. `puggle` is where her own place is.
+    static func tea() -> (others: [Company], puggle: CGFloat) {
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
+        var guest: CastMember? = Evening.sleepover
+        #if DEBUG
+        // For checking: "-debugTea nan" (or pop, or a friend), or "none".
+        if let forced = UserDefaults.standard.string(forKey: "debugTea") { guest = CastMember(rawValue: forced) }
+        else if guest == nil, day % 3 == 1 { guest = day.isMultiple(of: 2) ? .nan : .pop }
+        #else
+        if guest == nil, day % 3 == 1 { guest = day.isMultiple(of: 2) ? .nan : .pop }
+        #endif
+        guard let guest else {
+            return ([Company(member: .mum, x: -0.3, pose: .atTable), Company(member: .dad, x: 0.3, pose: .atTable)], 0)
+        }
+        // Mum, Puggle, the guest, Dad: a child guest sits next to her.
+        return ([Company(member: .mum, x: -0.36, pose: .atTable), Company(member: guest, x: 0.12, pose: .atTable),
+                 Company(member: .dad, x: 0.36, pose: .atTable)], -0.12)
+    }
+
+    /// Bedtime. While she reads, a grown-up sits in the armchair: Mum or Dad for a story, or Nan or Pop
+    /// babysitting, who dozes off and stays until ten. A friend on a sleepover is in a sleeping bag on the
+    /// floor all night. Late at night it is only her, and any friend.
+    private static func bedtime(_ bed: BedPose, minute: Int) -> [Company] {
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: .now.addingTimeInterval(-6 * 3600)) ?? 0
+        var here: [Company] = []
+        if let friend = Evening.sleepover {
+            here.append(Company(member: friend, x: 0.04, activity: bed == .reading ? .with : .dozing,
+                                pose: bed == .reading ? .bagSitting : .bagLying))
+        }
+        let grownUp: CastMember = [.mum, .dad, .nan, .pop][day % 4]
+        let late = minute < 6 * 60 || minute >= 22 * 60
+        switch bed {
+        case .reading, .up: here.append(Company(member: grownUp, x: 0.34, pose: .armchair))
+        case .asleep where !late && !grownUp.isParent: here.append(Company(member: grownUp, x: 0.34, activity: .dozing, pose: .armchair))
+        default: break
+        }
+        return here
+    }
 
     /// Some days she is on her own; others her family or a friend is there. It changes each time
     /// the same place comes round, so a scene is not always the same company.
@@ -206,11 +270,24 @@ struct CompanyView: View {
     /// The weather they are out in, for the rain landing on their umbrella. Nil indoors.
     var weather: Weather?
     var night = false
+    /// Their arrival: counts up each time Today opens, and how they come in. See `Arrival`.
+    var entrance = 0
+    var arrive: ArrivalStyle = .none
+    /// How far sideways the nearest edge of the scene is, for walking in.
+    var edge: CGFloat = 0
+    var delay: Double = 0
+    var away = false
     @StateObject private var controller: CastController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.outfit) private var outfit
 
-    init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool, rain: Bool = false, weather: Weather? = nil, night: Bool = false) {
+    init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool, rain: Bool = false, weather: Weather? = nil, night: Bool = false,
+         entrance: Int = 0, arrive: ArrivalStyle = .none, edge: CGFloat = 0, delay: Double = 0, away: Bool = false) {
+        self.away = away
+        self.entrance = entrance
+        self.arrive = arrive
+        self.edge = edge
+        self.delay = delay
         self.weather = weather
         self.night = night
         self.company = company
@@ -229,10 +306,22 @@ struct CompanyView: View {
         controller.rig?.rig.parts.contains { $0.id == "umbrella" } == true && (outfit == "rain" || (outfit == "sun" && company.member == .nan))
     }
 
+    /// How far down from standing, in points, for sitting at the table, in the armchair or in a sleeping bag.
+    private var drop: CGFloat {
+        switch company.pose {
+        case .standing: return 0
+        // Sitting, they come down to the foot of the scene, where the cloth, the chair or the bag hides their feet.
+        // Asleep in the bag they are upright too, head on a pillow and the bag up to their chin: every face in
+        // the cast is drawn from the front, and turned on its side it no longer reads.
+        case .atTable, .armchair, .bagSitting, .bagLying: return 26
+        }
+    }
+
     var body: some View {
         ZStack(alignment: .bottom) {
             Ellipse().fill(dark ? Color(hex: 0x15163A).opacity(0.3) : Palette.fixedInk.opacity(0.1))
                 .frame(width: 76, height: 8)
+                .opacity(company.pose == .standing ? 1 : 0)
                 .offset(y: 3)
             if company.activity == .digging, !sleeps {
                 // The heap he has dug, beside him, and sand flying.
@@ -264,8 +353,8 @@ struct CompanyView: View {
                 // on the side nearer her, and its canopy stays clear of the edge of the screen.
                 .scaleEffect(x: umbrellaUp && company.x > 0 ? -1 : 1, y: 1)
         }
-        .offset(y: appeared ? 0 : 50)
-        .opacity(appeared ? 1 : 0)
+        .offset(y: drop)
+        .arrival(entrance, arrive, edge: edge, delay: delay, away: away) { [controller] in controller.rig?.walking = $0 }
         .allowsHitTesting(false)
         .onAppear { controller.asleep = sleeps }
         .onChange(of: sleeps) { _, now in

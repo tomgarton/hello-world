@@ -30,19 +30,23 @@ enum Room: Int, CaseIterable {
     /// The room for this hour, or nil while she is outdoors. `dark` is the dark or night look:
     /// by day it keeps her in on most days, since the scene outside would be drawn as night.
     /// When she is outdoors after dark, `Company` always gives her a grown-up.
+    /// From her wind-down until morning she is in her bedroom, at a time that follows the real children.
     static func at(hour: Int, dark: Bool) -> Room? {
         let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
         let evening: Room = day.isMultiple(of: 2) ? .living : .playroom
-        // Out with a grown-up: from tea time until ten. Bed is still bed.
-        if outTonight, !(22...23).contains(hour), !(0..<6).contains(hour), hour >= 18 { return nil }
+        // The minute as well as the hour, when the hour is the one showing now.
+        let minute = hour == hourNow ? Evening.minuteNow : hour * 60
+        let bed = Evening.now.inBedroom(minute: minute)
         #if DEBUG
         // For checking a room at any hour: launch with "-debugRoom 0" to "3".
         if let forced = UserDefaults.standard.string(forKey: "debugRoom").flatMap(Int.init), let room = Room(rawValue: forced) { return room }
         #endif
+        if bed { return .bedroom }
+        // Out with a grown-up after tea, until it is time to wind down. Never on a sleepover night.
+        if outTonight, Evening.sleepover == nil, hour >= 18 { return nil }
         switch hour {
         case 18: return .dining
-        case 19: return evening
-        case 20...23, 0..<6: return .bedroom
+        case 19...23: return evening
         // By day she is outdoors, whatever the phone's look: where she is follows the clock.
         default: return nil
         }
@@ -97,12 +101,12 @@ struct RoomFront: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        if room == .dining {
+        if room == .dining || room == .bedroom {
             TimelineView(.animation(minimumInterval: 1.0 / 20, paused: reduceMotion)) { timeline in
                 Canvas { context, size in
-                    RoomPainter(context: &context, w: size.width, top: size.height - 250, dark: dark,
-                                t: timeline.date.timeIntervalSince(SceneClock.start), hour: 18, weather: .clear, style: .ink)
-                        .table()
+                    let painter = RoomPainter(context: &context, w: size.width, top: size.height - 250, dark: dark,
+                                              t: timeline.date.timeIntervalSince(SceneClock.start), hour: Room.hourNow, weather: .clear, style: .ink)
+                    if room == .dining { painter.table() } else { painter.bedFront() }
                 }
             }
             .allowsHitTesting(false)
@@ -481,7 +485,8 @@ struct RoomPainter {
             soft("blossom", x, 172 + CGFloat(index % 2) * 8 - 4, 13, col(0xBFD9F5, 0x5A78B8), turn: Double(index) * 25)
         }
         rect(8, 190, 8, 14, 3, col(0xB89A78, 0x5E4A3C)); rect(164, 190, 8, 14, 3, col(0xB89A78, 0x5E4A3C))
-        rabbit(60, 122)
+        // Her rabbit waits on the pillow; once she is tucked in, it is beside her (see `bedFront`).
+        if tonight.bed != .asleep { rabbit(60, 122) }
         // The table by the bed: a lamp left on, and tonight's book.
         let wood = col(0xD9B48A, 0x5E4A3C)
         rect(w - 138, 128, 58, 40, 7, wood)
@@ -497,6 +502,20 @@ struct RoomPainter {
         // The lamp's light lying on the floor, reaching her.
         oval(w / 2 + 44, 214, 100, 20, Color(hex: 0xFFD98A).opacity(dark ? 0.16 : 0.12))
         rug(col(0xCFE5D2, 0x35485A), col(0x3C9A5F, 0x2A5A48).opacity(0.5))
+        // The armchair by the bed, for stories and for whoever is babysitting. Its arms are drawn in front.
+        let chair = w * 0.84
+        oval(chair, 242, 52, 6, Palette.fixedInk.opacity(dark ? 0.3 : 0.1))
+        rect(chair - 44, 116, 88, 92, 26, col(0xE9B872, 0x6A5468))
+        rect(chair - 34, 128, 68, 66, 18, col(0xDDA75E, 0x5E4A60))
+        // A friend sleeping over: the inside of their sleeping bag, and a pillow.
+        if let friend = tonight.people.first(where: { $0.pose == .bagSitting || $0.pose == .bagLying }) {
+            let bag = sleepingBag(friend)
+            // Asleep, a pillow behind their head.
+            if friend.pose == .bagLying {
+                rect(bag.back.minX - 6, bag.head.y - 4, bag.back.width + 12, 30, 14, col(0xFFFCF6, 0x8A88B0))
+            }
+            rect(bag.back.minX, bag.back.minY, bag.back.width, bag.back.height, 20, col(0x2E7A8C, 0x23465A))
+        }
         // Higher up: more stars, a mobile turning, and clouds painted near the ceiling.
         if shown(66) > 0 {
             for (index, star) in [(0.2, -60.0), (0.5, -84), (0.8, -66), (0.36, -104), (0.66, -110)].enumerated() {
@@ -515,24 +534,91 @@ struct RoomPainter {
         }
     }
 
+    // MARK: Bedtime
+
+    /// Her bed and who is with her, as Today shows them (see `Evening` and `Company.gathering`).
+    private var tonight: (bed: BedPose, people: [Company]) {
+        let minute = Evening.minuteNow
+        let bed = Evening.now.pose(minute: minute)
+        return (bed, Company.gathering(kind: .hills, room: .bedroom, afterDark: true, bed: bed, minute: minute))
+    }
+
+    /// Where a friend's sleeping bag goes, from where they are and how big they are: the back of it, and the front
+    /// that covers them, to the waist sitting up or to the chin asleep.
+    private func sleepingBag(_ friend: Company) -> (back: CGRect, front: CGRect, head: CGPoint) {
+        let cx = w / 2 + friend.x * w
+        let height = friend.member.height, across = height * friend.member.aspect
+        let cover = friend.pose == .bagLying ? 0.5 : 0.36
+        return (CGRect(x: cx - across * 0.55, y: 250 - height * cover - 16, width: across * 1.1, height: height * cover + 16),
+                CGRect(x: cx - across * 0.58, y: 250 - height * cover, width: across * 1.16, height: height * cover),
+                CGPoint(x: cx, y: 250 - height * 0.68))
+    }
+
+    /// In front of whoever is at bedtime: her quilt over her, the armchair's arms and seat, and a sleeping bag.
+    func bedFront() {
+        let (bed, people) = tonight
+        let quilt = col(0x2A62B8, 0x2B3F7A), flower = col(0xBFD9F5, 0x5A78B8)
+        switch bed {
+        case .reading, .stirring:
+            // Sitting up: the quilt over her legs, as it lies on the bed.
+            rect(4, 150, 172, 46, 16, quilt)
+            for (index, x) in [28.0, 66, 104, 142].enumerated() {
+                soft("blossom", x, 172 + CGFloat(index % 2) * 8 - 4, 13, flower, turn: Double(index) * 25)
+            }
+        case .asleep:
+            // Tucked in: the quilt up to her chin, its top turned back, her head on the pillow and her rabbit by her.
+            rect(4, 152, 172, 44, 16, quilt)
+            rect(4, 150, 172, 12, 6, col(0xFFFCF6, 0x8A88B0))
+            for (index, x) in [36.0, 72, 108, 146].enumerated() {
+                soft("blossom", x, 174 + CGFloat(index % 2) * 8 - 4, 13, flower, turn: Double(index) * 25)
+            }
+            rabbit(118, 136)
+        case .up:
+            break
+        }
+        // The armchair's arms and seat, in front of whoever sits in it.
+        let chair = w * 0.84, cloth = col(0xE9B872, 0x6A5468), deep = col(0xDDA75E, 0x5E4A60)
+        // Its skirt reaches the floor, so the feet of whoever sits in it are hidden.
+        rect(chair - 44, 200, 88, 50, 12, deep)
+        rect(chair - 52, 170, 22, 80, 11, cloth)
+        rect(chair + 30, 170, 22, 80, 11, cloth)
+        // A sleeping bag over a friend staying the night.
+        if let friend = people.first(where: { $0.pose == .bagSitting || $0.pose == .bagLying }) {
+            let bag = sleepingBag(friend)
+            rect(bag.front.minX, bag.front.minY, bag.front.width, bag.front.height, 20, col(0xF4BE2C, 0x8A6F2A))
+            // Its turned-back top.
+            rect(bag.front.minX, bag.front.minY, bag.front.width, 10, 5, col(0xE5553B, 0x7A3A34))
+        }
+    }
+
     // MARK: Things in the rooms
 
-    /// The tea table, in front of her: a cloth with a scalloped edge, her bowl, steam, and her cup.
+    /// The tea table, in front of the family: a cloth with a scalloped edge, a place for each of them, her bowl
+    /// with steam coming off, and her cup. Long enough for four.
     func table() {
         let cloth = col(0xFFFCF6, 0x6A6890), wood = col(0xD9B48A, 0x5E4A3C)
-        let left = w / 2 - 122, width: CGFloat = 244
+        let left: CGFloat = 10, width = w - 20
         rect(left + 14, 214, 10, 32, 4, wood); rect(left + width - 24, 214, 10, 32, 4, wood)
         rect(left, 200, width, 14, 7, wood)
-        // The cloth hangs down in scallops.
-        rect(left + 8, 198, width - 16, 26, 4, cloth)
-        let scallops = 9
+        // The cloth hangs almost to the floor, in scallops, so no one's feet show under it.
+        rect(left + 8, 198, width - 16, 44, 4, cloth)
+        let scallops = Int((width - 16) / 26)
         for index in 0..<scallops {
             let each = (width - 16) / CGFloat(scallops)
-            oval(left + 8 + each * (CGFloat(index) + 0.5), 224, each / 2, 9, cloth)
+            oval(left + 8 + each * (CGFloat(index) + 0.5), 242, each / 2, 8, cloth)
         }
         rect(left + 8, 198, width - 16, 5, 2.5, Color(hex: 0xE5553B).opacity(dark ? 0.6 : 0.85))
+        // A plate and a cup at each grown-up's or friend's place.
+        let (others, puggle) = Company.tea()
+        for (index, person) in others.enumerated() {
+            let x = w / 2 + person.x * w
+            oval(x, 196, 24, 5, col(0xF3D9C9, 0x6A5560))
+            oval(x, 195, 16, 3, col(0xE9B872, 0x8A6F5A))
+            let colour: UInt32 = [0x3C9A5F, 0x2A62B8, 0xE5553B][index % 3]
+            rect(x + 26, 180, 13, 16, 4, Color(hex: colour).opacity(dark ? 0.7 : 1))
+        }
         // Her bowl and spoon, with steam coming off, and her cup.
-        let x = w / 2 - 74
+        let x = w / 2 + puggle * w
         oval(x, 195, 25, 6, col(0xA6C6EC, 0x4A5F8A))
         var bowl = Path()
         bowl.move(to: CGPoint(x: x - 25, y: top + 195))
@@ -549,7 +635,7 @@ struct RoomPainter {
             wisp.addQuadCurve(to: CGPoint(x: base.x + 2, y: base.y - 10), control: CGPoint(x: base.x + 5 * CGFloat(sin(rise * 6 + Double(index))), y: base.y - 5))
             context.stroke(wisp, with: .color(Color.white.opacity((dark ? 0.35 : 0.7) * sin(rise * .pi))), style: StrokeStyle(lineWidth: 2, lineCap: .round))
         }
-        let cup = w / 2 + 76
+        let cup = x - 36
         rect(cup - 9, 174, 18, 24, 6, Color(hex: 0xF4BE2C).opacity(dark ? 0.75 : 1))
         rect(cup - 10, 171, 20, 6, 3, Color(hex: 0xE5553B).opacity(dark ? 0.75 : 1))
         rect(cup - 2.5, 164, 5, 9, 2.5, Color(hex: 0xE5553B).opacity(dark ? 0.75 : 1))

@@ -334,6 +334,8 @@ struct TileChooserView: View {
 struct PuggleHeader: View {
     /// True while any child is asleep.
     let quiet: Bool
+    /// The children's evening, for her bedtime. See `Evening`.
+    var evening = Evening()
     /// The greeting: "Afternoon, Tom".
     let title: String
     let line: String
@@ -372,6 +374,17 @@ struct PuggleHeader: View {
     private var bubblesFirst: Double { UserDefaults.standard.string(forKey: "debugBubbles") == "1" ? 2.5 : 7 }
     /// Counts her reactions to a tap, so whoever is with her can answer.
     @State private var reactions = 0
+    /// Her bed as last settled, so a change of minute that changes it is noticed.
+    @State private var bedNow: BedPose?
+    /// Counts each entrance, and whether it is the full one or she was here a moment ago.
+    @State private var entrance = 0
+    @State private var fullEntrance = true
+    /// Today is out of sight; everyone is hidden until they arrive again.
+    @State private var away = true
+    /// Today went inactive without going to the background: Control Centre, a notification, an alert.
+    @State private var glancing = false
+    /// When Today was last left, for how big a hello to give on coming back.
+    nonisolated(unsafe) private static var leftAt: Date?
 
     static let sceneHeight: CGFloat = 250
 
@@ -398,18 +411,37 @@ struct PuggleHeader: View {
         // The entrance plays once the splash has gone, each time Today comes
         // back into view, and when the app is opened again.
         .onAppear {
-            controller.asleep = quiet
+            bedNow = bedPose(PuggleScene.room(dark: scheme == .dark || night))
+            settle(in: bedNow)
             if !splashing { playEntrance() }
         }
-        .onDisappear { appeared = false }
+        // Bedtime comes while Today is open: look again each half minute.
+        .task {
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(30))
+                let now = bedPose(PuggleScene.room(dark: scheme == .dark || night))
+                if now != bedNow { bedNow = now; settle(in: now) }
+            }
+        }
+        .onDisappear { appeared = false; away = true; Self.leftAt = .now }
         .onChange(of: splashing) { _, now in if !now { playEntrance() } }
         .onChange(of: scenePhase) { old, now in
-            if now == .background { appeared = false }
+            // Hidden as soon as Today starts to go, while it can still draw: by the time it is in the background
+            // it may not draw again, and the scene as left would flash up on the way back.
+            if now == .inactive, old == .active { away = true; glancing = true }
+            if now == .background { appeared = false; away = true; glancing = false; Self.leftAt = .now }
             if old == .background, now != .background, !splashing { playEntrance() }
+            // Only a glance at Control Centre or a notification: everyone is still there.
+            if old == .inactive, now == .active, glancing { glancing = false; away = false }
         }
-        // Asleep while a child sleeps; a stretch and a yawn when the last one wakes.
+        // Asleep while a child sleeps; a stretch and a yawn when the last one wakes. In her bedroom, her bed decides.
         .onChange(of: quiet) { _, now in
+            guard bedPose(PuggleScene.room(dark: scheme == .dark || night)) == nil else { return }
             if now { controller.asleep = true } else { controller.wake() }
+        }
+        .onChange(of: evening) { _, _ in
+            bedNow = bedPose(PuggleScene.room(dark: scheme == .dark || night))
+            settle(in: bedNow)
         }
         // She answers each save: a nod for everyday things, more for the big ones.
         // No sound or tap: the save has its own. Nothing waits for her.
@@ -467,40 +499,63 @@ struct PuggleHeader: View {
         let dim = scheme == .dark || night
         // After tea time she is indoors: lamplight, no coat, and pyjamas at bedtime.
         let room = PuggleScene.room(dark: dim)
-        // She sits at the tea table; anywhere else she can be walked along the ground.
-        let canWalk = room != .dining
+        // In bed, or at her place at the tea table, she stays put; anywhere else she can be walked along the ground.
+        let bed = bedPose(room)
+        let inBed = bed != nil && bed != .up
+        let canWalk = room != .dining && !inBed
         let reach = max(width / 2 - 58, 0)
         let home = room == nil ? PuggleScene.stand(for: .today) * width : 0
-        let x = canWalk ? min(max(walkedTo ?? home, -reach), reach) : 0
+        let x: CGFloat = switch (room, bed) {
+        // Sitting up against her pillow, or tucked in with her head on it. See `RoomPainter.bedFront`.
+        case (.bedroom, .reading?), (.bedroom, .stirring?): 70 - width / 2
+        case (.bedroom, .asleep?): 61 - width / 2
+        case (.dining, _): Company.tea().puggle * width
+        default: canWalk ? min(max(walkedTo ?? home, -reach), reach) : 0
+        }
+        // How far down from standing: sat behind the table, sitting up in bed, or tucked in.
+        let drop: CGFloat = switch (room, bed) {
+        case (.bedroom, .reading?), (.bedroom, .stirring?): -51
+        case (.bedroom, .asleep?): -25
+        case (.dining, _): 26
+        default: 0
+        }
         // In the backyard on a fine day she gets her bubble wand out now and then.
         let fine = ["none", "sun"].contains(weather.outfit(night: false))
         // Asked once here: working it out means drawing a frame of the scene.
         let isNight = PuggleScene.isNight(dark: dim)
         let canBubble = room == nil && SceneKind.today == .backyard && !isNight && fine && !quiet && !reduceMotion && appeared && !holding
         return ZStack(alignment: .bottom) {
-            PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x, puggleShadow: !holding)
-            // Whoever is with her today stands behind her, on the same ground.
-            if let company = Company.today(kind: .today, room: room,
-                                           afterDark: room == nil && (isNight || Room.hourNow >= 18)) {
-                // Dressed for the weather when they are out in it, as she is.
+            PuggleScene(kind: .today, dark: dim, appeared: appeared, pull: pull, rooms: true, puggleX: x, puggleShadow: !holding && !inBed)
+            // Whoever is with her: today's companion behind her on the same ground, her family at the tea table,
+            // or at bedtime whoever is reading to her or sleeping over.
+            let gathering = Company.gathering(kind: .today, room: room, afterDark: room == nil && (isNight || Room.hourNow >= 18),
+                                              bed: bed, minute: Evening.minuteNow)
+            let arrive = arrival(room: room, settled: inBed || room == .dining)
+            ForEach(Array(gathering.enumerated()), id: \.element.member) { order, company in
+                // Dressed for the weather when they are out in it, as she is; in pyjamas on a sleepover.
                 let wearing = room == nil ? weather.outfit(night: isNight) : "none"
                 CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim, rain: wearing == "rain",
-                            weather: room == nil ? weather : nil, night: isNight)
+                            weather: room == nil ? weather : nil, night: isNight,
+                            entrance: entrance, arrive: arrive, edge: Self.edge(from: company.x * width, width: width, mine: company.x),
+                            delay: Self.beat + Double(order) * 0.15, away: away)
                     .environment(\.moonlit, room == nil && isNight)
                     .environment(\.outfit, wearing)
                     .environment(\.shades, Shades.forOutfit(wearing))
                     .offset(x: company.x * width)
                     .padding(.bottom, 26)
-                    .id("\(company.member.rawValue)-\(wearing)")
+                    .id("\(company.member.rawValue)-\(wearing)-\(company.pose)")
             }
             CarriedPuggle(controller: controller, carry: carry, restX: x, reach: reach, canWalk: canWalk, quiet: quiet,
                           holding: $holding, justWalked: $justWalked, shadowNight: room == nil && isNight,
                           outfit: room?.outfit ?? weather.outfit(night: isNight),
                           warmLight: room.map { dim ? $0.lamp : nil } ?? PuggleScene.lamp(for: .today, night: isNight),
-                          lift: lift, tilt: tilt, nod: nod, onTap: tapped, onPutDown: { walkedTo = $0; land() })
-                // She pops up from behind the hill when Today first opens.
-                .offset(y: appeared ? 0 : 60)
-                .opacity(appeared ? 1 : 0)
+                          lift: lift, tilt: tilt, nod: nod, drop: drop,
+                          onTap: tapped, onPutDown: { walkedTo = $0; land() })
+                // She arrives a moment after whoever is with her, so they seem to have been waiting.
+                .arrival(entrance, arrive, edge: Self.edge(from: x, width: width, awayFrom: gathering.first.map { $0.x },
+                                                  mine: width > 0 ? x / width : PuggleScene.stand(for: .today)), delay: Self.beat + (gathering.isEmpty ? 0 : 0.2), away: away) { [controller] in
+                    controller.walking = $0
+                }
                 .padding(.bottom, 26)
             // Her bubbles, rising from the wand in her right hand. Only while she is making them.
             TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !controller.makingBubbles)) { timeline in
@@ -529,6 +584,7 @@ struct PuggleHeader: View {
                     .opacity(appeared ? 1 : 0)
             }
             // The tea table stands in front of her.
+            // The tea table in front of everyone at it; at bedtime her quilt, the armchair's arms, a sleeping bag.
             if let room { RoomFront(room: room, dark: dim).opacity(appeared ? 1 : 0) }
         }
         .overlay(alignment: .topTrailing) {
@@ -538,12 +594,113 @@ struct PuggleHeader: View {
         }
     }
 
+    /// What she is doing in her bedroom, from the children's evening. Nil anywhere else.
+    private func bedPose(_ room: Room?) -> BedPose? {
+        room == .bedroom ? Evening.now.pose(minute: Evening.minuteNow) : nil
+    }
+
+    /// Puts her into the pose for her bed: reading with her book, asleep, or
+    /// sitting up with a stretch and a yawn when a child is seen to in the night.
+    private func settle(in bed: BedPose?) {
+        guard let rig = controller.rig else { return }
+        rig.stop("read")
+        switch bed {
+        case .reading?:
+            controller.asleep = false
+            rig.play("read")
+        case .asleep?:
+            controller.asleep = true
+        case .stirring?:
+            controller.asleep = false
+            rig.play("wake")
+        default:
+            controller.asleep = quiet
+        }
+    }
+
+    /// How everyone arrives just now. Back within twenty minutes, she is already there. Sat at the table or in
+    /// bed, they fade in where they are. Indoors they walk in; outdoors they mostly come up from behind the hill,
+    /// and walk in along the ground one day in four.
+    private func arrival(room: Room?, settled: Bool) -> ArrivalStyle {
+        guard fullEntrance else { return .none }
+        if reduceMotion || settled { return .fade }
+        if room != nil { return .walk }
+        #if DEBUG
+        // For checking: "-debugArrive walk" or "rise".
+        if let forced = UserDefaults.standard.string(forKey: "debugArrive") { return forced == "walk" ? .walk : .rise }
+        #endif
+        let day = Calendar.current.ordinality(of: .day, in: .era, for: .now) ?? 0
+        return day % 4 == 3 ? .walk : .rise
+    }
+
+    /// A moment of the empty scene before anyone arrives, while Today finishes opening.
+    private static let beat = 0.2
+
+    /// From where someone stands to just past the nearer edge of the scene.
+    /// With someone already there, she comes from the other side, so the two walk towards each other
+    /// rather than her walking through them.
+    /// Which side is decided from places on the stage (fractions of its width), so it holds while the scene is
+    /// still being laid out.
+    private static func edge(from x: CGFloat, width: CGFloat, awayFrom other: CGFloat? = nil, mine: CGFloat? = nil) -> CGFloat {
+        let here = mine ?? (width > 0 ? x / width : 0)
+        let side: CGFloat = other.map { $0 > here ? -1 : 1 } ?? (here < 0 ? -1 : 1)
+        return side * (width / 2 + 70) - x
+    }
+
     private func playEntrance() {
-        guard !reduceMotion else { appeared = true; return }
+        let gone = Self.leftAt.map { Date.now.timeIntervalSince($0) } ?? .infinity
+        fullEntrance = gone > 20 * 60
+        #if DEBUG
+        // Checking an entrance: play it in full every time.
+        if UserDefaults.standard.string(forKey: "debugArrive") != nil { fullEntrance = true }
+        #endif
+        if fullEntrance, !reduceMotion {
+            // Coming back to Today can keep the phone busy for a moment. The entrance starts from a task, which runs
+            // only once that is over, so the walk or the rise is seen rather than played behind a frozen screen.
+            Task {
+                try? await Task.sleep(for: .seconds(0.2))
+                entrance += 1
+                // Nobody shows until their entrance has begun. See `ArrivalPose.live`.
+                try? await Task.sleep(for: .seconds(Arrival.unhideAfter))
+                self.away = false
+            }
+        } else {
+            entrance += 1
+            self.away = false
+        }
+        guard fullEntrance, !reduceMotion else {
+            appeared = true
+            // Back after a moment: she was here all along. A blink, and she looks up at you.
+            guard !reduceMotion, controller.rig?.asleep == false else { return }
+            controller.rig?.blinkAt = .now.addingTimeInterval(0.15)
+            controller.look(x: 0, y: -0.6)
+            Task {
+                try? await Task.sleep(for: .seconds(1.2))
+                controller.look(x: 0, y: 0)
+            }
+            return
+        }
         var instant = Transaction()
         instant.disablesAnimations = true
         withTransaction(instant) { appeared = false }
         withAnimation(.spring(duration: 0.75, bounce: 0.35).delay(0.12)) { appeared = true }
+        glanceAtCompany()
+    }
+
+    /// Once she has arrived she looks over at whoever is with her, and they answer with their hello.
+    private func glanceAtCompany() {
+        let room = PuggleScene.room(dark: scheme == .dark || night)
+        let bed = bedPose(room)
+        let first = Company.gathering(kind: .today, room: room, afterDark: room == nil && Room.hourNow >= 18,
+                                      bed: bed, minute: Evening.minuteNow).first
+        guard let first, room != .bedroom || bed == .reading else { return }
+        let mine = room == nil ? PuggleScene.stand(for: .today) : (room == .dining ? Company.tea().puggle : 0)
+        Task {
+            try? await Task.sleep(for: .seconds(1.8))
+            controller.look(x: first.x < mine ? -0.8 : 0.8, y: 0)
+            try? await Task.sleep(for: .seconds(1.1))
+            controller.look(x: 0, y: 0)
+        }
     }
 
     /// Pulling the sky down and letting go past the balloon makes Puggle hop.
@@ -627,6 +784,8 @@ private struct CarriedPuggle: View {
     let lift: CGFloat
     let tilt: Double
     let nod: CGFloat
+    /// How far down from standing: behind the tea table, or in bed.
+    var drop: CGFloat = 0
     let onTap: () -> Void
     let onPutDown: (CGFloat) -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -655,6 +814,7 @@ private struct CarriedPuggle: View {
                     .rotationEffect(.degrees(tilt), anchor: .bottom)
                     // She hangs from the finger, so she swings from the top.
                     .rotationEffect(.degrees(carry.sway), anchor: .top)
+                    .offset(y: drop)
                     .animation(.spring(duration: 0.32, bounce: 0.25), value: up)
                     .animation(.spring(response: 0.5, dampingFraction: 0.42), value: carry.sway)
             }
