@@ -1,0 +1,73 @@
+From aef54ce5bf6b7f152dab50e442c4fa3b82db2f8b Mon Sep 17 00:00:00 2001
+From: Tom Garton <tomgarton@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 06:50:32 +0000
+Subject: [PATCH 5/7] =?UTF-8?q?Write=20the=20half=20year=20as=202=C2=BDy,?=
+ =?UTF-8?q?=20to=20match=206mo=20and=202y?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ app/Puggle/Data/Model.swift                        |  5 +++--
+ app/Puggle/Features/Onboarding/FirstRunPages.swift |  2 +-
+ app/PuggleTests/EveningTests.swift                 | 10 ++++++++++
+ 3 files changed, 14 insertions(+), 3 deletions(-)
+
+diff --git a/app/Puggle/Data/Model.swift b/app/Puggle/Data/Model.swift
+index 4e25e81..6ea7c77 100644
+--- a/app/Puggle/Data/Model.swift
++++ b/app/Puggle/Data/Model.swift
+@@ -381,7 +381,7 @@ extension Child {
+     var displayName: String { name ?? "Child" }
+     var initial: String { String(displayName.prefix(1)).uppercased() }
+ 
+-    /// Compact age for tight spots: "6mo", "1y 3mo", "3w", "2½".
++    /// Compact age for tight spots: "6mo", "1y 3mo", "3w", "2½y".
+     var ageText: String { age(.abbreviated) }
+ 
+     /// Their age on a given day, spelled out: for milestones and measurements.
+@@ -399,7 +399,8 @@ extension Child {
+         let years = comps.year ?? 0, months = comps.month ?? 0
+ 
+         if years >= 2, months >= 6 {
+-            return style == .full ? "\(years)½ years" : "\(years)½"
++            // "y" as the formatter writes whole years ("2y"), so the half year reads as an age beside "6mo" (Tom, 19 November 2026).
++            return style == .full ? "\(years)½ years" : "\(years)½y"
+         }
+ 
+         let formatter = DateComponentsFormatter()
+diff --git a/app/Puggle/Features/Onboarding/FirstRunPages.swift b/app/Puggle/Features/Onboarding/FirstRunPages.swift
+index 68df0b6..563a23b 100644
+--- a/app/Puggle/Features/Onboarding/FirstRunPages.swift
++++ b/app/Puggle/Features/Onboarding/FirstRunPages.swift
+@@ -179,7 +179,7 @@ struct KidsPiece: View {
+     var body: some View {
+         let asleep = t >= 1.12
+         VStack(spacing: 10) {
+-            card("Bea", "2½", initial: "B", colour: 0, asleep: asleep,
++            card("Bea", "2½y", initial: "B", colour: 0, asleep: asleep,
+                  status: asleep ? "Asleep · \(t < 3 ? 0 : t < 5 ? 1 : 2)m" : "Awake · 2h", tapAt: 1.0)
+             card("Ollie", "5mo", initial: "O", colour: 1, asleep: true, status: "Asleep · \(t < 3 ? 42 : t < 5 ? 43 : 44)m", tapAt: nil)
+         }
+diff --git a/app/PuggleTests/EveningTests.swift b/app/PuggleTests/EveningTests.swift
+index 8281c6e..a37c8d2 100644
+--- a/app/PuggleTests/EveningTests.swift
++++ b/app/PuggleTests/EveningTests.swift
+@@ -38,3 +38,13 @@ final class EveningTests: XCTestCase {
+         XCTAssertEqual(evening.pose(minute: 2 * 60, at: now.addingTimeInterval(600)), .asleep)
+     }
+ }
++
++/// The short age beside a child's name (19 November 2026).
++final class AgeTextTests: XCTestCase {
++    func testTheHalfYearHasItsUnit() {
++        let child = Child(context: Persistence(inMemory: true).viewContext)
++        child.birthDate = Calendar.current.date(byAdding: .month, value: -31, to: .now)
++        XCTAssertEqual(child.ageText, "2½y")
++        XCTAssertEqual(child.ageTextFull, "2½ years")
++    }
++}
+-- 
+2.43.0
+

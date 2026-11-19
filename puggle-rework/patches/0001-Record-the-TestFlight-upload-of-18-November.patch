@@ -1,0 +1,30 @@
+From 1dba15fa375d068b7e78dc9370108b00b3389a00 Mon Sep 17 00:00:00 2001
+From: Tom Garton <tomgarton@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 06:50:18 +0000
+Subject: [PATCH 1/7] Record the TestFlight upload of 18 November
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ docs/baby-tracker-spec.md | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/docs/baby-tracker-spec.md b/docs/baby-tracker-spec.md
+index b818871..e1ef0cd 100644
+--- a/docs/baby-tracker-spec.md
++++ b/docs/baby-tracker-spec.md
+@@ -2453,3 +2453,12 @@ Built as decided the day before: secular, by place, a switch to turn them off. O
+   December?), and Christmas on the beach in the south. The beach is just one of the four scenes, not chosen
+   for the day.
+ - 133 tests pass, 5 of them new. Seen in renders, not on a phone.
++
++## Build sent to TestFlight (18 November 2026)
++
++Uploaded with `zsh tools/testflight.sh` and accepted for processing; App Store Connect numbers it (16, if the
++count has held). It carries: Looking after (baths, brushing with a stamp, nails, haircuts, the dentist and the
++doctor, a family's own), the night sky by hemisphere, the five special days, cloudy nights, rain on the
++friend's umbrella, and One Boot at the house. No new synced fields, so no CloudKit deploy is needed; a phone
++still on an older build shows care entries as notes. Apple warned that from April 2027 uploads need the iOS 27
++SDK (Xcode 27).
+-- 
+2.43.0
+

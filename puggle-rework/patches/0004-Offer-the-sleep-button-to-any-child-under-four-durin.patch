@@ -1,0 +1,90 @@
+From 12418618809c631f076422fb4c94628c16748ebc Mon Sep 17 00:00:00 2001
+From: Tom Garton <tomgarton@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 06:50:32 +0000
+Subject: [PATCH 4/7] Offer the sleep button to any child under four during the
+ day
+
+It showed in the day only under 18 months or after a logged nap, so a toddler with no naps
+logged yet had no way to start a sleep from Today.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ app/Puggle/Features/Today/ChildCard.swift |  7 ++++---
+ app/PuggleTests/ChildFactTests.swift      | 14 ++++++++------
+ docs/baby-tracker-spec.md                 |  9 ++++++++-
+ 3 files changed, 20 insertions(+), 10 deletions(-)
+
+diff --git a/app/Puggle/Features/Today/ChildCard.swift b/app/Puggle/Features/Today/ChildCard.swift
+index 6426a38..3a68c91 100644
+--- a/app/Puggle/Features/Today/ChildCard.swift
++++ b/app/Puggle/Features/Today/ChildCard.swift
+@@ -51,10 +51,11 @@ struct ChildFact: Identifiable, Equatable {
+     }
+ 
+     /// Whether the sleep button belongs on a child's card: while they are asleep, in the evening and at night,
+-    /// for a child who naps (a daytime sleep in the last two weeks), and for the very young, who nap whether
+-    /// or not anyone has logged it yet.
++    /// for a child who naps (a daytime sleep in the last two weeks), and for anyone under four, who mostly still
++    /// nap whether or not anyone has logged it yet (Tom, 19 November 2026: it was missing for a two-and-a-half
++    /// year old with no naps logged).
+     static func offersSleep(asleep: Bool, hour: Int, napped: Bool, months: Int) -> Bool {
+-        asleep || hour >= 17 || hour < 7 || napped || months < 18
++        asleep || hour >= 17 || hour < 7 || napped || months < 48
+     }
+ }
+ 
+diff --git a/app/PuggleTests/ChildFactTests.swift b/app/PuggleTests/ChildFactTests.swift
+index c396162..bd51bff 100644
+--- a/app/PuggleTests/ChildFactTests.swift
++++ b/app/PuggleTests/ChildFactTests.swift
+@@ -18,15 +18,17 @@ final class ChildFactTests: XCTestCase {
+     }
+ 
+     func testTheSleepButtonIsForNappersTheVeryYoungAndTheEvening() {
+-        // A three-year-old who no longer naps: nothing at midday, there again from five.
+-        XCTAssertFalse(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 40))
+-        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 17, napped: false, months: 40))
+-        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 3, napped: false, months: 40))
++        // A five-year-old who no longer naps: nothing at midday, there again from five.
++        XCTAssertFalse(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 60))
++        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 17, napped: false, months: 60))
++        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 3, napped: false, months: 60))
+         // One who napped in the last two weeks keeps it all day.
+-        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: true, months: 40))
++        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: true, months: 60))
++        // Two and a half, no naps logged yet: still offered, as most still nap.
++        XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 30))
+         // A baby has it whether or not a nap has been logged yet.
+         XCTAssertTrue(ChildFact.offersSleep(asleep: false, hour: 13, napped: false, months: 5))
+         // Asleep: always, so they can be woken.
+-        XCTAssertTrue(ChildFact.offersSleep(asleep: true, hour: 13, napped: false, months: 40))
++        XCTAssertTrue(ChildFact.offersSleep(asleep: true, hour: 13, napped: false, months: 60))
+     }
+ }
+diff --git a/docs/baby-tracker-spec.md b/docs/baby-tracker-spec.md
+index c2aa58d..60ced2a 100644
+--- a/docs/baby-tracker-spec.md
++++ b/docs/baby-tracker-spec.md
+@@ -2028,7 +2028,8 @@ with its answer and the date when it is settled.
+ 5. **On a save, the tile's icon:** drawn over a faint copy (as now) or from nothing.
+ 6. **The setting on each child for which actions show under the plus:** still wanted, or is "everything
+    they use" enough?
+-7. **Sleep button for any child under 18 months:** an addition to his decision. Keep it?
++7. **Sleep button for any child under 18 months:** an addition to his decision. Keep it? *Answered
++   19 November 2026: Tom found it missing for a 2½-year-old with no naps logged. Now any child under four.*
+ 
+ ## Stories: research, a story bible and a first book (16 November 2026)
+ 
+@@ -2530,3 +2531,9 @@ entrance), `-debugBed reading|asleep|stirring|up`, `-debugSleepover kip|none`, `
+ Not yet checked on a phone: the entrance's timing as the app opens from cold, which in the simulator is held
+ up by the sample family loading.
+ 
++
++**The sleep button for toddlers (19 November 2026).** Tom noticed there was no sleep button on a 2½-year-old's
++card at midday: the button showed in the day only for children under 18 months or with a nap logged in the
++last two weeks, and none had been logged. Most children still nap until three or four, so the age is now under
++four. Older children keep the rule as it was: in the day only if they have napped lately, and always in the
++evening and at night.
+-- 
+2.43.0
+

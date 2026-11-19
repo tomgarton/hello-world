@@ -1,0 +1,230 @@
+From 08ebddbccab50289de6d449c8041a405561d75e3 Mon Sep 17 00:00:00 2001
+From: Tom Garton <tomgarton@users.noreply.github.com>
+Date: Thu, 19 Nov 2026 06:50:32 +0000
+Subject: [PATCH 7/7] Potty and nappy together for a child learning the potty
+
+The potty box shows the time since the last nappy under it, and its sheet offers a nappy row
+above the potty row: pick from either or both, then save.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ app/Puggle/Features/Log/LogSheet.swift    | 61 ++++++++++++++++++++++-
+ app/Puggle/Features/Today/ChildCard.swift | 30 +++++++++--
+ docs/baby-tracker-spec.md                 | 14 ++++++
+ 3 files changed, 99 insertions(+), 6 deletions(-)
+
+diff --git a/app/Puggle/Features/Log/LogSheet.swift b/app/Puggle/Features/Log/LogSheet.swift
+index bde2dc4..14a9370 100644
+--- a/app/Puggle/Features/Log/LogSheet.swift
++++ b/app/Puggle/Features/Log/LogSheet.swift
+@@ -36,6 +36,8 @@ struct LogSheet: View {
+     @State private var minutes = 10.0
+     @State private var food = ""
+     @State private var choice: String?
++    /// With the potty, for a child still in nappies: what the nappy was, picked alongside.
++    @State private var nappyChoice: String?
+     @State private var note = ""
+     @State private var medicine = ""
+     @State private var doseText = ""
+@@ -71,6 +73,7 @@ struct LogSheet: View {
+     private var isEditing: Bool { editing != nil }
+ 
+     private var saveTitle: String {
++        if pottyAndNappy { return nappyChoice != nil && choice != nil ? "Save both" : "Save" }
+         guard kind == .care else { return "Save \(kind.title.lowercased())" }
+         let name = CareItem.name(forKey: care).lowercased()
+         return bookedVisit ? "Book \(name)" : "Save \(name)"
+@@ -284,10 +287,17 @@ struct LogSheet: View {
+     // MARK: Details
+ 
+     /// A new nappy or potty entry saves from its choice buttons.
+-    private var needsSaveButton: Bool { isEditing || !(kind == .nappy || kind == .potty) }
++    private var needsSaveButton: Bool { isEditing || pottyAndNappy || !(kind == .nappy || kind == .potty) }
++
++    /// Learning the potty and still in nappies: the potty sheet has a nappy row too. Pick from either or both,
++    /// then save, for the usual check of a dry nappy and then a wee on the potty (Tom, 19 November 2026).
++    private var pottyAndNappy: Bool {
++        kind == .potty && !isEditing && !chosenChildren.isEmpty && chosenChildren.allSatisfy { $0.uses(.nappy) }
++    }
+ 
+     private var canSave: Bool {
+         guard !chosenChildren.isEmpty else { return false }
++        if pottyAndNappy { return choice != nil || nappyChoice != nil }
+         switch kind {
+         case .medicine: return !medicine.trimmingCharacters(in: .whitespaces).isEmpty
+         case .temperature: return (temperature ?? 0) > 0
+@@ -592,7 +602,16 @@ struct LogSheet: View {
+                 quickChoices(["Wet", "Dirty", "Both", "Dry"])
+             }
+         case .potty:
+-            quickChoices(["Wee", "Poo", "Tried", "Accident"])
++            if pottyAndNappy {
++                VStack(alignment: .leading, spacing: 12) {
++                    pickRow(Terms.nappy, icon: EventKind.nappy.iconName, ["Wet", "Dirty", "Dry"], $nappyChoice)
++                    pickRow("Potty", icon: EventKind.potty.iconName, ["Wee", "Poo", "Tried", "Accident"], $choice)
++                    timeRow("Time", $time)
++                    timeShortcuts
++                }
++            } else {
++                quickChoices(["Wee", "Poo", "Tried", "Accident"])
++            }
+         case .note:
+             timeRow("Time", $time)
+         case .medicine:
+@@ -880,6 +899,39 @@ struct LogSheet: View {
+         return foods
+     }
+ 
++    /// A labelled row of choices, one of which may be picked; a second tap unpicks it.
++    private func pickRow(_ title: String, icon: String, _ options: [String], _ picked: Binding<String?>) -> some View {
++        VStack(alignment: .leading, spacing: 8) {
++            HStack(spacing: 5) {
++                Image(icon + "-plain").renderingMode(.template).resizable().scaledToFit().frame(width: 14, height: 14)
++                    .accessibilityHidden(true)
++                Text(title)
++            }
++            .font(.footnote.weight(.semibold))
++            .foregroundStyle(Palette.muted)
++            HStack(spacing: 8) {
++                ForEach(options, id: \.self) { option in
++                    let isOn = picked.wrappedValue == option
++                    Button {
++                        Haptics.selection()
++                        picked.wrappedValue = isOn ? nil : option
++                    } label: {
++                        Text(option)
++                            .font(.subheadline.weight(.semibold))
++                            .lineLimit(1)
++                            .minimumScaleFactor(0.8)
++                            .frame(maxWidth: .infinity, minHeight: 56)
++                            .foregroundStyle(isOn ? Palette.paper : Palette.ink)
++                            .background(isOn ? Palette.ink : Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
++                    }
++                    .buttonStyle(PressStyle())
++                    .accessibilityLabel("\(title), \(option)")
++                    .accessibilityAddTraits(isOn ? .isSelected : [])
++                }
++            }
++        }
++    }
++
+     private func quickChoices(_ options: [String]) -> some View {
+         VStack(spacing: 12) {
+             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+@@ -1073,6 +1125,11 @@ struct LogSheet: View {
+                                        dose: extra.isEmpty ? nil : extra)
+             case .sleep:
+                 events = store.logEach(.sleep, for: who, at: min(time, endTime), end: max(time, endTime), note: noteValue)
++            case .potty where pottyAndNappy:
++                // The nappy first, a moment before: it was checked, then the potty was tried.
++                let nappy = nappyChoice.map { store.logEach(.nappy, for: who, at: time.addingTimeInterval(-1), detail: $0, note: choice == nil ? noteValue : nil) } ?? []
++                let potty = choice.map { store.logEach(.potty, for: who, at: time, detail: $0, note: noteValue) } ?? []
++                events = nappy + potty
+             case .nappy, .potty:
+                 events = store.logEach(kind, for: who, at: time, detail: detail, note: noteValue,
+                                        dose: kind == .nappy && !extra.isEmpty ? extra : nil)
+diff --git a/app/Puggle/Features/Today/ChildCard.swift b/app/Puggle/Features/Today/ChildCard.swift
+index f09d3e8..72184c5 100644
+--- a/app/Puggle/Features/Today/ChildCard.swift
++++ b/app/Puggle/Features/Today/ChildCard.swift
+@@ -16,6 +16,9 @@ struct ChildFact: Identifiable, Equatable {
+     let kind: Kind
+     /// "1h 29m", or nil when there is nothing to count from.
+     let value: String?
++    /// For the potty, while the child still wears nappies: the time since the last nappy, shown small under it
++    /// (Tom, 19 November 2026).
++    var nappy: String? = nil
+ 
+     var id: String { kind.rawValue }
+ 
+@@ -83,7 +86,9 @@ extension FamilyStore {
+                     event.startedAt.map { Elapsed.short(seconds: event.asleepSeconds(from: $0, to: now)) }
+                 } : nil)
+             case .nappy: ChildFact(kind: kind, value: since(latest(.nappy, for: child)?.startedAt))
+-            case .potty: ChildFact(kind: kind, value: since(latest(.potty, for: child)?.startedAt))
++            case .potty:
++                ChildFact(kind: kind, value: since(latest(.potty, for: child)?.startedAt),
++                          nappy: child.uses(.nappy) ? (since(latest(.nappy, for: child)?.startedAt) ?? "–") : nil)
+             }
+         }
+     }
+@@ -165,6 +170,7 @@ struct ChildCard: View {
+             row {
+                 ForEach(facts) { fact in factButton(fact, sleep: sleep, asleep: asleep, quiet: quiet) }
+             }
++            .fixedSize(horizontal: false, vertical: true)
+             // What comes next, and the milk today: a line each, led by its activity's icon (Tom, 19 November 2026).
+             let extras = [underLine(now: now, asleep: asleep),
+                           // Milk from bottles today, beside what the tin suggests. Only once there has been a bottle.
+@@ -243,11 +249,27 @@ struct ChildCard: View {
+                     .lineLimit(1)
+                     .minimumScaleFactor(0.7)
+                     .contentTransition(.numericText())
++                // Still in nappies while learning the potty: the last nappy, small, under it.
++                if let nappy = fact.nappy {
++                    HStack(spacing: 4) {
++                        Image(EventKind.nappy.iconName + "-plain")
++                            .renderingMode(.template)
++                            .resizable()
++                            .scaledToFit()
++                            .frame(width: 11, height: 11)
++                        Text(nappy).monospacedDigit()
++                    }
++                    .font(.caption2)
++                    .foregroundStyle(quiet)
++                    .lineLimit(1)
++                }
+             }
+         }
+         .padding(.horizontal, 10)
+         .padding(.vertical, 8)
+-        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
++        // As tall as the tallest in the row, its label at the top, so a potty box with a nappy line under it
++        // does not stand taller than the others.
++        .frame(maxWidth: .infinity, minHeight: 44, maxHeight: .infinity, alignment: .topLeading)
+         .background(asleep ? Color.white.opacity(0.12) : Palette.field, in: box)
+         .contentShape(box)
+         // Both kinds of milk: the fact asks which.
+@@ -294,7 +316,7 @@ struct ChildCard: View {
+         case .awake: "\(name) has been awake \(value)"
+         case .asleep: "\(name) has been asleep \(value)"
+         case .nappy: "\(name)'s last \(Terms.nappyLower) was \(value) ago"
+-        case .potty: "\(name)'s last potty was \(value) ago"
++        case .potty: "\(name)'s last potty was \(value) ago" + (fact.nappy.map { ", last \(Terms.nappyLower) \($0) ago" } ?? "")
+         }
+     }
+ 
+@@ -305,7 +327,7 @@ struct ChildCard: View {
+         case .awake: "Adds a sleep"
+         case .asleep: "Sets when they woke"
+         case .nappy: "Logs a \(Terms.nappyLower)"
+-        case .potty: "Logs the potty"
++        case .potty: fact.nappy == nil ? "Logs the potty" : "Logs the potty or a \(Terms.nappyLower)"
+         }
+     }
+ 
+diff --git a/docs/baby-tracker-spec.md b/docs/baby-tracker-spec.md
+index 60ced2a..0466f58 100644
+--- a/docs/baby-tracker-spec.md
++++ b/docs/baby-tracker-spec.md
+@@ -2537,3 +2537,17 @@ card at midday: the button showed in the day only for children under 18 months o
+ last two weeks, and none had been logged. Most children still nap until three or four, so the age is now under
+ four. Older children keep the rule as it was: in the day only if they have napped lately, and always in the
+ evening and at night.
++
++**Under a child's facts (19 November 2026).** Each line under the three facts now starts with its activity's
++icon: the bottle before the milk today, the moon or bottle or nappy before "Next … around", the medicine
++before a dose that is due. Chosen by Tom from four layouts (one line, a line each with its icon, under the box it
++belongs to, inside the boxes).
++
++**Learning the potty, still in nappies (19 November 2026).** For a child learning the potty who still wears
++nappies (under three, or not training), Tom chose from four ways and then refined one:
++- **The box** stays Potty, with the time since the last nappy small underneath, beside its icon, so both show
++  at a glance. The three boxes in a row stay the same height.
++- **Its sheet** has a nappy row (Wet, Dirty, Dry) above the potty row (Wee, Poo, Tried, Accident). Pick from
++  either or both, then Save ("Save both" when both). Both are logged at the chosen time, the nappy a second
++  earlier, as it is checked first. This costs one more tap than before when only one thing happened, for the
++  usual check of a dry nappy and then a wee on the potty. Editing an entry is as before.
+-- 
+2.43.0
+
