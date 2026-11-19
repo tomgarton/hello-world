@@ -389,18 +389,13 @@ struct RoomPainter {
         // A picture over it.
         rect(w - 150, 64, 40, 34, 5, col(0xFFFCF6, 0x4B4F8A))
         soft("blossom", w - 130, 81, 22, Color(hex: 0xE5553B), opacity: dark ? 0.7 : 1)
-        // The lamp over the table. Its cord runs to the ceiling, however far that is.
-        let x = w / 2 + CGFloat(sin(t * 0.7)) * 1.2
-        context.stroke(Path { $0.move(to: CGPoint(x: w / 2, y: 0)); $0.addLine(to: CGPoint(x: x, y: top + 66)) },
-                       with: .color(col(0x6B5E52, 0x8A80A0)), lineWidth: 1.6)
-        glow(x, 88, 96, 0xFFD98A, dark ? 0.42 : 0.3)
-        var shade = Path()
-        shade.move(to: CGPoint(x: x - 9, y: top + 64)); shade.addLine(to: CGPoint(x: x + 9, y: top + 64))
-        shade.addQuadCurve(to: CGPoint(x: x + 30, y: top + 86), control: CGPoint(x: x + 28, y: top + 66))
-        shade.addLine(to: CGPoint(x: x - 30, y: top + 86))
-        shade.addQuadCurve(to: CGPoint(x: x - 9, y: top + 64), control: CGPoint(x: x - 28, y: top + 66))
-        context.fill(shade, with: .color(Color(hex: 0xE5553B).opacity(dark ? 0.85 : 1)))
-        oval(x, 86, 9, 4, Color(hex: 0xFFF3B8))
+        // The lamp over the table. Its cord runs to the ceiling, however far that is. It swings from there when
+        // it is tapped or dragged (`LampSwing`), so it is drawn turned about the top of its cord.
+        var swung = context
+        swung.translateBy(x: w / 2, y: 0)
+        swung.rotate(by: .radians(-LampSwing.shared.angle(at: .now, length: top + 75)))
+        swung.translateBy(x: -w / 2, y: 0)
+        RoomPainter(context: &swung, w: w, top: top, dark: dark, t: t, hour: hour, weather: weather, style: style).hangingLamp()
         rug(col(0xF3D9C9, 0x4A3A48), col(0xE5553B, 0x7A3A34).opacity(0.55))
         // At a bare table, a chair under each of them: its legs show either side of their knees.
         if TeaTable.current == .bare {
@@ -423,6 +418,22 @@ struct RoomPainter {
             soft("soft-hexagon", w * 0.12 + 84, -142, 28, Color(hex: 0x3C9A5F), opacity: alpha * (dark ? 0.7 : 1))
         }
         if shown(204) > 0 { stars(on: -204, shown(204)) }
+    }
+
+    /// The lamp over the tea table, hanging straight down from the middle of the ceiling: its cord, its light,
+    /// its shade and its bulb. Drawn by `dining`, turned for its swing.
+    func hangingLamp() {
+        let x = w / 2 + CGFloat(sin(t * 0.7)) * 1.2
+        context.stroke(Path { $0.move(to: CGPoint(x: w / 2, y: 0)); $0.addLine(to: CGPoint(x: x, y: top + 66)) },
+                       with: .color(col(0x6B5E52, 0x8A80A0)), lineWidth: 1.6)
+        glow(x, 88, 96, 0xFFD98A, dark ? 0.42 : 0.3)
+        var shade = Path()
+        shade.move(to: CGPoint(x: x - 9, y: top + 64)); shade.addLine(to: CGPoint(x: x + 9, y: top + 64))
+        shade.addQuadCurve(to: CGPoint(x: x + 30, y: top + 86), control: CGPoint(x: x + 28, y: top + 66))
+        shade.addLine(to: CGPoint(x: x - 30, y: top + 86))
+        shade.addQuadCurve(to: CGPoint(x: x - 9, y: top + 64), control: CGPoint(x: x - 28, y: top + 66))
+        context.fill(shade, with: .color(Color(hex: 0xE5553B).opacity(dark ? 0.85 : 1)))
+        oval(x, 86, 9, 4, Color(hex: 0xFFF3B8))
     }
 
     /// After tea: the sofa, the cat, and something on the television.

@@ -593,6 +593,10 @@ struct PuggleHeader: View {
             // The tea table in front of everyone at it; at bedtime her quilt, the armchair's arms, a sleeping bag.
             if let room { RoomFront(room: room, dark: dim).opacity(appeared ? 1 : 0) }
         }
+        // At tea, the lamp over the table swings when it is tapped or dragged.
+        .overlay(alignment: .top) {
+            if room == .dining { LampHandle(pull: pull, width: width) }
+        }
         .overlay(alignment: .topTrailing) {
             YouButton(action: onYou)
                 .padding(.top, 58 + pull)

@@ -2614,3 +2614,22 @@ table with everyone seated.
 - **The cloth is kept** (`TeaTable.cloth`; launch with `-debugTable cloth`).
 - Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator with Nan, with Kip, and
   with no guest, in light; not in dark, not on a phone.
+
+## The tea lamp swings (19 November 2026)
+
+Tom asked whether things in the scenes could have a little physics you can tap or drag, starting with the
+lamp hanging over the tea table.
+
+- **Drag the lamp** and it follows the finger on its cord, from the middle of the ceiling. **Let go** and it
+  carries on at the finger's speed, swinging back and forth, slowing until it hangs still (a few seconds). A
+  **tap** pushes it away from the side tapped. One light haptic tick when let go or tapped.
+- **Gentle:** it never swings past about 34°, it settles in a few seconds, and nothing flashes. A longer cord
+  (Today pulled down) swings a little slower.
+- **Reduce Motion:** it only leans and comes back, with no swing.
+- **Only the lamp catches touches:** a patch over where it hangs. A drag anywhere else on the scene still pulls
+  Today down.
+- `Design/LampSwing.swift` (the swing, worked out each time the room is drawn, and the patch that takes the
+  touches); the lamp is drawn turned about the top of its cord (`RoomPainter.hangingLamp`).
+- Not yet: Puggle watching it swing, the other ideas (the bedroom mobile, a Hills Hoist that spins, washing and
+  branches that bounce, a picture that tips). Seen moving in the simulator with a drag and a tap; not on a
+  phone, not with Reduce Motion on, not in dark.
