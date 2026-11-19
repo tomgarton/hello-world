@@ -2564,4 +2564,8 @@ sitting pose, so whoever sits there is drawn standing and lowered behind the sea
   from nearer.
 - **The old layout is kept** (`BedroomLayout.front`, the chair at the front on the right). Launch with
   `-debugBedroom front` to see it, or `back` for the new one.
-- Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator, not on a phone.
+- **Then their legs (Tom, the same day):** "they should be visible". The chair's skirt is gone: a seat cushion
+  lies across their lap and the chair stands on short wooden feet, so their legs and feet hang down under the
+  cushion to the floor. The skirted chair at the back is kept too (`-debugBedroom backSkirted`).
+- Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator with Pop, not with Nan
+  in her skirt, and not on a phone.

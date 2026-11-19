@@ -71,29 +71,34 @@ enum Room: Int, CaseIterable {
 enum BedroomLayout: String {
     /// The chair at the front on the right, full size, with the table behind it (19 November 2026).
     case front
-    /// The chair further back in the corner, smaller and higher up, and the table beside the bed
-    /// (Tom, 19 November 2026: the sitter's cut-off legs looked odd at the front).
+    /// The chair further back in the corner, smaller and higher up, and the table beside the bed, with a
+    /// skirt to the floor hiding the sitter's legs (19 November 2026: still looked cut off).
+    case backSkirted
+    /// As `backSkirted`, but the chair has a seat cushion and short wooden feet in place of the skirt, so the
+    /// sitter's legs hang down under the cushion to the floor (Tom, 19 November 2026: they should be visible).
     case back
 
     static var current: BedroomLayout {
         #if DEBUG
-        // For checking: "-debugBedroom front" or "back".
+        // For checking: "-debugBedroom front", "backSkirted" or "back".
         if let forced = UserDefaults.standard.string(forKey: "debugBedroom").flatMap(BedroomLayout.init) { return forced }
         #endif
         return .back
     }
 
     /// How big the chair and whoever is in it are drawn, against the front of the room.
-    var chairScale: CGFloat { self == .back ? 0.76 : 1 }
+    var chairScale: CGFloat { self == .front ? 1 : 0.76 }
     /// Where the chair's feet meet the floor. The front of the room is 250.
-    var chairFloor: CGFloat { self == .back ? 212 : 250 }
+    var chairFloor: CGFloat { self == .front ? 250 : 212 }
     /// How far the person in the chair moves up from where they would sit at the front, at full size,
     /// once drawn at `chairScale` from the foot of their own box.
     var sitterLift: CGFloat { 26 * (1 - chairScale) - (250 - chairFloor) }
     /// The left edge of the table by the bed.
-    func tableLeft(width w: CGFloat) -> CGFloat { self == .back ? 186 : w - 138 }
+    func tableLeft(width w: CGFloat) -> CGFloat { self == .front ? w - 138 : 186 }
     /// Where the lamp on that table is, on Puggle's own box as she sits up in bed.
-    var lampOnPuggle: CGFloat { self == .back ? 0.95 : 1.45 }
+    var lampOnPuggle: CGFloat { self == .front ? 1.45 : 0.95 }
+    /// The sitter's legs show under the seat.
+    var legsShow: Bool { self == .back }
 }
 
 /// A room, behind Puggle. Flat shapes with no outline, like the world outdoors; only the cast has a line.
@@ -610,11 +615,23 @@ struct RoomPainter {
         }
         // The armchair's arms and seat, in front of whoever sits in it.
         let cloth = col(0xE9B872, 0x6A5468), deep = col(0xDDA75E, 0x5E4A60)
-        // Its skirt reaches the floor, so the feet of whoever sits in it are hidden.
-        armchair { rect, _ in
-            rect(-44, -50, 88, 50, 12, deep)
-            rect(-52, -80, 22, 80, 11, cloth)
-            rect(30, -80, 22, 80, 11, cloth)
+        if BedroomLayout.current.legsShow {
+            // A seat cushion across their lap, and short wooden feet, so their legs hang down to the floor.
+            let wood = col(0xB89A78, 0x5E4A3C)
+            armchair { rect, _ in
+                rect(-44, -26, 7, 26, 3, wood)
+                rect(37, -26, 7, 26, 3, wood)
+                rect(-46, -40, 92, 16, 8, deep)
+                rect(-52, -80, 22, 54, 11, cloth)
+                rect(30, -80, 22, 54, 11, cloth)
+            }
+        } else {
+            // Its skirt reaches the floor, so the feet of whoever sits in it are hidden.
+            armchair { rect, _ in
+                rect(-44, -50, 88, 50, 12, deep)
+                rect(-52, -80, 22, 80, 11, cloth)
+                rect(30, -80, 22, 80, 11, cloth)
+            }
         }
         // A sleeping bag over a friend staying the night.
         if let friend = people.first(where: { $0.pose == .bagSitting || $0.pose == .bagLying }) {
