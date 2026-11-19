@@ -2551,3 +2551,17 @@ nappies (under three, or not training), Tom chose from four ways and then refine
   either or both, then Save ("Save both" when both). Both are logged at the chosen time, the nappy a second
   earlier, as it is checked first. This costs one more tap than before when only one thing happened, for the
   usual check of a dry nappy and then a wee on the potty. Editing an entry is as before.
+
+## The armchair, further back (19 November 2026)
+
+Tom, on the rebuilt evening scenes: the grown-up in the armchair looked cut off at the legs. The cast has no
+sitting pose, so whoever sits there is drawn standing and lowered behind the seat.
+
+- **The chair now stands further back,** in the corner by the wall: three quarters of the size and higher up,
+  and whoever is in it is drawn at the same size. The seat still hides their legs, but at that distance it
+  reads as sitting in the chair.
+- **The table by the bed** is now right beside the bed, with its lamp and tonight's book. Her lamplight comes
+  from nearer.
+- **The old layout is kept** (`BedroomLayout.front`, the chair at the front on the right). Launch with
+  `-debugBedroom front` to see it, or `back` for the new one.
+- Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator, not on a phone.

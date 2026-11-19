@@ -56,7 +56,7 @@ enum Room: Int, CaseIterable {
     var lamp: UnitPoint? {
         switch self {
         case .dining: UnitPoint(x: 0.5, y: -0.35)
-        case .bedroom: UnitPoint(x: 1.45, y: 0.35)
+        case .bedroom: UnitPoint(x: BedroomLayout.current.lampOnPuggle, y: 0.35)
         case .living: UnitPoint(x: -1.2, y: 0.1)
         case .playroom: nil
         }
@@ -64,6 +64,36 @@ enum Room: Int, CaseIterable {
 
     /// What she wears there: pyjamas at bedtime, her dress otherwise. Never a coat indoors.
     var outfit: String { self == .bedroom ? "night" : "none" }
+}
+
+/// Where the armchair and the table by the bed stand in her bedroom. Both layouts are kept.
+/// The cast has no sitting pose, so whoever is in the chair is drawn standing, lowered behind its seat.
+enum BedroomLayout: String {
+    /// The chair at the front on the right, full size, with the table behind it (19 November 2026).
+    case front
+    /// The chair further back in the corner, smaller and higher up, and the table beside the bed
+    /// (Tom, 19 November 2026: the sitter's cut-off legs looked odd at the front).
+    case back
+
+    static var current: BedroomLayout {
+        #if DEBUG
+        // For checking: "-debugBedroom front" or "back".
+        if let forced = UserDefaults.standard.string(forKey: "debugBedroom").flatMap(BedroomLayout.init) { return forced }
+        #endif
+        return .back
+    }
+
+    /// How big the chair and whoever is in it are drawn, against the front of the room.
+    var chairScale: CGFloat { self == .back ? 0.76 : 1 }
+    /// Where the chair's feet meet the floor. The front of the room is 250.
+    var chairFloor: CGFloat { self == .back ? 212 : 250 }
+    /// How far the person in the chair moves up from where they would sit at the front, at full size,
+    /// once drawn at `chairScale` from the foot of their own box.
+    var sitterLift: CGFloat { 26 * (1 - chairScale) - (250 - chairFloor) }
+    /// The left edge of the table by the bed.
+    func tableLeft(width w: CGFloat) -> CGFloat { self == .back ? 186 : w - 138 }
+    /// Where the lamp on that table is, on Puggle's own box as she sits up in bed.
+    var lampOnPuggle: CGFloat { self == .back ? 0.95 : 1.45 }
 }
 
 /// A room, behind Puggle. Flat shapes with no outline, like the world outdoors; only the cast has a line.
@@ -488,25 +518,27 @@ struct RoomPainter {
         // Her rabbit waits on the pillow; once she is tucked in, it is beside her (see `bedFront`).
         if tonight.bed != .asleep { rabbit(60, 122) }
         // The table by the bed: a lamp left on, and tonight's book.
-        let wood = col(0xD9B48A, 0x5E4A3C)
-        rect(w - 138, 128, 58, 40, 7, wood)
-        rect(w - 132, 136, 46, 12, 4, col(0xCBA377, 0x524032))
-        rect(w - 122, 120, 26, 7, 2, Color(hex: 0xE5553B).opacity(dark ? 0.7 : 1))
+        let layout = BedroomLayout.current
+        let wood = col(0xD9B48A, 0x5E4A3C), table = layout.tableLeft(width: w)
+        rect(table, 128, 58, 40, 7, wood)
+        rect(table + 6, 136, 46, 12, 4, col(0xCBA377, 0x524032))
+        rect(table + 16, 120, 26, 7, 2, Color(hex: 0xE5553B).opacity(dark ? 0.7 : 1))
         let flicker = 0.94 + 0.06 * sin(t * 5.3) * sin(t * 1.9)
-        glow(w - 104, 96, 104, 0xFFD98A, (dark ? 0.5 : 0.3) * flicker)
-        rect(w - 92, 108, 5, 20, 2, col(0x6B5E52, 0x8A80A0))
+        glow(table + 34, 96, 104, 0xFFD98A, (dark ? 0.5 : 0.3) * flicker)
+        rect(table + 46, 108, 5, 20, 2, col(0x6B5E52, 0x8A80A0))
         var shade = Path()
-        shade.move(to: CGPoint(x: w - 102, y: top + 86)); shade.addLine(to: CGPoint(x: w - 77, y: top + 86))
-        shade.addLine(to: CGPoint(x: w - 70, y: top + 110)); shade.addLine(to: CGPoint(x: w - 109, y: top + 110)); shade.closeSubpath()
+        shade.move(to: CGPoint(x: table + 36, y: top + 86)); shade.addLine(to: CGPoint(x: table + 61, y: top + 86))
+        shade.addLine(to: CGPoint(x: table + 68, y: top + 110)); shade.addLine(to: CGPoint(x: table + 29, y: top + 110)); shade.closeSubpath()
         context.fill(shade, with: .color(col(0xF4E7B0, 0xF0D890)))
         // The lamp's light lying on the floor, reaching her.
         oval(w / 2 + 44, 214, 100, 20, Color(hex: 0xFFD98A).opacity(dark ? 0.16 : 0.12))
         rug(col(0xCFE5D2, 0x35485A), col(0x3C9A5F, 0x2A5A48).opacity(0.5))
         // The armchair by the bed, for stories and for whoever is babysitting. Its arms are drawn in front.
-        let chair = w * 0.84
-        oval(chair, 242, 52, 6, Palette.fixedInk.opacity(dark ? 0.3 : 0.1))
-        rect(chair - 44, 116, 88, 92, 26, col(0xE9B872, 0x6A5468))
-        rect(chair - 34, 128, 68, 66, 18, col(0xDDA75E, 0x5E4A60))
+        armchair { rect, oval in
+            oval(0, -8, 52, 6, Palette.fixedInk.opacity(dark ? 0.3 : 0.1))
+            rect(-44, -134, 88, 92, 26, col(0xE9B872, 0x6A5468))
+            rect(-34, -122, 68, 66, 18, col(0xDDA75E, 0x5E4A60))
+        }
         // A friend sleeping over: the inside of their sleeping bag, and a pillow.
         if let friend = tonight.people.first(where: { $0.pose == .bagSitting || $0.pose == .bagLying }) {
             let bag = sleepingBag(friend)
@@ -577,11 +609,13 @@ struct RoomPainter {
             break
         }
         // The armchair's arms and seat, in front of whoever sits in it.
-        let chair = w * 0.84, cloth = col(0xE9B872, 0x6A5468), deep = col(0xDDA75E, 0x5E4A60)
+        let cloth = col(0xE9B872, 0x6A5468), deep = col(0xDDA75E, 0x5E4A60)
         // Its skirt reaches the floor, so the feet of whoever sits in it are hidden.
-        rect(chair - 44, 200, 88, 50, 12, deep)
-        rect(chair - 52, 170, 22, 80, 11, cloth)
-        rect(chair + 30, 170, 22, 80, 11, cloth)
+        armchair { rect, _ in
+            rect(-44, -50, 88, 50, 12, deep)
+            rect(-52, -80, 22, 80, 11, cloth)
+            rect(30, -80, 22, 80, 11, cloth)
+        }
         // A sleeping bag over a friend staying the night.
         if let friend = people.first(where: { $0.pose == .bagSitting || $0.pose == .bagLying }) {
             let bag = sleepingBag(friend)
@@ -589,6 +623,18 @@ struct RoomPainter {
             // Its turned-back top.
             rect(bag.front.minX, bag.front.minY, bag.front.width, 10, 5, col(0xE5553B, 0x7A3A34))
         }
+    }
+
+    /// Draws the armchair from its own origin, the middle of where it meets the floor, at the layout's place and size.
+    private func armchair(_ draw: ((CGFloat, CGFloat, CGFloat, CGFloat, CGFloat, Color) -> Void,
+                                   (CGFloat, CGFloat, CGFloat, CGFloat, Color) -> Void) -> Void) {
+        let layout = BedroomLayout.current, k = layout.chairScale
+        let cx = w * 0.84, floor = layout.chairFloor
+        draw({ x, y, width, height, radius, colour in
+            rect(cx + x * k, floor + y * k, width * k, height * k, radius * k, colour)
+        }, { x, y, rx, ry, colour in
+            oval(cx + x * k, floor + y * k, rx * k, ry * k, colour)
+        })
     }
 
     // MARK: Things in the rooms
