@@ -2635,3 +2635,9 @@ lamp hanging over the tea table.
 - Not yet: the other ideas (the bedroom mobile, a Hills Hoist that spins, washing and
   branches that bounce, a picture that tips). Seen moving in the simulator with a drag and a tap; not on a
   phone, not with Reduce Motion on, not in dark.
+
+**TestFlight, 19 November 2026, about 20:44 local time:** an upload of 0.1.0 from the second Mac, from commit
+d006065 (not yet pushed to GitHub when it was sent). App Store Connect gives it its number. It carries the
+rearranged one-child Lock Screen card, everyone seated at a bare tea table (the grown-ups, Puggle and the
+friends, each with a lap), the tea lamp that swings when tapped or dragged, and Puggle watching it. The first
+attempt stopped at "Failed to Use Accounts" until Tom signed in to Xcode on this Mac again. No new synced fields.
