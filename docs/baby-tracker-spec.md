@@ -2453,3 +2453,12 @@ Built as decided the day before: secular, by place, a switch to turn them off. O
   December?), and Christmas on the beach in the south. The beach is just one of the four scenes, not chosen
   for the day.
 - 133 tests pass, 5 of them new. Seen in renders, not on a phone.
+
+## Build sent to TestFlight (18 November 2026)
+
+Uploaded with `zsh tools/testflight.sh` and accepted for processing; App Store Connect numbers it (16, if the
+count has held). It carries: Looking after (baths, brushing with a stamp, nails, haircuts, the dentist and the
+doctor, a family's own), the night sky by hemisphere, the five special days, cloudy nights, rain on the
+friend's umbrella, and One Boot at the house. No new synced fields, so no CloudKit deploy is needed; a phone
+still on an older build shows care entries as notes. Apple warned that from April 2027 uploads need the iOS 27
+SDK (Xcode 27).
