@@ -47,19 +47,44 @@ def add_lap(rig, kind, variant, garment, trim, shade):
     return lap(rig, fill, shade(fill))
 
 
-def lap(rig, fill, tint, half=21):
-    """The lap itself: a knee on each leg in `fill`, outlined in `tint`, and the upper half's drop."""
+def friend_lap(rig, shade):
+    """A friend's lap. With legs of their own, their knees are their fur, below clothes that end at the hips.
+    In dungarees, drawn down to their feet with no legs, the knees are the dungarees' colour, over the bottom of
+    them, and they stay at their height: brought down, the dungarees would cover their feet."""
+    by_id = {p['id']: p for p in rig['parts']}
+    if 'leg-left' in by_id:
+        leg = by_id['leg-left']['shapes'][0]
+        return lap(rig, leg['fill'], leg.get('tint') or shade(leg['fill']), half=16)
+    if 'foot-left' not in by_id or 'upper' not in by_id:
+        return rig
+    # The lowest filled shape of the upper half is the dungarees' legs.
+    def bottom(shape):
+        import re
+        if shape.get('kind') != 'path' or not shape.get('fill'):
+            return -1
+        return max(float(v) for v in re.findall(r'-?[\d.]+', shape['d'])[1::2])
+    cloth = max(by_id['upper']['shapes'], key=bottom)
+    ankle = by_id['foot-left']['pivot'][1]
+    legs = (by_id['foot-left']['pivot'][0], by_id['foot-right']['pivot'][0], ankle - 32, ankle)
+    return lap(rig, cloth['fill'], cloth.get('tint') or shade(cloth['fill']), half=16, legs=legs, drop=0)
+
+
+def lap(rig, fill, tint, half=21, legs=None, drop=None):
+    """The lap itself: a knee on each leg in `fill`, outlined in `tint`, and the upper half's drop.
+    `legs` gives the left and right leg's x, the hip and the ankle where a rig has no leg parts."""
     parts = [p for p in rig['parts'] if p['id'] != 'lap']
     by_id = {p['id']: p for p in parts}
-    if 'leg-left' not in by_id or 'leg-right' not in by_id:
-        return rig
-    hip = by_id['leg-left']['pivot'][1]
-    ankle = by_id['foot-left']['pivot'][1]
+    if legs is None:
+        if 'leg-left' not in by_id or 'leg-right' not in by_id:
+            return rig
+        legs = (by_id['leg-left']['pivot'][0], by_id['leg-right']['pivot'][0],
+                by_id['leg-left']['pivot'][1], by_id['foot-left']['pivot'][1])
+    left_x, right_x, hip, ankle = legs
     leg = ankle - hip
-    drop = round(DROP * leg, 1)
+    drop = round(DROP * leg, 1) if drop is None else drop
     shapes = []
     for side in ('left', 'right'):
-        cx = by_id[f'leg-{side}']['pivot'][0]
+        cx = left_x if side == 'left' else right_x
         # Each knee a little wider than the leg, the two just apart, from the hips to where the shin begins.
         cx += -2 if side == 'left' else 2
         shapes.append({'kind': 'path', 'd': knee(cx, hip + drop - KNEE_TOP * leg, half, KNEE_DEPTH * leg, min(17, half - 3)),
@@ -71,7 +96,8 @@ def lap(rig, fill, tint, half=21):
         at += 1
     parts.insert(at, part)
     rig['parts'] = parts
-    rig['sitting'] = {'upper': {'y': drop}}
+    if drop:
+        rig['sitting'] = {'upper': {'y': drop}}
     return rig
 
 

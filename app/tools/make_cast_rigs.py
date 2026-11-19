@@ -1177,6 +1177,7 @@ def main():
             rig = build(name, svg, height, about, shade, moves, puggle, variant)
             rig['wardrobe'] = wardrobe
             if name in TRIM: rig = sitting_lap.add_lap(rig, name, variant, colour, TRIM[name], shade)
+            if name in ('kip', 'quill', 'digby', 'sunny'): rig = sitting_lap.friend_lap(rig, shade)
             if name in UMBRELLA: rig = lowered(rig, HEADROOM)
             if name in UMBRELLA: rig['sideroom'] = SIDEROOM
             elif any(p['id'] == 'wand' for p in rig['parts']): rig['sideroom'] = 30

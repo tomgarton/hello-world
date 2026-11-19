@@ -2605,8 +2605,12 @@ table with everyone seated.
 - **Puggle sits too.** Her own rig now has a lap (her legs' brown, since her dress ends at her hips), added by
   `python3 tools/sitting_lap.py puggle`. The copy in `design/canvas/gen/puggle.rig.json` is updated to match.
   The lap's size now follows each character's leg, so one rule fits her and the grown-ups.
-- **The friends don't have a lap yet.** Several are drawn with no separate legs. A friend at tea on a sleepover
-  night shows their dungarees or legs under the table, standing.
+- **The friends sit too (Tom, the same evening).** Kip, Quill, Digby and Sunny, in every outfit, have a lap
+  from `sitting_lap.friend_lap`, run by `make_cast_rigs.py`. With legs of their own (a dress, a jumper, a
+  tee), their knees are their fur, like Puggle's, and they come down onto them. In dungarees, which are drawn
+  to their feet with no legs, their knees are the dungarees' colour over the bottom of them, and they stay at
+  their height, since brought down the dungarees would cover their feet. Seen at tea: Kip in her dress and
+  dungarees, Quill in his tee, Digby in his tee, Sunny.
 - **The cloth is kept** (`TeaTable.cloth`; launch with `-debugTable cloth`).
 - Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator with Nan, with Kip, and
   with no guest, in light; not in dark, not on a phone.

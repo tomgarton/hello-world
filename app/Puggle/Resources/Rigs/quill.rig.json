@@ -203,6 +203,33 @@
    ]
   },
   {
+   "id": "lap",
+   "parent": "body",
+   "pivot": [
+    120.0,
+    306.0
+   ],
+   "when": "seat=sitting",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M82 297 L114 297 L114 308.4 Q114 321.4 101 321.4 L95 321.4 Q82 321.4 82 308.4 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 6
+    },
+    {
+     "kind": "path",
+     "d": "M126 297 L158 297 L158 308.4 Q158 321.4 145 321.4 L139 321.4 Q126 321.4 126 308.4 Z",
+     "fill": "#E5553B",
+     "stroke": "#3A2A20",
+     "tint": "#B23A26",
+     "width": 6
+    }
+   ]
+  },
+  {
    "id": "book",
    "parent": "upper",
    "pivot": [
