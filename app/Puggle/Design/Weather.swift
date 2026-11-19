@@ -118,7 +118,18 @@ private struct OutfitKey: EnvironmentKey {
     static let defaultValue = "none"
 }
 
+private struct SeatKey: EnvironmentKey {
+    static let defaultValue = "standing"
+}
+
 extension EnvironmentValues {
+    /// How a rigged character is: "standing", or "sitting" in a chair seen from the front, which shows the
+    /// grown-ups' laps (their "lap" part, from `tools/sitting_lap.py`).
+    var seat: String {
+        get { self[SeatKey.self] }
+        set { self[SeatKey.self] = newValue }
+    }
+
     /// What a rigged character is wearing: see `Weather.outfit`.
     var outfit: String {
         get { self[OutfitKey.self] }

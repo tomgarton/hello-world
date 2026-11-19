@@ -76,11 +76,14 @@ enum BedroomLayout: String {
     case backSkirted
     /// As `backSkirted`, but the chair has a seat cushion and short wooden feet in place of the skirt, so the
     /// sitter's legs hang down under the cushion to the floor (Tom, 19 November 2026: they should be visible).
+    case backUnderSeat
+    /// As `backUnderSeat`, but the cushion is behind the sitter, so their legs hang down in front of the seat
+    /// (Tom, 19 November 2026: Pop's legs should be in front of the chair).
     case back
 
     static var current: BedroomLayout {
         #if DEBUG
-        // For checking: "-debugBedroom front", "backSkirted" or "back".
+        // For checking: "-debugBedroom front", "backSkirted", "backUnderSeat" or "back".
         if let forced = UserDefaults.standard.string(forKey: "debugBedroom").flatMap(BedroomLayout.init) { return forced }
         #endif
         return .back
@@ -98,7 +101,9 @@ enum BedroomLayout: String {
     /// Where the lamp on that table is, on Puggle's own box as she sits up in bed.
     var lampOnPuggle: CGFloat { self == .front ? 1.45 : 0.95 }
     /// The sitter's legs show under the seat.
-    var legsShow: Bool { self == .back }
+    var legsShow: Bool { self == .back || self == .backUnderSeat }
+    /// The sitter's legs are in front of the seat, not under it.
+    var legsInFront: Bool { self == .back }
 }
 
 /// A room, behind Puggle. Flat shapes with no outline, like the world outdoors; only the cast has a line.
@@ -543,6 +548,13 @@ struct RoomPainter {
             oval(0, -8, 52, 6, Palette.fixedInk.opacity(dark ? 0.3 : 0.1))
             rect(-44, -134, 88, 92, 26, col(0xE9B872, 0x6A5468))
             rect(-34, -122, 68, 66, 18, col(0xDDA75E, 0x5E4A60))
+            // Its seat and feet, behind whoever sits on it, so their legs hang down in front.
+            if BedroomLayout.current.legsInFront {
+                let wood = col(0xB89A78, 0x5E4A3C)
+                rect(-44, -26, 7, 26, 3, wood)
+                rect(37, -26, 7, 26, 3, wood)
+                rect(-46, -40, 92, 18, 8, col(0xDDA75E, 0x5E4A60))
+            }
         }
         // A friend sleeping over: the inside of their sleeping bag, and a pillow.
         if let friend = tonight.people.first(where: { $0.pose == .bagSitting || $0.pose == .bagLying }) {
@@ -618,10 +630,13 @@ struct RoomPainter {
         if BedroomLayout.current.legsShow {
             // A seat cushion across their lap, and short wooden feet, so their legs hang down to the floor.
             let wood = col(0xB89A78, 0x5E4A3C)
+            let underSeat = !BedroomLayout.current.legsInFront
             armchair { rect, _ in
-                rect(-44, -26, 7, 26, 3, wood)
-                rect(37, -26, 7, 26, 3, wood)
-                rect(-46, -40, 92, 16, 8, deep)
+                if underSeat {
+                    rect(-44, -26, 7, 26, 3, wood)
+                    rect(37, -26, 7, 26, 3, wood)
+                    rect(-46, -40, 92, 16, 8, deep)
+                }
                 rect(-52, -80, 22, 54, 11, cloth)
                 rect(30, -80, 22, 54, 11, cloth)
             }

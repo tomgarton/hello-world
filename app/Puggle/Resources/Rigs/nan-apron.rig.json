@@ -217,6 +217,33 @@
    ]
   },
   {
+   "id": "lap",
+   "parent": "body",
+   "pivot": [
+    120.0,
+    376.88
+   ],
+   "when": "seat=sitting",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M78 386.9 L120 386.9 L120 407.9 Q120 424.9 103 424.9 L95 424.9 Q78 424.9 78 407.9 Z",
+     "fill": "#BBD6F4",
+     "stroke": "#3A2A20",
+     "tint": "#4C627A",
+     "width": 7
+    },
+    {
+     "kind": "path",
+     "d": "M120 386.9 L162 386.9 L162 407.9 Q162 424.9 145 424.9 L137 424.9 Q120 424.9 120 407.9 Z",
+     "fill": "#BBD6F4",
+     "stroke": "#3A2A20",
+     "tint": "#4C627A",
+     "width": 7
+    }
+   ]
+  },
+  {
    "id": "book",
    "parent": "upper",
    "pivot": [
@@ -3016,6 +3043,11 @@
    }
   ],
   "rain": {}
+ },
+ "sitting": {
+  "upper": {
+   "y": 24
+  }
  },
  "headroom": 62,
  "sideroom": 60

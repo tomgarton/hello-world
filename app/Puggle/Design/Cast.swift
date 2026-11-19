@@ -142,7 +142,11 @@ struct Company: Equatable {
             here.append(Company(member: friend, x: 0.04, activity: bed == .reading ? .with : .dozing,
                                 pose: bed == .reading ? .bagSitting : .bagLying))
         }
-        let grownUp: CastMember = [.mum, .dad, .nan, .pop][day % 4]
+        var grownUp: CastMember = [.mum, .dad, .nan, .pop][day % 4]
+        #if DEBUG
+        // For checking: "-debugSitter nan" (or mum, dad, pop) for who is in the armchair.
+        if let forced = UserDefaults.standard.string(forKey: "debugSitter").flatMap(CastMember.init) { grownUp = forced }
+        #endif
         let late = minute < 6 * 60 || minute >= 22 * 60
         switch bed {
         case .reading, .up: here.append(Company(member: grownUp, x: 0.34, pose: .armchair))

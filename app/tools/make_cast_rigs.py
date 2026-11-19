@@ -13,7 +13,7 @@ Run it again whenever the canvas drawings change.
 import json, math, os, re, sys
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import bend_arms, sunglasses
+import bend_arms, sunglasses, sitting_lap
 import xml.etree.ElementTree as ET
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -1176,6 +1176,7 @@ def main():
         for variant, svg in variants.items():
             rig = build(name, svg, height, about, shade, moves, puggle, variant)
             rig['wardrobe'] = wardrobe
+            if name in TRIM: rig = sitting_lap.add_lap(rig, name, variant, colour, TRIM[name], shade)
             if name in UMBRELLA: rig = lowered(rig, HEADROOM)
             if name in UMBRELLA: rig['sideroom'] = SIDEROOM
             elif any(p['id'] == 'wand' for p in rig['parts']): rig['sideroom'] = 30

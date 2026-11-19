@@ -541,6 +541,8 @@ struct PuggleHeader: View {
                     .environment(\.moonlit, room == nil && isNight)
                     .environment(\.outfit, wearing)
                     .environment(\.shades, Shades.forOutfit(wearing))
+                    // In the armchair with their legs in front of the seat: sitting, so their lap shows.
+                    .environment(\.seat, company.pose == .armchair && BedroomLayout.current.legsInFront ? "sitting" : "standing")
                     // In the armchair: as far back as the chair stands, so smaller and higher up.
                     .scaleEffect(company.pose == .armchair ? BedroomLayout.current.chairScale : 1, anchor: .bottom)
                     .offset(x: company.x * width, y: company.pose == .armchair ? BedroomLayout.current.sitterLift : 0)

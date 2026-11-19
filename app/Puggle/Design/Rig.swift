@@ -31,6 +31,8 @@ struct Rig: Codable {
     /// How far something held (an umbrella's canopy) reaches past the drawing's sides, in the drawing's units.
     /// The drawing keeps its size and place; it is only given this much more room to draw in on each side.
     var sideroom: CGFloat?
+    /// How parts move while the face says "seat=sitting": a grown-up's upper half comes down onto their lap.
+    var sitting: [String: Pose]?
 
     struct Wardrobe: Codable {
         /// The first is as drawn (no swaps).
@@ -241,7 +243,8 @@ enum RigRenderer {
             .scaledBy(x: scale, y: scale)
         var world: [String: CGAffineTransform] = [:]
         for part in rig.parts {
-            let state = states[part.id] ?? .rest
+            var state = states[part.id] ?? .rest
+            if face["seat"] == "sitting", let pose = rig.sitting?[part.id] { state.add(pose) }
             let pivot = CGPoint(x: part.pivot[0], y: part.pivot[1])
             // About the pivot: scale, then turn, then shift.
             let local = CGAffineTransform(translationX: pivot.x + state.x, y: pivot.y + state.y)
@@ -714,6 +717,7 @@ struct RigView: View {
     @Environment(\.handDrawn) private var handDrawn
     @Environment(\.outfit) private var outfit
     @Environment(\.shades) private var shades
+    @Environment(\.seat) private var seat
 
     var body: some View {
         // Something held out to the side (a bubble wand) reaches past the drawing's edge. She keeps her size and
@@ -733,12 +737,12 @@ struct RigView: View {
             TimelineView(.animation) { timeline in
                 Canvas { context, size in
                     let states = runtime.advance(to: timeline.date)
-                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face.merging(["outfit": outfit, "shades": shades]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
+                    RigRenderer.draw(runtime.rig, states: states, face: runtime.face.merging(["outfit": outfit, "shades": shades, "seat": seat]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
                 }
             }
         } else {
             Canvas { context, size in
-                RigRenderer.draw(runtime.rig, states: [:], face: (runtime.rig.face ?? [:]).merging(["outfit": outfit, "shades": shades]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
+                RigRenderer.draw(runtime.rig, states: [:], face: (runtime.rig.face ?? [:]).merging(["outfit": outfit, "shades": shades, "seat": seat]) { _, new in new }, style: lineStyle, moonlit: moonlit, warmLight: warmLight, handDrawn: handDrawn, in: &context, size: size)
             }
         }
     }

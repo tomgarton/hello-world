@@ -2567,5 +2567,14 @@ sitting pose, so whoever sits there is drawn standing and lowered behind the sea
 - **Then their legs (Tom, the same day):** "they should be visible". The chair's skirt is gone: a seat cushion
   lies across their lap and the chair stands on short wooden feet, so their legs and feet hang down under the
   cushion to the floor. The skirted chair at the back is kept too (`-debugBedroom backSkirted`).
-- Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator with Pop, not with Nan
-  in her skirt, and not on a phone.
+- **Then a sitting pose (Tom, the same day):** "Pop's legs should be in front of the chair", with a new pose for
+  sitting. Tom chose a newly drawn lap over reusing the standing legs. Each grown-up (Mum, Dad, Nan and Pop, in
+  all three outfits) has a new part, the lap: a knee on each leg, seen from the front, in whatever covers their
+  thighs (trousers, shorts, a skirt, a dress, an apron). While sitting, their upper half comes down onto it and
+  their feet peek out below. The chair's seat and feet are now behind them. Made by `app/tools/sitting_lap.py`,
+  run from `make_cast_rigs.py`; shown when the face says `seat=sitting` (the `seat` environment value).
+  Standing is unchanged. The legs-under-the-seat chair is kept (`-debugBedroom backUnderSeat`).
+- For checking: `-debugSitter mum` (or dad, nan, pop) picks who is in the armchair.
+- Not done: the same pose at the tea table, where the cloth still hides everyone's legs.
+- Pictures were sent to Tom, not kept in the repo. 138 tests pass. Seen in the simulator for all four
+  grown-ups, one outfit each, reading time only; not dozing, not on a phone.
