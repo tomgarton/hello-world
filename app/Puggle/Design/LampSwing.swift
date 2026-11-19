@@ -51,6 +51,9 @@ final class LampSwing {
         return angle
     }
 
+    /// Hanging still, and not held.
+    var settled: Bool { held == nil && angle == 0 && speed == 0 }
+
     /// Held by a finger at this angle.
     func hold(_ to: Double) {
         held = min(max(to, -Self.reach), Self.reach)
@@ -79,6 +82,8 @@ struct LampHandle: View {
     /// How far Today is pulled down: the cord is that much longer.
     let pull: CGFloat
     let width: CGFloat
+    /// Called as it is touched, so Puggle can watch it.
+    var onSwing: () -> Void = {}
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var start: CGPoint?
 
@@ -93,7 +98,7 @@ struct LampHandle: View {
                 DragGesture(minimumDistance: 0)
                     .onChanged { value in
                         LampSwing.shared.calm = reduceMotion
-                        if start == nil { start = value.startLocation }
+                        if start == nil { start = value.startLocation; onSwing() }
                         // A drag of more than a few points: the lamp follows the finger on its cord.
                         if hypot(value.translation.width, value.translation.height) > 6 {
                             LampSwing.shared.hold(swing(at: value.location))

@@ -2630,6 +2630,8 @@ lamp hanging over the tea table.
   Today down.
 - `Design/LampSwing.swift` (the swing, worked out each time the room is drawn, and the patch that takes the
   touches); the lamp is drawn turned about the top of its cord (`RoomPainter.hangingLamp`).
-- Not yet: Puggle watching it swing, the other ideas (the bedroom mobile, a Hills Hoist that spins, washing and
+- **Puggle watches it** (Tom, the same evening): from her place at the table her eyes follow the lamp while it
+  swings, and she looks back down once it hangs still. Subtle at this size.
+- Not yet: the other ideas (the bedroom mobile, a Hills Hoist that spins, washing and
   branches that bounce, a picture that tips). Seen moving in the simulator with a drag and a tap; not on a
   phone, not with Reduce Motion on, not in dark.

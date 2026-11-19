@@ -352,6 +352,8 @@ struct PuggleHeader: View {
     @Environment(\.scenePhase) private var scenePhase
     /// How far the sky has been pulled down past the top, and the furthest this pull.
     @State private var pull: CGFloat = 0
+    /// Her eyes following the tea lamp while it swings.
+    @State private var watchingLamp: Task<Void, Never>?
     @State private var furthest: CGFloat = 0
     @AppStorage("puggleGreetedOn") private var greetedOn = ""
     /// The weather chosen in the Developer menu (later, the real one). Read here so she changes with it.
@@ -595,12 +597,30 @@ struct PuggleHeader: View {
         }
         // At tea, the lamp over the table swings when it is tapped or dragged.
         .overlay(alignment: .top) {
-            if room == .dining { LampHandle(pull: pull, width: width) }
+            if room == .dining { LampHandle(pull: pull, width: width) { watchLamp(width: width) } }
         }
         .overlay(alignment: .topTrailing) {
             YouButton(action: onYou)
                 .padding(.top, 58 + pull)
                 .padding(.trailing, 16)
+        }
+    }
+
+    /// While the tea lamp swings, her eyes follow it from her place at the table; once it hangs still, she looks
+    /// back down.
+    private func watchLamp(width: CGFloat) {
+        watchingLamp?.cancel()
+        let mine = Double(Company.tea().puggle * width)
+        watchingLamp = Task { @MainActor in
+            var still = 0
+            while !Task.isCancelled, still < 6 {
+                let reach = Double(pull + 75)
+                let across = sin(LampSwing.shared.angle) * reach - mine
+                controller.look(x: min(max(across / 110, -1), 1), y: -0.8)
+                still = LampSwing.shared.settled ? still + 1 : 0
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+            if !Task.isCancelled { controller.look(x: 0, y: 0) }
         }
     }
 
