@@ -36,6 +36,8 @@ struct LogSheet: View {
     @State private var minutes = 10.0
     @State private var food = ""
     @State private var choice: String?
+    /// With the potty, for a child still in nappies: what the nappy was, picked alongside.
+    @State private var nappyChoice: String?
     @State private var note = ""
     @State private var medicine = ""
     @State private var doseText = ""
@@ -71,6 +73,7 @@ struct LogSheet: View {
     private var isEditing: Bool { editing != nil }
 
     private var saveTitle: String {
+        if pottyAndNappy { return nappyChoice != nil && choice != nil ? "Save both" : "Save" }
         guard kind == .care else { return "Save \(kind.title.lowercased())" }
         let name = CareItem.name(forKey: care).lowercased()
         return bookedVisit ? "Book \(name)" : "Save \(name)"
@@ -284,10 +287,17 @@ struct LogSheet: View {
     // MARK: Details
 
     /// A new nappy or potty entry saves from its choice buttons.
-    private var needsSaveButton: Bool { isEditing || !(kind == .nappy || kind == .potty) }
+    private var needsSaveButton: Bool { isEditing || pottyAndNappy || !(kind == .nappy || kind == .potty) }
+
+    /// Learning the potty and still in nappies: the potty sheet has a nappy row too. Pick from either or both,
+    /// then save, for the usual check of a dry nappy and then a wee on the potty (Tom, 19 November 2026).
+    private var pottyAndNappy: Bool {
+        kind == .potty && !isEditing && !chosenChildren.isEmpty && chosenChildren.allSatisfy { $0.uses(.nappy) }
+    }
 
     private var canSave: Bool {
         guard !chosenChildren.isEmpty else { return false }
+        if pottyAndNappy { return choice != nil || nappyChoice != nil }
         switch kind {
         case .medicine: return !medicine.trimmingCharacters(in: .whitespaces).isEmpty
         case .temperature: return (temperature ?? 0) > 0
@@ -592,7 +602,16 @@ struct LogSheet: View {
                 quickChoices(["Wet", "Dirty", "Both", "Dry"])
             }
         case .potty:
-            quickChoices(["Wee", "Poo", "Tried", "Accident"])
+            if pottyAndNappy {
+                VStack(alignment: .leading, spacing: 12) {
+                    pickRow(Terms.nappy, icon: EventKind.nappy.iconName, ["Wet", "Dirty", "Dry"], $nappyChoice)
+                    pickRow("Potty", icon: EventKind.potty.iconName, ["Wee", "Poo", "Tried", "Accident"], $choice)
+                    timeRow("Time", $time)
+                    timeShortcuts
+                }
+            } else {
+                quickChoices(["Wee", "Poo", "Tried", "Accident"])
+            }
         case .note:
             timeRow("Time", $time)
         case .medicine:
@@ -880,6 +899,39 @@ struct LogSheet: View {
         return foods
     }
 
+    /// A labelled row of choices, one of which may be picked; a second tap unpicks it.
+    private func pickRow(_ title: String, icon: String, _ options: [String], _ picked: Binding<String?>) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack(spacing: 5) {
+                Image(icon + "-plain").renderingMode(.template).resizable().scaledToFit().frame(width: 14, height: 14)
+                    .accessibilityHidden(true)
+                Text(title)
+            }
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(Palette.muted)
+            HStack(spacing: 8) {
+                ForEach(options, id: \.self) { option in
+                    let isOn = picked.wrappedValue == option
+                    Button {
+                        Haptics.selection()
+                        picked.wrappedValue = isOn ? nil : option
+                    } label: {
+                        Text(option)
+                            .font(.subheadline.weight(.semibold))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.8)
+                            .frame(maxWidth: .infinity, minHeight: 56)
+                            .foregroundStyle(isOn ? Palette.paper : Palette.ink)
+                            .background(isOn ? Palette.ink : Palette.paper, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+                    }
+                    .buttonStyle(PressStyle())
+                    .accessibilityLabel("\(title), \(option)")
+                    .accessibilityAddTraits(isOn ? .isSelected : [])
+                }
+            }
+        }
+    }
+
     private func quickChoices(_ options: [String]) -> some View {
         VStack(spacing: 12) {
             LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
@@ -1073,6 +1125,11 @@ struct LogSheet: View {
                                        dose: extra.isEmpty ? nil : extra)
             case .sleep:
                 events = store.logEach(.sleep, for: who, at: min(time, endTime), end: max(time, endTime), note: noteValue)
+            case .potty where pottyAndNappy:
+                // The nappy first, a moment before: it was checked, then the potty was tried.
+                let nappy = nappyChoice.map { store.logEach(.nappy, for: who, at: time.addingTimeInterval(-1), detail: $0, note: choice == nil ? noteValue : nil) } ?? []
+                let potty = choice.map { store.logEach(.potty, for: who, at: time, detail: $0, note: noteValue) } ?? []
+                events = nappy + potty
             case .nappy, .potty:
                 events = store.logEach(kind, for: who, at: time, detail: detail, note: noteValue,
                                        dose: kind == .nappy && !extra.isEmpty ? extra : nil)

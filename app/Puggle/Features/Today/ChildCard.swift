@@ -16,6 +16,9 @@ struct ChildFact: Identifiable, Equatable {
     let kind: Kind
     /// "1h 29m", or nil when there is nothing to count from.
     let value: String?
+    /// For the potty, while the child still wears nappies: the time since the last nappy, shown small under it
+    /// (Tom, 19 November 2026).
+    var nappy: String? = nil
 
     var id: String { kind.rawValue }
 
@@ -83,7 +86,9 @@ extension FamilyStore {
                     event.startedAt.map { Elapsed.short(seconds: event.asleepSeconds(from: $0, to: now)) }
                 } : nil)
             case .nappy: ChildFact(kind: kind, value: since(latest(.nappy, for: child)?.startedAt))
-            case .potty: ChildFact(kind: kind, value: since(latest(.potty, for: child)?.startedAt))
+            case .potty:
+                ChildFact(kind: kind, value: since(latest(.potty, for: child)?.startedAt),
+                          nappy: child.uses(.nappy) ? (since(latest(.nappy, for: child)?.startedAt) ?? "–") : nil)
             }
         }
     }
@@ -165,6 +170,7 @@ struct ChildCard: View {
             row {
                 ForEach(facts) { fact in factButton(fact, sleep: sleep, asleep: asleep, quiet: quiet) }
             }
+            .fixedSize(horizontal: false, vertical: true)
             // What comes next, and the milk today: a line each, led by its activity's icon (Tom, 19 November 2026).
             let extras = [underLine(now: now, asleep: asleep),
                           // Milk from bottles today, beside what the tin suggests. Only once there has been a bottle.
@@ -243,11 +249,27 @@ struct ChildCard: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
                     .contentTransition(.numericText())
+                // Still in nappies while learning the potty: the last nappy, small, under it.
+                if let nappy = fact.nappy {
+                    HStack(spacing: 4) {
+                        Image(EventKind.nappy.iconName + "-plain")
+                            .renderingMode(.template)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 11, height: 11)
+                        Text(nappy).monospacedDigit()
+                    }
+                    .font(.caption2)
+                    .foregroundStyle(quiet)
+                    .lineLimit(1)
+                }
             }
         }
         .padding(.horizontal, 10)
         .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        // As tall as the tallest in the row, its label at the top, so a potty box with a nappy line under it
+        // does not stand taller than the others.
+        .frame(maxWidth: .infinity, minHeight: 44, maxHeight: .infinity, alignment: .topLeading)
         .background(asleep ? Color.white.opacity(0.12) : Palette.field, in: box)
         .contentShape(box)
         // Both kinds of milk: the fact asks which.
@@ -294,7 +316,7 @@ struct ChildCard: View {
         case .awake: "\(name) has been awake \(value)"
         case .asleep: "\(name) has been asleep \(value)"
         case .nappy: "\(name)'s last \(Terms.nappyLower) was \(value) ago"
-        case .potty: "\(name)'s last potty was \(value) ago"
+        case .potty: "\(name)'s last potty was \(value) ago" + (fact.nappy.map { ", last \(Terms.nappyLower) \($0) ago" } ?? "")
         }
     }
 
@@ -305,7 +327,7 @@ struct ChildCard: View {
         case .awake: "Adds a sleep"
         case .asleep: "Sets when they woke"
         case .nappy: "Logs a \(Terms.nappyLower)"
-        case .potty: "Logs the potty"
+        case .potty: fact.nappy == nil ? "Logs the potty" : "Logs the potty or a \(Terms.nappyLower)"
         }
     }
 

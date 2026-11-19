@@ -2537,3 +2537,17 @@ card at midday: the button showed in the day only for children under 18 months o
 last two weeks, and none had been logged. Most children still nap until three or four, so the age is now under
 four. Older children keep the rule as it was: in the day only if they have napped lately, and always in the
 evening and at night.
+
+**Under a child's facts (19 November 2026).** Each line under the three facts now starts with its activity's
+icon: the bottle before the milk today, the moon or bottle or nappy before "Next … around", the medicine
+before a dose that is due. Chosen by Tom from four layouts (one line, a line each with its icon, under the box it
+belongs to, inside the boxes).
+
+**Learning the potty, still in nappies (19 November 2026).** For a child learning the potty who still wears
+nappies (under three, or not training), Tom chose from four ways and then refined one:
+- **The box** stays Potty, with the time since the last nappy small underneath, beside its icon, so both show
+  at a glance. The three boxes in a row stay the same height.
+- **Its sheet** has a nappy row (Wet, Dirty, Dry) above the potty row (Wee, Poo, Tried, Accident). Pick from
+  either or both, then Save ("Save both" when both). Both are logged at the chosen time, the nappy a second
+  earlier, as it is checked first. This costs one more tap than before when only one thing happened, for the
+  usual check of a dry nappy and then a wee on the potty. Editing an entry is as before.
