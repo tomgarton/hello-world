@@ -555,7 +555,7 @@ struct PuggleHeader: View {
                           holding: $holding, justWalked: $justWalked, shadowNight: room == nil && isNight,
                           outfit: room?.outfit ?? weather.outfit(night: isNight),
                           warmLight: room.map { dim ? $0.lamp : nil } ?? PuggleScene.lamp(for: .today, night: isNight),
-                          lift: lift, tilt: tilt, nod: nod, drop: drop,
+                          lift: lift, tilt: tilt, nod: nod, drop: drop, lying: room == .bedroom && bed == .asleep ? Self.lying : 0,
                           onTap: tapped, onPutDown: { walkedTo = $0; land() })
                 // At a bare tea table she sits on her chair, her knees and feet showing under it.
                 .environment(\.seat, room == .dining && TeaTable.current == .bare && !holding ? "sitting" : "standing")
@@ -581,6 +581,8 @@ struct PuggleHeader: View {
                 try? await Task.sleep(for: .seconds(bubblesFirst))
                 while !Task.isCancelled {
                     controller.bubbles(true)
+                    // She hums as she starts.
+                    controller.rig?.air("notes", for: 3)
                     try? await Task.sleep(for: .seconds(10))
                     controller.bubbles(false)
                     try? await Task.sleep(for: .seconds(Double.random(in: 35...60)))
@@ -667,6 +669,9 @@ struct PuggleHeader: View {
 
     /// A moment of the empty scene before anyone arrives, while Today finishes opening.
     private static let beat = 0.2
+    /// How far a sleeping head lies over on its pillow, in degrees: enough to read as lying down, little enough
+    /// that a face drawn from the front still reads as a face. Puggle in bed and a friend in a sleeping bag alike.
+    static let lying = -22.0
 
     /// From where someone stands to just past the nearer edge of the scene.
     /// With someone already there, she comes from the other side, so the two walk towards each other
@@ -818,6 +823,8 @@ private struct CarriedPuggle: View {
     let nod: CGFloat
     /// How far down from standing: behind the tea table, or in bed.
     var drop: CGFloat = 0
+    /// Asleep in bed, her head laid over on the pillow by this many degrees and her body under the quilt.
+    var lying: Double = 0
     let onTap: () -> Void
     let onPutDown: (CGFloat) -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -846,6 +853,10 @@ private struct CarriedPuggle: View {
                     .rotationEffect(.degrees(tilt), anchor: .bottom)
                     // She hangs from the finger, so she swings from the top.
                     .rotationEffect(.degrees(carry.sway), anchor: .top)
+                    // Lying down: her head goes over onto the pillow, turning at her neck, and nothing below
+                    // the quilt shows, so her feet never poke out under it (Tom, 20 November 2026).
+                    .rotationEffect(.degrees(lying), anchor: UnitPoint(x: 0.5, y: 0.553))
+                    .mask(alignment: .top) { Rectangle().frame(width: 400, height: lying == 0 ? 1000 : 110) }
                     .offset(y: drop)
                     .animation(.spring(duration: 0.32, bounce: 0.25), value: up)
                     .animation(.spring(response: 0.5, dampingFraction: 0.42), value: carry.sway)

@@ -452,6 +452,13 @@ final class RigRuntime {
     /// A feeling asked for, for a moment: shy at a first tap.
     private var felt: (feeling: RigFeeling, until: Date)?
     func feel(_ feeling: RigFeeling, for seconds: Double) { felt = (feeling, Date.now.addingTimeInterval(seconds)) }
+    /// For checking: "-debugAir heart", "notes", "oh", "wonder" or "sparkle" shows it on everyone awake.
+    private static let debugAir = UserDefaults.standard.string(forKey: "debugAir")
+    /// Something in the air beside their face for a moment: "heart" or "notes" (see tools/air.py).
+    private var aired: (name: String, until: Date)?
+    func air(_ name: String?, for seconds: Double = 2) {
+        aired = name.map { ($0, Date.now.addingTimeInterval(seconds)) }
+    }
     /// Eyes in the middle of a quick move, drawn stretched along the way for a moment.
     private var smears: [String: (from: [Double], start: Date)] = [:]
     private var eyesWere: [String: [Double]] = [:]
@@ -597,6 +604,34 @@ final class RigRuntime {
                 }
                 for (feature, shape) in key.face ?? [:] { showing[feature] = shape }
             }
+        }
+        // The same little things in the air as everyone else (tools/air.py): a "!" as they wake with a start,
+        // hearts or notes when asked for, and a "?" while their eyes follow something.
+        if !asleep, showing["air"] == nil {
+            if let body = playing["body"], body.name.hasPrefix("wake") || body.name.hasPrefix("oh"),
+               date.timeIntervalSince(body.start) < 1.3 {
+                showing["air"] = "oh"
+            } else if let aired, date < aired.until {
+                showing["air"] = aired.name
+            } else if abs(look.x) + abs(look.y) > 0.3 {
+                showing["air"] = "wonder"
+            } else if let forced = Self.debugAir {
+                showing["air"] = forced
+            }
+        }
+        switch showing["air"] {
+        case "heart":
+            change("heart-a") { $0.y = -5 * sin(t * 2 * .pi / 1.4); $0.r = 8 * sin(t * 2 * .pi / 1.4) }
+            change("heart-b") { $0.y = -4 * sin(t * 2 * .pi / 1.4 - 1.1) }
+        case "notes":
+            change("note-a") { $0.y = -4 * sin(t * 2 * .pi / 0.9); $0.r = 10 * sin(t * 2 * .pi / 0.9) }
+            change("note-b") { $0.y = -4 * sin(t * 2 * .pi / 0.9 - 1.6); $0.r = -10 * sin(t * 2 * .pi / 0.9 - 1.6) }
+        case "oh":
+            change("oh-a") { $0.r = 7 * sin(t * 2 * .pi / 0.45) }
+        case "wonder":
+            change("wonder-a") { $0.r = 9 * sin(t * 2 * .pi / 2.2) }
+        default:
+            break
         }
         // Sunglasses go up onto her forehead whenever her eyes have something to say: a reaction, a feeling,
         // looking at something, or sleep. A move that goes round (walking, reading, bubbles) leaves them down.

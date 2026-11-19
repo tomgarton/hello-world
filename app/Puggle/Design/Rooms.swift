@@ -657,13 +657,24 @@ struct RoomPainter {
                 soft("blossom", x, 172 + CGFloat(index % 2) * 8 - 4, 13, flower, turn: Double(index) * 25)
             }
         case .asleep:
-            // Tucked in: the quilt up to her chin, its top turned back, her head on the pillow and her rabbit by her.
-            rect(4, 152, 172, 44, 16, quilt)
-            rect(4, 150, 172, 12, 6, col(0xFFFCF6, 0x8A88B0))
-            for (index, x) in [36.0, 72, 108, 146].enumerated() {
-                soft("blossom", x, 174 + CGFloat(index % 2) * 8 - 4, 13, flower, turn: Double(index) * 25)
+            // Tucked in, lying down: her head over on the pillow and the quilt up to her chin, rising over her
+            // body and her feet along the bed (Tom, 20 November 2026). Its top is turned back under her chin.
+            var cover = Path()
+            cover.move(to: CGPoint(x: 4, y: top + 196))
+            cover.addLine(to: CGPoint(x: 4, y: top + 164))
+            cover.addQuadCurve(to: CGPoint(x: 40, y: top + 152), control: CGPoint(x: 6, y: top + 152))
+            cover.addLine(to: CGPoint(x: 84, y: top + 152))
+            cover.addQuadCurve(to: CGPoint(x: 148, y: top + 148), control: CGPoint(x: 116, y: top + 132))
+            cover.addQuadCurve(to: CGPoint(x: 176, y: top + 166), control: CGPoint(x: 172, y: top + 136))
+            cover.addLine(to: CGPoint(x: 176, y: top + 196))
+            cover.closeSubpath()
+            context.fill(cover, with: .color(quilt))
+            rect(4, 148, 86, 12, 6, col(0xFFFCF6, 0x8A88B0))
+            for (index, x) in [34.0, 72, 112, 150].enumerated() {
+                soft("blossom", x, 176 + CGFloat(index % 2) * 8 - 4, 13, flower, turn: Double(index) * 25)
             }
-            rabbit(118, 136)
+            // Her rabbit tucked in at her side, on top of the quilt.
+            rabbit(126, 128)
         case .up:
             break
         }

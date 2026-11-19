@@ -2236,6 +2236,148 @@
      "fill": "#F4C95D"
     }
    ]
+  },
+  {
+   "id": "heart-a",
+   "parent": "head",
+   "pivot": [
+    192.0,
+    37.0
+   ],
+   "when": "air=heart",
+   "spring": 60,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M192 46.9 C177.7 38.1 184.3 27.1 192 33.15 C199.7 27.1 206.3 38.1 192 46.9 Z",
+     "fill": "#E5727F"
+    }
+   ]
+  },
+  {
+   "id": "heart-b",
+   "parent": "head",
+   "pivot": [
+    214.0,
+    63.0
+   ],
+   "when": "air=heart",
+   "spring": 60,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M214 69.3 C204.9 63.7 209.1 56.7 214 60.55 C218.9 56.7 223.1 63.7 214 69.3 Z",
+     "fill": "#E5727F"
+    }
+   ]
+  },
+  {
+   "id": "note-a",
+   "parent": "head",
+   "pivot": [
+    194.0,
+    45.0
+   ],
+   "when": "air=notes",
+   "spring": 50,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 194.0,
+     "y": 45.0,
+     "rx": 5.2,
+     "ry": 4.0,
+     "fill": "#8C7BC4"
+    },
+    {
+     "kind": "path",
+     "d": "M198.6 45 L198.6 28 Q205 32 205 39",
+     "stroke": "#8C7BC4",
+     "width": 2.4,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "note-b",
+   "parent": "head",
+   "pivot": [
+    218.0,
+    67.0
+   ],
+   "when": "air=notes",
+   "spring": 50,
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 218.0,
+     "y": 67.0,
+     "rx": 3.9,
+     "ry": 3.0,
+     "fill": "#8C7BC4"
+    },
+    {
+     "kind": "path",
+     "d": "M221.45 67 L221.45 54.25 Q226.25 57.25 226.25 62.5",
+     "stroke": "#8C7BC4",
+     "width": 1.8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "oh-a",
+   "parent": "head",
+   "pivot": [
+    186.0,
+    29.0
+   ],
+   "when": "air=oh",
+   "spring": 200,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M186 15 L186 31",
+     "stroke": "#E5553B",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 186.0,
+     "y": 38.0,
+     "rx": 2.3,
+     "ry": 2.3,
+     "fill": "#E5553B"
+    }
+   ]
+  },
+  {
+   "id": "wonder-a",
+   "parent": "head",
+   "pivot": [
+    188.0,
+    29.0
+   ],
+   "when": "air=wonder",
+   "spring": 80,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M182 21 Q182 14 188 14 Q195 14 195 21 Q195 26 188 29 L188 31",
+     "stroke": "#8FA3D6",
+     "width": 3.6,
+     "cap": "round"
+    },
+    {
+     "kind": "ellipse",
+     "x": 188.0,
+     "y": 38.0,
+     "rx": 2.3,
+     "ry": 2.3,
+     "fill": "#8FA3D6"
+    }
+   ]
   }
  ],
  "moves": {

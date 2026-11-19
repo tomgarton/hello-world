@@ -327,8 +327,16 @@ struct CompanyView: View {
         // Sitting, they come down to the foot of the scene, where the cloth, the chair or the bag hides their feet.
         // Asleep in the bag they are upright too, head on a pillow and the bag up to their chin: every face in
         // the cast is drawn from the front, and turned on its side it no longer reads.
-        case .atTable, .armchair, .bagSitting, .bagLying: return 26
+        case .atTable, .armchair, .bagSitting: return 26
+        // Lying with their head over on the pillow, a little higher, so the bag comes to their chin and no further.
+        case .bagLying: return 12
         }
+    }
+
+    /// Where the head turns, as a point in their drawing.
+    private var neck: UnitPoint {
+        guard let rig = controller.rig?.rig, let head = rig.parts.first(where: { $0.id == "head" }) else { return .center }
+        return UnitPoint(x: head.pivot[0] / rig.size[0], y: head.pivot[1] / rig.size[1])
     }
 
     var body: some View {
@@ -366,6 +374,8 @@ struct CompanyView: View {
                 // An umbrella is held out to one side. Standing to her right, they are turned round so it is
                 // on the side nearer her, and its canopy stays clear of the edge of the screen.
                 .scaleEffect(x: umbrellaUp && company.x > 0 ? -1 : 1, y: 1)
+                // Asleep in a sleeping bag: the head over on the pillow, as Puggle's is in bed, turning at the neck.
+                .rotationEffect(.degrees(company.pose == .bagLying ? PuggleHeader.lying : 0), anchor: neck)
         }
         .offset(y: drop)
         .arrival(entrance, arrive, edge: edge, delay: delay, away: away) { [controller] in controller.rig?.walking = $0 }
@@ -384,6 +394,8 @@ struct CompanyView: View {
                     try? await Task.sleep(for: .seconds(6))
                     controller.asleep = true
                 } else if !sleeps {
+                    // A grown-up answers her with a nod and hearts; a friend waves back.
+                    if company.member.grownUp { controller.rig?.air("heart", for: 1.8) }
                     controller.play(company.member.grownUp ? "nod" : "greet")
                 }
             }
@@ -403,7 +415,11 @@ struct CompanyView: View {
                 guard !Task.isCancelled, !sleeps else { continue }
                 turn += 1
                 // Digging is a bob down, over and over; otherwise mostly nods, a hop now and then for the children.
-                if digging { controller.play("nod") }
+                if digging {
+                    controller.play("nod")
+                    // Humming as he digs, now and then.
+                    if turn % 8 == 1 { controller.rig?.air("notes", for: 4) }
+                }
                 else if !company.member.grownUp && turn.isMultiple(of: 3) { controller.play("celebrate") }
                 else { controller.play("nod") }
             }

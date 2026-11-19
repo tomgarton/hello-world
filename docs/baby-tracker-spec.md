@@ -2668,3 +2668,14 @@ Tom asked for the evening's work to be checked in the simulator before the build
 - Your avatar on Today no longer moves down as Today is pulled down. Only the sky stretches.
 - Zs and sparkles are now one shared set (`app/tools/air.py`), placed from the middle of each character's eyes and carried by their head. Everyone who dozes now has Zs, where only Puggle had them before. A celebration brings the same sparkles for a friend as for Puggle.
 - Splashes in puddles stay Puggle's alone, as they belong to her boots rather than to a feeling.
+
+## 20 November 2026: lying down in bed, and more in the air
+
+- Asleep in bed, Puggle's head lies over on her pillow (22°, turning at her neck), and the quilt rises over her body and feet along the bed. Nothing below the quilt shows, so her feet no longer poke out. A friend asleep in a sleeping bag lies their head over the same way, a little higher, so the bag comes to their chin. Chosen by Tom over drawing everyone side-on, which is kept as an option.
+- The shared set in the air (`app/tools/air.py`) now has, besides Zs and sparkles:
+  - two hearts: when a grown-up answers Puggle's tap with a nod;
+  - two notes: when Puggle starts her bubbles, and now and then as a friend digs;
+  - a "!": for a moment as anyone wakes with a start;
+  - a "?": while anyone's eyes follow something (an arrival, the swinging lamp).
+- Speech bubbles are left out: a bubble reads as talking and puts a box over the scene. A small thought bubble showing what someone wants (a bottle when a feed is due) is kept as an idea.
+- For checking: `-debugAir heart|notes|oh|wonder|sparkle` shows one on everyone awake.
