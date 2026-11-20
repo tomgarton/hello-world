@@ -1,11 +1,12 @@
 import SwiftUI
 
-/// One child on the Watch. Asleep, the screen is night blue with the sleep counting up; feeding, it is the warm
-/// yellow of the sun with the feed counting up; otherwise it shows how they are, with one big button for what
+/// One child on the Watch. Asleep, the screen is night blue with the sleep counting up; feeding, it is a deep
+/// honey with the feed counting up; otherwise it shows how they are, with one big button for what
 /// is most likely next and two smaller ones below (Tom, 20 November 2026, after Granola's Watch app).
 struct ChildPage: View {
     let child: WidgetSnapshot.Child
     @EnvironmentObject private var model: WatchModel
+    // For checking: "-previewSheet nappy" or "bottle" opens one on the first child.
     @State private var choosingNappy = false
     @State private var choosingBottle = false
     @State private var choosingSide = false
@@ -18,13 +19,13 @@ struct ChildPage: View {
                 }
             } else if let since = child.feedingSince {
                 running(label: child.feedSide.map { "Feeding, \($0.lowercased())" } ?? "Feed paused", since: child.feedSide == nil ? nil : since,
-                        fill: Tone.milk, ink: Tone.ink) {
+                        fill: Tone.honey, ink: Tone.cream) {
                     VStack(spacing: 6) {
                         HStack(spacing: 6) {
                             side("Left", .feedLeft)
                             side("Right", .feedRight)
                         }
-                        big("Stop feed", systemImage: "stop.fill", fill: Tone.ink, ink: Tone.milk) { send(.finishFeed) }
+                        big("Stop feed", systemImage: "stop.fill", fill: Tone.milk, ink: Tone.ink) { send(.finishFeed) }
                     }
                 }
             } else {
@@ -33,6 +34,15 @@ struct ChildPage: View {
         }
         .sheet(isPresented: $choosingNappy) { NavigationStack { NappyChoice(child: child) } }
         .sheet(isPresented: $choosingBottle) { NavigationStack { BottleChoice(child: child) } }
+        .onAppear {
+            guard child.id == WatchModel.shared.snapshot?.children.first?.id else { return }
+            switch UserDefaults.standard.string(forKey: "previewSheet") {
+            case "nappy": choosingNappy = true
+            case "bottle": choosingBottle = true
+            case "side": choosingSide = true
+            default: break
+            }
+        }
         .confirmationDialog("Which side?", isPresented: $choosingSide) {
             Button("Start left") { send(.feedLeft) }
             Button("Start right") { send(.feedRight) }
@@ -42,29 +52,38 @@ struct ChildPage: View {
     // MARK: Awake
 
     private var awake: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 8) {
-                HStack(spacing: 8) {
-                    Badge(child: child)
-                    Text(child.name)
-                        .font(.system(.title3, design: .rounded).weight(.bold))
-                        .lineLimit(1)
-                }
-                facts
-                big("Start sleep", systemImage: "moon.fill", fill: Tone.child(child.colourIndex), ink: Tone.ink) { send(.startSleep) }
-                HStack(spacing: 6) {
-                    if child.breastfeeds == true {
-                        small("Start feed", systemImage: "timer") { choosingSide = true }
-                    } else if child.usesMilk != false {
-                        small("Log bottle", systemImage: "waterbottle.fill") { choosingBottle = true }
+        ScrollViewReader { scroller in
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 8) {
+                        Badge(child: child)
+                        Text(child.name)
+                            .font(.system(.title3, design: .rounded).weight(.bold))
+                            .lineLimit(1)
                     }
-                    if child.pottyTraining != true, child.usesNappies {
-                        small("Log \(Terms.nappyLower)", systemImage: "drop.fill") { choosingNappy = true }
+                    facts
+                    // One column, every button the full width, so their edges line up.
+                    VStack(spacing: 6) {
+                        big("Start sleep", systemImage: "moon.fill", fill: Tone.child(child.colourIndex), ink: Tone.ink) { send(.startSleep) }
+                        if child.breastfeeds == true {
+                            row("Start feed", systemImage: "timer") { choosingSide = true }
+                        }
+                        if child.usesMilk != false {
+                            row("Log bottle", systemImage: "waterbottle.fill") { choosingBottle = true }
+                        }
+                        if child.pottyTraining != true, child.usesNappies {
+                            row("Log \(Terms.nappyLower)", systemImage: "drop.fill") { choosingNappy = true }
+                        }
                     }
+                    .id("end")
                 }
-                if child.breastfeeds == true, child.usesMilk != false {
-                    small("Log bottle", systemImage: "waterbottle.fill") { choosingBottle = true }
-                }
+                .padding(.horizontal, 4)
+                // Clear of the page dots at the foot of the screen.
+                .padding(.bottom, 14)
+            }
+            .onAppear {
+                // For checking: "-previewScroll 1" opens at the foot of the page.
+                if UserDefaults.standard.bool(forKey: "previewScroll") { scroller.scrollTo("end", anchor: .bottom) }
             }
         }
     }
@@ -135,38 +154,49 @@ struct ChildPage: View {
         return Button { send(action) } label: {
             Text(on ? "Pause \(name.lowercased())" : "Start \(name.lowercased())")
                 .font(.system(.footnote, design: .rounded).weight(.semibold))
-                .frame(maxWidth: .infinity)
+                .frame(maxWidth: .infinity, minHeight: 40)
         }
         .buttonStyle(.plain)
-        .frame(minHeight: 34)
-        .background(Tone.ink.opacity(on ? 0.22 : 0.1), in: Capsule())
-        .foregroundStyle(Tone.ink)
+        .frame(minHeight: 40)
+        .background(Tone.cream.opacity(on ? 0.3 : 0.14), in: Capsule())
+        .contentShape(Capsule())
+        .foregroundStyle(Tone.cream)
     }
 
     // MARK: Buttons
 
+    /// The main button: a filled capsule, the full width.
     private func big(_ title: String, systemImage: String, fill: Color, ink: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Label(title, systemImage: systemImage)
                 .font(.system(.headline, design: .rounded))
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .foregroundStyle(ink)
+                .frame(maxWidth: .infinity, minHeight: 48)
+                .background(fill, in: Capsule())
+                .contentShape(Capsule())
         }
-        .buttonStyle(.borderedProminent)
-        .buttonBorderShape(.capsule)
-        .tint(fill)
-        .foregroundStyle(ink)
+        .buttonStyle(.plain)
     }
 
-    private func small(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
+    /// The others: a quieter capsule, the same width, its icon and words at the left like a list row.
+    private func row(_ title: String, systemImage: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 2) {
+            HStack(spacing: 8) {
                 Image(systemName: systemImage)
-                Text(title).font(.system(.caption2, design: .rounded).weight(.semibold)).lineLimit(1).minimumScaleFactor(0.8)
+                    .foregroundStyle(Tone.child(child.colourIndex))
+                    .frame(width: 22)
+                Text(title)
+                    .font(.system(.body, design: .rounded).weight(.semibold))
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Spacer(minLength: 0)
             }
-            .frame(maxWidth: .infinity, minHeight: 40)
+            .padding(.horizontal, 14)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .background(Color.white.opacity(0.14), in: Capsule())
+            .contentShape(Capsule())
         }
-        .buttonStyle(.bordered)
-        .buttonBorderShape(.roundedRectangle(radius: 14))
+        .buttonStyle(.plain)
     }
 
     private func send(_ action: WatchLink.Request.Action) {
@@ -181,16 +211,24 @@ struct NappyChoice: View {
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
-        VStack(spacing: 6) {
-            ForEach(["Wet", "Dirty", "Both"], id: \.self) { kind in
-                Button {
-                    model.send(WatchLink.Request(action: .nappy, childID: child.id, detail: kind))
-                    dismiss()
-                } label: {
-                    Text(kind).font(.system(.headline, design: .rounded)).frame(maxWidth: .infinity)
+        ScrollView {
+            VStack(spacing: 6) {
+                ForEach(["Wet", "Dirty", "Both"], id: \.self) { kind in
+                    Button {
+                        model.send(WatchLink.Request(action: .nappy, childID: child.id, detail: kind))
+                        dismiss()
+                    } label: {
+                        Text(kind)
+                            .font(.system(.headline, design: .rounded))
+                            .foregroundStyle(Tone.ink)
+                            .frame(maxWidth: .infinity, minHeight: 44)
+                            .background(Tone.child(child.colourIndex), in: Capsule())
+                            .contentShape(Capsule())
+                    }
+                    .buttonStyle(.plain)
                 }
-                .tint(Tone.child(child.colourIndex))
             }
+            .padding(.horizontal, 4)
         }
         .navigationTitle(Terms.nappy)
     }
@@ -219,16 +257,21 @@ struct BottleChoice: View {
             Text("Turn the crown to change it")
                 .font(.system(.caption2, design: .rounded))
                 .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
             Button {
                 model.send(WatchLink.Request(action: .bottle, childID: child.id, ml: Int(ml)))
                 dismiss()
             } label: {
-                Text("Save bottle").font(.system(.headline, design: .rounded)).frame(maxWidth: .infinity)
+                Text("Save bottle")
+                    .font(.system(.headline, design: .rounded))
+                    .foregroundStyle(Tone.ink)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Tone.child(child.colourIndex), in: Capsule())
+                    .contentShape(Capsule())
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Tone.child(child.colourIndex))
-            .foregroundStyle(Tone.ink)
+            .buttonStyle(.plain)
         }
+        .padding(.horizontal, 4)
         .navigationTitle("Bottle")
     }
 }

@@ -2689,9 +2689,11 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **One page per child, swiped sideways.**
   - Awake: badge and name, then "Fed 1h 35m ago", "Awake 1h 11m", "Nappy 40 min ago"; a big "Start sleep" in the child's colour; and below it "Start feed" (breastfed children: choose a side), "Log nappy" (Wet, Dirty, Both) and "Log bottle" (the amount starts at the last one and turns with the Digital Crown, 10 ml a click).
   - Asleep: the whole screen night blue, the sleep counting up large, and "Woke up".
-  - Feeding: the whole screen the scenes' warm yellow, the feed counting up, "Start left"/"Pause left" and "Start right"/"Pause right", and "Stop feed".
+  - Feeding: the whole screen a deep honey, the feed counting up, "Start left"/"Pause left" and "Start right"/"Pause right", and "Stop feed".
   - Each tap answers with a tap on the wrist.
 - **On the watch face:** circular, corner, inline and rectangular shortcuts showing whoever is asleep or feeding with the time counting up, or otherwise how long since the first child was fed. They read the summary from the App Group on the Watch.
 - **For checking:** the Watch app with `-preview 1` shows the sample family; `-previewChild 1` opens on the second child and `-previewFeed 1` has Ollie feeding.
 - **Not yet checked:** the link between a real iPhone and Watch (the simulators were not paired for it), the watch-face shortcuts on a face, and signing the two new Watch targets for TestFlight, which needs Xcode's account on the Mac.
 - **Not in this version:** history, charts, the scenes, editing past entries, and Watch use without the iPhone nearby.
+
+**Alignment pass (Tom, 20 November).** The awake page is one column with even margins: the big "Start sleep" and the other buttons ("Start feed", "Log bottle", "Log nappy") are all the full width, so their edges line up, with room left above the page dots. The nappy and bottle sheets use the same full-width capsules. The pages sit in a navigation stack, so what scrolls up fades under the clock rather than running behind it. The Watch's clock is always white, so the feeding screen is now a deep honey with cream words in place of the light yellow, which left the clock unreadable. For checking: `-previewScroll 1` opens at the foot of the page, `-previewSheet nappy|bottle|side` opens a sheet.

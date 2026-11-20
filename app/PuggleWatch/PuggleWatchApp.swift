@@ -17,8 +17,11 @@ enum Tone {
     static let moon = Color(red: 0xF3 / 255, green: 0xE0 / 255, blue: 0xB8 / 255)
     static let cream = Color(red: 0xFB / 255, green: 0xF6 / 255, blue: 0xE9 / 255)
     static let ink = Color(red: 0x3A / 255, green: 0x2A / 255, blue: 0x20 / 255)
-    /// A feed running: the warm yellow of the scenes' sun.
+    /// A feed running: the warm yellow of the scenes' sun, for words and buttons.
     static let milk = Color(red: 0xF4 / 255, green: 0xC9 / 255, blue: 0x5D / 255)
+    /// And the screen behind them: a deep honey, dark enough that the Watch's white clock still reads on it
+    /// (the clock is always white; Tom, 20 November 2026).
+    static let honey = Color(red: 0x7A / 255, green: 0x4E / 255, blue: 0x10 / 255)
 
     /// The children's colours, as in the app (Sky, Shell, Mint, Sun, Lilac, Rose, Sea, Stone).
     private static let children: [UInt32] = [0xBFD9F5, 0xF3D9C9, 0xCFE5D2, 0xF4E7B0, 0xE2D4F1, 0xF6CFDC, 0xC4E6E4, 0xDDD8D0]
@@ -57,12 +60,15 @@ struct RootView: View {
         Group {
             if let children = model.snapshot?.children, !children.isEmpty {
                 // One page each, side by side; the title says whose it is.
-                TabView(selection: $page) {
-                    ForEach(children) { child in
-                        ChildPage(child: child).tag(child.id)
+                // In a navigation stack, so what scrolls up fades under the clock instead of running behind it.
+                NavigationStack {
+                    TabView(selection: $page) {
+                        ForEach(children) { child in
+                            ChildPage(child: child).tag(child.id)
+                        }
                     }
+                    .tabViewStyle(.page)
                 }
-                .tabViewStyle(.page)
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "iphone")
