@@ -1031,6 +1031,13 @@ struct LogSheet: View {
         .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
+    /// A nappy's colour is kept only for a dirty one (Dirty or Both): picked and then Wet or Dry tapped, it is
+    /// dropped (Tom, 20 November 2026).
+    static func colour(_ picked: String, for detail: String?) -> String? {
+        guard !picked.isEmpty, detail == "Dirty" || detail == "Both" else { return nil }
+        return picked
+    }
+
     static func dayName(_ date: Date) -> String {
         let calendar = Calendar.current
         if calendar.isDateInToday(date) { return "Today" }
@@ -1158,7 +1165,7 @@ struct LogSheet: View {
             case .nappy, .potty:
                 event.startedAt = time
                 event.detail = choice
-                if kind == .nappy { event.dose = extra.isEmpty ? nil : extra }
+                if kind == .nappy { event.dose = Self.colour(extra, for: choice) }
             case .note:
                 event.startedAt = time
             case .medicine:
@@ -1210,7 +1217,7 @@ struct LogSheet: View {
                 events = nappy + potty
             case .nappy, .potty:
                 events = store.logEach(kind, for: who, at: time, detail: detail, note: noteValue,
-                                       dose: kind == .nappy && !extra.isEmpty ? extra : nil)
+                                       dose: kind == .nappy ? Self.colour(extra, for: detail) : nil)
             case .note:
                 events = store.logEach(.note, for: who, at: time, note: noteValue)
             case .medicine:
