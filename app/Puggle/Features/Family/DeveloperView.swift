@@ -53,7 +53,7 @@ struct DeveloperView: View {
                     Text("Hand-drawn").tag("pencil")
                 }
                 NavigationLink("Puggle's moves") { MovesGalleryView() }
-                NavigationLink("Every scene, at each time of day") { SceneGalleryView() }
+                NavigationLink("Every scene, at each time of day") { SceneBrowserView() }
                 Button("Play Puggle's entrance again") { greetedOn = "" }
             } header: {
                 Text("Today")

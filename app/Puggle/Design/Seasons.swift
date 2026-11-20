@@ -70,6 +70,58 @@ extension SkyEvents {
     static func moonLit(_ age: Double) -> Double { (1 - cos(2 * .pi * age)) / 2 }
 }
 
+/// The sky as it is now, for drawing: the moon's age and which way up it is seen. The scene gallery sets one of
+/// its own (`\.skyNow`) to show any night anywhere; everywhere else it is worked out afresh.
+struct SkyNow: Equatable {
+    var age = SkyEvents.moonAgeNow()
+    var latitude = Hemisphere.latitude
+    var south: Bool { latitude < 0 }
+}
+
+private struct SkyNowKey: EnvironmentKey { static let defaultValue: SkyNow? = nil }
+extension EnvironmentValues {
+    var skyNow: SkyNow? {
+        get { self[SkyNowKey.self] }
+        set { self[SkyNowKey.self] = newValue }
+    }
+}
+
+/// Where the moon is in the sky at an hour of the day, and how it lies (Tom, 20 November 2026).
+struct MoonPlace: Equatable {
+    /// Across the scene, 0 at the left edge and 1 at the right.
+    var x: Double
+    /// How high, 0 on the horizon and 1 at its highest.
+    var height: Double
+    /// Whether it is above the horizon at all.
+    var up: Bool
+    /// Degrees to turn the moon, so its lit side leans down the way it does nearer the equator.
+    var tilt: Double
+}
+
+extension SkyEvents {
+    /// The moon is highest about 50 minutes later each night: at noon when new, at six in the evening at first
+    /// quarter, at midnight when full, at six in the morning at last quarter. It is up for about twelve hours,
+    /// six either side. It crosses from east to west: left to right in the north, where we face south to see
+    /// it, and right to left in the south. Its lit side leans down by however far from the poles we are, so on
+    /// the equator a crescent lies on its back.
+    static func moonPlace(age: Double, hours: Double, latitude: Double) -> MoonPlace {
+        let highest = (12 + 24 * age).truncatingRemainder(dividingBy: 24)
+        var from = hours - highest
+        while from > 12 { from -= 24 }
+        while from < -12 { from += 24 }
+        let up = abs(from) < 6.2
+        let height = max(0, cos(from / 6 * .pi / 2))
+        let along = max(-1, min(1, from / 6))
+        let south = latitude < 0
+        let x = 0.5 + (south ? -1 : 1) * 0.4 * along
+        // The lit side is the right in the north while it grows, the left while it shrinks; the other way in the south.
+        var litRight: Double = age.truncatingRemainder(dividingBy: 1) < 0.5 ? 1 : -1
+        if south { litRight = -litRight }
+        let tilt = litRight * (90 - min(abs(latitude), 90))
+        return MoonPlace(x: x, height: height, up: up, tilt: tilt)
+    }
+}
+
 /// The lit part of the moon on a given night (Tom, 20 November 2026). It grows from one side to full and shrinks
 /// from the same side: in the north it grows on the right; in the south the whole moon is seen upside down, so
 /// it grows on the left.

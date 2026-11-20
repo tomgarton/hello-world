@@ -187,6 +187,26 @@ struct SceneFrame: View {
 
     private var phase: SkyPhase { SkyPhase.at(hour: hour, exact: liveHour ? .now : nil) }
 
+    @Environment(\.skyNow) private var skyOverride
+    private var night: SkyNow { skyOverride ?? SkyNow() }
+
+    /// The hour with its minutes, for where the moon is.
+    private var hours: Double {
+        guard liveHour else { return Double(hour) }
+        let now = Calendar.current.dateComponents([.hour, .minute], from: .now)
+        return Double(now.hour ?? 0) + Double(now.minute ?? 0) / 60
+    }
+
+    /// Where the moon is tonight at this hour; nil by day.
+    private var moonPlace: MoonPlace? {
+        phase == .night ? SkyEvents.moonPlace(age: night.age, hours: hours, latitude: night.latitude) : nil
+    }
+
+    /// From its place to a point in the scene: low over the far hills when it rises or sets, high at its highest.
+    private func moonSpot(_ w: CGFloat, _ h: CGFloat, _ place: MoonPlace) -> CGPoint {
+        CGPoint(x: w * CGFloat(0.08 + 0.84 * place.x), y: h * CGFloat(0.54 - 0.38 * place.height))
+    }
+
     fileprivate var starry: Bool { phase == .night }
 
     private var sky: [Color] {
@@ -227,7 +247,7 @@ struct SceneFrame: View {
                 }
                 // One sky from the top of the pull to the horizon, so nothing is left bare.
                 if starry && !weather.overcast {
-                    StarField(sceneHeight: h, moon: CGPoint(x: w * kind.lightSpot, y: pull + h * 0.36), t: t)
+                    StarField(sceneHeight: h, moon: moonPlace.flatMap { $0.up ? moonSpot(w, h, $0) : nil }.map { CGPoint(x: $0.x, y: pull + $0.y) } ?? CGPoint(x: -200, y: -200), t: t)
                         .opacity(appeared ? 1 : 0)
                     // On the nights a meteor shower peaks, shooting stars now and then.
                     if SkyEvents.meteors() {
@@ -294,16 +314,19 @@ struct SceneFrame: View {
         let x = w * kind.lightSpot
         switch phase {
         case .night:
-            ZStack {
-                // Tonight's moon, the right way up for this half of the world; its glow follows how full it is.
-                let age = SkyEvents.moonAgeNow()
-                Circle().fill(RadialGradient(colors: [Color(hex: 0xF3E0B8).opacity(0.06 + 0.16 * SkyEvents.moonLit(age)), Color(hex: 0xF3E0B8).opacity(0)],
-                                             center: .center, startRadius: 8, endRadius: 46))
-                    .frame(width: 92, height: 92)
-                Moon(age: age, south: Hemisphere.isSouth).frame(width: 30, height: 30)
+            // Tonight's moon, the right way up for this half of the world and lying as it does here, where it
+            // is at this hour; its glow follows how full it is. Some nights it has set, or not yet risen.
+            if let place = moonPlace, place.up {
+                ZStack {
+                    Circle().fill(RadialGradient(colors: [Color(hex: 0xF3E0B8).opacity(0.06 + 0.16 * SkyEvents.moonLit(night.age)), Color(hex: 0xF3E0B8).opacity(0)],
+                                                 center: .center, startRadius: 8, endRadius: 46))
+                        .frame(width: 92, height: 92)
+                    Moon(age: night.age, south: night.south).frame(width: 30, height: 30)
+                        .rotationEffect(.degrees(place.tilt))
+                }
+                .position(moonSpot(w, h, place))
+                .opacity(appeared ? 1 : 0)
             }
-            .position(x: x, y: h * 0.36)
-            .opacity(appeared ? 1 : 0)
         case .day:
             Sun(colour: Color(hex: 0xFFD666), size: 42).position(x: x, y: h * 0.36)
         case .dawn:
@@ -392,11 +415,11 @@ struct SceneFrame: View {
             Sailboat(dark: starry).frame(width: 26, height: 28)
                 .rotationEffect(.degrees(3 * sin(t * 0.8)), anchor: .bottom)
                 .position(x: w * 0.8 + CGFloat(sin(t / 23)) * 20, y: h * 0.555 + CGFloat(sin(t * 1.1)) * 1.2)
-            if starry && !weather.overcast {
-                // The moon on the water.
+            if starry && !weather.overcast, let place = moonPlace, place.up {
+                // The moon on the water, under wherever it is.
                 MoonPath().fill(Color(hex: 0xF3E0B8).opacity(0.4)).frame(width: 34, height: h * 0.1)
                     .scaleEffect(x: 1 + 0.14 * sin(t * 1.7))
-                    .position(x: w * kind.lightSpot, y: h * 0.635)
+                    .position(x: moonSpot(w, h, place).x, y: h * 0.635)
             }
             // Foam where the sea meets the sand.
             // The wash runs up the sand and slips back, a thinner line after it.

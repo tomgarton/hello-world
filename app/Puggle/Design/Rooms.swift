@@ -140,11 +140,14 @@ struct RoomFrame: View {
     var puggleX: CGFloat = 0
     var puggleShadow = true
     @Environment(\.lineStyle) private var lineStyle
+    @Environment(\.skyNow) private var skyNow
 
     var body: some View {
         let style = lineStyle
+        let sky = skyNow ?? SkyNow()
         return Canvas { context, size in
             var painter = RoomPainter(context: &context, w: size.width, top: size.height - 250, dark: dark, t: t, hour: hour, weather: weather, style: style)
+            painter.moonTonight = sky
             painter.puggleX = puggleX
             painter.puggleShadow = puggleShadow
             painter.paint(room)
@@ -189,6 +192,8 @@ struct RoomPainter {
     var puggleShadow = true
     /// Fireworks in the window on New Year's Eve and Bonfire Night, lights along the wall at Christmas.
     var special: SpecialDay? = SpecialDay.today
+    /// Tonight's moon and which way up it is seen; the scene gallery sets its own.
+    var moonTonight = SkyNow()
 
     init(context: inout GraphicsContext, w: CGFloat, top: CGFloat, dark: Bool, t: Double, hour: Int, weather: Weather, style: LineStyle) {
         self.context = context
@@ -295,12 +300,19 @@ struct RoomPainter {
                                            startPoint: CGPoint(x: x, y: glass.minY), endPoint: CGPoint(x: x, y: glass.maxY)))
         if !weather.overcast {
             if night {
-                // Tonight's moon in the window too, the right way up for this half of the world.
-                let age = SkyEvents.moonAgeNow()
-                let disc = CGRect(x: x + width * 0.56, y: top + y + height * 0.18, width: 18, height: 18)
-                glow(x + width * 0.56 + 9, y + height * 0.18 + 9, 26, 0xF3E0B8, 0.1 + 0.2 * SkyEvents.moonLit(age))
-                context.fill(Path(ellipseIn: disc), with: .color(Color(hex: 0xF3E0B8).opacity(0.13)))
-                context.fill(MoonShape.lit(in: disc, age: age, south: Hemisphere.isSouth), with: .color(Color(hex: 0xF3E0B8)))
+                // Tonight's moon in the window too, the right way up for this half of the world, lying as it
+                // does here and where it is at this hour: across the glass from east to west, low as it rises.
+                let age = moonTonight.age
+                let place = SkyEvents.moonPlace(age: age, hours: Double(hour), latitude: moonTonight.latitude)
+                if place.up {
+                    let cx = x + width * CGFloat(0.18 + 0.64 * place.x), cy = y + height * CGFloat(0.72 - 0.5 * place.height)
+                    let disc = CGRect(x: cx - 9, y: top + cy - 9, width: 18, height: 18)
+                    let turn = CGAffineTransform(translationX: disc.midX, y: disc.midY).rotated(by: place.tilt * .pi / 180)
+                        .translatedBy(x: -disc.midX, y: -disc.midY)
+                    glow(cx, cy, 26, 0xF3E0B8, 0.1 + 0.2 * SkyEvents.moonLit(age))
+                    context.fill(Path(ellipseIn: disc), with: .color(Color(hex: 0xF3E0B8).opacity(0.13)))
+                    context.fill(MoonShape.lit(in: disc, age: age, south: moonTonight.south).applying(turn), with: .color(Color(hex: 0xF3E0B8)))
+                }
                 for (index, star) in [(0.2, 0.3), (0.36, 0.62), (0.82, 0.7), (0.16, 0.78), (0.44, 0.16)].enumerated() {
                     let twinkle = 0.6 + 0.4 * sin(t * 1.7 + Double(index) * 2.1)
                     oval(x + width * star.0, y + height * star.1, 1.3, 1.3, Color(hex: 0xFFF6DC).opacity(twinkle))

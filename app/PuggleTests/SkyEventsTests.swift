@@ -100,4 +100,17 @@ final class RainTests: XCTestCase {
         XCTAssertLessThan(middle(0.85, south: false), 50, "a waning crescent is lit on the left in the north")
         XCTAssertEqual(MoonShape.lit(in: disc, age: 0.5, south: false).boundingRect.width, 100, accuracy: 0.5)
     }
+
+    /// The full moon is highest at midnight and down at noon; it crosses left to right in the north and right to
+    /// left in the south; on the equator a crescent lies on its back, at the poles it stands upright.
+    func testMoonPlace() {
+        let midnight = SkyEvents.moonPlace(age: 0.5, hours: 0, latitude: 51)
+        XCTAssertTrue(midnight.up)
+        XCTAssertEqual(midnight.height, 1, accuracy: 0.01)
+        XCTAssertFalse(SkyEvents.moonPlace(age: 0.5, hours: 12, latitude: 51).up)
+        XCTAssertLessThan(SkyEvents.moonPlace(age: 0.5, hours: 20, latitude: 51).x, 0.5, "rising in the east, on the left in the north")
+        XCTAssertGreaterThan(SkyEvents.moonPlace(age: 0.5, hours: 20, latitude: -34).x, 0.5, "and on the right in the south")
+        XCTAssertEqual(abs(SkyEvents.moonPlace(age: 0.15, hours: 19, latitude: 0).tilt), 90, accuracy: 0.01)
+        XCTAssertEqual(SkyEvents.moonPlace(age: 0.15, hours: 19, latitude: 90).tilt, 0, accuracy: 0.01)
+    }
 }

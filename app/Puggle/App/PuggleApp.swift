@@ -310,6 +310,9 @@ struct RootView: View {
         } else if UserDefaults.standard.string(forKey: "debugMoves") == "1" {
             // For checking her moves: launch with "-debugMoves 1".
             NavigationStack { MovesGalleryView() }
+        } else if UserDefaults.standard.string(forKey: "debugBrowser") == "1" {
+            // For checking the testers' scene page: "-debugBrowser 1".
+            NavigationStack { SceneBrowserView() }
         } else if let scene = UserDefaults.standard.string(forKey: "debugGallery").flatMap(Int.init) {
             // For checking the scenes: launch with "-debugGallery 0" (to 3).
             SceneGalleryView(kind: SceneKind(rawValue: scene) ?? .hills)

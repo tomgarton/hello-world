@@ -217,6 +217,8 @@ struct SettingsView: View {
                     LabeledContent("Feedback notes", value: FeedbackNotes.load().isEmpty ? "" : "\(FeedbackNotes.load().count)")
                 }
                 NavigationLink("iCloud check") { CloudCheckView() }
+                // Every scene and room at each time of day, with any weather, season and moon (Tom, 20 November 2026).
+                NavigationLink("Every scene") { SceneBrowserView() }
                 // A first try at a board book, to get a feel for the pages and flaps (Tom, 16 November 2026).
                 Button { readingBook = true } label: {
                     named("Board book", "One Boot, as a rough storyboard. Turn the pages and lift the flaps.")
