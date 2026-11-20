@@ -309,17 +309,17 @@ private struct LockScreenCard: View {
         .padding(14)
     }
 
-    /// One child: the badge and the name in a row with what comes next at the right, then their three facts
-    /// under the name, lined up with it (Tom, 19 November 2026: more room for the facts, and the name level with
-    /// the badge).
+    /// One child: a small line with the badge, the name and what comes next, then their three facts in columns,
+    /// each time large over its word (Tom and his wife, 20 November 2026: option E of
+    /// docs/previews/live-card/bigger-facts.html). Feeding, the running feed and its buttons in place of the facts.
     private func alone(lead: TimerAttributes, state: TimerAttributes.ContentState) -> some View {
         // What comes next, until its time. After that the card is stale and the line goes.
         let next = context.isStale || state.mode == "feed" ? nil : state.nextLine()
         return VStack(alignment: .leading, spacing: 10) {
-            HStack(alignment: .center, spacing: 12) {
-                Badge(attributes: lead, size: 40)
+            HStack(alignment: .center, spacing: 8) {
+                Badge(attributes: lead, size: 24)
                 Text(lead.childName)
-                    .font(.headline)
+                    .font(.subheadline.weight(.semibold))
                     .foregroundStyle(Tone.cream)
                     .lineLimit(1)
                     .layoutPriority(1)
@@ -329,10 +329,10 @@ private struct LockScreenCard: View {
                                  spoken: "\(lead.childName) woke up")
                 } else if let next {
                     Text(next)
-                        .font(.footnote)
+                        .font(.caption)
                         .foregroundStyle(Tone.cream.opacity(0.8))
                         .multilineTextAlignment(.trailing)
-                        .lineLimit(2)
+                        .lineLimit(1)
                         .minimumScaleFactor(0.85)
                 }
             }
@@ -347,26 +347,24 @@ private struct LockScreenCard: View {
                 .padding(.leading, Self.underName)
                 FeedButtons(attributes: lead, state: state)
             } else {
-                // The snapshot, readable without opening anything: the feed, the sleep and the nappy.
-                // Each opens Puggle at the sheet for the next one. Lined up with the name.
-                VStack(alignment: .leading, spacing: 6) {
-                    Facts(state: state, childID: lead.childID)
-                    // While asleep the button has the top right, so what comes next stays under the facts.
-                    if state.mode == "sleep", let next {
-                        Text(next)
-                            .font(.footnote)
-                            .foregroundStyle(Tone.cream.opacity(0.8))
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.85)
-                    }
+                // The snapshot, readable at a glance: the feed, the sleep and the nappy, each opening Puggle at the
+                // sheet for the next one.
+                Facts(state: state, childID: lead.childID)
+                // While asleep the button has the top right, so what comes next goes under the facts.
+                if state.mode == "sleep", let next {
+                    Text(next)
+                        .font(.caption)
+                        .foregroundStyle(Tone.cream.opacity(0.8))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                        .frame(maxWidth: .infinity)
                 }
-                .padding(.leading, Self.underName)
             }
         }
     }
 
     /// How far in the name starts: the badge and the gap after it.
-    private static let underName: CGFloat = 40 + 12
+    private static let underName: CGFloat = 24 + 8
 
     /// Two or more children: a row each, the busiest first, and only the first with buttons.
     private func family(lead: TimerAttributes, state: TimerAttributes.ContentState, others: [TimerAttributes.ContentState.Other]) -> some View {
@@ -543,42 +541,52 @@ private struct SmallCard: View {
     }
 }
 
-/// Up to three facts side by side, each a word over a time: "Fed 1h 29m", "Awake 1h 11m", "Nappy 45m".
-/// While asleep the first is "Asleep". Plain facts; nothing is due and nothing turns red.
+/// Up to three facts in columns, each a time large over its word: "1h 46m" over "Fed", "2h 56m" over "Awake",
+/// "1h 14m" over "Nappy", with a thin line between them. While asleep the first is "Asleep". Plain facts;
+/// nothing is due and nothing turns red. The times count up by themselves, so each is one run of text and its
+/// "h" and "m" are the size of the numbers.
 private struct Facts: View {
     let state: TimerAttributes.ContentState
     let childID: String
 
+    private var shown: [(title: String, glyph: String?, since: Date, link: String)] {
+        var facts: [(title: String, glyph: String?, since: Date, link: String)] = []
+        if state.mode == "sleep", let since = state.since { facts.append(("Asleep", "sleep", since, "asleep")) }
+        if let fed = state.fedSince { facts.append(("Fed", "bottle", fed, "fed")) }
+        if state.mode == "glance", let awake = state.awakeSince { facts.append(("Awake", nil, awake, "awake")) }
+        if let nappy = state.nappySince { facts.append((Terms.nappy, "nappy", nappy, "nappy")) }
+        return facts
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 8) {
-            if state.mode == "sleep", let since = state.since { fact("Asleep", glyph: "sleep", since, link: "asleep") }
-            if let fed = state.fedSince { fact("Fed", glyph: "bottle", fed, link: "fed") }
-            if state.mode == "glance", let awake = state.awakeSince { fact("Awake", glyph: nil, awake, link: "awake") }
-            if let nappy = state.nappySince { fact(Terms.nappy, glyph: "nappy", nappy, link: "nappy") }
+        let facts = shown
+        HStack(spacing: 0) {
+            ForEach(Array(facts.enumerated()), id: \.offset) { index, fact in
+                if index > 0 {
+                    Rectangle().fill(Tone.cream.opacity(0.16)).frame(width: 1, height: 44)
+                }
+                Link(destination: PuggleLink.log(fact.link, child: childID)) { face(fact.title, glyph: fact.glyph, fact.since) }
+            }
         }
     }
 
-    /// A fact is also the way in: it opens Puggle at the sheet for the next one, for this child.
-    private func fact(_ title: String, glyph: String?, _ since: Date, link: String) -> some View {
-        Link(destination: PuggleLink.log(link, child: childID)) { face(title, glyph: glyph, since) }
-    }
-
     private func face(_ title: String, glyph: String?, _ since: Date) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(spacing: 1) {
+            Since.text(since, narrow: true)
+                .font(.system(size: 26, weight: .semibold))
+                .foregroundStyle(Tone.moon)
+                .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
             HStack(spacing: 3) {
                 if let glyph { Glyph(glyph, size: 12) } else { Image(systemName: "sun.max").font(.system(size: 10, weight: .semibold)) }
                 Text(title)
             }
             .font(.caption.weight(.medium))
             .foregroundStyle(Tone.cream.opacity(0.7))
-            Since.text(since, narrow: true)
-                .font(.callout.weight(.semibold))
-                .foregroundStyle(Tone.moon)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, 4)
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
 }
