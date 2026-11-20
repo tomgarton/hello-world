@@ -532,6 +532,7 @@ struct CharacterPicker: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+              VStack(spacing: 0) {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 92), spacing: 14)], spacing: 18) {
                     ForEach(CastPortrait.everyone, id: \.self) { who in
                         Button {
@@ -557,6 +558,8 @@ struct CharacterPicker: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
                     .padding(.bottom, 20)
+              }
+              .measuredForSheet()
             }
             .background(Palette.sand)
             .navigationTitle("Choose a character")
@@ -564,7 +567,7 @@ struct CharacterPicker: View {
             .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } } }
         }
         .foregroundStyle(Palette.ink)
-        .presentationDetents([.medium, .large])
+        .fittedSheet()
     }
 }
 

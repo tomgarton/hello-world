@@ -167,6 +167,27 @@ final class LiveTimers {
         return [TimerAttributes.familyID: Wanted(attributes: attributes, state: state)]
     }
 
+    /// When each card was started, by its id, as iOS does not say.
+    private static let startsKey = "liveActivityStarts"
+
+    private static func started(_ activity: Activity<TimerAttributes>) {
+        var starts = UserDefaults.standard.dictionary(forKey: startsKey) as? [String: Double] ?? [:]
+        let live = Set(Activity<TimerAttributes>.activities.map(\.id))
+        starts = starts.filter { live.contains($0.key) }
+        starts[activity.id] = Date.now.timeIntervalSince1970
+        UserDefaults.standard.set(starts, forKey: startsKey)
+    }
+
+    /// How long a card has been up. One from before this was kept counts as new, and is timed from now.
+    private static func age(of activity: Activity<TimerAttributes>) -> TimeInterval {
+        let starts = UserDefaults.standard.dictionary(forKey: startsKey) as? [String: Double] ?? [:]
+        guard let start = starts[activity.id] else {
+            started(activity)
+            return 0
+        }
+        return Date.now.timeIntervalSince1970 - start
+    }
+
     private func apply(_ wanted: [String: Wanted]) async {
         var showing = Set<String>()
         for activity in Activity<TimerAttributes>.activities {
@@ -178,6 +199,18 @@ final class LiveTimers {
                 continue
             }
             showing.insert(id)
+            // iOS keeps a card for eight hours. Past seven, a fresh one takes over whenever one can be started (the
+            // app on screen, or a button on the card pressed); the old one ends only once the new one is up, so the
+            // card never goes missing (Tom, 20 November 2026). Started in the background, the request just fails
+            // and the old card carries on until the next chance.
+            if Self.age(of: activity) > 7 * 3600,
+               let fresh = try? Activity.request(attributes: want.attributes,
+                                                 content: ActivityContent(state: want.state, staleDate: want.state.nextAt),
+                                                 pushType: nil) {
+                Self.started(fresh)
+                await activity.end(nil, dismissalPolicy: .immediate)
+                continue
+            }
             if !same(activity.content.state, want.state) {
                 // The stale date is when the "next" line's time passes: iOS then draws the card again, without it.
                 // Updating works with the app in the background, so "Woke up" on the
@@ -188,9 +221,11 @@ final class LiveTimers {
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         for (id, want) in wanted where !showing.contains(id) {
             // Starting needs the app on screen; if it is not, the next sync tries again.
-            _ = try? Activity.request(attributes: want.attributes,
-                                      content: ActivityContent(state: want.state, staleDate: want.state.nextAt),
-                                      pushType: nil)
+            if let fresh = try? Activity.request(attributes: want.attributes,
+                                                 content: ActivityContent(state: want.state, staleDate: want.state.nextAt),
+                                                 pushType: nil) {
+                Self.started(fresh)
+            }
         }
     }
 

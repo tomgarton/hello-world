@@ -135,7 +135,9 @@ struct PumpSheet: View {
                     }
                 }
                 .padding(16)
+                .measuredForSheet()
             }
+            .scrollBounceBehavior(.basedOnSize)
             .background(Palette.sand)
             .navigationTitle(editing == nil ? "Pump" : "Edit pump")
             .navigationBarTitleDisplayMode(.inline)
@@ -156,8 +158,7 @@ struct PumpSheet: View {
             .sheet(isPresented: $counting) { MilkCountSheet(start: store.milkOnHand()) }
         }
         .foregroundStyle(Palette.ink)
-        .presentationDetents(editing == nil ? [.medium, .large] : [.large])
-        .presentationDragIndicator(.visible)
+        .fittedSheet(chrome: 64 + (isCount ? 0 : 70))
         .onAppear(perform: load)
     }
 
@@ -288,6 +289,7 @@ struct MilkCountSheet: View {
                 .listRowBackground(Palette.paper)
             }
             .scrollContentBackground(.hidden)
+            .measuredListForSheet()
             .background(Palette.sand)
             .navigationTitle("Milk on hand")
             .navigationBarTitleDisplayMode(.inline)
@@ -302,7 +304,7 @@ struct MilkCountSheet: View {
             }
         }
         .foregroundStyle(Palette.ink)
-        .presentationDetents([.medium])
+        .fittedSheet()
         .onAppear {
             fridge = start.fridge
             freezer = start.freezer

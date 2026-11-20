@@ -867,8 +867,8 @@ struct DaySoFarView: View {
     var onLog: (EventKind) -> Void = { _ in }
     @Environment(\.dynamicTypeSize) private var textSize
     /// Half height or full: the log buttons grow when the panel is pulled up.
-    @State private var detent: PresentationDetent = .medium
-    private var big: Bool { detent == .large }
+    /// The sheet opens at the height of what is in it (Tom, 20 November 2026), so the grid keeps three across.
+    private let big = false
 
     /// Everything that can be logged for this child, in the usual order.
     private var kinds: [EventKind] {
@@ -971,6 +971,7 @@ struct DaySoFarView: View {
                 }
                 .padding(16)
                 .foregroundStyle(Palette.ink)
+                .measuredForSheet()
             }
             .background(Palette.sand)
             .navigationTitle("\(child.displayName)'s day")
@@ -979,9 +980,7 @@ struct DaySoFarView: View {
                 ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } }
             }
         }
-        .presentationDetents([.medium, .large], selection: $detent)
-        .animation(.spring(duration: 0.35, bounce: 0.15), value: detent)
-        .presentationDragIndicator(.visible)
+        .fittedSheet()
     }
 
     private var lines: [Line] {

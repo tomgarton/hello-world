@@ -431,8 +431,10 @@ private struct ReminderEditor: View {
                     .disabled(reminder.kind == .medicine && reminder.medicine.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
+            .measuredListForSheet()
         }
         .foregroundStyle(Palette.ink)
+        .fittedSheet()
     }
 
     private var hoursStepper: some View {

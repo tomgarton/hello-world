@@ -653,12 +653,13 @@ struct DataPromiseView: View {
                 .listRowBackground(Palette.paper)
             }
             .scrollContentBackground(.hidden)
+            .measuredListForSheet()
             .background(Palette.sand)
             .foregroundStyle(Palette.ink)
             .navigationTitle("Your family's data")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
         }
-        .presentationDetents([.medium, .large])
+        .fittedSheet()
     }
 }

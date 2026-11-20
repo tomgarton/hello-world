@@ -434,6 +434,7 @@ struct InviteSheet: View {
                 }
             }
             .scrollContentBackground(.hidden)
+            .measuredListForSheet()
             .background(Palette.sand)
             .foregroundStyle(Palette.ink)
             .navigationTitle("Invite someone")
@@ -451,6 +452,7 @@ struct InviteSheet: View {
                 .padding(.bottom, 8)
             }
         }
+        .fittedSheet(chrome: 64 + 70)
     }
 }
 

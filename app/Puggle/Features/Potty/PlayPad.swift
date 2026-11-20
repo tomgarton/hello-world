@@ -568,7 +568,9 @@ struct PlayPadView: View {
                     }
                 }
                 .padding(16)
+                .measuredForSheet()
             }
+            .scrollBounceBehavior(.basedOnSize)
             .background(Palette.sand)
             .foregroundStyle(Palette.ink)
             .navigationTitle("For grown-ups")
@@ -585,7 +587,7 @@ struct PlayPadView: View {
                 Button("Keep it", role: .cancel) {}
             }
         }
-        .presentationDetents([.medium, .large])
+        .fittedSheet()
     }
 
     private func section(_ title: String, @ViewBuilder _ content: () -> some View) -> some View {

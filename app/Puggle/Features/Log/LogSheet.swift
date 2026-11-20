@@ -67,7 +67,6 @@ struct LogSheet: View {
     @State private var saved = false
     @State private var confirmingDelete = false
     @State private var loaded = false
-    @State private var contentHeight: CGFloat = 0
     @FocusState private var amountFocused: Bool
     @Environment(\.dynamicTypeSize) private var textSize
 
@@ -78,17 +77,6 @@ struct LogSheet: View {
         if isEditing { return "Edit \(kind.title.lowercased())" }
         guard children.count == 1, let name = children.first?.displayName else { return kind.title }
         return kind == .care ? "Looking after \(name)" : "\(name)'s \(kind.title.lowercased())"
-    }
-
-    /// The sheet opens at the height of what is in it, so nothing waits below the edge and there is no pulling
-    /// it up for a few rows (Tom, 20 November 2026). A form taller than the screen, or the largest text sizes,
-    /// open full height and scroll.
-    private var detents: Set<PresentationDetent> {
-        if textSize.isAccessibilitySize { return [.large] }
-        guard contentHeight > 0 else { return [.medium] }
-        // The bar with the title and Cancel, and the Save button pinned below.
-        let total = contentHeight + 64 + (needsSaveButton ? 70 : 0)
-        return total > UIScreen.main.bounds.height * 0.9 ? [.large] : [.height(total)]
     }
 
     /// The choices that save in one tap, shown last: a new nappy, or the potty for a child out of nappies.
@@ -132,11 +120,8 @@ struct LogSheet: View {
                     }
                 }
                 .padding(16)
-                .background(GeometryReader { geometry in
-                    Color.clear.preference(key: SheetContentHeight.self, value: geometry.size.height)
-                })
+                .measuredForSheet()
             }
-            .onPreferenceChange(SheetContentHeight.self) { contentHeight = $0 }
             .scrollBounceBehavior(.basedOnSize)
             .background(Palette.sand)
             .navigationTitle(title)
@@ -185,8 +170,8 @@ struct LogSheet: View {
         }
         .foregroundStyle(Palette.ink)
         // Full height at the largest text sizes, where half a screen is not enough room.
-        .presentationDetents(detents)
-        .presentationDragIndicator(.visible)
+        // The title bar, and the Save button pinned below when there is one.
+        .fittedSheet(chrome: 64 + (needsSaveButton ? 70 : 0))
         .onAppear(perform: load)
         .onChange(of: selected) { _, _ in rememberLastBottle() }
     }
@@ -1257,12 +1242,6 @@ struct LogSheet: View {
 struct NSManagedObjectIDWrapper: Hashable {
     let id: NSManagedObjectID
     init(_ object: NSManagedObject) { id = object.objectID }
-}
-
-/// How tall a log sheet's contents are, for sizing the sheet to them.
-private struct SheetContentHeight: PreferenceKey {
-    static let defaultValue: CGFloat = 0
-    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
 }
 
 /// The day of an entry, in words, opening a calendar to pick another.

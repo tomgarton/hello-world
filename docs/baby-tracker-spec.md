@@ -2786,3 +2786,14 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - Time shortcuts say what they do: Now, 15 min ago, 1 hour ago, Yesterday. The day reads Today or Yesterday, and a
   date only further back; tapping it opens a calendar, keeping the time of day.
 - Nappy colours are six labelled dots, all in sight.
+
+## Every sheet fits what is in it, and the Live Activity outlasts eight hours (20 November 2026)
+
+- `fittedSheet()` (in `Theme.swift`) opens a sheet at the height of its contents, measured with
+  `measuredForSheet()` on a scroll view's contents or `measuredListForSheet()` on a list or form (iOS 18 and later;
+  before, half and full height). Taller than the screen, or at the largest text sizes, it opens full height. Used
+  by the log sheets, the day sheet, entry details, pump, milk on hand, play, the drawing pad's grown-ups panel,
+  the data promise, reminders and the invite. Sheets that are a whole screen of their own (backups, a person, the
+  feed timer, the sticker showcase) stay full height.
+- iOS keeps a Live Activity for eight hours. Past seven, a fresh card takes over whenever one can be started (the
+  app on screen, or a button on the card pressed), and the old one ends only after the new one is up.

@@ -36,7 +36,9 @@ struct PlayShelfView: View {
                 }
                 .padding(16)
                 .frame(maxWidth: .infinity, alignment: .leading)
+                .measuredForSheet()
             }
+            .scrollBounceBehavior(.basedOnSize)
             .background(Palette.sand)
             .foregroundStyle(Palette.ink)
             .navigationTitle("Play")
@@ -47,8 +49,7 @@ struct PlayShelfView: View {
             .protectedCover(isPresented: $drawing) { PlayPadView() }
             .sheet(isPresented: $showingStamps) { StampBookView(children: stampChildren) }
         }
-        .presentationDetents([.medium, .large])
-        .presentationDragIndicator(.visible)
+        .fittedSheet()
     }
 
     private func card(_ title: String, _ subtitle: String, symbol: String, action: @escaping () -> Void) -> some View {

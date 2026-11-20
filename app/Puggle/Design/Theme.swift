@@ -240,3 +240,80 @@ extension NightKey: UITraitBridgedEnvironmentKey {
     static func read(from traitCollection: UITraitCollection) -> Bool { traitCollection[NightTrait.self] }
     static func write(to mutableTraits: inout UIMutableTraits, value: Bool) { mutableTraits[NightTrait.self] = value }
 }
+
+
+// MARK: Sheets that fit what is in them
+
+/// How tall a sheet's contents are.
+struct SheetContentHeight: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+extension View {
+    /// On a sheet's contents, inside its scroll view: reports how tall they are.
+    func measuredForSheet() -> some View {
+        background(GeometryReader { geometry in
+            Color.clear.preference(key: SheetContentHeight.self, value: geometry.size.height)
+        })
+    }
+
+    /// On the sheet itself: it opens at the height of its contents (see `measuredForSheet`) plus `chrome`, the
+    /// title bar and anything pinned below, so nothing waits under the edge and there is no pulling up for a few
+    /// rows (Tom, 20 November 2026). Taller than the screen, or at the largest text sizes, it opens full height.
+    func fittedSheet(chrome: CGFloat = 64) -> some View {
+        modifier(FittedSheet(chrome: chrome))
+    }
+}
+
+extension View {
+    /// On a sheet's list or form: reports how tall its rows are (iOS 18 and later; before, the sheet keeps half
+    /// and full height).
+    func measuredListForSheet() -> some View { modifier(ListMeasure()) }
+}
+
+private struct SheetHeightReport: EnvironmentKey {
+    nonisolated(unsafe) static let defaultValue: (CGFloat) -> Void = { _ in }
+}
+
+extension EnvironmentValues {
+    fileprivate var reportSheetHeight: (CGFloat) -> Void {
+        get { self[SheetHeightReport.self] }
+        set { self[SheetHeightReport.self] = newValue }
+    }
+}
+
+private struct ListMeasure: ViewModifier {
+    @Environment(\.reportSheetHeight) private var report
+
+    func body(content: Content) -> some View {
+        if #available(iOS 18.0, *) {
+            content.onScrollGeometryChange(for: CGFloat.self, of: { $0.contentSize.height }) { _, height in report(height) }
+        } else {
+            content
+        }
+    }
+}
+
+private struct FittedSheet: ViewModifier {
+    let chrome: CGFloat
+    @State private var height: CGFloat = 0
+    @Environment(\.dynamicTypeSize) private var textSize
+
+    func body(content: Content) -> some View {
+        content
+            .environment(\.reportSheetHeight, { new in
+                Task { @MainActor in if abs(new - height) > 1 { height = new } }
+            })
+            .onPreferenceChange(SheetContentHeight.self) { height = $0 }
+            .presentationDetents(detents)
+            .presentationDragIndicator(.visible)
+    }
+
+    private var detents: Set<PresentationDetent> {
+        if textSize.isAccessibilitySize { return [.large] }
+        guard height > 0 else { return [.medium] }
+        let total = height + chrome
+        return total > UIScreen.main.bounds.height * 0.9 ? [.large] : [.height(total)]
+    }
+}

@@ -130,6 +130,7 @@ struct EntryDetailView: View {
                 }
                 Button("Keep it", role: .cancel) {}
             }
+            .measuredListForSheet()
             .sheet(isPresented: $editing) {
                 if event.kind == .pump {
                     PumpSheet(editing: event)
@@ -138,8 +139,7 @@ struct EntryDetailView: View {
                 }
             }
         }
-        .presentationDetents([.fraction(0.75), .large])
-        .presentationDragIndicator(.visible)
+        .fittedSheet()
     }
 }
 
