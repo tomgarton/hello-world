@@ -2774,3 +2774,15 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
   feeding or asleep still runs the island, but their row sits in its place. Anyone asleep has their own Woke up
   button. The open island shows the same rows as the Lock Screen.
 - The Watch shows a sleep as "1h 2m", as the Lock Screen does; only a feed ticks in seconds.
+
+## Log sheets, second pass (20 November 2026)
+
+- Opened for one child, the sheet has no child picker; their name is in the title ("Ollie's nappy", "Looking
+  after Ollie"). With more than one child to choose from, the picker stays.
+- Each sheet opens at the height of what is in it, so nothing waits below the edge; a form taller than the screen,
+  or the largest text sizes, open full height.
+- Nappy and potty: everything optional comes first (colour, time, note) and the one-tap buttons last, nearest the
+  thumb, so the time and note can be set before it saves.
+- Time shortcuts say what they do: Now, 15 min ago, 1 hour ago, Yesterday. The day reads Today or Yesterday, and a
+  date only further back; tapping it opens a calendar, keeping the time of day.
+- Nappy colours are six labelled dots, all in sight.

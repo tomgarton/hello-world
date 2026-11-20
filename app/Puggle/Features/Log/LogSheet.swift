@@ -67,10 +67,38 @@ struct LogSheet: View {
     @State private var saved = false
     @State private var confirmingDelete = false
     @State private var loaded = false
+    @State private var contentHeight: CGFloat = 0
     @FocusState private var amountFocused: Bool
     @Environment(\.dynamicTypeSize) private var textSize
 
     private var isEditing: Bool { editing != nil }
+
+    /// "Ollie's nappy" when the sheet is for one child, "Looking after Ollie" for care; otherwise the activity.
+    private var title: String {
+        if isEditing { return "Edit \(kind.title.lowercased())" }
+        guard children.count == 1, let name = children.first?.displayName else { return kind.title }
+        return kind == .care ? "Looking after \(name)" : "\(name)'s \(kind.title.lowercased())"
+    }
+
+    /// The sheet opens at the height of what is in it, so nothing waits below the edge and there is no pulling
+    /// it up for a few rows (Tom, 20 November 2026). A form taller than the screen, or the largest text sizes,
+    /// open full height and scroll.
+    private var detents: Set<PresentationDetent> {
+        if textSize.isAccessibilitySize { return [.large] }
+        guard contentHeight > 0 else { return [.medium] }
+        // The bar with the title and Cancel, and the Save button pinned below.
+        let total = contentHeight + 64 + (needsSaveButton ? 70 : 0)
+        return total > UIScreen.main.bounds.height * 0.9 ? [.large] : [.height(total)]
+    }
+
+    /// The choices that save in one tap, shown last: a new nappy, or the potty for a child out of nappies.
+    private var oneTapOptions: [String]? {
+        switch kind {
+        case .nappy: ["Wet", "Dirty", "Both", "Dry"]
+        case .potty where !pottyAndNappy: ["Wee", "Poo", "Tried", "Accident"]
+        default: nil
+        }
+    }
 
     private var saveTitle: String {
         if pottyAndNappy { return nappyChoice != nil && choice != nil ? "Save both" : "Save" }
@@ -85,11 +113,14 @@ struct LogSheet: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    childPicker
+                    // One child: nothing to pick, and their name is in the title (Tom, 20 November 2026).
+                    if children.count > 1 { childPicker }
                     details
                     TextField("Note", text: $note, axis: .vertical)
                         .padding(14)
                         .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    // Saving in one tap: the buttons come last, nearest the thumb, after anything to set first.
+                    if let options = oneTapOptions { quickChoices(options) }
                     if let editing, store.canChange(editing) {
                         Button("Delete entry", role: .destructive) { confirmingDelete = true }
                     .foregroundStyle(Palette.waratah)
@@ -101,9 +132,14 @@ struct LogSheet: View {
                     }
                 }
                 .padding(16)
+                .background(GeometryReader { geometry in
+                    Color.clear.preference(key: SheetContentHeight.self, value: geometry.size.height)
+                })
             }
+            .onPreferenceChange(SheetContentHeight.self) { contentHeight = $0 }
+            .scrollBounceBehavior(.basedOnSize)
             .background(Palette.sand)
-            .navigationTitle(isEditing ? "Edit \(kind.title.lowercased())" : kind.title)
+            .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
@@ -149,7 +185,7 @@ struct LogSheet: View {
         }
         .foregroundStyle(Palette.ink)
         // Full height at the largest text sizes, where half a screen is not enough room.
-        .presentationDetents(isEditing || textSize.isAccessibilitySize ? [.large] : [.medium, .large])
+        .presentationDetents(detents)
         .presentationDragIndicator(.visible)
         .onAppear(perform: load)
         .onChange(of: selected) { _, _ in rememberLastBottle() }
@@ -589,17 +625,15 @@ struct LogSheet: View {
             }
         case .nappy:
             VStack(alignment: .leading, spacing: 12) {
-                // Optional, and picked before the one-tap choice.
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 8) {
-                        Text("Colour").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
-                        ForEach(["Yellow", "Mustard", "Green", "Brown", "Black", "Pale"], id: \.self) { option in
-                            chip(option, isOn: extra == option) { extra = (extra == option ? "" : option) }
-                        }
+                // Optional, and picked before the one-tap choice: each colour as itself, all of them in sight.
+                Text("Colour (optional)").font(.footnote.weight(.semibold)).foregroundStyle(Palette.muted)
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 8), count: 3), spacing: 8) {
+                    ForEach(Self.nappyColours, id: \.name) { colour in
+                        swatch(colour.name, colour.hex, isOn: extra == colour.name) { extra = (extra == colour.name ? "" : colour.name) }
                     }
                 }
-                .accessibilityLabel("Colour, optional")
-                quickChoices(["Wet", "Dirty", "Both", "Dry"])
+                timeRow("Time", $time)
+                timeShortcuts
             }
         case .potty:
             if pottyAndNappy {
@@ -610,7 +644,10 @@ struct LogSheet: View {
                     timeShortcuts
                 }
             } else {
-                quickChoices(["Wee", "Poo", "Tried", "Accident"])
+                VStack(alignment: .leading, spacing: 12) {
+                    timeRow("Time", $time)
+                    timeShortcuts
+                }
             }
         case .note:
             timeRow("Time", $time)
@@ -955,8 +992,6 @@ struct LogSheet: View {
                     .accessibilityAddTraits(isOn ? .isSelected : [])
                 }
             }
-            timeRow("Time", $time)
-            timeShortcuts
             if !isEditing {
                 Text(chosenChildren.isEmpty ? "Choose who it's for first." : "One tap saves it.")
                     .font(.footnote)
@@ -981,22 +1016,65 @@ struct LogSheet: View {
         .accessibilityLabel(label)
     }
 
+    /// The day says "Today" or "Yesterday", and a date only further back (Tom, 20 November 2026); tapping it
+    /// opens the calendar. The time beside it is the system's own.
     private func timeRow(_ label: String, _ date: Binding<Date>) -> some View {
-        DatePicker(label, selection: date, in: ...Date.now.addingTimeInterval(60))
-            .padding(.horizontal, 14)
-            .frame(minHeight: 52)
-            .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+        HStack {
+            Text(label)
+            Spacer()
+            DayButton(label: label, date: date)
+            DatePicker(label, selection: date, in: ...Date.now.addingTimeInterval(60), displayedComponents: .hourAndMinute)
+                .labelsHidden()
+        }
+        .padding(.horizontal, 14)
+        .frame(minHeight: 52)
+        .background(Palette.field, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+    }
+
+    static func dayName(_ date: Date) -> String {
+        let calendar = Calendar.current
+        if calendar.isDateInToday(date) { return "Today" }
+        if calendar.isDateInYesterday(date) { return "Yesterday" }
+        let sameYear = calendar.isDate(date, equalTo: .now, toGranularity: .year)
+        return sameYear ? date.formatted(.dateTime.day().month(.abbreviated)) : date.formatted(.dateTime.day().month(.abbreviated).year())
+    }
+
+    private static let nappyColours: [(name: String, hex: UInt32)] = [
+        ("Yellow", 0xF2C94C), ("Mustard", 0xC9A227), ("Green", 0x6E8B3D),
+        ("Brown", 0x7A5230), ("Black", 0x2B2522), ("Pale", 0xEFE8D6),
+    ]
+
+    private func swatch(_ name: String, _ hex: UInt32, isOn: Bool, action: @escaping () -> Void) -> some View {
+        Button {
+            Haptics.selection()
+            action()
+        } label: {
+            HStack(spacing: 7) {
+                Circle().fill(Color(hex: hex))
+                    .overlay(Circle().stroke(Palette.ink.opacity(0.25), lineWidth: 1))
+                    .frame(width: 16, height: 16)
+                Text(name).lineLimit(1).minimumScaleFactor(0.8)
+                Spacer(minLength: 0)
+                if isOn { Image(systemName: "checkmark").font(.caption2.weight(.bold)) }
+            }
+            .font(.footnote.weight(.semibold))
+            .foregroundStyle(Palette.ink)
+            .padding(.horizontal, 12)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .background(Palette.field, in: Capsule())
+            .overlay(Capsule().stroke(Palette.ink, lineWidth: isOn ? 1.5 : 0))
+        }
+        .buttonStyle(PressStyle())
+        .accessibilityAddTraits(isOn ? .isSelected : [])
     }
 
     /// One tap for the common "I forgot to log it" cases.
     private var timeShortcuts: some View {
         HStack(spacing: 8) {
             shortcut("Now") { time = .now }
-            shortcut("Earlier today") {
-                let today = Calendar.current.startOfDay(for: .now)
-                let base = Calendar.current.isDateInToday(time) ? time : Date.now
-                time = max(today, base.addingTimeInterval(-3600))
-            }
+            // Says what it does (Tom, 20 November 2026): "Earlier today" moved the time back an hour.
+            shortcut("15 min ago") { time = .now.addingTimeInterval(-15 * 60) }
+            shortcut("1 hour ago") { time = .now.addingTimeInterval(-3600) }
             shortcut("Yesterday") {
                 if let moved = Calendar.current.date(byAdding: .day, value: -1, to: .now) { time = moved }
             }
@@ -1172,4 +1250,47 @@ struct LogSheet: View {
 struct NSManagedObjectIDWrapper: Hashable {
     let id: NSManagedObjectID
     init(_ object: NSManagedObject) { id = object.objectID }
+}
+
+/// How tall a log sheet's contents are, for sizing the sheet to them.
+private struct SheetContentHeight: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+/// The day of an entry, in words, opening a calendar to pick another.
+private struct DayButton: View {
+    let label: String
+    @Binding var date: Date
+    @State private var picking = false
+
+    var body: some View {
+        Button { picking = true } label: {
+            Text(LogSheet.dayName(date))
+                .padding(.horizontal, 11)
+                .padding(.vertical, 6)
+                .background(Palette.input, in: Capsule())
+        }
+        .foregroundStyle(Palette.ink)
+        .accessibilityLabel("\(label) day, \(LogSheet.dayName(date))")
+        .popover(isPresented: $picking) {
+            DatePicker(label, selection: dayOnly, in: ...Date.now, displayedComponents: .date)
+                .datePickerStyle(.graphical)
+                .labelsHidden()
+                .padding()
+                .frame(minWidth: 320)
+                .presentationCompactAdaptation(.popover)
+        }
+    }
+
+    /// Picking a day keeps the time of day, and closes the calendar.
+    private var dayOnly: Binding<Date> {
+        Binding(get: { date }, set: { day in
+            let calendar = Calendar.current
+            let time = calendar.dateComponents([.hour, .minute], from: date)
+            let moved = calendar.date(bySettingHour: time.hour ?? 0, minute: time.minute ?? 0, second: 0, of: day) ?? day
+            date = min(moved, .now)
+            picking = false
+        })
+    }
 }
