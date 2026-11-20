@@ -23,6 +23,14 @@ struct TimerAttributes: ActivityAttributes {
         var awakeSince: Date?
         /// When the last nappy was changed. Shown beside the feed and the sleep, in every mode.
         var nappySince: Date?
+        /// For a child past milk (Tom, 20 November 2026): when they last ate, shown as "Ate" in place of "Fed".
+        var ateSince: Date?
+        /// While potty training: the last potty, shown as "Potty" in place of "Nappy".
+        var pottySince: Date?
+        /// Which facts, as on the child's card on Today: false for a child past milk (Ate, Awake, Potty or Nappy),
+        /// true for potty training. Nil on a card made before these.
+        var milk: Bool?
+        var potty: Bool?
         /// What comes next, as a guess from the child's last week: "Next feed around 2:30 pm". Shown only
         /// until `nextAt`, so nothing ever reads as late.
         var nextText: String?

@@ -64,8 +64,16 @@ final class LiveTimers {
             // The snapshot beside whatever is running: the last feed and the last nappy, if they are recent.
             let cutoff = Date.now.addingTimeInterval(-glanceHours * 3600)
             let recent = { (date: Date?) -> Date? in date.flatMap { $0 > cutoff && $0 <= .now ? $0 : nil } }
-            let lastFeed = recent([store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0?.startedAt }.max())
-            let lastNappy = child.uses(.nappy) ? recent(store.latest(.nappy, for: child)?.startedAt) : nil
+            let anyFeed = [store.latest(.bottle, for: child), store.latest(.breastfeed, for: child)].compactMap { $0?.startedAt }.max()
+            let lastFeed = recent(anyFeed)
+            // The same facts as the child's card on Today: Fed for a child on milk, Ate for one past it; Potty while
+            // potty training, Nappy otherwise (Tom, 20 November 2026).
+            let milk = (child.uses(.bottle) || child.uses(.breastfeed))
+                && (child.ageMonths < 12 || (anyFeed.map { Date.now.timeIntervalSince($0) < 2 * 86400 } ?? false))
+            let potty = child.pottyTraining && child.uses(.potty)
+            let lastAte = recent(store.latest(.solids, for: child)?.startedAt)
+            let lastPotty = potty ? recent(store.latest(.potty, for: child)?.startedAt) : nil
+            let lastNappy = child.uses(.nappy) && !potty ? recent(store.latest(.nappy, for: child)?.startedAt) : nil
             let next = NextUp.soonest(for: child)
             if let feed = store.activeFeed(for: child) {
                 var state = TimerAttributes.ContentState(mode: "feed")
@@ -81,9 +89,13 @@ final class LiveTimers {
                 }
                 result[id] = Wanted(attributes: attributes, state: state)
             } else if let sleep = store.activeSleep(for: child), let start = sleep.startedAt {
-                result[id] = Wanted(attributes: attributes,
-                                    state: .init(mode: "sleep", label: "Asleep", since: start, fedSince: lastFeed, nappySince: lastNappy,
-                                                 nextText: next?.line, nextAt: next?.at))
+                var state = TimerAttributes.ContentState(mode: "sleep", label: "Asleep", since: start, fedSince: lastFeed, nappySince: lastNappy,
+                                                         nextText: next?.line, nextAt: next?.at)
+                state.ateSince = lastAte
+                state.pottySince = lastPotty
+                state.milk = milk
+                state.potty = potty
+                result[id] = Wanted(attributes: attributes, state: state)
             } else if glanceOn, child.ageMonths < 24, child.uses(.bottle) || child.uses(.breastfeed) {
                 var state = TimerAttributes.ContentState(mode: "glance")
                 state.fedSince = lastFeed
@@ -95,7 +107,24 @@ final class LiveTimers {
                 }
                 state.nextText = next?.line
                 state.nextAt = next?.at
+                state.potty = potty
+                state.pottySince = lastPotty
+                state.milk = true
                 if state.fedSince != nil {
+                    result[id] = Wanted(attributes: attributes, state: state)
+                }
+            } else if glanceOn, !milk, child.ageMonths < 48 {
+                // A toddler: Awake, Ate, and Potty or Nappy, as on their card on Today.
+                var state = TimerAttributes.ContentState(mode: "glance")
+                state.milk = false
+                state.potty = potty
+                state.ateSince = lastAte
+                state.pottySince = lastPotty
+                state.nappySince = lastNappy
+                if let woke = store.lastWoke(for: child), woke > cutoff, woke <= .now { state.awakeSince = woke }
+                state.nextText = next?.line
+                state.nextAt = next?.at
+                if state.ateSince != nil || state.awakeSince != nil {
                     result[id] = Wanted(attributes: attributes, state: state)
                 }
             }
@@ -112,7 +141,7 @@ final class LiveTimers {
         let ordered = cards.sorted { a, b in
             let (x, y) = (rank(a.state), rank(b.state))
             if x != y { return x < y }
-            let (p, q) = (a.state.since ?? a.state.fedSince ?? .distantFuture, b.state.since ?? b.state.fedSince ?? .distantFuture)
+            let (p, q) = (a.state.since ?? a.state.fedSince ?? a.state.ateSince ?? .distantFuture, b.state.since ?? b.state.fedSince ?? b.state.ateSince ?? .distantFuture)
             if p != q { return p < q }
             return a.attributes.childName < b.attributes.childName
         }
@@ -161,6 +190,15 @@ final class LiveTimers {
     #if DEBUG
     private static func samples(_ mode: String) -> [String: Wanted] {
         let ago = { (minutes: Double) in Date.now.addingTimeInterval(-minutes * 60) }
+        // "-debugLive toddler": Bea alone, potty training: Awake, Ate, Potty.
+        if mode == "toddler" {
+            var bea = TimerAttributes.ContentState(mode: "glance", awakeSince: ago(264))
+            bea.milk = false
+            bea.potty = true
+            bea.ateSince = ago(66)
+            bea.pottySince = ago(50)
+            return family([Wanted(attributes: .init(childID: "sample-bea", childName: "Bea", colourIndex: 2), state: bea)])
+        }
         var state: TimerAttributes.ContentState
         switch mode {
         case "sleep": state = .init(mode: "sleep", label: "Asleep", since: ago(72), fedSince: ago(125), nappySince: ago(90))
@@ -177,8 +215,13 @@ final class LiveTimers {
         // "-debugLiveTwo 1" adds a second child, to see the family card; "2" adds a third, and "3" a fourth.
         let others = Int(UserDefaults.standard.string(forKey: "debugLiveTwo") ?? "") ?? 0
         if others >= 1 {
-            all.append(Wanted(attributes: .init(childID: "sample-bea", childName: "Bea", colourIndex: 2),
-                              state: .init(mode: "sleep", label: "Asleep", since: ago(72), fedSince: ago(150))))
+            // Bea is two and a half and potty training: Asleep, Ate, Potty.
+            var bea = TimerAttributes.ContentState(mode: "sleep", label: "Asleep", since: ago(72))
+            bea.milk = false
+            bea.potty = true
+            bea.ateSince = ago(150)
+            bea.pottySince = ago(95)
+            all.append(Wanted(attributes: .init(childID: "sample-bea", childName: "Bea", colourIndex: 2), state: bea))
         }
         if others >= 2 {
             all.append(Wanted(attributes: .init(childID: "sample-kit", childName: "Kit", colourIndex: 1),
@@ -204,7 +247,8 @@ final class LiveTimers {
         return a.mode == b.mode && a.label == b.label && a.pausedText == b.pausedText
             && a.runningSide == b.runningSide
             && close(a.since, b.since) && close(a.fedSince, b.fedSince) && close(a.awakeSince, b.awakeSince)
-            && close(a.nappySince, b.nappySince)
+            && close(a.nappySince, b.nappySince) && close(a.ateSince, b.ateSince) && close(a.pottySince, b.pottySince)
+            && a.milk == b.milk && a.potty == b.potty
             && a.nextText == b.nextText && close(a.nextAt, b.nextAt)
             && a.leadID == b.leadID && a.leadName == b.leadName && a.leadColour == b.leadColour && a.more == b.more
             && (a.others ?? []).count == (b.others ?? []).count

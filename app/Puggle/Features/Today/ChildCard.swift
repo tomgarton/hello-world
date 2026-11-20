@@ -50,7 +50,9 @@ struct ChildFact: Identifiable, Equatable {
     static func kinds(milk: Bool, potty: Bool, asleep: Bool) -> [Kind] {
         let sleep: Kind = asleep ? .asleep : .awake
         let last: Kind = potty ? .potty : .nappy
-        return milk ? [.fed, sleep, last] : [sleep, .ate, last]
+        // The same places for every child at every age, so a hand learns them once: food, then sleep, then the
+        // nappy or potty (Tom, 20 November 2026). A baby's Fed becomes a toddler's Ate in the same box.
+        return [milk ? .fed : .ate, sleep, last]
     }
 
     /// Whether the sleep button belongs on a child's card: while they are asleep, in the evening and at night,
@@ -294,6 +296,28 @@ struct ChildCard: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(spoken(fact))
         .accessibilityHint(store.canLog ? hint(fact) : "")
+        // Touch and hold the Nappy or Potty fact to move between them.
+        .contextMenu {
+            if store.canLog, fact.kind == .nappy || fact.kind == .potty {
+                pottySwitch
+            }
+        }
+        .accessibilityActions {
+            if store.canLog, fact.kind == .nappy || fact.kind == .potty { pottySwitch }
+        }
+    }
+
+    /// Start or stop potty training for this child, from their card.
+    @ViewBuilder private var pottySwitch: some View {
+        if child.pottyTraining {
+            Button { Haptics.tap(); store.setPottyTraining(false, for: child) } label: {
+                Label { Text("Stop potty training") } icon: { Image(EventKind.nappy.iconName + "-plain") }
+            }
+        } else {
+            Button { Haptics.tap(); store.setPottyTraining(true, for: child) } label: {
+                Label { Text("Start potty training") } icon: { Image(EventKind.potty.iconName + "-plain") }
+            }
+        }
     }
 
     private func tapped(_ fact: ChildFact, sleep: Event?, feeds: [EventKind]) {
@@ -390,6 +414,7 @@ struct ChildCard: View {
 /// Everything else that can be logged for one child: inside their card when the plus is open, or under the
 /// card as larger tiles when they are the only child.
 struct ChildActions: View {
+    @EnvironmentObject private var store: FamilyStore
     @ObservedObject var child: Child
     /// The facts on the card, which already log their own kind.
     let facts: [ChildFact.Kind]
@@ -435,6 +460,19 @@ struct ChildActions: View {
             }
             .buttonStyle(PressStyle(scale: 0.96))
             .accessibilityLabel("Add a past sleep for \(child.displayName)")
+            // From about 18 months: move between the nappy and the potty in one tap (Tom, 20 November 2026).
+            if store.canLog, child.ageMonths >= 18 || child.pottyTraining {
+                Button {
+                    Haptics.tap()
+                    store.setPottyTraining(!child.pottyTraining, for: child)
+                } label: {
+                    face(child.pottyTraining ? "Stop potty" : "Start potty", shape: shape, ground: ground) {
+                        icon(child.pottyTraining ? .nappy : .potty)
+                    }
+                }
+                .buttonStyle(PressStyle(scale: 0.96))
+                .accessibilityLabel(child.pottyTraining ? "Stop potty training for \(child.displayName)" : "Start potty training for \(child.displayName)")
+            }
         }
         .environment(\.iconChildColour, Palette.childColour(child.colourIndex))
     }

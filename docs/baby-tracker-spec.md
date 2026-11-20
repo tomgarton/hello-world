@@ -2738,3 +2738,10 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **Watch and CarPlay:** a small name line and the three facts in columns (the feed's time while feeding); no buttons.
 - Seen in the simulator: the one-child card awake, asleep and feeding, two children, the closed and the open island. **Not seen:** StandBy, landscape and the minimal view (the simulator cannot show them), the Watch's Smart Stack and CarPlay.
 - Still open from the guidelines check: Always-On contrast on a phone; a setting to show initials only on the Lock Screen; restarting the all-day card cleanly at Apple's eight-hour limit.
+
+**Toddlers' facts, the potty switch, and one order for everyone (Tom, 20 November, evening).**
+- **The same three places at every age:** food, then sleep, then the nappy or potty. A baby's card reads Fed, Awake, Nappy; a toddler's Ate, Awake, Potty (or Nappy). Before, a toddler's card began with Awake, so the boxes moved as a child grew. Today, the Lock Screen card, the open island and the Watch all follow it.
+- **Toddlers on the Lock Screen:** a child past milk (the rule Today already used: no milk logged in two days and over a year old) gets Ate, Awake and Potty or Nappy on the card, asleep or awake, up to age four. Before, a toddler had a card only while asleep, and it showed Fed.
+- **Moving between the nappy and the potty:** one tap, from the child's card on Today. Open the child's actions (the plus) and tap "Start potty" or "Stop potty", shown from 18 months, or touch and hold the Nappy or Potty box. The card's third box, the Lock Screen and the Watch follow at once. The setting in the child's details is unchanged.
+- For checking: `-debugLive toddler` (Bea alone), and `-debugLiveTwo 1` now makes Bea a toddler asleep.
+- The occasional test failure today was the simulator, not the code: the test runner hangs if Puggle is already open in the simulator. Closing it first, every run passed.

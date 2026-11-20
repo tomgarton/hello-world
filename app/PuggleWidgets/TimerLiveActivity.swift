@@ -124,7 +124,8 @@ private struct Figure: View {
     var body: some View {
         switch state.mode {
         case "glance":
-            if let fed = state.fedSince { Since.text(fed, narrow: true).monospacedDigit() }
+            // The first fact, as on the card: the feed for a child on milk, the last meal for a toddler.
+            if let first = state.milk == false ? (state.ateSince ?? state.awakeSince) : state.fedSince { Since.text(first, narrow: true).monospacedDigit() }
         case "sleep":
             if let since = state.since { Since.text(since, narrow: true).monospacedDigit() }
         default:
@@ -580,10 +581,18 @@ private struct Facts: View {
 
     private var shown: [(title: String, glyph: String?, since: Date, link: String)] {
         var facts: [(title: String, glyph: String?, since: Date, link: String)] = []
+        // In the same places as the child's card on Today, at every age: food (Fed on milk, Ate past it), then
+        // sleep (Awake or Asleep), then the nappy or the potty.
+        let onMilk = state.milk != false
+        if onMilk, let fed = state.fedSince { facts.append(("Fed", "bottle", fed, "fed")) }
+        if !onMilk, let ate = state.ateSince { facts.append(("Ate", "solids", ate, "ate")) }
         if state.mode == "sleep", let since = state.since { facts.append(("Asleep", "sleep", since, "asleep")) }
-        if let fed = state.fedSince { facts.append(("Fed", "bottle", fed, "fed")) }
         if state.mode == "glance", let awake = state.awakeSince { facts.append(("Awake", nil, awake, "awake")) }
-        if let nappy = state.nappySince { facts.append((Terms.nappy, "nappy", nappy, "nappy")) }
+        if state.potty == true {
+            if let potty = state.pottySince { facts.append(("Potty", "potty", potty, "potty")) }
+        } else if let nappy = state.nappySince {
+            facts.append((Terms.nappy, "nappy", nappy, "nappy"))
+        }
         return facts
     }
 

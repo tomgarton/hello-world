@@ -562,6 +562,15 @@ final class FamilyStore: ObservableObject {
     }
 
     /// Call after changing a child's details.
+    /// Potty training on or off (Tom, 20 November 2026): from the child's card on Today, so moving between the
+    /// nappy and the potty is one tap, not a trip to the child's settings. The card's last fact follows: Potty while
+    /// training, Nappy otherwise, and so does the Lock Screen.
+    func setPottyTraining(_ on: Bool, for child: Child) {
+        guard child.pottyTraining != on else { return }
+        child.pottyTraining = on
+        saveChild()
+    }
+
     func saveChild() {
         persistence.save()
     }

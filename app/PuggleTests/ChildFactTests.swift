@@ -8,13 +8,13 @@ final class ChildFactTests: XCTestCase {
     }
 
     func testAnOlderChildShowsAwakeAteAndWhatTheyUse() {
-        XCTAssertEqual(ChildFact.kinds(milk: false, potty: true, asleep: false), [.awake, .ate, .potty])
-        XCTAssertEqual(ChildFact.kinds(milk: false, potty: false, asleep: false), [.awake, .ate, .nappy])
+        XCTAssertEqual(ChildFact.kinds(milk: false, potty: true, asleep: false), [.ate, .awake, .potty])
+        XCTAssertEqual(ChildFact.kinds(milk: false, potty: false, asleep: false), [.ate, .awake, .nappy])
     }
 
     func testAsleepTakesThePlaceOfAwake() {
         XCTAssertEqual(ChildFact.kinds(milk: true, potty: false, asleep: true), [.fed, .asleep, .nappy])
-        XCTAssertEqual(ChildFact.kinds(milk: false, potty: true, asleep: true), [.asleep, .ate, .potty])
+        XCTAssertEqual(ChildFact.kinds(milk: false, potty: true, asleep: true), [.ate, .asleep, .potty])
     }
 
     func testTheSleepButtonIsForNappersTheVeryYoungAndTheEvening() {

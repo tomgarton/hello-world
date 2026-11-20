@@ -92,9 +92,15 @@ struct ChildPage: View {
     private var facts: some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
             VStack(alignment: .leading, spacing: 2) {
-                if let fed = child.lastFeed { fact("Fed", ago(fed, context.date)) }
+                // As on Today: Fed for a child on milk, Ate for one past it; Potty while potty training.
+                if child.usesMilk != false, let fed = child.lastFeed { fact("Fed", ago(fed, context.date)) }
+                if child.usesMilk == false, let ate = child.lastSolids { fact("Ate", ago(ate, context.date)) }
                 if let woke = child.lastWoke { fact("Awake", Elapsed.short(from: woke, to: context.date)) }
-                if child.usesNappies, let nappy = child.lastNappy { fact(Terms.nappy, ago(nappy, context.date)) }
+                if child.pottyTraining == true {
+                    if let potty = child.lastPotty { fact("Potty", ago(potty, context.date)) }
+                } else if child.usesNappies, let nappy = child.lastNappy {
+                    fact(Terms.nappy, ago(nappy, context.date))
+                }
             }
         }
     }
