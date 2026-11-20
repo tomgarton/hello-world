@@ -572,10 +572,13 @@ private struct Facts: View {
 
     private func face(_ title: String, glyph: String?, _ since: Date) -> some View {
         VStack(spacing: 1) {
+            // A time that counts up takes all the width it is given, so it is centred in it, as its word is under it.
             Since.text(since, narrow: true)
                 .font(.system(size: 26, weight: .semibold))
                 .foregroundStyle(Tone.moon)
                 .monospacedDigit()
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, alignment: .center)
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             HStack(spacing: 3) {
