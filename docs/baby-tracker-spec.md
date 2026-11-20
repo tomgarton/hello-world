@@ -2711,3 +2711,7 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - Nails has scissors of our own in place of the system's: round finger loops, gently curved blades, and a yellow pin where they cross.
 - Both are drawn by `app/tools/make_care_icons.py`, which writes the six versions the app reads (colour with a dark copy, plain, fill, line, and finer large ones).
 - Haircut still uses the system's comb; ours could follow the same way.
+
+**The moon follows its phases (Tom, 20 November, evening).** The moon used to be a fixed crescent, or full for about three days a month. Now it is drawn as it really is each night, worked out from the date: a crescent growing to half, gibbous, full, then shrinking back. The dark part shows faintly, as it does by earthshine, and the glow around it is brighter the fuller it is. In the south the whole moon is seen upside down, so it grows on the left and its seas are turned over (Tom). The moon in the bedroom window follows too; the toy moon on the bedroom mobile stays a crescent. For checking: `-debugMoon new|crescent|half|gibbous|full|waning`, or a fraction of the month such as `0.3`, with `-debugSouth 1` or `0`. Not done: the moon rising and setting through the night, or its tilt nearer the equator.
+
+**Warnings tidied (20 November).** The eight places Xcode 27.2 warned about: `@preconcurrency import Vision` in the two text readers, Core Data imported in the three screens that list children, and two unused values and some unreachable code removed. A clean build now shows none.

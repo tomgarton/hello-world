@@ -46,19 +46,89 @@ enum SkyEvents {
 }
 
 /// A full moon: round, with two faint seas on it and a wider glow.
-struct FullMoon: View {
-    var body: some View {
-        Canvas { context, size in
-            let moon = Color(hex: 0xF3E0B8)
-            let r = min(size.width, size.height) / 2
-            let centre = CGPoint(x: size.width / 2, y: size.height / 2)
-            context.fill(Path(ellipseIn: CGRect(x: centre.x - r, y: centre.y - r, width: r * 2, height: r * 2)), with: .color(moon))
-            let sea = Color(hex: 0xDCC59A).opacity(0.7)
-            context.fill(Path(ellipseIn: CGRect(x: centre.x - r * 0.5, y: centre.y - r * 0.45, width: r * 0.55, height: r * 0.42)), with: .color(sea))
-            context.fill(Path(ellipseIn: CGRect(x: centre.x + r * 0.05, y: centre.y + r * 0.1, width: r * 0.38, height: r * 0.3)), with: .color(sea))
-            context.fill(Path(ellipseIn: CGRect(x: centre.x - r * 0.15, y: centre.y + r * 0.35, width: r * 0.2, height: r * 0.16)), with: .color(sea))
+extension SkyEvents {
+    /// How far through its month the moon is tonight. For checking, "-debugMoon" takes "new", "crescent", "half",
+    /// "gibbous", "full", "waning", or a fraction such as 0.3.
+    static func moonAgeNow(_ date: Date = .now) -> Double {
+        #if DEBUG
+        if let forced = UserDefaults.standard.string(forKey: "debugMoon") {
+            switch forced {
+            case "new": return 0.01
+            case "crescent": return 0.14
+            case "half": return 0.25
+            case "gibbous": return 0.38
+            case "full": return 0.5
+            case "waning": return 0.82
+            default: if let age = Double(forced) { return age }
+            }
         }
-        .background(Circle().fill(Color(hex: 0xF3E0B8).opacity(0.16)).scaleEffect(1.9))
+        #endif
+        return moonAge(date)
+    }
+
+    /// How much of the moon is lit, 0 at new and 1 at full.
+    static func moonLit(_ age: Double) -> Double { (1 - cos(2 * .pi * age)) / 2 }
+}
+
+/// The lit part of the moon on a given night (Tom, 20 November 2026). It grows from one side to full and shrinks
+/// from the same side: in the north it grows on the right; in the south the whole moon is seen upside down, so
+/// it grows on the left.
+enum MoonShape {
+    static func lit(in rect: CGRect, age: Double, south: Bool) -> Path {
+        let r = min(rect.width, rect.height) / 2
+        let c = CGPoint(x: rect.midX, y: rect.midY)
+        // Which side is lit, and how far the shadow's edge (an ellipse) is from the middle: past it toward the lit
+        // side for a crescent, toward the dark side for a gibbous moon.
+        var side: CGFloat = age.truncatingRemainder(dividingBy: 1) < 0.5 ? 1 : -1
+        if south { side = -side }
+        let edge = CGFloat(cos(2 * .pi * age))
+        var path = Path()
+        let steps = 36
+        for i in 0...steps {
+            let a = -Double.pi / 2 + Double.pi * Double(i) / Double(steps)
+            let point = CGPoint(x: c.x + side * r * CGFloat(cos(a)), y: c.y + r * CGFloat(sin(a)))
+            if i == 0 { path.move(to: point) } else { path.addLine(to: point) }
+        }
+        for i in 0...steps {
+            let a = Double.pi / 2 - Double.pi * Double(i) / Double(steps)
+            path.addLine(to: CGPoint(x: c.x + side * r * edge * CGFloat(cos(a)), y: c.y + r * CGFloat(sin(a))))
+        }
+        path.closeSubpath()
+        return path
+    }
+}
+
+/// The moon in the sky: tonight's phase, the unlit part just showing, its seas on the lit part, and the glow
+/// around it brighter the fuller it is. Turned upside down in the south, seas and all.
+struct Moon: View {
+    let age: Double
+    let south: Bool
+
+    var body: some View {
+        let lit = SkyEvents.moonLit(age)
+        Canvas { context, size in
+            let colour = Color(hex: 0xF3E0B8)
+            let r = min(size.width, size.height) / 2
+            let disc = CGRect(x: size.width / 2 - r, y: size.height / 2 - r, width: r * 2, height: r * 2)
+            // The dark part, faintly, as it shows by the light off the Earth.
+            context.fill(Path(ellipseIn: disc), with: .color(colour.opacity(0.13)))
+            let shape = MoonShape.lit(in: disc, age: age, south: south)
+            context.fill(shape, with: .color(colour))
+            var seas = context
+            seas.clip(to: shape)
+            if south {
+                seas.translateBy(x: size.width / 2, y: size.height / 2)
+                seas.rotate(by: .degrees(180))
+                seas.translateBy(x: -size.width / 2, y: -size.height / 2)
+            }
+            let sea = Color(hex: 0xDCC59A).opacity(0.7)
+            let c = CGPoint(x: disc.midX, y: disc.midY)
+            seas.fill(Path(ellipseIn: CGRect(x: c.x - r * 0.5, y: c.y - r * 0.45, width: r * 0.55, height: r * 0.42)), with: .color(sea))
+            seas.fill(Path(ellipseIn: CGRect(x: c.x + r * 0.05, y: c.y + r * 0.1, width: r * 0.38, height: r * 0.3)), with: .color(sea))
+            seas.fill(Path(ellipseIn: CGRect(x: c.x - r * 0.15, y: c.y + r * 0.35, width: r * 0.2, height: r * 0.16)), with: .color(sea))
+        }
+        .background(Circle().fill(Color(hex: 0xF3E0B8).opacity(0.16 * lit)).scaleEffect(1.9))
+        .accessibilityHidden(true)
     }
 }
 

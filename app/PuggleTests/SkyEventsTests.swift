@@ -86,4 +86,18 @@ final class RainTests: XCTestCase {
             XCTAssertTrue((50...70).contains(down.y))
         }
     }
+
+    /// The moon's lit part: none at new, half at the quarters, all at full; growing on the right in the north
+    /// and on the left in the south, and shrinking from the same side.
+    func testMoonPhaseShape() {
+        XCTAssertEqual(SkyEvents.moonLit(0), 0, accuracy: 0.001)
+        XCTAssertEqual(SkyEvents.moonLit(0.25), 0.5, accuracy: 0.001)
+        XCTAssertEqual(SkyEvents.moonLit(0.5), 1, accuracy: 0.001)
+        let disc = CGRect(x: 0, y: 0, width: 100, height: 100)
+        func middle(_ age: Double, south: Bool) -> CGFloat { MoonShape.lit(in: disc, age: age, south: south).boundingRect.midX }
+        XCTAssertGreaterThan(middle(0.15, south: false), 50, "a waxing crescent is lit on the right in the north")
+        XCTAssertLessThan(middle(0.15, south: true), 50, "and on the left in the south")
+        XCTAssertLessThan(middle(0.85, south: false), 50, "a waning crescent is lit on the left in the north")
+        XCTAssertEqual(MoonShape.lit(in: disc, age: 0.5, south: false).boundingRect.width, 100, accuracy: 0.5)
+    }
 }

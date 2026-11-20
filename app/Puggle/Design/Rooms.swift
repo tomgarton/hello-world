@@ -295,9 +295,12 @@ struct RoomPainter {
                                            startPoint: CGPoint(x: x, y: glass.minY), endPoint: CGPoint(x: x, y: glass.maxY)))
         if !weather.overcast {
             if night {
-                let moon = Crescent().path(in: CGRect(x: x + width * 0.56, y: top + y + height * 0.18, width: 18, height: 18))
-                glow(x + width * 0.56 + 9, y + height * 0.18 + 9, 26, 0xF3E0B8, 0.3)
-                context.fill(moon, with: .color(Color(hex: 0xF3E0B8)))
+                // Tonight's moon in the window too, the right way up for this half of the world.
+                let age = SkyEvents.moonAgeNow()
+                let disc = CGRect(x: x + width * 0.56, y: top + y + height * 0.18, width: 18, height: 18)
+                glow(x + width * 0.56 + 9, y + height * 0.18 + 9, 26, 0xF3E0B8, 0.1 + 0.2 * SkyEvents.moonLit(age))
+                context.fill(Path(ellipseIn: disc), with: .color(Color(hex: 0xF3E0B8).opacity(0.13)))
+                context.fill(MoonShape.lit(in: disc, age: age, south: Hemisphere.isSouth), with: .color(Color(hex: 0xF3E0B8)))
                 for (index, star) in [(0.2, 0.3), (0.36, 0.62), (0.82, 0.7), (0.16, 0.78), (0.44, 0.16)].enumerated() {
                     let twinkle = 0.6 + 0.4 * sin(t * 1.7 + Double(index) * 2.1)
                     oval(x + width * star.0, y + height * star.1, 1.3, 1.3, Color(hex: 0xFFF6DC).opacity(twinkle))

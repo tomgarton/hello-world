@@ -295,14 +295,12 @@ struct SceneFrame: View {
         switch phase {
         case .night:
             ZStack {
-                Circle().fill(RadialGradient(colors: [Color(hex: 0xF3E0B8).opacity(0.22), Color(hex: 0xF3E0B8).opacity(0)],
+                // Tonight's moon, the right way up for this half of the world; its glow follows how full it is.
+                let age = SkyEvents.moonAgeNow()
+                Circle().fill(RadialGradient(colors: [Color(hex: 0xF3E0B8).opacity(0.06 + 0.16 * SkyEvents.moonLit(age)), Color(hex: 0xF3E0B8).opacity(0)],
                                              center: .center, startRadius: 8, endRadius: 46))
                     .frame(width: 92, height: 92)
-                if SkyEvents.fullMoon() {
-                    FullMoon().frame(width: 30, height: 30)
-                } else {
-                    Crescent().fill(Color(hex: 0xF3E0B8)).frame(width: 28, height: 28)
-                }
+                Moon(age: age, south: Hemisphere.isSouth).frame(width: 30, height: 30)
             }
             .position(x: x, y: h * 0.36)
             .opacity(appeared ? 1 : 0)
