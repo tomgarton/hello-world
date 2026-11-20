@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Log a bottle</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&display=swap">
+<style>
+body{margin:0}
+a{color:#2457B8}a:hover{color:#1B4391}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; position: relative; overflow: hidden; background: #6E7480; color: #15171C; font-family: ui-rounded, 'SF Pro Rounded', Nunito, system-ui, sans-serif; display: flex; flex-direction: column; padding-top: 58px">
+
+<div style="flex-grow: 1; background: #F3F5F8; border-radius: 30px 30px 0 0; padding: 10px 16px 34px 16px; display: flex; flex-direction: column; gap: 18px">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 6px">
+<div style="width: 40px; height: 5px; border-radius: 3px; background: #C5CAD3"></div>
+<div style="display: flex; align-items: center; justify-content: space-between; align-self: stretch">
+<button style="height: 44px; padding: 0 4px; border: none; background: transparent; color: #3B4250; font: inherit; font-size: 16px; font-weight: 700">Cancel</button>
+<h1 style="margin: 0; font-size: 18px; font-weight: 800">Bottle</h1>
+<div style="width: 60px"></div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 8px">
+<div style="font-size: 13px; font-weight: 700; color: #596070; letter-spacing: 0.04em; text-transform: uppercase; padding-left: 4px">Who</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px">
+<button onClick="{{toggleMilo}}" aria-pressed="{{miloOn}}" style="height: 60px; border-radius: 20px; border: 2px solid {{miloBorder}}; background: {{miloBg}}; color: {{miloFg}}; font: inherit; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px">
+<sc-if value="{{miloOn}}" hint-placeholder-val="{{true}}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"></path></svg></sc-if>
+Milo
+</button>
+<button onClick="{{toggleAda}}" aria-pressed="{{adaOn}}" style="height: 60px; border-radius: 20px; border: 2px solid {{adaBorder}}; background: {{adaBg}}; color: {{adaFg}}; font: inherit; font-size: 17px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px">
+<sc-if value="{{adaOn}}" hint-placeholder-val="{{false}}"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.500 4.500L19 7.500"></path></svg></sc-if>
+Ada
+</button>
+</div>
+<div style="font-size: 13px; font-weight: 600; color: #596070; padding-left: 4px">Choose both to log the same thing for each child.</div>
+</div>
+
+<div style="background: #FFFFFF; border-radius: 26px; padding: 20px 16px 16px 16px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; align-items: center; justify-content: space-between">
+<button onClick="{{less}}" aria-label="10 ml less" style="width: 60px; height: 60px; border-radius: 30px; border: none; background: #F3F5F8; color: #15171C; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round"><path d="M5 12h14"></path></svg>
+</button>
+<div style="display: flex; align-items: baseline; gap: 6px">
+<div style="font-size: 64px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums">{{ml}}</div>
+<div style="font-size: 22px; font-weight: 700; color: #596070">ml</div>
+</div>
+<button onClick="{{more}}" aria-label="10 ml more" style="width: 60px; height: 60px; border-radius: 30px; border: none; background: #F3F5F8; color: #15171C; display: flex; align-items: center; justify-content: center">
+<svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
+</button>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{presets}}" as="p" hint-placeholder-count="4">
+<button onClick="{{p.pick}}" style="height: 44px; border-radius: 22px; border: none; background: {{p.bg}}; color: {{p.fg}}; font: inherit; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums">{{p.label}}</button>
+</sc-for>
+</div>
+<div style="font-size: 13px; font-weight: 600; color: #596070; text-align: center">Milo usually takes 150 ml. 300 ml so far today.</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; background: #E4E8EE; border-radius: 22px; padding: 4px">
+<button onClick="{{pickFormula}}" aria-pressed="{{isFormula}}" style="height: 44px; border: none; border-radius: 18px; background: {{formulaBg}}; color: #15171C; font: inherit; font-size: 15px; font-weight: 800">Formula</button>
+<button onClick="{{pickBreast}}" aria-pressed="{{isBreast}}" style="height: 44px; border: none; border-radius: 18px; background: {{breastBg}}; color: #15171C; font: inherit; font-size: 15px; font-weight: 800">Breast milk</button>
+</div>
+
+<button style="height: 56px; border: none; border-radius: 22px; background: #FFFFFF; color: #15171C; font: inherit; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: space-between; padding: 0 18px">
+<span>Time</span>
+<span style="color: #3B4250; font-weight: 800">Now, 3:45 pm</span>
+</button>
+
+<div style="flex-grow: 1"></div>
+
+<button disabled="{{noneOn}}" style="height: 60px; border: none; border-radius: 24px; background: {{saveBg}}; color: #FFFFFF; font: inherit; font-size: 18px; font-weight: 800">{{saveLabel}}</button>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+constructor(props) {
+super(props);
+this.state = { milo: true, ada: false, ml: 150, kind: 'formula' };
+}
+renderVals() {
+const s = this.state;
+const both = s.milo && s.ada;
+const none = !s.milo && !s.ada;
+const saveLabel = none ? 'Choose a child' : both ? 'Save for Milo and Ada' : s.milo ? 'Save for Milo' : 'Save for Ada';
+const presets = [120, 150, 180, 210].map((v) => ({
+label: String(v),
+bg: s.ml === v ? '#15171C' : '#F3F5F8',
+fg: s.ml === v ? '#FFFFFF' : '#15171C',
+pick: () => this.setState({ ml: v })
+}));
+return {
+ml: s.ml,
+presets: presets,
+miloOn: s.milo,
+adaOn: s.ada,
+noneOn: none,
+miloBg: s.milo ? '#2457B8' : '#FFFFFF',
+miloFg: s.milo ? '#FFFFFF' : '#2457B8',
+miloBorder: s.milo ? '#2457B8' : '#C9D8F5',
+adaBg: s.ada ? '#FFD9B8' : '#FFFFFF',
+adaFg: s.ada ? '#7A3303' : '#A14406',
+adaBorder: s.ada ? '#A14406' : '#F6D5BC',
+isFormula: s.kind === 'formula',
+isBreast: s.kind === 'breast',
+formulaBg: s.kind === 'formula' ? '#FFFFFF' : 'transparent',
+breastBg: s.kind === 'breast' ? '#FFFFFF' : 'transparent',
+saveBg: none ? '#646B79' : '#15171C',
+saveLabel: saveLabel,
+toggleMilo: () => this.setState({ milo: !s.milo }),
+toggleAda: () => this.setState({ ada: !s.ada }),
+less: () => this.setState({ ml: Math.max(10, s.ml - 10) }),
+more: () => this.setState({ ml: Math.min(400, s.ml + 10) }),
+pickFormula: () => this.setState({ kind: 'formula' }),
+pickBreast: () => this.setState({ kind: 'breast' })
+};
+}
+}
+</script>
+</body>
+</html>

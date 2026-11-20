@@ -1,0 +1,720 @@
+{
+ "name": "Hatchling",
+ "size": [
+  200,
+  134
+ ],
+ "parts": [
+  {
+   "id": "root",
+   "pivot": [
+    100,
+    126
+   ],
+   "spring": 230,
+   "shapes": []
+  },
+  {
+   "id": "shard-left",
+   "parent": "root",
+   "pivot": [
+    76,
+    62
+   ],
+   "spring": 60,
+   "when": "bits=on",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M62 86 L66.16 82.54 Q68 81 70.15 82.07 L71.85 82.93 Q74 84 75.7 82.3 L78.3 79.7 Q80 78 81.5 79.87 L86 85.5 L90 60 L81.2 34.5 Q62 50 62 86 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 2.6
+    }
+   ]
+  },
+  {
+   "id": "shard-right",
+   "parent": "root",
+   "pivot": [
+    124,
+    62
+   ],
+   "spring": 52,
+   "when": "bits=on",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M138 86 L134.33 85.08 Q132 84.5 129.85 83.43 L129.15 83.07 Q127 82 124.93 83.21 L121 85.5 L111 62 L118.8 34.5 Q138 50 138 86 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 2.6
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "parent": "root",
+   "pivot": [
+    100,
+    100
+   ],
+   "spring": 150,
+   "shapes": []
+  },
+  {
+   "id": "head",
+   "parent": "upper",
+   "pivot": [
+    100,
+    84
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 100,
+     "y": 62,
+     "rx": 26,
+     "ry": 23.5,
+     "fill": "#8A5A3C",
+     "stroke": "#3A2A20",
+     "tint": "#5E3A24",
+     "width": 2.6
+    }
+   ]
+  },
+  {
+   "id": "blush",
+   "parent": "head",
+   "pivot": [
+    100,
+    68.5
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 80,
+     "y": 68.5,
+     "rx": 4.8,
+     "ry": 3.2,
+     "fill": "#C27C66"
+    },
+    {
+     "kind": "ellipse",
+     "x": 120,
+     "y": 68.5,
+     "rx": 4.8,
+     "ry": 3.2,
+     "fill": "#C27C66"
+    }
+   ]
+  },
+  {
+   "id": "bill",
+   "parent": "head",
+   "pivot": [
+    100,
+    73
+   ],
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 100,
+     "y": 73,
+     "rx": 15.5,
+     "ry": 7.5,
+     "fill": "#6E7F8D",
+     "stroke": "#3A2A20",
+     "tint": "#465668",
+     "width": 2.6
+    },
+    {
+     "kind": "ellipse",
+     "x": 97.8,
+     "y": 70.2,
+     "rx": 0.75,
+     "ry": 0.75,
+     "fill": "#3A2A20"
+    },
+    {
+     "kind": "ellipse",
+     "x": 102.2,
+     "y": 70.2,
+     "rx": 0.75,
+     "ry": 0.75,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "eye-left",
+   "parent": "head",
+   "pivot": [
+    89.5,
+    60
+   ],
+   "spring": 0,
+   "when": "eyes=open",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 89.5,
+     "y": 60,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "eye-right",
+   "parent": "head",
+   "pivot": [
+    110.5,
+    60
+   ],
+   "spring": 0,
+   "when": "eyes=open",
+   "shapes": [
+    {
+     "kind": "ellipse",
+     "x": 110.5,
+     "y": 60,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#3A2A20"
+    }
+   ]
+  },
+  {
+   "id": "eyes-closed",
+   "parent": "head",
+   "pivot": [
+    100,
+    60
+   ],
+   "when": "eyes=closed",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M85.5 60 Q89.5 64 93.5 60",
+     "stroke": "#3A2A20",
+     "width": 2.6,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M106.5 60 Q110.5 64 114.5 60",
+     "stroke": "#3A2A20",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "clip",
+   "parent": "head",
+   "pivot": [
+    100,
+    44
+   ],
+   "spring": 70,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M82.5 46 Q100 22 117.5 46.0 L117.5 46.0 L112.85 42.59 Q111.5 41.6 109.97 42.3 L107.03 43.65 Q105.5 44.35 103.88 43.9 L102.12 43.42 Q100.5 42.98 99.06 43.83 L95.94 45.69 Q94.5 46.55 92.95 45.91 L90.05 44.72 Q88.5 44.08 86.9 44.59 L82.5 46.0 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 2.6
+    }
+   ]
+  },
+  {
+   "id": "shell",
+   "parent": "root",
+   "pivot": [
+    100,
+    126
+   ],
+   "spring": 300,
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M62 86 L66.16 82.54 Q68 81 70.15 82.07 L71.85 82.93 Q74 84 75.7 82.3 L78.3 79.7 Q80 78 81.5 79.87 L84.5 83.63 Q86 85.5 88.07 84.29 L89.93 83.21 Q92 82 93.92 83.44 L96.08 85.06 Q98 86.5 99.63 84.74 L102.37 81.76 Q104 80 106.15 81.07 L106.85 81.43 Q109 82.5 110.84 80.96 L113.16 79.04 Q115 77.5 116.44 79.42 L119.56 83.58 Q121 85.5 123.07 84.29 L124.93 83.21 Q127 82 129.15 83.07 L129.85 83.43 Q132 84.5 134.33 85.08 L138 86 C138 110 122 126 100 126 C78 126 62 110 62 86 Z",
+     "fill": "#FBF6E9",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 2.6
+    },
+    {
+     "kind": "ellipse",
+     "x": 113,
+     "y": 105,
+     "rx": 3.2,
+     "ry": 3.2,
+     "fill": "#E0D2B8"
+    },
+    {
+     "kind": "ellipse",
+     "x": 123,
+     "y": 112.5,
+     "rx": 2.2,
+     "ry": 2.2,
+     "fill": "#E0D2B8"
+    },
+    {
+     "kind": "ellipse",
+     "x": 109.5,
+     "y": 116.5,
+     "rx": 2.6,
+     "ry": 2.6,
+     "fill": "#E0D2B8"
+    }
+   ]
+  },
+  {
+   "id": "cracks",
+   "parent": "shell",
+   "pivot": [
+    100,
+    126
+   ],
+   "when": "crack=on",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M86 85.5 L83.5 92.0 L87 96.0",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 1.8,
+     "cap": "round"
+    },
+    {
+     "kind": "path",
+     "d": "M121 85.5 L123 90.5 L120.5 94.0 L122 97.0",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 1.8,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "top",
+   "parent": "root",
+   "pivot": [
+    100,
+    126
+   ],
+   "when": "shell=whole",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M63.3 89.2 L68 84.2 L74 87.2 L80 81.2 L86 88.7 L92 85.2 L98 89.7 L104 83.2 L109 85.7 L115 80.7 L121 88.7 L127 85.2 L132 87.7 L136.7 89.2 L138 86 C138 54 124 28 100 28 C76 28 62 54 62 86 Z",
+     "fill": "#FBF6E9"
+    },
+    {
+     "kind": "path",
+     "d": "M138 86 C138 54 124 28 100 28 C76 28 62 54 62 86",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  },
+  {
+   "id": "split",
+   "parent": "root",
+   "pivot": [
+    100,
+    126
+   ],
+   "when": "split=on",
+   "shapes": [
+    {
+     "kind": "path",
+     "d": "M62 86 L66.16 82.54 Q68 81 70.15 82.07 L71.85 82.93 Q74 84 75.7 82.3 L78.3 79.7 Q80 78 81.5 79.87 L84.5 83.63 Q86 85.5 88.07 84.29 L89.93 83.21 Q92 82 93.92 83.44 L96.08 85.06 Q98 86.5 99.63 84.74 L102.37 81.76 Q104 80 106.15 81.07 L106.85 81.43 Q109 82.5 110.84 80.96 L113.16 79.04 Q115 77.5 116.44 79.42 L119.56 83.58 Q121 85.5 123.07 84.29 L124.93 83.21 Q127 82 129.15 83.07 L129.85 83.43 Q132 84.5 134.33 85.08 L138 86",
+     "stroke": "#3A2A20",
+     "tint": "#D8CBB2",
+     "width": 2.6,
+     "cap": "round"
+    }
+   ]
+  }
+ ],
+ "face": {
+  "eyes": "open",
+  "shell": "open",
+  "crack": "on",
+  "split": "off",
+  "bits": "off"
+ },
+ "moves": {
+  "hatch": {
+   "about": "She hatches: the egg rocks, cracks across and opens, and she comes up with a piece of shell on her head.",
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "root": {
+       "r": 0
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 0.35,
+     "pose": {
+      "root": {
+       "r": -2.5
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 0.47,
+     "pose": {
+      "root": {
+       "r": 2
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 0.6,
+     "pose": {
+      "root": {
+       "r": 0
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.0,
+     "pose": {
+      "root": {
+       "r": -7
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.16,
+     "pose": {
+      "root": {
+       "r": 6
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.32,
+     "pose": {
+      "root": {
+       "r": -4
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.46,
+     "pose": {
+      "root": {
+       "r": 2
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.58,
+     "pose": {
+      "root": {
+       "r": 0
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "off",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.72,
+     "pose": {
+      "root": {
+       "r": -1.5
+      },
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "on",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.84,
+     "pose": {
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "off",
+      "split": "on",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 1.95,
+     "pose": {
+      "upper": {
+       "y": 30,
+       "sy": 0.92
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "whole",
+      "crack": "on",
+      "split": "on",
+      "bits": "off"
+     }
+    },
+    {
+     "t": 2.3,
+     "pose": {
+      "upper": {
+       "y": -3,
+       "sy": 1.05
+      },
+      "shell": {
+       "sx": 1.04,
+       "sy": 0.95
+      },
+      "clip": {
+       "y": -2
+      },
+      "shard-left": {
+       "x": -22,
+       "y": -14,
+       "r": -38
+      },
+      "shard-right": {
+       "x": 26,
+       "y": -18,
+       "r": 46
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "open",
+      "crack": "on",
+      "split": "off",
+      "bits": "on"
+     }
+    },
+    {
+     "t": 2.5,
+     "pose": {
+      "upper": {
+       "y": 0
+      },
+      "shard-left": {
+       "x": -38,
+       "y": 57,
+       "r": -94
+      },
+      "shard-right": {
+       "x": 44,
+       "y": 56,
+       "r": 101
+      }
+     },
+     "face": {
+      "eyes": "closed",
+      "shell": "open",
+      "crack": "on",
+      "split": "off",
+      "bits": "on"
+     }
+    },
+    {
+     "t": 3.3,
+     "pose": {
+      "eye-left": {
+       "sy": 0.2
+      },
+      "eye-right": {
+       "sy": 0.2
+      },
+      "shard-left": {
+       "x": -38,
+       "y": 57,
+       "r": -94
+      },
+      "shard-right": {
+       "x": 44,
+       "y": 56,
+       "r": 101
+      }
+     },
+     "face": {
+      "eyes": "open",
+      "shell": "open",
+      "crack": "on",
+      "split": "off",
+      "bits": "on"
+     }
+    },
+    {
+     "t": 3.4,
+     "pose": {
+      "shard-left": {
+       "x": -38,
+       "y": 57,
+       "r": -94
+      },
+      "shard-right": {
+       "x": 44,
+       "y": 56,
+       "r": 101
+      }
+     },
+     "face": {
+      "eyes": "open",
+      "shell": "open",
+      "crack": "on",
+      "split": "off",
+      "bits": "on"
+     }
+    },
+    {
+     "t": 4.3,
+     "pose": {
+      "shard-left": {
+       "x": -38,
+       "y": 57,
+       "r": -94,
+       "sx": 0.02,
+       "sy": 0.02
+      },
+      "shard-right": {
+       "x": 44,
+       "y": 56,
+       "r": 101,
+       "sx": 0.02,
+       "sy": 0.02
+      }
+     },
+     "face": {
+      "eyes": "open",
+      "shell": "open",
+      "crack": "on",
+      "split": "off",
+      "bits": "on"
+     }
+    }
+   ],
+   "length": 4.75
+  }
+ }
+}

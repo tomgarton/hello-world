@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Stamper prototype, two pages</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+body{margin:0;background:#3A2A20;font:15px/1.35 -apple-system,system-ui,sans-serif;color:#3A2A20;display:flex;justify-content:center}
+#stage{position:relative;width:100%;max-width:400px;height:100vh;height:100dvh;min-height:740px;background:#F2ECDD;overflow:hidden;touch-action:none}
+.page{position:absolute;inset:0;overflow:hidden;transition:transform .45s cubic-bezier(.3,.8,.3,1)}
+#p2{transform:translateX(100%)} .two #p1{transform:translateX(-100%)} .two #p2{transform:none}
+h1{position:absolute;left:0;right:76px;top:18px;margin:0;padding:0 18px;font-size:22px;font-weight:800;letter-spacing:-.02em}
+.hint{position:absolute;left:18px;right:80px;top:48px;font-size:13.5px;color:#6B5E52}
+#scrap{position:absolute;left:16px;right:16px;top:98px;bottom:392px;background:#FBF6E9;border-radius:6px 14px 8px 12px;box-shadow:0 3px 8px rgba(0,0,0,.14);
+  background-image:radial-gradient(rgba(90,67,32,.07) 1px,transparent 1.2px);background-size:9px 9px;transform:rotate(-.8deg)}
+#scrap span{position:absolute;left:0;right:0;top:44%;text-align:center;color:#B9AC97;font-size:14px;pointer-events:none;transition:opacity .3s}
+.mark{position:absolute;width:54px;height:54px;margin:-27px 0 0 -27px;pointer-events:none}
+.mark.loose{width:92px;height:92px;margin:-46px 0 0 -46px;animation:dry 11s linear forwards}
+@keyframes dry{0%,55%{opacity:var(--o)}100%{opacity:0}}
+#pics{position:absolute;left:14px;right:14px;bottom:210px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#F4ECDA;border-radius:20px;padding:6px}
+#pics button{border:0;background:none;border-radius:14px;padding:6px 14px;color:#3A2A20;height:78px}
+#pics button.on{background:#E3D8BF;box-shadow:inset 0 0 0 2px #3A2A20}
+#pics svg{width:100%;height:100%;display:block}
+#pads{position:absolute;left:14px;right:14px;bottom:98px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.pad{height:48px;border-radius:12px;box-shadow:inset 0 -7px 0 rgba(0,0,0,.2),0 2px 5px rgba(0,0,0,.25);transition:transform .12s}
+.pad.squish{transform:scale(.9,.82) translateY(4px)}
+#go{position:absolute;left:18px;right:18px;bottom:26px;height:58px;border:0;border-radius:999px;background:#3A2A20;color:#FBF6E9;font:700 17px -apple-system,system-ui,sans-serif;opacity:.35;transition:opacity .3s}
+#go.ready{opacity:1} #go.nudge{animation:nudge .7s}
+@keyframes nudge{20%{transform:rotate(-2deg) scale(1.04)}50%{transform:rotate(2deg) scale(1.04)}80%{transform:rotate(-1deg)}}
+#back{position:absolute;left:12px;top:14px;width:46px;height:46px;border-radius:50%;border:0;background:#EAE2D2;font-size:22px;color:#3A2A20;z-index:5}
+#p2 h1{left:58px;right:0;text-align:left} #p2 .hint{left:76px;right:18px}
+#card{position:absolute;left:14px;right:14px;top:150px;aspect-ratio:360/230;transform-origin:0 0;transition:transform .75s cubic-bezier(.3,.8,.3,1);border-radius:16px;background:#CDB98A;box-shadow:0 8px 18px rgba(0,0,0,.22);
+  background-image:radial-gradient(rgba(90,67,32,.16) 1px,transparent 1.2px),radial-gradient(rgba(90,67,32,.1) 1px,transparent 1.2px);background-size:7px 7px,11px 11px;background-position:0 0,3px 5px}
+#card svg{position:absolute;inset:0;width:100%;height:100%}
+.space{position:absolute;width:16.2%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#F4ECDA}
+.space.next{animation:glow 1.8s ease-in-out infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 0 0 rgba(244,190,44,.0),0 0 10px 2px rgba(255,255,255,.5)}50%{box-shadow:0 0 0 7px rgba(244,190,44,.28),0 0 16px 6px rgba(255,255,255,.85)}}
+/* A band of light running round the rim: "stamp here", without words. */
+.space.next::after{content:"";position:absolute;inset:-10%;border-radius:50%;animation:spin 2.4s linear infinite;
+  background:conic-gradient(from 0deg,rgba(255,255,255,0) 0deg,rgba(255,255,255,.95) 50deg,rgba(244,190,44,.9) 90deg,rgba(255,255,255,0) 170deg,rgba(255,255,255,0) 360deg);
+  -webkit-mask:radial-gradient(farthest-side,transparent 84%,#000 86%);mask:radial-gradient(farthest-side,transparent 84%,#000 86%)}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.space.next::after{animation:none}}
+#card .mark{width:16.2%;height:auto;aspect-ratio:1;margin:0}
+#stamper{position:absolute;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;z-index:30;cursor:grab;touch-action:none;
+  background:radial-gradient(circle at 35% 30%,#C99A6B,#8A5A3C 60%,#5E3B26);box-shadow:0 6px 8px rgba(0,0,0,.35);transition:box-shadow .15s,transform .15s,left .4s,top .4s}
+#stamper.drag{transition:box-shadow .15s,transform .15s}
+#stamper::before{content:"";position:absolute;inset:-5px;border-radius:50%;border:5px solid var(--ink,transparent);opacity:var(--load,0)}
+#stamper i{position:absolute;inset:26px;border-radius:50%;background:radial-gradient(circle at 40% 35%,#E2B98C,#A8744B);display:flex;align-items:center;justify-content:center;color:var(--ink,#5E3B26)}
+#stamper i svg{width:70%;height:70%}
+#stamper.up{transform:scale(1.18);box-shadow:0 24px 22px rgba(0,0,0,.3);cursor:grabbing}
+#stamper.thud{transition:transform .07s;transform:scale(.9)}
+#stamper.dry{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+#done{position:absolute;right:14px;top:14px;width:54px;height:54px;border-radius:50%;border:0;background:#EAE2D2;color:#3A2A20;font:600 12px -apple-system,system-ui,sans-serif;z-index:40;touch-action:none}
+#done svg{position:absolute;inset:0;transform:rotate(-90deg)}
+#done circle{fill:none;stroke:#3A2A20;stroke-width:4;stroke-dasharray:151;stroke-dashoffset:151}
+#over{position:absolute;inset:0;background:#F2ECDD;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;z-index:50;text-align:center;padding:30px}
+#over button{border:0;background:#3A2A20;color:#FBF6E9;font:600 15px -apple-system,system-ui,sans-serif;border-radius:999px;padding:13px 22px}
+</style></head><body>
+<div id="stage">
+  <div class="page" id="p1">
+    <h1>Get your stamp ready</h1>
+    <div class="hint" id="h1">Pick a picture and press the stamper on an ink pad.</div>
+    <button id="done" aria-label="Hold to skip">Skip<svg viewBox="0 0 54 54"><circle cx="27" cy="27" r="24"/></svg></button>
+    <div id="scrap"><span id="scraphint">Try your stamp here</span></div>
+    <div id="pics"></div>
+    <div id="pads"></div>
+    <button id="go">Stamp my card</button>
+  </div>
+  <div class="page" id="p2">
+    <button id="back" aria-label="Back">&#8249;</button>
+    <h1 id="t2">Stamp your card!</h1>
+    <div class="hint" id="h2">Press the stamper on the ringed space.</div>
+    <div id="card"><svg viewBox="0 0 360 230" preserveAspectRatio="none"><path d="M-10 172L48 172L104 110L162 172L220 110L278 172L318 80" fill="none" stroke="#2A62B8" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" opacity=".85"/><g transform="translate(318 80)" fill="#F4ECDA"><circle cx="-11" r="14"/><circle cx="11" r="14"/><circle cy="-11" r="14"/><circle cy="11" r="14"/><circle r="12"/></g></svg></div>
+  </div>
+  <div id="stamper" role="button" aria-label="Stamper"><i></i></div>
+  <div id="over"><div style="font-size:26px;font-weight:800" id="ot">Stamped!</div><div style="color:#6B5E52" id="od">The screen closes by itself and the phone goes back to a grown-up.</div><button onclick="location.reload()">Start again</button></div>
+</div>
+<script>
+const ICONS = {"star": "<path d=\"M234.29,114.85l-45,38.83L203,211.75a16.4,16.4,0,0,1-24.5,17.82L128,198.49,77.47,229.57A16.4,16.4,0,0,1,53,211.75l13.76-58.07-45-38.83A16.46,16.46,0,0,1,31.08,86l59-4.76,22.76-55.08a16.36,16.36,0,0,1,30.27,0l22.75,55.08,59,4.76a16.46,16.46,0,0,1,9.37,28.86Z\"/>", "heart": "<path d=\"M240,102c0,70-103.79,126.66-108.21,129a8,8,0,0,1-7.58,0C119.79,228.66,16,172,16,102A62.07,62.07,0,0,1,78,40c20.65,0,38.73,8.88,50,23.89C139.27,48.88,157.35,40,178,40A62.07,62.07,0,0,1,240,102Z\"/>", "sun": "<path d=\"M120,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm8,24a64,64,0,1,0,64,64A64.07,64.07,0,0,0,128,64ZM58.34,69.66A8,8,0,0,0,69.66,58.34l-16-16A8,8,0,0,0,42.34,53.66Zm0,116.68-16,16a8,8,0,0,0,11.32,11.32l16-16a8,8,0,0,0-11.32-11.32ZM192,72a8,8,0,0,0,5.66-2.34l16-16a8,8,0,0,0-11.32-11.32l-16,16A8,8,0,0,0,192,72Zm5.66,114.34a8,8,0,0,0-11.32,11.32l16,16a8,8,0,0,0,11.32-11.32ZM48,128a8,8,0,0,0-8-8H16a8,8,0,0,0,0,16H40A8,8,0,0,0,48,128Zm80,80a8,8,0,0,0-8,8v24a8,8,0,0,0,16,0V216A8,8,0,0,0,128,208Zm112-88H216a8,8,0,0,0,0,16h24a8,8,0,0,0,0-16Z\"/>", "moon": "<path d=\"M235.54,150.21a104.84,104.84,0,0,1-37,52.91A104,104,0,0,1,32,120,103.09,103.09,0,0,1,52.88,57.48a104.84,104.84,0,0,1,52.91-37,8,8,0,0,1,10,10,88.08,88.08,0,0,0,109.8,109.8,8,8,0,0,1,10,10Z\"/>", "fish": "<path d=\"M168,76a12,12,0,1,1-12-12A12,12,0,0,1,168,76Zm42,79.08c-15.08,20.84-37.53,34.88-66.7,41.74-20.08,4.72-43.54,6-70.12,3.93q2.4,17.82,6.72,37.54a8,8,0,0,1-6.1,9.52,7.81,7.81,0,0,1-1.72.19,8,8,0,0,1-7.81-6.29q-4.89-22.36-7.41-42.62-20.22-2.51-42.58-7.41a8,8,0,0,1,3.43-15.63q19.7,4.32,37.5,6.73c-2.09-26.56-.78-50,3.93-70.06C66,83.55,80.05,61.1,100.88,46,115,35.76,140.14,23.64,179.27,24c21.19.21,40.83,4.33,43.81,6.08a8,8,0,0,1,2.83,2.83c1.75,3,5.87,22.59,6.08,43.78C232.21,98.31,228.57,129.44,210,155.08Zm2.43-111.52a175.75,175.75,0,0,0-39.22-3.51c-24.34.64-44.71,6.49-60.76,17.39a96,96,0,0,0,86.09,86.1c10.91-16,16.76-36.42,17.4-60.76A175.82,175.82,0,0,0,212.44,43.56Z\"/>", "butterfly": "<path d=\"M128,100.17a108.42,108.42,0,0,0-8-12.64V56a8,8,0,0,1,16,0V87.53A108.42,108.42,0,0,0,128,100.17ZM232.7,50.48C229,45.7,221.84,40,209,40c-16.85,0-38.46,11.28-57.81,30.16A140.07,140.07,0,0,0,136,87.53V180a8,8,0,0,1-16,0V87.53a140.07,140.07,0,0,0-15.15-17.37C85.49,51.28,63.88,40,47,40,34.16,40,27,45.7,23.3,50.48c-6.82,8.77-12.18,24.08-.21,71.2,6.05,23.83,19.51,33,30.63,36.42A44,44,0,0,0,128,205.27a44,44,0,0,0,74.28-47.17c11.12-3.4,24.57-12.59,30.63-36.42C239.63,95.24,244.85,66.1,232.7,50.48Z\"/>", "train": "<path d=\"M184,24H72A32,32,0,0,0,40,56V184a32,32,0,0,0,32,32h8L65.6,235.2a8,8,0,1,0,12.8,9.6L100,216h56l21.6,28.8a8,8,0,1,0,12.8-9.6L176,216h8a32,32,0,0,0,32-32V56A32,32,0,0,0,184,24Zm0,176H72a16,16,0,0,1-16-16V136H200v48A16,16,0,0,1,184,200ZM96,172a12,12,0,1,1-12-12A12,12,0,0,1,96,172Zm88,0a12,12,0,1,1-12-12A12,12,0,0,1,184,172Z\"/>", "balloon": "<path d=\"M128,16a88.1,88.1,0,0,0-88,88c0,23.43,9.4,49.42,25.13,69.5,12.08,15.41,26.5,26,41.91,31.09L96.65,228.85A8,8,0,0,0,104,240h48a8,8,0,0,0,7.35-11.15L149,204.59c15.4-5.07,29.83-15.68,41.91-31.09C206.6,153.42,216,127.43,216,104A88.1,88.1,0,0,0,128,16Zm49.32,87.89A8.52,8.52,0,0,1,176,104a8,8,0,0,1-7.88-6.68,41.29,41.29,0,0,0-33.43-33.43,8,8,0,1,1,2.64-15.78,57.5,57.5,0,0,1,46.57,46.57A8,8,0,0,1,177.32,103.89Z\"/>"};
+const INKS = {red:'#D9482F',blue:'#2A62B8',green:'#3C8A55',gold:'#C98A0B',purple:'#7B4FA8',teal:'#1E8C8C',pink:'#D2527F',orange:'#E0701F'};
+const SP = [[48,172],[104,110],[162,172],[220,110],[278,172]], CW = 360, CH = 230;
+const $ = id => document.getElementById(id), stage = $('stage'), card = $('card'), st = $('stamper'), scrap = $('scrap');
+let pic = 'star', ink = null, load = 0, filled = 2, page = 1, placed = false, loose = [], nudge = null;
+const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const rect = el => { const a = el.getBoundingClientRect(), s = stage.getBoundingClientRect(); return {x:a.left - s.left, y:a.top - s.top, w:a.width, h:a.height}; };
+// No two impressions are the same. Modelled on real postmarks and hand stamps:
+//  - pressure is uneven, so one side prints strongly and the other fades away softly;
+//  - the paper's tooth leaves fine specks through every solid area, more where the ink is thin;
+//  - solid shapes are mottled, lighter in the middle where ink was squeezed out to the edges;
+//  - the outer ring breaks in places;
+//  - now and then the stamp rocks and leaves a faint second edge, or is over-inked and prints heavy.
+// "gentle" is for the stamp kept on the card: the same character, but the picture always reads.
+let uid = 0;
+const rnd = (a, b) => a + Math.random() * (b - a);
+function impression(gentle) {
+  const id = 'k' + (++uid), roll = Math.random();
+  const kind = roll < 0.22 ? 'crisp' : roll < (gentle ? 0.3 : 0.36) ? 'heavy' : 'worn';
+  let m = `<rect x="-30" y="-30" width="60" height="60" fill="#fff"/>`, defs = '';
+  if (kind === 'worn') {                       // one side pressed lighter, fading softly
+    const a = rnd(0, 6.283), floor = gentle ? rnd(0.62, 0.85) : rnd(0.22, 0.7), reach = rnd(0.35, 0.75);
+    defs += `<linearGradient id="${id}g" gradientUnits="userSpaceOnUse" x1="${(-Math.cos(a) * 26).toFixed(1)}" y1="${(-Math.sin(a) * 26).toFixed(1)}" x2="${(Math.cos(a) * 26).toFixed(1)}" y2="${(Math.sin(a) * 26).toFixed(1)}">` +
+      `<stop offset="0" stop-color="#000" stop-opacity="0"/><stop offset="${reach.toFixed(2)}" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="${(1 - floor).toFixed(2)}"/></linearGradient>`;
+    m += `<rect x="-30" y="-30" width="60" height="60" fill="url(#${id}g)"/>`;
+    const breaks = gentle ? (Math.random() < 0.5 ? 1 : 0) : Math.floor(rnd(0, 3));      // gaps in the ring, on the weak side
+    for (let b = 0; b < breaks; b++) { const c = a + rnd(-0.9, 0.9), half = (gentle ? rnd(0.08, 0.2) : rnd(0.12, 0.45));
+      m += `<path d="M${(Math.cos(c - half) * 24).toFixed(1)} ${(Math.sin(c - half) * 24).toFixed(1)}A24 24 0 0 1 ${(Math.cos(c + half) * 24).toFixed(1)} ${(Math.sin(c + half) * 24).toFixed(1)}" fill="none" stroke="#000" stroke-width="${rnd(2.6, 4).toFixed(1)}" stroke-linecap="round" opacity="${rnd(0.55, 1).toFixed(2)}"/>`; }
+  }
+  if (kind !== 'heavy') {                      // lighter middles: ink squeezed to the edges
+    defs += `<radialGradient id="${id}r"><stop offset="0" stop-color="#000" stop-opacity="1"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>`;
+    const blots = Math.floor(rnd(2, gentle ? 4 : 6));
+    for (let b = 0; b < blots; b++) m += `<ellipse cx="${rnd(-10, 10).toFixed(1)}" cy="${rnd(-12, 8).toFixed(1)}" rx="${rnd(3, 7).toFixed(1)}" ry="${rnd(2.5, 6).toFixed(1)}" fill="url(#${id}r)" opacity="${rnd(0.12, gentle ? 0.24 : 0.34).toFixed(2)}"/>`;
+  }
+  const specks = kind === 'heavy' ? 14 : kind === 'crisp' ? 34 : Math.floor(rnd(60, gentle ? 85 : 130));   // the paper's tooth
+  for (let k = 0; k < specks; k++) { const a = rnd(0, 6.283), d = Math.sqrt(Math.random()) * 26;
+    m += `<circle cx="${(Math.cos(a) * d).toFixed(1)}" cy="${(Math.sin(a) * d).toFixed(1)}" r="${rnd(0.18, kind === 'worn' ? 0.75 : 0.5).toFixed(2)}" fill="#000"/>`; }
+  const ghost = !gentle && kind !== 'heavy' && Math.random() < 0.2 ? {x: rnd(-0.9, 0.9), y: rnd(-0.9, 0.9)} : null;
+  return {id, kind, mask: `<defs>${defs}<mask id="${id}" maskUnits="userSpaceOnUse" x="-30" y="-30" width="60" height="60">${m}</mask></defs>`, ghost};
+}
+function markSVG(name, colour, date, clean, gentle) {
+  const f = clean ? null : impression(gentle), id = f ? f.id : 'k' + (++uid), heavy = f && f.kind === 'heavy';
+  const art = `<circle r="24" fill="none" stroke="${colour}" stroke-width="${heavy ? 2.9 : 2.2}"/>` +
+    `<g transform="translate(-16 -18) scale(${32/256})" fill="${colour}" ${heavy ? `stroke="${colour}" stroke-width="7" stroke-linejoin="round"` : ''}>${ICONS[name]}</g>` +
+    (date ? `<path id="r${id}" d="M-16.6 15.4A22.6 22.6 0 0 0 16.6 15.4" fill="none"/><text font-size="5.4" font-weight="${heavy ? 800 : 700}" fill="${colour}" letter-spacing=".9" text-anchor="middle"><textPath href="#r${id}" startOffset="50%">11 NOV</textPath></text>` : '');
+  return `<svg viewBox="-27 -27 54 54" width="100%" height="100%" overflow="visible">${f ? f.mask : ''}` +
+    (f && f.ghost ? `<g transform="translate(${f.ghost.x.toFixed(2)} ${f.ghost.y.toFixed(2)})" opacity=".2">${art.replace(/id="r/g, 'id="q').replace(/#r/g, '#q')}</g>` : '') +
+    `<g ${f ? `mask="url(#${id})"` : ''}>${art}</g></svg>`;
+}
+function drawStamper() { st.querySelector('i').innerHTML = `<svg viewBox="0 0 256 256" fill="currentColor">${ICONS[pic]}</svg>`;
+  st.style.setProperty('--ink', ink ? INKS[ink] : 'transparent'); st.style.setProperty('--load', ink ? Math.max(load, 1) / 8 : 0); }
+Object.keys(ICONS).forEach(n => { const b = document.createElement('button'); b.dataset.n = n;
+  b.innerHTML = `<svg viewBox="0 0 256 256" fill="currentColor">${ICONS[n]}</svg>`;
+  b.onclick = () => { pic = n; drawPics(); drawStamper(); buzz(8); }; $('pics').appendChild(b); });
+function drawPics() { [...$('pics').children].forEach(b => { b.classList.toggle('on', b.dataset.n === pic); b.style.color = ink ? INKS[ink] : '#3A2A20'; }); }
+Object.entries(INKS).forEach(([n, c]) => { const p = document.createElement('div'); p.className = 'pad'; p.style.background = c; p.dataset.n = n;
+  p.onclick = () => inkUp(p); $('pads').appendChild(p); });
+SP.forEach(([x, y], i) => { const s = document.createElement('div'); s.className = 'space'; s.style.left = x / CW * 100 + '%'; s.style.top = y / CH * 100 + '%'; s.dataset.i = i; card.appendChild(s);
+  if (i < filled) { const m = document.createElement('div'); m.className = 'mark'; m.style.left = s.style.left; m.style.top = s.style.top; m.style.transform = `translate(-50%,-50%) translate(${i ? 5 : -4}%,${i ? -6 : 4}%) rotate(${i ? 6 : -8}deg)`;
+    m.innerHTML = markSVG(i ? 'moon' : 'fish', i ? INKS.purple : INKS.teal, true); card.appendChild(m); }
+  if (i === filled) s.classList.add('next'); });
+
+function inkUp(pad) {
+  ink = pad.dataset.n; load = 8;
+  pad.classList.add('squish'); setTimeout(() => pad.classList.remove('squish'), 160);
+  buzz(18); drawPics(); drawStamper();
+  $('go').classList.add('ready'); $('h1').textContent = 'Try it on the paper, then stamp your card.';
+  clearTimeout(nudge); nudge = setTimeout(wiggle, 15000);
+}
+function wiggle() { if (page !== 1) return; const g = $('go'); g.classList.remove('nudge'); void g.offsetWidth; g.classList.add('nudge'); nudge = setTimeout(wiggle, 12000); }
+function dryShake(msg) { st.classList.remove('dry'); void st.offsetWidth; st.classList.add('dry'); buzz([10, 40, 10]); $(page === 1 ? 'h1' : 'h2').textContent = msg; }
+function thud() { st.classList.add('thud'); setTimeout(() => st.classList.remove('thud'), 90); buzz(35); }
+
+function press(x, y) {                       // stage coordinates
+  if (page === 1) {
+    const s = rect(scrap);
+    if (!(x > s.x && x < s.x + s.w && y > s.y && y < s.y + s.h)) return;   // only the paper takes ink
+    if (!ink) return dryShake('It needs ink first. Press an ink pad.');
+    if (load <= 0) return dryShake('The ink has run out. Press an ink pad again.');
+    const strength = [0, .3, .5, .72, .9, 1, 1, 1, 1][load]; load--; drawStamper(); thud(); $('scraphint').style.opacity = 0;
+    const m = document.createElement('div'); m.className = 'mark loose'; m.style.setProperty('--o', strength);
+    m.style.left = (x - s.x) + 'px'; m.style.top = (y - s.y) + 'px'; m.style.transform = `rotate(${(Math.random() * 40 - 20).toFixed(1)}deg)`;
+    m.innerHTML = markSVG(pic, INKS[ink]); scrap.appendChild(m); loose.push(m);
+    m.addEventListener('animationend', () => { m.remove(); loose = loose.filter(k => k !== m); });
+    if (loose.length > 20) loose.shift().remove();
+  } else if (!placed && zoomed) {
+    // Where in the circle it was pressed is where it lands, up to a little off centre.
+    const el = card.querySelector('.next'), r = rect(el), cx = r.x + r.w / 2, cy = r.y + r.h / 2;
+    let dx = x - cx, dy = y - cy; const far = Math.hypot(dx, dy);
+    if (far > r.w * 0.8) { $('h2').textContent = 'Nearly. Press it on the glowing space.'; return; }
+    const most = r.w * 0.17; if (far > most) { dx *= most / far; dy *= most / far; }
+    placed = true; thud(); el.classList.remove('next');
+    const sp = SP[filled], m = document.createElement('div'); m.className = 'mark';
+    m.style.left = sp[0] / CW * 100 + '%'; m.style.top = sp[1] / CH * 100 + '%';
+    m.style.transform = `translate(-50%,-50%) translate(${(dx / r.w * 100).toFixed(1)}%,${(dy / r.h * 100).toFixed(1)}%) rotate(${(Math.random() * 18 - 9).toFixed(1)}deg)`;
+    m.innerHTML = markSVG(pic, INKS[ink], true, false, true); card.appendChild(m);
+    $('t2').textContent = 'Stamped!'; $('h2').textContent = ''; $('back').style.display = 'none';
+    setTimeout(() => { st.style.opacity = 0; }, 350);
+    setTimeout(() => zoom(false), 800);                                    // back out to see the whole card
+    setTimeout(() => { $('over').style.display = 'flex'; }, 3400);         // it ends by itself, on the reward
+  }
+}
+// Page two opens on the whole card, then moves in on the space to stamp.
+let zoomed = false, zt = null;
+function zoom(on) {
+  zoomed = false;
+  if (!on) { card.style.transform = ''; return; }
+  const s = stage.getBoundingClientRect(), k = 1.7, w = card.offsetWidth, h = card.offsetHeight;
+  const px = SP[filled][0] / CW * w, py = SP[filled][1] / CH * h;
+  card.style.transform = `translate(${(s.width / 2 - card.offsetLeft - k * px).toFixed(1)}px,${(h * 0.75 - k * py).toFixed(1)}px) scale(${k})`;
+  setTimeout(() => { zoomed = true; }, 650);
+}
+function showCard() { clearTimeout(zt); zoom(false); $('h2').textContent = 'Here is your card.';
+  zt = setTimeout(() => { if (page === 2 && !placed) { zoom(true); $('h2').textContent = 'Press the stamper on the glowing space.'; } }, 1100); }
+function place(x, y) { st.style.left = x + 'px'; st.style.top = y + 'px'; }
+function rest() { const s = stage.getBoundingClientRect(); place(page === 1 ? s.width - 76 : s.width / 2, page === 1 ? s.height - 450 : s.height - 150); }
+function goTo(n) { page = n; stage.classList.toggle('two', n === 2); clearTimeout(nudge);
+  if (n === 2) { load = 8; showCard(); }      // a fresh dab, so the one that counts is never faint
+  drawStamper(); rest(); }
+$('go').onclick = () => { if (!ink) return dryShake('It needs ink first. Press an ink pad.'); buzz(12); goTo(2); };
+$('back').onclick = () => { clearTimeout(zt); zoom(false); goTo(1); };
+
+let drag = null;
+const centre = () => ({x: parseFloat(st.style.left) || 0, y: parseFloat(st.style.top) || 0});
+st.addEventListener('pointerdown', e => { st.setPointerCapture(e.pointerId); const s = stage.getBoundingClientRect();
+  const c = centre(); drag = {dx: e.clientX - s.left - c.x, dy: e.clientY - s.top - c.y}; st.classList.add('up', 'drag'); });
+st.addEventListener('pointermove', e => { if (!drag) return; const s = stage.getBoundingClientRect();
+  place(Math.max(40, Math.min(s.width - 40, e.clientX - s.left - drag.dx)), Math.max(40, Math.min(s.height - 40, e.clientY - s.top - drag.dy))); });
+st.addEventListener('pointerup', () => { if (!drag) return; drag = null; st.classList.remove('up'); setTimeout(() => st.classList.remove('drag'), 50);
+  const {x, y} = centre();
+  if (page === 1) { const pad = [...document.querySelectorAll('.pad')].find(p => { const r = rect(p); return x > r.x - 8 && x < r.x + r.w + 8 && y > r.y - 20 && y < r.y + r.h + 20; });
+    if (pad) return inkUp(pad); }
+  press(x, y); });
+stage.addEventListener('click', e => { if (e.target.closest('#stamper,#pics,#pads,#done,#over,#go,#back')) return;
+  const s = stage.getBoundingClientRect(), x = e.clientX - s.left, y = e.clientY - s.top;
+  if (page === 1) { const r = rect(scrap); if (!(x > r.x && x < r.x + r.w && y > r.y && y < r.y + r.h)) return; }
+  st.classList.add('drag'); place(x, y); setTimeout(() => st.classList.remove('drag'), 50); press(x, y); });
+
+// Hold to skip: the ring fills over two seconds and drains if let go.
+const ring = $('done').querySelector('circle'); let held = null, prog = 0;
+function tick() { if (held === null && prog <= 0) return;
+  prog = Math.max(0, Math.min(1, prog + (held !== null ? 1 : -2.5) * 16 / 2000)); ring.style.strokeDashoffset = 151 * (1 - prog);
+  if (prog >= 1) { held = null; prog = 0; ring.style.strokeDashoffset = 151; buzz([20, 40, 60]);
+    $('ot').textContent = 'Skipped'; $('od').textContent = 'A grown-up held the button. No stamp this time.'; $('over').style.display = 'flex'; return; }
+  requestAnimationFrame(tick); }
+$('done').addEventListener('pointerdown', e => { held = e.pointerId; buzz(8); requestAnimationFrame(tick); });
+['pointerup', 'pointerleave', 'pointercancel'].forEach(n => $('done').addEventListener(n, () => { held = null; }));
+drawPics(); drawStamper(); rest(); addEventListener('resize', rest);
+</script></body></html>
