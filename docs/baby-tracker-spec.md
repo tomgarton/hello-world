@@ -2703,3 +2703,11 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 **Tucked in, and the Watch timer card (20 November, evening).**
 - Asleep, Puggle's quilt now comes up to her chin, with its turned-back top wide enough to cover her shoulders as her head lies over, so neither her pyjamas nor her feet show.
 - Tapping the timer card in the Watch's Smart Stack, or its small icon at the top of the watch face, now opens the Puggle Watch app instead of a page offering "Open on iPhone" (the Watch app declares `WKSupportsLiveActivityLaunchAttributeTypes` = `TimerAttributes`, watchOS 11.1 and later). It opens on the child last shown, not yet on the card's own child. Not checked on a real Watch: a simulator cannot show a Live Activity from a paired iPhone.
+
+**Looking after: lines and two new icons (Tom, 20 November, evening).**
+- The lines between rows now stop 16 points short of the card's right edge, the same margin as on the left of the words, rather than running into the edge.
+- "· usually every 7 days" sits on the same baseline as the rest of its line, and a booked line with its "Done" button sits as close to the name as any other line.
+- Brushing teeth has its own toothbrush icon (a tilted brush with three tufts and a curl of toothpaste in yellow); the Dentist keeps the tooth.
+- Nails has scissors of our own in place of the system's: round finger loops, gently curved blades, and a yellow pin where they cross.
+- Both are drawn by `app/tools/make_care_icons.py`, which writes the six versions the app reads (colour with a dark copy, plain, fill, line, and finer large ones).
+- Haircut still uses the system's comb; ours could follow the same way.

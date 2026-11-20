@@ -56,7 +56,8 @@ struct CareCard: View {
                 ForEach(items) { item in
                     row(item, index)
                     if item.id != items.last?.id {
-                        Divider().padding(.leading, 54)
+                        // From the words to the same margin on the right, so no line runs into the card's edge.
+                        Divider().padding(.leading, 54).padding(.trailing, 16)
                     }
                 }
             }
@@ -105,6 +106,9 @@ struct CareCard: View {
                     .accessibilityLabel("Mark \(item.name.lowercased()) for \(child.displayName) as done")
                 }
             }
+            // The button is taller than the words; it reaches past the line rather than pushing it down,
+            // so a booked line sits as close to the name as any other.
+            .padding(.vertical, -5)
         } else if let last = entry.done.last?.startedAt {
             let gap = store.careGap(item, for: child, done: entry.done)
             let pastUsual = CareLine.pastUsual(last: last, gap: gap)
@@ -112,10 +116,10 @@ struct CareCard: View {
                 if pastUsual {
                     Circle().fill(Palette.wattle).frame(width: 7, height: 7)
                 }
-                Text(who + text(item, entry.done, last: last)).font(.subheadline).foregroundStyle(Palette.muted)
-                if pastUsual, let gap {
-                    Text("· usually \(gap.text.lowercased())").font(.footnote).foregroundStyle(Palette.muted)
-                }
+                // One run of words, so the smaller "usually" part sits on the same baseline as the rest.
+                (Text(who + text(item, entry.done, last: last)).font(.subheadline)
+                    + Text(pastUsual && gap != nil ? " · usually \(gap?.text.lowercased() ?? "")" : "").font(.footnote))
+                    .foregroundStyle(Palette.muted)
             }
             .accessibilityElement(children: .combine)
         }

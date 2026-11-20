@@ -29,8 +29,8 @@ struct CareItem: Identifiable, Hashable {
     }
 
     static let bath = CareItem(key: "bath", name: "Bath", icon: "icon-bath", iconIsAsset: true)
-    static let brushing = CareItem(key: "brushing", name: "Brushing teeth", icon: "icon-teeth", iconIsAsset: true, stamps: true)
-    static let nails = CareItem(key: "nails", name: "Nails", icon: "scissors", iconIsAsset: false)
+    static let brushing = CareItem(key: "brushing", name: "Brushing teeth", icon: "icon-toothbrush", iconIsAsset: true, stamps: true)
+    static let nails = CareItem(key: "nails", name: "Nails", icon: "icon-scissors", iconIsAsset: true)
     static let haircut = CareItem(key: "haircut", name: "Haircut", icon: "comb", iconIsAsset: false)
     static let dentist = CareItem(key: "dentist", name: "Dentist", icon: "icon-teeth", iconIsAsset: true, appointment: true)
     static let doctor = CareItem(key: "doctor", name: "Doctor", icon: "stethoscope", iconIsAsset: false, appointment: true)
