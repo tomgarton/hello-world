@@ -796,13 +796,27 @@ struct RoomPainter {
         context.fill(bowl, with: .color(col(0xBFD9F5, 0x56709E)))
         oval(x, 195 + dy, 20, 4, col(0xF4E7B0, 0xA8985E))
         line([CGPoint(x: x + 12, y: 194 + dy), CGPoint(x: x + 34, y: 182 + dy)], col(0xB9B4AC, 0x8A88A0), 3)
+        // Steam (Tom, 20 November 2026: improved): three soft wisps that sway as they rise from the soup, each
+        // thinning and fading towards its top, and leaning off to the right so they curl past her bill rather
+        // than over her face. Each takes its turn, so there is always some steam but never a crowd of it.
         for index in 0..<3 {
-            let rise = (t * 0.35 + Double(index) * 0.33).truncatingRemainder(dividingBy: 1)
+            let life = (t * 0.22 + Double(index) / 3).truncatingRemainder(dividingBy: 1)
+            let fade = sin(life * .pi)
+            let start = CGPoint(x: x - 6 + CGFloat(index) * 7, y: top + 192 + dy - CGFloat(life) * 6)
+            let tall = 15.0 + 4 * Double(index % 2)
+            // One smooth line, swaying more as it rises and leaning right, away from her eyes.
             var wisp = Path()
-            let base = CGPoint(x: x - 10 + CGFloat(index) * 9, y: top + 188 + dy - CGFloat(rise) * 26)
-            wisp.move(to: base)
-            wisp.addQuadCurve(to: CGPoint(x: base.x + 2, y: base.y - 10), control: CGPoint(x: base.x + 5 * CGFloat(sin(rise * 6 + Double(index))), y: base.y - 5))
-            context.stroke(wisp, with: .color(Color.white.opacity((dark ? 0.35 : 0.7) * sin(rise * .pi))), style: StrokeStyle(lineWidth: 2, lineCap: .round))
+            wisp.move(to: start)
+            for step in 1...14 {
+                let s = Double(step) / 14
+                let sway = sin(s * 5 + t * 1.7 + Double(index) * 2) * (1 + 2.5 * s) + s * 10
+                wisp.addLine(to: CGPoint(x: start.x + CGFloat(sway), y: start.y - CGFloat(s * tall)))
+            }
+            let strength = (dark ? 0.34 : 0.66) * fade
+            context.stroke(wisp, with: .linearGradient(
+                Gradient(colors: [Color.white.opacity(strength), Color.white.opacity(strength * 0.6), Color.white.opacity(0)]),
+                startPoint: start, endPoint: CGPoint(x: start.x, y: start.y - CGFloat(tall))),
+                style: StrokeStyle(lineWidth: 2.6, lineCap: .round, lineJoin: .round))
         }
         let cup = x - 36
         rect(cup - 9, 174 + dy, 18, 24, 6, Color(hex: 0xF4BE2C).opacity(dark ? 0.75 : 1))
