@@ -18,13 +18,22 @@ enum CastMember: String, CaseIterable, Identifiable {
     })
 
     /// How big they are beside Puggle. Everyone is drawn at her scale, so they share her head size; the
-    /// older friends are a touch bigger all over, as on the canvas.
+    /// older friends are a touch bigger all over, as on the canvas. The grown-ups are a further 15% bigger
+    /// (Tom, 20 November 2026: sitting, they looked no bigger than her).
     private var scale: CGFloat {
+        #if DEBUG
+        // For trying sizes: "-debugGrownScale 1.15" makes the grown-ups that much bigger.
+        if grownUp, let forced = UserDefaults.standard.string(forKey: "debugGrownScale").flatMap(Double.init) { return baseScale * forced }
+        #endif
+        return baseScale
+    }
+
+    private var baseScale: CGFloat {
         switch self {
-        case .nan: 0.95
-        case .mum: 0.98
-        case .dad: 1
-        case .pop: 0.97
+        case .nan: 1.09
+        case .mum: 1.13
+        case .dad: 1.15
+        case .pop: 1.12
         case .pebble: 0.74
         case .quill: 1
         case .kip: 1.06

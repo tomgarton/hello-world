@@ -110,9 +110,22 @@ enum BedroomLayout: String {
     }
 
     /// How big the chair and whoever is in it are drawn, against the front of the room.
-    var chairScale: CGFloat { self == .front ? 1 : 0.76 }
+    var chairScale: CGFloat {
+        #if DEBUG
+        // For trying sizes: "-debugChairScale 0.92".
+        if let forced = UserDefaults.standard.string(forKey: "debugChairScale").flatMap(Double.init) { return forced }
+        #endif
+        // Nearer than it was (0.76 at 212), so a grown-up in it reads as a grown-up beside her in bed
+        // (Tom, 20 November 2026).
+        return self == .front ? 1 : 0.92
+    }
     /// Where the chair's feet meet the floor. The front of the room is 250.
-    var chairFloor: CGFloat { self == .front ? 250 : 212 }
+    var chairFloor: CGFloat {
+        #if DEBUG
+        if let forced = UserDefaults.standard.string(forKey: "debugChairFloor").flatMap(Double.init) { return forced }
+        #endif
+        return self == .front ? 250 : 232
+    }
     /// How far the person in the chair moves up from where they would sit at the front, at full size,
     /// once drawn at `chairScale` from the foot of their own box.
     var sitterLift: CGFloat { 26 * (1 - chairScale) - (250 - chairFloor) }
