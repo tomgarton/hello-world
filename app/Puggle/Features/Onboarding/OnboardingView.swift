@@ -260,7 +260,7 @@ struct OnboardingView: View {
                 Button("Join with an invite") { go(.joining) }
                     .buttonStyle(PillButtonStyle(primary: false))
             }
-            Button("Look around a sample family first") {
+            Button("Try out a sample family") {
                 Haptics.tap()
                 sample.start()
             }

@@ -200,7 +200,7 @@ struct SettingsView: View {
             Button { if sample.isOn { sample.leave() } else { sample.start() } } label: {
                 sample.isOn
                     ? named("Leave the sample family", "Your own family comes back.")
-                    : named("Look around a sample family", "Two made-up children and two weeks of entries. Your family is untouched.")
+                    : named("Try out a sample family", "Two made-up children and two weeks of entries. Your family is untouched.")
             }
         } header: {
             heading("Help", "questionmark.circle")

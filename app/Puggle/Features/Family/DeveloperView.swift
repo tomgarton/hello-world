@@ -130,7 +130,7 @@ struct DeveloperView: View {
                 if sample.isOn {
                     Button("Leave the sample family") { sample.leave() }
                 } else {
-                    Button("Look around the sample family") { sample.start() }
+                    Button("Try out the sample family") { sample.start() }
                 }
             } header: {
                 Text("Stamps, cards and the stamp book")
