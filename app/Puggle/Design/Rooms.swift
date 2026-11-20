@@ -491,7 +491,8 @@ struct RoomPainter {
         rect(w - 142, 156, 116, 22, 7, wood)
         rect(w - 88, 148, 8, 10, 0, col(0x6B5E52, 0x3A3448))
         let screen = CGRect(x: w - 130, y: top + 92, width: 92, height: 56)
-        glow(w - 84, 120, 92, 0xBFD9F5, dark ? 0.32 : 0.16)
+        // The screen's light only after dark, when it would show (Tom, 20 November 2026).
+        if dark { glow(w - 84, 120, 70, 0xBFD9F5, 0.26) }
         rect(w - 135, 87, 102, 66, 10, col(0x4A4038, 0x15131C))
         var picture = context
         picture.clip(to: Path(roundedRect: screen, cornerRadius: 6, style: .continuous))
@@ -585,7 +586,6 @@ struct RoomPainter {
         // Stars stuck on the wall over the bed, that glow when it is dark.
         for (index, star) in [(196.0, 66.0), (228, 86), (258, 62), (286, 90), (176, 92)].enumerated() {
             let twinkle = dark ? 0.6 + 0.4 * sin(t * 1.3 + Double(index) * 1.7) : 0.7
-            if dark { glow(star.0, star.1, 9, 0xE8F0A8, 0.35 * twinkle) }
             soft("quatrefoil", star.0, star.1, 9, col(0xF4E7B0, 0xE8F0A8), turn: Double(index) * 20, opacity: twinkle)
         }
         // The bed: headboard, pillow, and a blanket with the brand's flowers on it.
@@ -643,7 +643,6 @@ struct RoomPainter {
         if shown(66) > 0 {
             for (index, star) in [(0.2, -60.0), (0.5, -84), (0.8, -66), (0.36, -104), (0.66, -110)].enumerated() {
                 let twinkle = (dark ? 0.6 + 0.4 * sin(t * 1.5 + Double(index) * 2.3) : 0.7) * shown(66)
-                if dark { glow(w * star.0, star.1, 11, 0xE8F0A8, 0.35 * twinkle) }
                 soft("quatrefoil", w * star.0, star.1, 11, col(0xF4E7B0, 0xE8F0A8), turn: Double(index) * 31, opacity: twinkle)
             }
         }

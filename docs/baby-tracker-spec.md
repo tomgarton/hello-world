@@ -2797,3 +2797,18 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
   feed timer, the sticker showcase) stay full height.
 - iOS keeps a Live Activity for eight hours. Past seven, a fresh card takes over whenever one can be started (the
   app on screen, or a button on the card pressed), and the old one ends only after the new one is up.
+
+## Pictures and interactions, another pass (20 November 2026)
+
+- Only things that give light glow: the moon, the sun, lamps, lanterns, fairy lights, fireflies and fireworks. The
+  painted wall stars and the constellations have no halo, and the television's light shows only after dark.
+- The repeat patterns are a little looser, as if placed by hand: each mark turned a few degrees and a touch larger
+  or smaller, the middle ones a point or two off centre. The tile still meets itself at its edges.
+- Everyone with Puggle is turned a little towards her, and now and then looks over at her properly.
+- Tap anyone: a grown-up nods with a heart, a friend waves, Pebble bounces, and a dozing one stirs; Puggle turns to
+  see, with an "Oh!".
+- A grown-up arriving gets a hug from her, with a heart.
+- When she hops, a friend may hop back, as in a game of copy-me, instead of waving.
+- Pulling the sky down far enough to show its surprises, she looks up: "Oh!".
+- Pebble, six months and sitting, has baby moves of his own: a bounce where he sits with his arms up and feet
+  kicking, a two-armed flap for hello, and now and then a kick (`baby_moves` in `tools/make_cast_rigs.py`).

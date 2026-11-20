@@ -1170,8 +1170,45 @@ def build(name, svg, height, about, shade, moves, puggle, variant=''):
         key['pose'] = flipped
     borrowed['greet-left'] = mirror
     borrowed.update(bend_arms.arm_moves(parts, reads=name != 'pebble'))
+    if name == 'pebble': borrowed.update(baby_moves())
     return {'name': name.capitalize(), 'size': [240, height], 'about': about + ' Cut from the canvas drawing by tools/make_cast_rigs.py; do not edit by hand.',
             'parts': parts, 'moves': borrowed, 'face': {'eyes': 'open', 'shades': 'none'}}
+
+
+def baby_moves():
+    """Pebble is six months old and sits: no hops or one-handed waves (Tom, 20 November 2026). His happy is a
+    bounce where he sits with both arms up and his feet kicking; his hello is both arms flapping, as babies wave;
+    and now and then he kicks his feet."""
+    arms = lambda a: {'arm-left': {'r': a}, 'arm-right': {'r': -a}}
+    feet = lambda a: {'foot-left': {'r': -a}, 'foot-right': {'r': a}}
+    bounce = {'about': "Pebble's happy: a bounce where he sits, arms up, feet kicking.", 'length': 1.7, 'keys': [
+        {'t': 0, 'pose': {'upper': {'sy': 0.95}}},
+        {'t': 0.18, 'pose': {'body': {'y': -6}, 'upper': {'sy': 1.03}, **arms(66), **feet(16)}, 'face': {'air': 'sparkle'}},
+        {'t': 0.42, 'pose': {'upper': {'sy': 0.95}, **arms(38), **feet(-8)}},
+        {'t': 0.66, 'pose': {'body': {'y': -5}, 'upper': {'sy': 1.03}, **arms(62), **feet(14)}},
+        {'t': 0.92, 'pose': {'upper': {'sy': 0.97}, **arms(24), **feet(-4)}},
+        {'t': 1.3, 'pose': {}},
+        {'t': 1.7, 'pose': {}},
+    ]}
+    wave = {'about': "Pebble's hello: both arms flapping up and down.", 'length': 1.5, 'keys': [
+        {'t': 0, 'pose': {}},
+        {'t': 0.2, 'pose': {**arms(44), 'head': {'r': -4}}},
+        {'t': 0.4, 'pose': arms(14)},
+        {'t': 0.6, 'pose': {**arms(48), 'head': {'r': 4}}},
+        {'t': 0.8, 'pose': arms(12)},
+        {'t': 1.15, 'pose': {}},
+        {'t': 1.5, 'pose': {}},
+    ]}
+    kick = {'about': 'Pebble kicks his feet, one and then the other.', 'length': 1.3, 'keys': [
+        {'t': 0, 'pose': {}},
+        {'t': 0.18, 'pose': {'foot-left': {'r': -22}, 'foot-right': {'r': 6}}},
+        {'t': 0.38, 'pose': {'foot-left': {'r': 4}, 'foot-right': {'r': 22}}},
+        {'t': 0.58, 'pose': {'foot-left': {'r': -20}, 'foot-right': {'r': 4}}},
+        {'t': 0.78, 'pose': {'foot-left': {'r': 2}, 'foot-right': {'r': 18}}},
+        {'t': 1.0, 'pose': {}},
+        {'t': 1.3, 'pose': {}},
+    ]}
+    return {'celebrate': bounce, 'greet': wave, 'greet-left': wave, 'kick': kick}
 
 
 def main():

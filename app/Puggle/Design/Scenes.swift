@@ -1989,9 +1989,7 @@ struct Plough: View {
             context.stroke(lines, with: .color(Color(hex: 0xF3E0B8).opacity(0.28)), style: StrokeStyle(lineWidth: 1, lineCap: .round, lineJoin: .round))
             for (index, star) in stars.enumerated() {
                 let twinkle = 0.75 + 0.25 * sin(t * 2.3 + Double(index) * 1.9)
-                let glow = star.2 * 3
-                context.fill(Path(ellipseIn: CGRect(x: points[index].x - glow, y: points[index].y - glow, width: glow * 2, height: glow * 2)),
-                             with: .radialGradient(Gradient(colors: [Color(hex: 0xF3E0B8).opacity(0.35 * twinkle), Color(hex: 0xF3E0B8).opacity(0)]), center: points[index], startRadius: 0, endRadius: glow))
+                // No halo: only things that give light glow (Tom, 20 November 2026).
                 dot(&context, points[index].x, points[index].y, star.2 * 0.62, Color(hex: 0xFFF6DC).opacity(twinkle))
             }
         }
@@ -2012,9 +2010,7 @@ struct SouthernCross: View {
             context.stroke(lines, with: .color(Color(hex: 0xF3E0B8).opacity(0.28)), style: StrokeStyle(lineWidth: 1, lineCap: .round))
             for (index, star) in stars.enumerated() {
                 let twinkle = 0.75 + 0.25 * sin(t * 2.3 + Double(index) * 1.9)
-                let glow = star.2 * 3
-                context.fill(Path(ellipseIn: CGRect(x: points[index].x - glow, y: points[index].y - glow, width: glow * 2, height: glow * 2)),
-                             with: .radialGradient(Gradient(colors: [Color(hex: 0xF3E0B8).opacity(0.35 * twinkle), Color(hex: 0xF3E0B8).opacity(0)]), center: points[index], startRadius: 0, endRadius: glow))
+                // No halo: only things that give light glow (Tom, 20 November 2026).
                 dot(&context, points[index].x, points[index].y, star.2 * 0.62, Color(hex: 0xFFF6DC).opacity(twinkle))
             }
         }

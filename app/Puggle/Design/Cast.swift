@@ -313,12 +313,16 @@ struct CompanyView: View {
     var edge: CGFloat = 0
     var delay: Double = 0
     var away = false
+    /// Tapped: Puggle turns to look at them (see `PuggleHeader`). Given where they stand.
+    var onTap: (CGFloat) -> Void = { _ in }
     @StateObject private var controller: CastController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.outfit) private var outfit
 
     init(company: Company, puggleReacted: Int, quiet: Bool, appeared: Bool, dark: Bool, rain: Bool = false, weather: Weather? = nil, night: Bool = false,
-         entrance: Int = 0, arrive: ArrivalStyle = .none, edge: CGFloat = 0, delay: Double = 0, away: Bool = false) {
+         entrance: Int = 0, arrive: ArrivalStyle = .none, edge: CGFloat = 0, delay: Double = 0, away: Bool = false,
+         onTap: @escaping (CGFloat) -> Void = { _ in }) {
+        self.onTap = onTap
         self.away = away
         self.entrance = entrance
         self.arrive = arrive
@@ -346,6 +350,38 @@ struct CompanyView: View {
     }
 
     private var sleeps: Bool { company.activity == .dozing || (quiet && !company.member.grownUp) }
+
+    /// Which way Puggle is from them: -1 to their left, 1 to their right.
+    private var towardHer: Double { company.x > 0 ? -1 : 1 }
+
+    /// Tapped: they answer, each in their own way, and she turns to them (Tom, 20 November 2026).
+    private func answerTap() {
+        onTap(company.x)
+        guard !reduceMotion else { return }
+        if sleeps {
+            // A dozing one stirs, and settles again.
+            controller.asleep = false
+            controller.play("wake")
+            Task {
+                try? await Task.sleep(for: .seconds(4))
+                if sleeps { controller.asleep = true }
+            }
+            return
+        }
+        controller.look(x: towardHer * 0.8, y: 0)
+        switch company.member {
+        case .pebble: controller.play("celebrate")
+        case _ where company.member.grownUp:
+            controller.rig?.air("heart", for: 1.8)
+            controller.play("nod")
+        default:
+            controller.play(towardHer < 0 ? "greet-left" : "greet")
+        }
+        Task {
+            try? await Task.sleep(for: .seconds(2.2))
+            controller.look(x: towardHer * 0.25, y: 0)
+        }
+    }
 
     /// The grown-up in the armchair while she sits up in bed: they read her a story.
     private var tellsStory: Bool {
@@ -416,7 +452,10 @@ struct CompanyView: View {
         }
         .offset(y: drop)
         .arrival(entrance, arrive, edge: edge, delay: delay, away: away) { [controller] in controller.rig?.walking = $0 }
-        .allowsHitTesting(false)
+        // Anyone can be tapped, and answers (Tom, 20 November 2026). Only their own drawing takes the tap.
+        .contentShape(Rectangle().inset(by: 12))
+        .onTapGesture { answerTap() }
+        .accessibilityHidden(true)
         .onAppear { controller.asleep = sleeps }
         .onChange(of: sleeps) { _, now in
             if now { controller.asleep = true } else { controller.asleep = false; controller.play("wake") }
@@ -431,9 +470,12 @@ struct CompanyView: View {
                     try? await Task.sleep(for: .seconds(6))
                     controller.asleep = true
                 } else if !sleeps {
-                    // A grown-up answers her with a nod and hearts; a friend waves back.
+                    // A grown-up answers her with a nod and hearts; a friend waves back, or hops back as if it
+                    // were a game of copy-me (Tom, 20 November 2026).
                     if company.member.grownUp { controller.rig?.air("heart", for: 1.8) }
-                    controller.play(company.member.grownUp ? "nod" : "greet")
+                    if company.member.grownUp { controller.play("nod") }
+                    else if Bool.random() { controller.play("celebrate") }
+                    else { controller.play(towardHer < 0 ? "greet-left" : "greet") }
                 }
             }
         }
@@ -461,6 +503,9 @@ struct CompanyView: View {
             if let hello = Self.hello(for: company.member, has: { controller.rig?.rig.moves?[$0] != nil }) {
                 controller.play(hello)
             }
+            // Turned a little towards her, not out at us, and now and then a proper look over at her
+            // (Tom, 20 November 2026).
+            if company.activity != .digging { controller.look(x: towardHer * 0.25, y: 0) }
             var turn = 0
             while !Task.isCancelled {
                 let digging = company.activity == .digging
@@ -473,7 +518,13 @@ struct CompanyView: View {
                     // Humming as he digs, now and then.
                     if turn % 8 == 1 { controller.rig?.air("notes", for: 4) }
                 }
+                else if company.member == .pebble { controller.play(turn.isMultiple(of: 2) ? "kick" : "nod") }
                 else if !company.member.grownUp && turn.isMultiple(of: 3) { controller.play("celebrate") }
+                else if turn.isMultiple(of: 2) {
+                    controller.look(x: towardHer * 0.85, y: company.member.grownUp ? 0.15 : 0)
+                    try? await Task.sleep(for: .seconds(2.4))
+                    controller.look(x: towardHer * 0.25, y: 0)
+                }
                 else { controller.play("nod") }
             }
         }

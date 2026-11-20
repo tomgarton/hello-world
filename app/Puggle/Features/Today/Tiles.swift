@@ -376,6 +376,8 @@ struct PuggleHeader: View {
     private var bubblesFirst: Double { UserDefaults.standard.string(forKey: "debugBubbles") == "1" ? 2.5 : 7 }
     /// Counts her reactions to a tap, so whoever is with her can answer.
     @State private var reactions = 0
+    /// She has said "Oh!" at the sky on this pull.
+    @State private var saidOh = false
     /// Her bed as last settled, so a change of minute that changes it is noticed.
     @State private var bedNow: BedPose?
     /// Counts each entrance, and whether it is the full one or she was here a moment ago.
@@ -544,7 +546,7 @@ struct PuggleHeader: View {
                 CompanyView(company: company, puggleReacted: reactions, quiet: quiet, appeared: appeared, dark: dim, rain: wearing == "rain",
                             weather: room == nil ? weather : nil, night: isNight,
                             entrance: entrance, arrive: arrive, edge: Self.edge(from: company.x * width, width: width, mine: company.x),
-                            delay: Self.beat + Double(order) * 0.15, away: away)
+                            delay: Self.beat + Double(order) * 0.15, away: away, onTap: { lookOver(at: $0) })
                     .environment(\.moonlit, room == nil && isNight)
                     .environment(\.outfit, wearing)
                     .environment(\.shades, Shades.forOutfit(wearing))
@@ -781,7 +783,26 @@ struct PuggleHeader: View {
         Task {
             try? await Task.sleep(for: .seconds(1.8))
             controller.look(x: first.x < mine ? -0.8 : 0.8, y: 0)
+            // A grown-up come to see her: a hug for them, with a heart (Tom, 20 November 2026).
+            if first.member.grownUp, first.pose == .standing || first.pose == .atTable, !quiet, !reduceMotion {
+                try? await Task.sleep(for: .seconds(0.6))
+                controller.rig?.play("hug")
+                controller.rig?.air("heart", for: 2)
+            }
             try? await Task.sleep(for: .seconds(1.1))
+            controller.look(x: 0, y: 0)
+        }
+    }
+
+    /// Someone in the scene was tapped: she turns to see, with an "Oh!" (Tom, 20 November 2026).
+    private func lookOver(at company: CGFloat) {
+        guard !reduceMotion, controller.rig?.asleep == false else { return }
+        let room = PuggleScene.room(dark: scheme == .dark || night)
+        let mine = room == nil ? PuggleScene.stand(for: .today) : (room == .dining ? Company.tea().puggle : 0)
+        controller.look(x: company < mine ? -0.8 : 0.8, y: 0)
+        controller.rig?.air("oh", for: 1.2)
+        Task {
+            try? await Task.sleep(for: .seconds(1.6))
             controller.look(x: 0, y: 0)
         }
     }
@@ -793,8 +814,16 @@ struct PuggleHeader: View {
         let walk = amount > 24 && !quiet
         if controller.walking != walk { controller.walking = walk }
         if amount > furthest { furthest = amount }
+        // Pulled far enough to show the sky's surprises, she looks up at them: "Oh!" (Tom, 20 November 2026).
+        if amount > 160, !saidOh, !quiet, !reduceMotion {
+            saidOh = true
+            controller.look(x: 0, y: -0.8)
+            controller.rig?.air("oh", for: 1.4)
+        }
         if amount < 4 {
             if furthest > 120 { react() }
+            if saidOh { controller.look(x: 0, y: 0) }
+            saidOh = false
             furthest = 0
         }
     }

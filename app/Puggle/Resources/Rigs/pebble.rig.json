@@ -2176,144 +2176,105 @@
    "length": 0.85
   },
   "greet": {
-   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "about": "Pebble's hello: both arms flapping up and down.",
+   "length": 1.5,
    "keys": [
     {
      "t": 0,
-     "pose": {
-      "upper": {
-       "sy": 0.97
-      },
-      "arm-right": {
-       "r": -20
-      }
-     }
+     "pose": {}
     },
     {
-     "t": 0.12,
+     "t": 0.2,
      "pose": {
+      "arm-left": {
+       "r": 44
+      },
       "arm-right": {
-       "r": -143.5
+       "r": -44
       },
       "head": {
-       "r": -5
-      },
-      "body": {
-       "y": -2
-      },
-      "forearm-right": {
-       "r": -23.7
+       "r": -4
       }
      }
     },
     {
-     "t": 0.34,
+     "t": 0.4,
      "pose": {
+      "arm-left": {
+       "r": 14
+      },
       "arm-right": {
-       "r": -143.5
+       "r": -14
+      }
+     }
+    },
+    {
+     "t": 0.6,
+     "pose": {
+      "arm-left": {
+       "r": 48
+      },
+      "arm-right": {
+       "r": -48
       },
       "head": {
-       "r": -5
-      },
-      "forearm-right": {
-       "r": 10.3
+       "r": 4
       }
      }
     },
     {
-     "t": 0.52,
+     "t": 0.8,
      "pose": {
+      "arm-left": {
+       "r": 12
+      },
       "arm-right": {
-       "r": -143.5
-      },
-      "head": {
-       "r": -5
-      },
-      "forearm-right": {
-       "r": -23.7
+       "r": -12
       }
      }
     },
     {
-     "t": 0.7,
-     "pose": {
-      "arm-right": {
-       "r": -143.5
-      },
-      "head": {
-       "r": -5
-      },
-      "forearm-right": {
-       "r": 10.3
-      }
-     }
-    },
-    {
-     "t": 0.88,
-     "pose": {
-      "arm-right": {
-       "r": -143.5
-      },
-      "head": {
-       "r": -5
-      },
-      "forearm-right": {
-       "r": -23.7
-      }
-     }
-    },
-    {
-     "t": 1.25,
+     "t": 1.15,
      "pose": {}
     },
     {
      "t": 1.5,
      "pose": {}
     }
-   ],
-   "length": 1.75
+   ]
   },
   "celebrate": {
-   "about": "A milestone: two hops with her arms up. The only big reaction; keep it rare.",
+   "about": "Pebble's happy: a bounce where he sits, arms up, feet kicking.",
+   "length": 1.7,
    "keys": [
     {
      "t": 0,
      "pose": {
       "upper": {
-       "sy": 0.92
-      },
-      "head": {
-       "y": 4
+       "sy": 0.95
       }
      }
     },
     {
-     "t": 0.12,
+     "t": 0.18,
      "pose": {
       "body": {
-       "y": -16
+       "y": -6
       },
       "upper": {
-       "sy": 1.05
+       "sy": 1.03
       },
       "arm-left": {
-       "r": 78
+       "r": 66
       },
       "arm-right": {
-       "r": -78
+       "r": -66
       },
-      "tail": {
-       "r": -36
+      "foot-left": {
+       "r": -16
       },
-      "sparkle-a": {
-       "sx": 1.25,
-       "sy": 1.25,
-       "r": 25
-      },
-      "sparkle-b": {
-       "sx": 1.25,
-       "sy": 1.25,
-       "r": -25
+      "foot-right": {
+       "r": 16
       }
      },
      "face": {
@@ -2321,75 +2282,33 @@
      }
     },
     {
-     "t": 0.34,
+     "t": 0.42,
      "pose": {
       "upper": {
-       "sy": 0.93
+       "sy": 0.95
       },
       "arm-left": {
-       "r": 40
+       "r": 38
       },
       "arm-right": {
-       "r": -40
+       "r": -38
       },
-      "tail": {
-       "r": -10
+      "foot-left": {
+       "r": 8
       },
-      "sparkle-a": {
-       "sx": 0.7,
-       "sy": 0.7
-      },
-      "sparkle-c": {
-       "sx": 1.3,
-       "sy": 1.3,
-       "r": 40
+      "foot-right": {
+       "r": -8
       }
-     },
-     "face": {
-      "air": "sparkle"
      }
     },
     {
-     "t": 0.46,
+     "t": 0.66,
      "pose": {
       "body": {
-       "y": -16
+       "y": -5
       },
       "upper": {
-       "sy": 1.05
-      },
-      "arm-left": {
-       "r": 78
-      },
-      "arm-right": {
-       "r": -78
-      },
-      "tail": {
-       "r": -36
-      },
-      "head": {
-       "r": 5
-      },
-      "sparkle-a": {
-       "sx": 1.25,
-       "sy": 1.25,
-       "r": 25
-      },
-      "sparkle-b": {
-       "sx": 1.25,
-       "sy": 1.25,
-       "r": -25
-      }
-     },
-     "face": {
-      "air": "sparkle"
-     }
-    },
-    {
-     "t": 0.68,
-     "pose": {
-      "upper": {
-       "sy": 0.94
+       "sy": 1.03
       },
       "arm-left": {
        "r": 62
@@ -2397,60 +2316,43 @@
       "arm-right": {
        "r": -62
       },
-      "tail": {
-       "r": -30
+      "foot-left": {
+       "r": -14
       },
-      "sparkle-a": {
-       "sx": 0.7,
-       "sy": 0.7
-      },
-      "sparkle-c": {
-       "sx": 1.3,
-       "sy": 1.3,
-       "r": 40
+      "foot-right": {
+       "r": 14
       }
-     },
-     "face": {
-      "air": "sparkle"
      }
     },
     {
-     "t": 0.8,
+     "t": 0.92,
      "pose": {
+      "upper": {
+       "sy": 0.97
+      },
       "arm-left": {
-       "r": 66
+       "r": 24
       },
       "arm-right": {
-       "r": -66
+       "r": -24
       },
-      "tail": {
-       "r": -30
+      "foot-left": {
+       "r": 4
       },
-      "head": {
+      "foot-right": {
        "r": -4
       }
-     },
-     "face": {
-      "air": "sparkle"
      }
     },
     {
-     "t": 1.5,
-     "pose": {},
-     "face": {
-      "air": "sparkle"
-     }
-    },
-    {
-     "t": 1.9,
+     "t": 1.3,
      "pose": {}
     },
     {
-     "t": 2.1,
+     "t": 1.7,
      "pose": {}
     }
-   ],
-   "length": 2.4
+   ]
   },
   "wake": {
    "about": "A sleep ended: a long stretch with her eyes shut, then wide awake.",
@@ -2609,102 +2511,72 @@
    "length": 0.64
   },
   "greet-left": {
-   "about": "Hello: a wave, held at the top, eyebrows up.",
+   "about": "Pebble's hello: both arms flapping up and down.",
+   "length": 1.5,
    "keys": [
     {
      "t": 0,
-     "pose": {
-      "upper": {
-       "sy": 0.97
-      },
-      "arm-left": {
-       "r": 20
-      }
-     }
+     "pose": {}
     },
     {
-     "t": 0.12,
+     "t": 0.2,
      "pose": {
       "arm-left": {
-       "r": 143.5
+       "r": 44
+      },
+      "arm-right": {
+       "r": -44
       },
       "head": {
-       "r": 5
-      },
-      "body": {
-       "y": -2
-      },
-      "forearm-left": {
-       "r": 23.7
+       "r": -4
       }
      }
     },
     {
-     "t": 0.34,
+     "t": 0.4,
      "pose": {
       "arm-left": {
-       "r": 143.5
+       "r": 14
       },
-      "head": {
-       "r": 5
-      },
-      "forearm-left": {
-       "r": -10.3
+      "arm-right": {
+       "r": -14
       }
      }
     },
     {
-     "t": 0.52,
+     "t": 0.6,
      "pose": {
       "arm-left": {
-       "r": 143.5
+       "r": 48
+      },
+      "arm-right": {
+       "r": -48
       },
       "head": {
-       "r": 5
-      },
-      "forearm-left": {
-       "r": 23.7
+       "r": 4
       }
      }
     },
     {
-     "t": 0.7,
+     "t": 0.8,
      "pose": {
       "arm-left": {
-       "r": 143.5
+       "r": 12
       },
-      "head": {
-       "r": 5
-      },
-      "forearm-left": {
-       "r": -10.3
+      "arm-right": {
+       "r": -12
       }
      }
     },
     {
-     "t": 0.88,
-     "pose": {
-      "arm-left": {
-       "r": 143.5
-      },
-      "head": {
-       "r": 5
-      },
-      "forearm-left": {
-       "r": 23.7
-      }
-     }
-    },
-    {
-     "t": 1.25,
+     "t": 1.15,
      "pose": {}
     },
     {
      "t": 1.5,
      "pose": {}
     }
-   ],
-   "length": 1.75
+   ]
   },
   "oh": {
    "about": "Oh! A small start, hands to her cheeks and clear of her bill, eyes wide. The one time her hands are in front of her head.",
@@ -2792,6 +2664,68 @@
      "face": {
       "arms": "front"
      }
+    }
+   ]
+  },
+  "kick": {
+   "about": "Pebble kicks his feet, one and then the other.",
+   "length": 1.3,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {}
+    },
+    {
+     "t": 0.18,
+     "pose": {
+      "foot-left": {
+       "r": -22
+      },
+      "foot-right": {
+       "r": 6
+      }
+     }
+    },
+    {
+     "t": 0.38,
+     "pose": {
+      "foot-left": {
+       "r": 4
+      },
+      "foot-right": {
+       "r": 22
+      }
+     }
+    },
+    {
+     "t": 0.58,
+     "pose": {
+      "foot-left": {
+       "r": -20
+      },
+      "foot-right": {
+       "r": 4
+      }
+     }
+    },
+    {
+     "t": 0.78,
+     "pose": {
+      "foot-left": {
+       "r": 2
+      },
+      "foot-right": {
+       "r": 18
+      }
+     }
+    },
+    {
+     "t": 1.0,
+     "pose": {}
+    },
+    {
+     "t": 1.3,
+     "pose": {}
     }
    ]
   }

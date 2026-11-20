@@ -68,9 +68,16 @@ struct PatternTile {
         for r in 0..<rows {
             for c in 0..<cols {
                 let i = c + r * 2
-                marks.append(Mark(shape: corners[i % corners.count], x: CGFloat(c) * cell, y: CGFloat(r) * cell, size: size, turn: turns.0, tone: 1))
-                marks.append(Mark(shape: middles[i % middles.count], x: CGFloat(c) * cell + cell / 2, y: CGFloat(r) * cell + cell / 2,
-                                  size: middleSize ?? size, turn: turns.1, tone: 3))
+                // A little looser than a ruled grid, as if placed by hand: each mark turned a few degrees and a
+                // touch larger or smaller, the middle ones a point or two off centre (Tom, 20 November 2026).
+                // Corners stay where they are, so the tile still meets itself at its edges.
+                var random = SeededRandom(UInt64(i + 1) &* 2_654_435_761 &+ UInt64(corners.count * 31 + middles.count))
+                let cornerTurn = turns.0 + CGFloat(random.range(-9, 9)), cornerSize = size * CGFloat(random.range(0.93, 1.07))
+                let middleTurn = turns.1 + CGFloat(random.range(-9, 9)), middleScale = CGFloat(random.range(0.93, 1.07))
+                let nudge = (CGFloat(random.range(-2.5, 2.5)), CGFloat(random.range(-2.5, 2.5)))
+                marks.append(Mark(shape: corners[i % corners.count], x: CGFloat(c) * cell, y: CGFloat(r) * cell, size: cornerSize, turn: cornerTurn, tone: 1))
+                marks.append(Mark(shape: middles[i % middles.count], x: CGFloat(c) * cell + cell / 2 + nudge.0, y: CGFloat(r) * cell + cell / 2 + nudge.1,
+                                  size: (middleSize ?? size) * middleScale, turn: middleTurn, tone: 3))
             }
         }
         return PatternTile(width: cell * CGFloat(cols), height: cell * CGFloat(rows), marks: marks)
