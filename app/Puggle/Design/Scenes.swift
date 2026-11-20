@@ -367,10 +367,12 @@ struct SceneFrame: View {
     @ViewBuilder private func scenery(_ w: CGFloat, _ h: CGFloat) -> some View {
         switch kind {
         case .hills:
-            Hill(rise: 0.34, left: 0.58, right: 0.76, peak: 0.2).fill(tone(0xD7E7C6, 0x2E3468))
+            let far = Hill(rise: 0.34, left: 0.58, right: 0.76, peak: 0.2)
+            far.fill(tone(0xD7E7C6, 0x2E3468))
             RoundTree(leaf: tone(0xB7D2A4, 0x263A62), trunk: tone(0xB89A78, 0x3A3560), bare: season == .winter).frame(width: 16, height: 24).position(x: w * 0.1, y: h * 0.47)
             // Someone is home on the far hill: a warm window after dark.
-            Cottage(night: starry).frame(width: 26, height: 24).position(x: w * 0.36, y: h * 0.415)
+            // Standing on the far hill, its foot a little into the grass, wherever the hill's top is (Tom, 20 November 2026).
+            Cottage(night: starry).frame(width: 26, height: 24).position(x: w * 0.36, y: h * far.top(at: 0.36) - 12 + 2.5)
             Hill(rise: 0.44, left: 0.82, right: 0.56, peak: 0.84).fill(tone(0xBFD8AA, 0x272C5A))
             // In spring the big one is a jacaranda in flower; in winter the trees are bare.
             RoundTree(leaf: season == .spring ? tone(0xB9A3DE, 0x3A3870) : tone(0x9CC08C, 0x1F3258), trunk: tone(0xA98A68, 0x332E58), bare: season == .winter)
@@ -987,6 +989,16 @@ struct Hill: Shape {
     var rise: CGFloat, left: CGFloat, right: CGFloat
     /// Where along the width the top is, as a fraction.
     var peak: CGFloat = 0.5
+
+    /// How far down the hill's top is at this fraction of the width, as a fraction of the height: for standing
+    /// something on it.
+    func top(at x: CGFloat) -> CGFloat {
+        // The curve's x is a(t) = 2t(1-t)·peak + t²; solve for t, then read its y.
+        let a = 1 - 2 * peak, b = 2 * peak
+        let t = abs(a) < 0.0001 ? x / b : (-b + sqrt(b * b + 4 * a * x)) / (2 * a)
+        return (1 - t) * (1 - t) * left + 2 * (1 - t) * t * rise + t * t * right
+    }
+
     func path(in rect: CGRect) -> Path {
         var path = Path()
         path.move(to: CGPoint(x: rect.minX, y: rect.height * left))
@@ -1083,7 +1095,8 @@ struct Cottage: View {
     var body: some View {
         Canvas { context, size in
             let w = size.width, h = size.height
-            let wall = Color(hex: night ? 0x4D5296 : 0xFBF3E2), roof = Color(hex: night ? 0x34386E : 0xD9735E)
+            // After dark, moonlit: pale walls and a dusky red roof, so it still reads as a house and not only a window.
+            let wall = Color(hex: night ? 0x8A8FC8 : 0xFBF3E2), roof = Color(hex: night ? 0x9A5E78 : 0xD9735E)
             context.fill(Path(CGRect(x: w * 0.18, y: h * 0.45, width: w * 0.64, height: h * 0.55)), with: .color(wall))
             var top = Path()
             top.move(to: CGPoint(x: w * 0.08, y: h * 0.48)); top.addLine(to: CGPoint(x: w * 0.5, y: h * 0.08)); top.addLine(to: CGPoint(x: w * 0.92, y: h * 0.48))
