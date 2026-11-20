@@ -2812,3 +2812,10 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - Pulling the sky down far enough to show its surprises, she looks up: "Oh!".
 - Pebble, six months and sitting, has baby moves of his own: a bounce where he sits with his arms up and feet
   kicking, a two-armed flap for hello, and now and then a kick (`baby_moves` in `tools/make_cast_rigs.py`).
+
+## Always On, and initials only (20 November 2026)
+
+- Always On, the card's buttons are outlines instead of filled blocks, and the words under the times are brighter,
+  so nothing glares and everything stays readable on the dimmed screen.
+- Settings → "Initials only on the Lock Screen": a first letter instead of each child's name on the Lock Screen,
+  in the Dynamic Island and on the Watch's Smart Stack. Off unless chosen; the app shows full names.

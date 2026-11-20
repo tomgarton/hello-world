@@ -62,7 +62,9 @@ final class LiveTimers {
         var result: [String: Wanted] = [:]
         for child in children {
             guard let id = child.id?.uuidString else { continue }
-            let attributes = TimerAttributes(childID: id, childName: child.displayName, colourIndex: Int(child.colourIndex))
+            // Initials only, if asked, for a Lock Screen others can see.
+            let name = defaults.bool(forKey: Setting.lockScreenInitials) ? String(child.displayName.prefix(1)).uppercased() : child.displayName
+            let attributes = TimerAttributes(childID: id, childName: name, colourIndex: Int(child.colourIndex))
             // The snapshot beside whatever is running: the last feed and the last nappy, if they are recent.
             let cutoff = Date.now.addingTimeInterval(-glanceHours * 3600)
             let recent = { (date: Date?) -> Date? in date.flatMap { $0 > cutoff && $0 <= .now ? $0 : nil } }

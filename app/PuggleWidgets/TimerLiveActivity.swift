@@ -606,6 +606,7 @@ private struct SmallCard: View {
 /// nothing is due and nothing turns red. The times count up by themselves, so each is one run of text and its
 /// "h" and "m" are the size of the numbers.
 private struct Facts: View {
+    @Environment(\.isLuminanceReduced) private var dimmed
     let state: TimerAttributes.ContentState
     let childID: String
     /// The times' size: 26 on the Lock Screen, smaller for a second child's row, the Watch and CarPlay.
@@ -675,7 +676,8 @@ private struct Facts: View {
                 Text(title)
             }
             .font(.system(size: size < 20 ? 11 : 12, weight: .medium))
-            .foregroundStyle(Tone.cream.opacity(0.75))
+            // Brighter when the screen is dimmed for Always On, so the words stay readable.
+            .foregroundStyle(Tone.cream.opacity(dimmed ? 0.9 : 0.75))
             .lineLimit(1)
         }
         .padding(.horizontal, 2)
@@ -735,6 +737,7 @@ private struct FeedButtons: View {
 }
 
 private struct ActionButton: View {
+    @Environment(\.isLuminanceReduced) private var dimmed
     let title: String
     let action: String
     let attributes: TimerAttributes
@@ -763,10 +766,13 @@ private struct ActionButton: View {
                     .fixedSize()
             }
             .font(small ? .footnote.weight(.semibold) : .subheadline.weight(.semibold))
-            .foregroundStyle(filled ? Tone.ink : Tone.moon)
+            // Always On, a filled button is a bright block on a dimmed screen: it is drawn as an outline instead,
+            // as Apple asks (Tom, 20 November 2026).
+            .foregroundStyle(filled && !dimmed ? Tone.ink : Tone.moon)
             .padding(.horizontal, small ? 10 : 12)
             .frame(minHeight: small ? 32 : 36)
-            .background(filled ? Tone.moon : Tone.moon.opacity(0.16), in: Capsule())
+            .background(filled && !dimmed ? Tone.moon : Tone.moon.opacity(dimmed ? 0 : 0.16), in: Capsule())
+            .overlay { if dimmed { Capsule().stroke(Tone.moon.opacity(0.8), lineWidth: 1.5) } }
         }
         .buttonStyle(.plain)
         .accessibilityLabel(spoken)

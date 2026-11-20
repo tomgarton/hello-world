@@ -13,6 +13,7 @@ enum Setting {
     /// On the play pad, a stamp fades and stops after eight presses until an ink pad is pressed. Off unless chosen.
     static let stampInkRunsOut = "stampInkRunsOut"
     static let lockScreenGlance = "lockScreenGlance"
+    static let lockScreenInitials = "lockScreenInitials"
     static let haptics = "haptics"
     static let tilesCustom = "tilesCustom"
     static let tilesMain = "tilesMain"
@@ -54,6 +55,7 @@ struct SettingsView: View {
     @AppStorage(Setting.pottyStickers) private var stickersOn = true
     @AppStorage(Setting.stampInkRunsOut) private var inkRunsOut = false
     @AppStorage(Setting.lockScreenGlance) private var glanceOn = true
+    @AppStorage(Setting.lockScreenInitials) private var initialsOnly = false
     @AppStorage(Setting.haptics) private var hapticsOn = true
     @AppStorage(Setting.appLock) private var lockOn = false
     @AppStorage(Setting.appearance) private var appearance = "system"
@@ -156,6 +158,11 @@ struct SettingsView: View {
                 }
                 .onChange(of: glanceOn) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
             }
+            // For a Lock Screen others can see (Tom, 20 November 2026).
+            Toggle(isOn: $initialsOnly) {
+                named("Initials only on the Lock Screen", "A first letter instead of a name, there and in the Dynamic Island. The app shows full names.")
+            }
+            .onChange(of: initialsOnly) { _, _ in LiveTimers.shared.sync(with: FamilyStore.live) }
             NavigationLink("Reminders") { RemindersView() }
             NavigationLink("Siri and shortcuts") { SiriView() }
         } header: {
