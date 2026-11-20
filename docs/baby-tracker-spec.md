@@ -2751,3 +2751,8 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 **The grown-ups, bigger and nearer (Tom, 20 November, evening).** Sitting, the grown-ups looked no bigger than Puggle. Two changes, chosen from pictures: every grown-up is 15% bigger in every scene (Nan 1.09, Mum 1.13, Dad 1.15, Pop 1.12 of her scale), and the armchair by the bed comes forward (drawn at 0.92 of full size with its feet at 232, from 0.76 at 212). The children are unchanged. For trying other sizes: `-debugGrownScale`, `-debugChairScale`, `-debugChairFloor`.
 
 **Steam from Puggle's bowl (Tom, 20 November, evening).** Three short white strokes rose straight over her bill. Now three soft wisps, each one smooth line that sways as it rises, fades towards its top and leans to the right, staying below her eyes. They take turns, so there is always a little steam and never a crowd of it.
+
+**The launch screen hands over to the splash without a jump (Tom, 20 November, evening).** Two causes:
+- **Height:** iOS centres the launch screen's mark on the whole screen, but the splash centred it inside the safe area, about 16 points lower. The splash now ignores the safe area too.
+- **Colour:** the launch screen shows its image without colour management, so Puggle's mark came out a stronger yellow and browner than in the app. It now uses `LaunchMark`, a copy of the mark with each colour converted so it shows as the app's own.
+- Checked frame by frame in a recording. The phone keeps a picture of the launch screen from the last install; a fresh install or a restart shows the new one.

@@ -263,6 +263,10 @@ struct SplashView: View {
             Wordmark()
                 .offset(y: 66 + 14 + 26)
         }
+        // Centred on the whole screen, as iOS centres the launch screen's mark, so the mark does not jump down
+        // by half the difference between the top and bottom safe areas as the launch screen hands over
+        // (Tom, 20 November 2026).
+        .ignoresSafeArea()
         .accessibilityElement(children: .combine)
     }
 }
