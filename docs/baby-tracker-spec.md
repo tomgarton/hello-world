@@ -2679,3 +2679,19 @@ Tom asked for the evening's work to be checked in the simulator before the build
   - a "?": while anyone's eyes follow something (an arrival, the swinging lamp).
 - Speech bubbles are left out: a bubble reads as talking and puts a box over the scene. A small thought bubble showing what someone wants (a bottle when a feed is due) is kept as an idea.
 - For checking: `-debugAir heart|notes|oh|wonder|sparkle` shows one on everyone awake.
+
+## 20 November 2026: the first Apple Watch app
+
+Tom asked for a first Watch version, taking a lead from Granola's Watch app (one tap to start, and the whole screen changes colour while it runs). He chose to send everything through the iPhone over a Watch app with its own iCloud, which is kept as a later option.
+
+- **How it works.** The Watch keeps no database. The iPhone sends it the widgets' summary (`WidgetSnapshot`, with four new fields: a feed running, its side, whether the child is breastfed, and their last bottle) whenever it is written, and the Watch sends back what was tapped (`Shared/WatchLink.swift`, `Puggle/App/WatchBridge.swift`). The iPhone saves it the usual way, so the family sees it through iCloud. A tap can wake Puggle on the iPhone in the background.
+- **Timers need the iPhone there and then.** Starting or ending a sleep or a feed is put back, with "Can't reach your iPhone", if the iPhone cannot be reached. A nappy or a bottle waits and is delivered later, saved at the time it was tapped.
+- **One page per child, swiped sideways.**
+  - Awake: badge and name, then "Fed 1h 35m ago", "Awake 1h 11m", "Nappy 40 min ago"; a big "Start sleep" in the child's colour; and below it "Start feed" (breastfed children: choose a side), "Log nappy" (Wet, Dirty, Both) and "Log bottle" (the amount starts at the last one and turns with the Digital Crown, 10 ml a click).
+  - Asleep: the whole screen night blue, the sleep counting up large, and "Woke up".
+  - Feeding: the whole screen the scenes' warm yellow, the feed counting up, "Start left"/"Pause left" and "Start right"/"Pause right", and "Stop feed".
+  - Each tap answers with a tap on the wrist.
+- **On the watch face:** circular, corner, inline and rectangular shortcuts showing whoever is asleep or feeding with the time counting up, or otherwise how long since the first child was fed. They read the summary from the App Group on the Watch.
+- **For checking:** the Watch app with `-preview 1` shows the sample family; `-previewChild 1` opens on the second child and `-previewFeed 1` has Ollie feeding.
+- **Not yet checked:** the link between a real iPhone and Watch (the simulators were not paired for it), the watch-face shortcuts on a face, and signing the two new Watch targets for TestFlight, which needs Xcode's account on the Mac.
+- **Not in this version:** history, charts, the scenes, editing past entries, and Watch use without the iPhone nearby.

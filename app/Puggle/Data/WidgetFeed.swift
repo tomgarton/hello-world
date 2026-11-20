@@ -47,7 +47,9 @@ enum WidgetFeed {
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
-    static func write(from store: FamilyStore) {
+    /// Writes the summary for the widgets and sends it to the Watch. Returns it, for the Watch's answer.
+    @discardableResult
+    static func write(from store: FamilyStore) -> WidgetSnapshot {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
         request.predicate = store.scoped(request.predicate)
@@ -74,10 +76,17 @@ enum WidgetFeed {
                 lastPotty: store.latest(.potty, for: child)?.startedAt,
                 usesMilk: child.uses(.bottle) || child.uses(.breastfeed),
                 usesSolids: child.uses(.solids),
-                pottyTraining: child.pottyTraining && child.uses(.potty))
+                pottyTraining: child.pottyTraining && child.uses(.potty),
+                feedingSince: store.activeFeed(for: child)?.startedAt,
+                feedSide: store.activeFeed(for: child)?.runningSide,
+                breastfeeds: child.uses(.breastfeed),
+                lastBottleML: store.latest(.bottle, for: child).map { Int($0.amountML) }.flatMap { $0 > 0 ? $0 : nil })
         }
-        WidgetSnapshot(children: rows, updatedAt: .now).save()
+        let snapshot = WidgetSnapshot(children: rows, updatedAt: .now)
+        snapshot.save()
+        WatchBridge.shared.send(snapshot)
         WidgetCenter.shared.reloadAllTimelines()
         if #available(iOS 18.0, *) { ControlCenter.shared.reloadAllControls() }
+        return snapshot
     }
 }

@@ -10,11 +10,11 @@ struct WidgetSnapshot: Codable {
         let name: String
         let colourIndex: Int
         /// When the running sleep started, if they are asleep.
-        let asleepSince: Date?
+        var asleepSince: Date?
         /// The last feed: when, and a short line ("Bottle · 150 ml").
-        let lastFeed: Date?
-        let lastFeedText: String?
-        let lastNappy: Date?
+        var lastFeed: Date?
+        var lastFeedText: String?
+        var lastNappy: Date?
         let usesNappies: Bool
         /// When their last sleep ended. Nil in a summary written before this was added.
         var lastWoke: Date?
@@ -30,6 +30,12 @@ struct WidgetSnapshot: Codable {
         var usesSolids: Bool?
         /// Training, so the potty takes the nappy's place.
         var pottyTraining: Bool?
+        /// For the Watch (20 November 2026): a breastfeed whose timer is running, the side it is on (nil while
+        /// paused), whether they are breastfed at all, and their last bottle's amount to start from.
+        var feedingSince: Date?
+        var feedSide: String?
+        var breastfeeds: Bool?
+        var lastBottleML: Int?
     }
 
     var children: [Child]

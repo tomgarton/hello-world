@@ -36,6 +36,8 @@ struct PuggleApp: App {
         TimerActions.perform = { action, childID in
             FamilyStore.live.handleTimerAction(action, childID: childID)
         }
+        // Taps from the Watch, which can open the app in the background.
+        WatchBridge.shared.start()
         // Time to finish sending to iCloud after the app is closed.
         BackgroundSync.register()
     }

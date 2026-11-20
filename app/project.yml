@@ -3,6 +3,7 @@ options:
   bundleIdPrefix: com.tomgarton
   deploymentTarget:
     iOS: "17.0"
+    watchOS: "11.0"
   createIntermediateGroups: true
 # "Local" is a debug build with iCloud switched off, for a free Apple ID
 # (free accounts cannot sign the iCloud and push entitlements).
@@ -27,6 +28,8 @@ targets:
       - path: Shared
     dependencies:
       - target: PuggleWidgets
+      # The Watch app, carried inside the iPhone app and installed on the Watch with it.
+      - target: PuggleWatch
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle
@@ -54,6 +57,51 @@ targets:
         GENERATE_INFOPLIST_FILE: NO
         # Reads the app's summary from the shared App Group (paid account only).
         CODE_SIGN_ENTITLEMENTS: PuggleWidgets/PuggleWidgets.entitlements
+      configs:
+        Local:
+          CODE_SIGN_ENTITLEMENTS: ""
+  # The Watch app (20 November 2026): each child's state and one-tap logging. It keeps no database of its own;
+  # it talks to the iPhone app over WatchConnectivity (Shared/WatchLink.swift), which saves through the store.
+  PuggleWatch:
+    type: application
+    platform: watchOS
+    sources:
+      - path: PuggleWatch
+      - path: Shared/WidgetSnapshot.swift
+      - path: Shared/Terms.swift
+      - path: Shared/WatchLink.swift
+      - path: Puggle/Resources/AppIcon.icon
+    dependencies:
+      - target: PuggleWatchWidgets
+    settings:
+      configs:
+        Local:
+          CODE_SIGN_ENTITLEMENTS: ""
+      base:
+        # Shares the summary with its watch-face shortcuts (paid account only).
+        CODE_SIGN_ENTITLEMENTS: PuggleWatch/PuggleWatch.entitlements
+        PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle.watchkitapp
+        PRODUCT_NAME: Puggle
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: Puggle
+        INFOPLIST_KEY_WKCompanionAppBundleIdentifier: com.tomgarton.puggle
+        INFOPLIST_KEY_WKRunsIndependentlyOfCompanionApp: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SKIP_INSTALL: YES
+  # Puggle on the watch face: a timer running, or how long since a feed.
+  PuggleWatchWidgets:
+    type: app-extension
+    platform: watchOS
+    sources:
+      - path: PuggleWatchWidgets
+      - path: Shared/WidgetSnapshot.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.tomgarton.puggle.watchkitapp.widgets
+        INFOPLIST_FILE: PuggleWatchWidgets/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        CODE_SIGN_ENTITLEMENTS: PuggleWatchWidgets/PuggleWatchWidgets.entitlements
+        SKIP_INSTALL: YES
       configs:
         Local:
           CODE_SIGN_ENTITLEMENTS: ""
