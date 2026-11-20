@@ -417,6 +417,11 @@ struct PuggleHeader: View {
             settle(in: bedNow)
             if !splashing { playEntrance() }
         }
+        // Story time, while a grown-up reads to her in bed.
+        .task(id: storyTonight && appeared && !reduceMotion) {
+            guard storyTonight, appeared, !reduceMotion else { StoryTime.hugging = false; return }
+            await listen()
+        }
         // Bedtime comes while Today is open: look again each half minute.
         .task {
             while !Task.isCancelled {
@@ -628,6 +633,46 @@ struct PuggleHeader: View {
         }
     }
 
+    /// Whether a grown-up is in the armchair to read her a story tonight.
+    private var storyTonight: Bool {
+        guard bedNow == .reading else { return false }
+        return Company.gathering(kind: .today, room: .bedroom, afterDark: true, bed: .reading, minute: Evening.minuteNow)
+            .contains { $0.pose == .armchair && $0.activity == .with }
+    }
+
+    /// Story time: she looks over at the grown-up reading and nods along now and then; when the book closes she
+    /// hugs her rabbit and looks back. Kept to `StoryTime`'s clock, as the reader is.
+    private func listen() async {
+        var was: StoryTime.Part?
+        var beat = 0
+        controller.rig?.calmLook = true
+        defer { controller.rig?.calmLook = false }
+        while !Task.isCancelled {
+            let part = StoryTime.part()
+            if part != was {
+                switch part {
+                case .reading:
+                    controller.look(x: 0.85, y: 0.15)
+                case .hugging:
+                    StoryTime.hugging = true
+                    controller.rig?.play("hug")
+                    controller.rig?.air("heart", for: 2.4)
+                case .quiet:
+                    StoryTime.hugging = false
+                    controller.look(x: 0, y: 0)
+                }
+                was = part
+            }
+            if part == .reading {
+                beat += 1
+                // A small nod every so often, as if following along.
+                if beat % 24 == 0 { controller.rig?.play("nod") }
+            }
+            try? await Task.sleep(for: .milliseconds(500))
+        }
+        StoryTime.hugging = false
+    }
+
     /// What she is doing in her bedroom, from the children's evening. Nil anywhere else.
     private func bedPose(_ room: Room?) -> BedPose? {
         room == .bedroom ? Evening.now.pose(minute: Evening.minuteNow) : nil
@@ -641,7 +686,8 @@ struct PuggleHeader: View {
         switch bed {
         case .reading?:
             controller.asleep = false
-            rig.play("read")
+            // With a grown-up in the armchair she is read to (see `listen()`); on her own she reads her book.
+            if !storyTonight { rig.play("read") }
         case .asleep?:
             controller.asleep = true
         case .stirring?:

@@ -583,7 +583,7 @@ struct RoomPainter {
         }
         rect(8, 190, 8, 14, 3, col(0xB89A78, 0x5E4A3C)); rect(164, 190, 8, 14, 3, col(0xB89A78, 0x5E4A3C))
         // Her rabbit waits on the pillow; once she is tucked in, it is beside her (see `bedFront`).
-        if tonight.bed != .asleep { rabbit(60, 122) }
+        if tonight.bed != .asleep, !StoryTime.hugging { rabbit(60, 122) }
         // The table by the bed: a lamp left on, and tonight's book.
         let layout = BedroomLayout.current
         let wood = col(0xD9B48A, 0x5E4A3C), table = layout.tableLeft(width: w)

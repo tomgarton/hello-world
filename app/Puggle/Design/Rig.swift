@@ -452,6 +452,8 @@ final class RigRuntime {
     /// A feeling asked for, for a moment: shy at a first tap.
     private var felt: (feeling: RigFeeling, until: Date)?
     func feel(_ feeling: RigFeeling, for seconds: Double) { felt = (feeling, Date.now.addingTimeInterval(seconds)) }
+    /// Looking at someone they know (a story being read), not wondering at something: no "?" over them.
+    var calmLook = false
     /// For checking: "-debugAir heart", "notes", "oh", "wonder" or "sparkle" shows it on everyone awake.
     private static let debugAir = UserDefaults.standard.string(forKey: "debugAir")
     /// Something in the air beside their face for a moment: "heart" or "notes" (see tools/air.py).
@@ -613,7 +615,7 @@ final class RigRuntime {
                 showing["air"] = "oh"
             } else if let aired, date < aired.until {
                 showing["air"] = aired.name
-            } else if abs(look.x) + abs(look.y) > 0.3 {
+            } else if abs(look.x) + abs(look.y) > 0.3, !calmLook {
                 showing["air"] = "wonder"
             } else if let forced = Self.debugAir {
                 showing["air"] = forced

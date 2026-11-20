@@ -73,6 +73,24 @@ enum CastMember: String, CaseIterable, Identifiable {
 }
 
 /// What someone is doing in the scene with her.
+/// A bedtime story (Tom, 20 November 2026): the grown-up in the armchair reads aloud, turning a page now and
+/// then, while Puggle sits up in bed and listens, looking over at them. When the story ends the book closes, she
+/// hugs her rabbit, and after a quiet moment another begins. Both keep to this one clock, so they stay together.
+enum StoryTime {
+    /// How long a story and the quiet after it take, the story, and the hug at its end, in seconds.
+    static let cycle = 60.0, story = 42.0, hug = 3.0
+
+    enum Part { case reading, hugging, quiet }
+
+    static func part(at date: Date = .now) -> Part {
+        let t = date.timeIntervalSince(SceneClock.start).truncatingRemainder(dividingBy: cycle)
+        return t < story ? .reading : t < story + hug ? .hugging : .quiet
+    }
+
+    /// Whether Puggle is holding her rabbit just now, so the one on her pillow is not drawn as well.
+    nonisolated(unsafe) static var hugging = false
+}
+
 enum CastActivity {
     /// Standing with her: a wave hello, a nod now and then.
     case with
@@ -226,6 +244,11 @@ final class CastController: ObservableObject {
         rig?.play(move)
     }
 
+    func stop(_ move: String) { rig?.stop(move) }
+
+    /// Where their eyes are turned, from -1 to 1 each way.
+    func look(x: Double, y: Double) { rig?.look = CGPoint(x: x, y: y) }
+
     var asleep: Bool {
         get { rig?.asleep ?? false }
         set { rig?.asleep = newValue; objectWillChange.send() }
@@ -315,6 +338,11 @@ struct CompanyView: View {
 
     private var sleeps: Bool { company.activity == .dozing || (quiet && !company.member.grownUp) }
 
+    /// The grown-up in the armchair while she sits up in bed: they read her a story.
+    private var tellsStory: Bool {
+        company.pose == .armchair && company.activity == .with && Evening.now.pose(minute: Evening.minuteNow) == .reading
+    }
+
     /// They are holding an umbrella: in the rain, or Nan's as a parasol in the heat.
     private var umbrellaUp: Bool {
         controller.rig?.rig.parts.contains { $0.id == "umbrella" } == true && (outfit == "rain" || (outfit == "sun" && company.member == .nan))
@@ -400,8 +428,24 @@ struct CompanyView: View {
                 }
             }
         }
+        // In the armchair at story time, the grown-up reads aloud; between stories they look over at her.
+        .task(id: tellsStory && appeared) {
+            guard tellsStory, appeared, !reduceMotion else { return }
+            controller.rig?.calmLook = true
+            defer { controller.rig?.calmLook = false }
+            var reading = false
+            while !Task.isCancelled {
+                switch StoryTime.part() {
+                case .reading:
+                    if !reading { controller.look(x: 0, y: 0); controller.play("read"); reading = true }
+                case .hugging, .quiet:
+                    if reading { controller.stop("read"); reading = false; controller.look(x: -0.8, y: 0.1) }
+                }
+                try? await Task.sleep(for: .milliseconds(500))
+            }
+        }
         .task(id: appeared) {
-            guard appeared, !sleeps, !reduceMotion else { return }
+            guard appeared, !sleeps, !reduceMotion, !tellsStory else { return }
             // A hello a moment after she arrives, then small things at their own pace. Each has their own hello and
             // their own moment, so a table of them never waves in step (Tom, 19 November 2026).
             try? await Task.sleep(for: .seconds(Double.random(in: 1.0...2.6)))
