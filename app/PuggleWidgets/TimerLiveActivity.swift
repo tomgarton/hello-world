@@ -45,90 +45,60 @@ private enum TimerCard {
             let lead = context.attributes.lead(state)
             let others = state.others ?? []
             return DynamicIsland {
+                // Open, it grows out of the closed island and looks like the Lock Screen card (Apple asks for both):
+                // the badge and the name where the badge was, the button at the right, then the facts in columns.
                 DynamicIslandExpandedRegion(.leading) {
-                    // Who, beside the camera: the same badge as the closed island, larger.
-                    Badge(attributes: lead, size: 40)
-                        .padding(.leading, 6)
-                        .padding(.top, 2)
-                }
-                DynamicIslandExpandedRegion(.trailing) {
-                    // What, and the number that matters, large, as on the system timer.
-                    VStack(alignment: .trailing, spacing: -2) {
-                        HStack(spacing: 4) {
-                            if state.mode != "glance" { TimerGlyph(mode: state.mode, size: 13) }
-                            Text(state.heading)
-                        }
-                        .font(.caption.weight(.semibold))
-                        .foregroundStyle(Tone.cream.opacity(0.7))
-                        Figure(state: state)
-                            .font(.title2.weight(.semibold))
-                            .foregroundStyle(Tone.moon)
+                    HStack(spacing: 8) {
+                        Badge(attributes: lead, size: 28)
+                        Text(lead.childName)
+                            .font(.headline)
+                            .foregroundStyle(Tone.cream)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
-                    .multilineTextAlignment(.trailing)
-                    .frame(maxWidth: 150, alignment: .trailing)
+                    .padding(.leading, 6)
+                    .padding(.top, 2)
+                }
+                DynamicIslandExpandedRegion(.trailing) {
+                    Group {
+                        switch state.mode {
+                        case "glance":
+                            ActionButton("Start sleep", action: TimerActions.startSleep, attributes: lead,
+                                         spoken: "Start \(lead.childName)'s sleep")
+                        case "sleep":
+                            ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead,
+                                         spoken: "\(lead.childName) woke up")
+                        default:
+                            Text(state.heading)
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(Tone.cream.opacity(0.8))
+                        }
+                    }
                     .padding(.trailing, 6)
+                    .padding(.top, 2)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(alignment: .leading, spacing: 10) {
-                        HStack(alignment: .center, spacing: 12) {
-                            VStack(alignment: .leading, spacing: 1) {
-                                Text(lead.childName)
-                                    .font(.headline)
-                                    .foregroundStyle(Tone.cream)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.7)
-                                Detail(state: state)
-                                    .font(.subheadline)
-                                    .foregroundStyle(Tone.cream.opacity(0.7))
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.75)
-                            }
-                            Spacer(minLength: 8)
-                            switch state.mode {
-                            case "glance":
-                                ActionButton("Start sleep", action: TimerActions.startSleep, attributes: lead,
-                                             spoken: "Start \(lead.childName)'s sleep")
-                            case "sleep":
-                                ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead,
-                                             spoken: "\(lead.childName) woke up")
-                            default:
-                                EmptyView()
-                            }
-                        }
+                    VStack(alignment: .leading, spacing: 8) {
                         if state.mode == "feed" {
-                            FeedButtons(attributes: lead, state: state)
+                            FeedNow(attributes: lead, state: state)
+                        } else {
+                            Facts(state: state, childID: lead.childID, size: 24)
                         }
-                        // Everyone else, a quiet line each.
+                        // Everyone else, a row each in the same columns, smaller.
                         ForEach(others, id: \.id) { other in
-                            OtherLine(other: other)
+                            ChildColumns(name: other.name, colourIndex: other.colourIndex, childID: other.id, state: other.state)
                         }
                     }
                     .padding(.horizontal, 6)
-                    .padding(.top, 2)
                     .padding(.bottom, 2)
                 }
             } compactLeading: {
-                // Everyone on the card, overlapping, the first on top: the number beside is theirs.
-                Badges(lead: lead, others: others, size: 22)
+                CompactLeading(lead: lead, others: others, mode: state.mode)
             } compactTrailing: {
-                // Short units ("25m", "1h 29m"), snug to the camera, never cut off.
-                // A self-updating text asks for all the width there is, which would stretch the island across
-                // the status bar. So it gets a fixed, small width, with its digits at the outer end.
-                HStack(spacing: 3) {
-                    if state.mode != "glance" { TimerGlyph(mode: state.mode, size: 12) }
-                    Figure(state: state, narrow: true)
-                        .multilineTextAlignment(.trailing)
-                        .frame(width: state.mode == "feed" ? 26 : 40, alignment: .trailing)
-                }
-                .font(.caption2.weight(.semibold))
-                .foregroundStyle(Tone.moon)
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
+                CompactTrailing(state: state)
             } minimal: {
-                // Beside another app's card: the first child's initial.
-                Badge(attributes: lead, size: 22)
+                // Beside another app's activity: Puggle's face, awake, asleep or feeding, as the child is (P2).
+                PuggleMark(mode: state.mode, size: 24)
             }
             .keylineTint(Tone.child(lead.colourIndex))
         }
@@ -165,28 +135,169 @@ private struct Figure: View {
     }
 }
 
-/// The line under the name in the open island.
-private struct Detail: View {
+/// Puggle's face as the Live Activity's mark (Tom, 20 November 2026; P2 and P3 of
+/// docs/previews/live-card/all-presentations.html): awake, asleep, or with a bottle while feeding. Apple allows
+/// a logo mark with no container around it, never the whole app icon.
+private struct PuggleMark: View {
+    let mode: String
+    var size: CGFloat = 24
+
+    var body: some View {
+        Image(mode == "sleep" ? "glyph-puggle-asleep" : mode == "feed" ? "glyph-puggle-feeding" : "glyph-puggle-awake")
+            .resizable()
+            .scaledToFit()
+            .frame(width: size, height: size)
+            .accessibilityLabel(mode == "sleep" ? "Asleep" : mode == "feed" ? "Feeding" : "Puggle")
+    }
+}
+
+/// The closed island's left side: everyone's badges, or in landscape, where each side is a 28-point circle,
+/// Puggle's face alone (Apple's limited-width guidance, 13 October 2026; iOS 27 and later).
+private struct CompactLeading: View {
+    let lead: TimerAttributes
+    let others: [TimerAttributes.ContentState.Other]
+    let mode: String
+
+    var body: some View {
+        if #available(iOS 27.0, *) { Limited { $0 ? AnyView(PuggleMark(mode: mode, size: 26)) : AnyView(badges) } } else { badges }
+    }
+
+    private var badges: some View { Badges(lead: lead, others: others, size: 22) }
+}
+
+/// The closed island's right side: the number that matters, in short units, snug to the camera. Empty in
+/// landscape, where the system then hides it and the left side stands alone.
+private struct CompactTrailing: View {
     let state: TimerAttributes.ContentState
 
     var body: some View {
-        switch state.mode {
-        case "glance":
-            switch (state.awakeSince, state.nappySince) {
-            case let (awake?, nappy?): (Text("Awake ") + Since.text(awake, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)).monospacedDigit()
-            case let (awake?, nil): (Text("Awake ") + Since.text(awake)).monospacedDigit()
-            case let (nil, nappy?): (Text("\(Terms.nappy) ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
-            default: Text("Since the last feed")
+        if #available(iOS 27.0, *) { Limited { $0 ? AnyView(EmptyView()) : AnyView(figure) } } else { figure }
+    }
+
+    /// A self-updating text asks for all the width there is, which would stretch the island across the status
+    /// bar. So it gets a fixed, small width, with its digits at the outer end.
+    private var figure: some View {
+        HStack(spacing: 3) {
+            if state.mode != "glance" { TimerGlyph(mode: state.mode, size: 12) }
+            Figure(state: state, narrow: true)
+                .multilineTextAlignment(.trailing)
+                .frame(width: state.mode == "feed" ? 26 : 40, alignment: .trailing)
+        }
+        .font(.caption2.weight(.semibold))
+        .foregroundStyle(Tone.moon)
+        .lineLimit(1)
+        .minimumScaleFactor(0.8)
+    }
+}
+
+/// Whether the island is limited to a 28-point circle each side, as in landscape.
+@available(iOS 27.0, *)
+private struct Limited: View {
+    @Environment(\.isDynamicIslandLimitedInWidth) private var limited
+    let content: (Bool) -> AnyView
+    init(@ViewBuilder _ content: @escaping (Bool) -> AnyView) { self.content = content }
+    var body: some View { content(limited) }
+}
+
+/// A feed running: its time large, as large as the facts, and the buttons beside it: the other side and Finish.
+/// Paused, both sides to start again.
+private struct FeedNow: View {
+    let attributes: TimerAttributes
+    let state: TimerAttributes.ContentState
+    var size: CGFloat = 34
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Clock(state: state, alignment: .leading)
+                .font(.system(size: size, weight: .semibold))
+                .foregroundStyle(Tone.moon)
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            FeedButtons(attributes: attributes, state: state)
+        }
+    }
+}
+
+/// Another child on the family card or in the open island: badge and name, then their facts in the same columns,
+/// smaller. Tapping it opens Puggle at their sheet.
+private struct ChildColumns: View {
+    let name: String
+    let colourIndex: Int?
+    let childID: String
+    let state: TimerAttributes.ContentState
+    /// The first child's button, in the place of their third column (or beside the feed).
+    var button: AnyView?
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Badge(name: name, colourIndex: colourIndex, size: 24)
+            Text(name)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Tone.cream)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(width: 52, alignment: .leading)
+            if state.mode == "feed" {
+                HStack(spacing: 4) {
+                    Glyph("bottle", size: 12)
+                    Text(state.label)
+                    Clock(state: state, alignment: .leading)
+                }
+                .font(.subheadline.weight(.medium))
+                .foregroundStyle(Tone.moon)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                button
+            } else if let button {
+                Facts(state: state, childID: childID, size: 17, rules: false, limit: 2, slots: 2, extra: button)
+            } else {
+                Facts(state: state, childID: childID, size: 17, rules: false, slots: 3)
             }
-        case "sleep":
-            switch (state.fedSince, state.nappySince) {
-            case let (fed?, nappy?): (Text("Fed ") + Since.text(fed, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)).monospacedDigit()
-            case let (fed?, nil): (Text("Fed ") + Since.text(fed) + Text(" ago")).monospacedDigit()
-            case let (nil, nappy?): (Text("\(Terms.nappy) ") + Since.text(nappy) + Text(" ago")).monospacedDigit()
-            default: if let since = state.since { Text("Since ") + Text(since, style: .time) } else { Text(state.label) }
+        }
+    }
+}
+
+/// StandBy (P3): the phone charging on its side, the card filling the screen and, at night, tinted red by iOS.
+/// Puggle's face large, as the child is, beside what matters most: while asleep or feeding the time it has run,
+/// large; otherwise the three facts.
+private struct StandByCard: View {
+    let lead: TimerAttributes
+    let state: TimerAttributes.ContentState
+
+    var body: some View {
+        HStack(spacing: 18) {
+            PuggleMark(mode: state.mode, size: 72)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(state.mode == "sleep" ? "\(lead.childName), asleep" : state.mode == "feed" ? "\(lead.childName), \(state.label.lowercased())" : lead.childName)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Tone.cream.opacity(0.8))
+                    .lineLimit(1)
+                switch state.mode {
+                case "sleep":
+                    if let since = state.since {
+                        Since.text(since, narrow: true)
+                            .font(.system(size: 44, weight: .semibold))
+                            .foregroundStyle(Tone.moon)
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                    }
+                    if let next = state.nextLine() {
+                        Text(next).font(.caption.weight(.medium)).foregroundStyle(Tone.cream.opacity(0.75))
+                    }
+                case "feed":
+                    Clock(state: state, alignment: .leading)
+                        .font(.system(size: 44, weight: .semibold))
+                        .foregroundStyle(Tone.moon)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
+                default:
+                    Facts(state: state, childID: lead.childID, size: 24)
+                }
             }
-        default:
-            Text(state.label)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
@@ -254,7 +365,7 @@ private struct OtherLine: View {
             .monospacedDigit()
             Spacer(minLength: 0)
         }
-        .font(.subheadline)
+        .font(.subheadline.weight(.medium))
         .lineLimit(1)
         .minimumScaleFactor(0.8)
     }
@@ -293,13 +404,17 @@ private enum Tone {
 
 private struct LockScreenCard: View {
     let context: ActivityViewContext<TimerAttributes>
+    /// StandBy: the phone on its side, charging, the card filling the screen.
+    @Environment(\.isActivityFullscreen) private var fullscreen
 
     var body: some View {
         let state = context.state
         let lead = context.attributes.lead(state)
         let others = state.others ?? []
         Group {
-            if others.isEmpty {
+            if fullscreen {
+                StandByCard(lead: lead, state: state)
+            } else if others.isEmpty {
                 alone(lead: lead, state: state)
             } else {
                 family(lead: lead, state: state, others: others)
@@ -327,9 +442,17 @@ private struct LockScreenCard: View {
                 if state.mode == "sleep" {
                     ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead,
                                  spoken: "\(lead.childName) woke up")
+                } else if state.mode == "feed" {
+                    // Which side, where what comes next usually is.
+                    HStack(spacing: 4) {
+                        Glyph("bottle", size: 12)
+                        Text(state.heading)
+                    }
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(Tone.cream.opacity(0.8))
                 } else if let next {
                     Text(next)
-                        .font(.caption)
+                        .font(.caption.weight(.medium))
                         .foregroundStyle(Tone.cream.opacity(0.8))
                         .multilineTextAlignment(.trailing)
                         .lineLimit(1)
@@ -337,15 +460,8 @@ private struct LockScreenCard: View {
                 }
             }
             if state.mode == "feed" {
-                HStack(spacing: 5) {
-                    TimerGlyph(mode: state.mode, size: 15)
-                    Text(state.label)
-                    Clock(state: state, alignment: .leading)
-                }
-                .font(.subheadline)
-                .foregroundStyle(Tone.moon)
-                .padding(.leading, Self.underName)
-                FeedButtons(attributes: lead, state: state)
+                // The feed's time as large as the facts, with the other side and Finish beside it.
+                FeedNow(attributes: lead, state: state)
             } else {
                 // The snapshot, readable at a glance: the feed, the sleep and the nappy, each opening Puggle at the
                 // sheet for the next one.
@@ -353,7 +469,7 @@ private struct LockScreenCard: View {
                 // While asleep the button has the top right, so what comes next goes under the facts.
                 if state.mode == "sleep", let next {
                     Text(next)
-                        .font(.caption)
+                        .font(.caption.weight(.medium))
                         .foregroundStyle(Tone.cream.opacity(0.8))
                         .lineLimit(1)
                         .minimumScaleFactor(0.85)
@@ -367,104 +483,24 @@ private struct LockScreenCard: View {
     private static let underName: CGFloat = 24 + 8
 
     /// Two or more children: a row each, the busiest first, and only the first with buttons.
+    /// Two or more children (proposed 20 November 2026): a row each, the same three facts in columns as the
+    /// one-child card, smaller. The first child's button, if any, sits under their row.
     private func family(lead: TimerAttributes, state: TimerAttributes.ContentState, others: [TimerAttributes.ContentState.Other]) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            FamilyRow(name: lead.childName, colourIndex: lead.colourIndex, childID: lead.childID, state: state) {
-                if state.mode == "sleep" {
-                    ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead, spoken: "\(lead.childName) woke up")
-                }
-            }
-            if state.mode == "feed" {
-                FeedButtons(attributes: lead, state: state)
-            }
+            ChildColumns(name: lead.childName, colourIndex: lead.colourIndex, childID: lead.childID, state: state,
+                         button: state.mode == "sleep"
+                            ? AnyView(ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead, small: true, spoken: "\(lead.childName) woke up"))
+                            : state.mode == "feed" ? AnyView(FeedButtons(attributes: lead, state: state)) : nil)
             ForEach(others, id: \.id) { other in
-                FamilyRow(name: other.name, colourIndex: other.colourIndex, childID: other.id, state: other.state) { EmptyView() }
+                Rectangle().fill(Tone.cream.opacity(0.12)).frame(height: 1)
+                ChildColumns(name: other.name, colourIndex: other.colourIndex, childID: other.id, state: other.state)
             }
             if let more = state.more, more > 0 {
                 Text("and \(more) more in Puggle")
-                    .font(.caption)
-                    .foregroundStyle(Tone.cream.opacity(0.7))
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(Tone.cream.opacity(0.75))
                     .frame(maxWidth: .infinity, alignment: .center)
             }
-        }
-    }
-}
-
-/// A child's row on the family card: the badge, the name over one quiet line, and the number that matters.
-/// Tapping it opens Puggle at that child's sheet: the sleep while asleep, otherwise a feed.
-private struct FamilyRow<Trailing: View>: View {
-    let name: String
-    let colourIndex: Int?
-    let childID: String
-    let state: TimerAttributes.ContentState
-    @ViewBuilder let trailing: () -> Trailing
-
-    var body: some View {
-        HStack(spacing: 10) {
-            // The row is the way in; a button beside it keeps its own tap.
-            if state.mode == "feed" {
-                face
-            } else {
-                Link(destination: PuggleLink.log(state.mode == "sleep" ? "asleep" : "fed", child: childID)) { face }
-            }
-            trailing()
-        }
-        .frame(minHeight: 34)
-    }
-
-    private var face: some View {
-        HStack(spacing: 10) {
-            Badge(name: name, colourIndex: colourIndex, size: 32)
-            VStack(alignment: .leading, spacing: 0) {
-                Text(name)
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Tone.cream)
-                HStack(spacing: 4) {
-                    if state.mode == "sleep" { Glyph("sleep", size: 12) }
-                    line
-                }
-                .font(.caption)
-                .foregroundStyle(Tone.cream.opacity(0.7))
-                .monospacedDigit()
-            }
-            .lineLimit(1)
-            .minimumScaleFactor(0.8)
-            Spacer(minLength: 6)
-            // A time that counts by itself takes all the width it is given, so it is held to a column and set
-            // at its right, where every row's number ends.
-            figure
-                .font(.headline)
-                .foregroundStyle(Tone.moon)
-                .monospacedDigit()
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .multilineTextAlignment(.trailing)
-                .frame(maxWidth: 120, alignment: .trailing)
-        }
-        // The full width, so every row's number ends at the same edge.
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .contentShape(Rectangle())
-    }
-
-    @ViewBuilder private var line: some View {
-        switch state.mode {
-        case "sleep":
-            // The moon beside it says asleep; short, so it fits beside the button.
-            if let since = state.since { Text("Since ") + Text(since, style: .time) } else { Text("Asleep") }
-        case "feed":
-            Text(state.label)
-        default:
-            if let awake = state.awakeSince { Text("Awake ") + Since.text(awake) }
-            else if let nappy = state.nappySince { Text("\(Terms.nappy) ") + Since.text(nappy, narrow: true) + Text(" ago") }
-            else { Text("Since the last feed") }
-        }
-    }
-
-    @ViewBuilder private var figure: some View {
-        switch state.mode {
-        case "sleep": if let since = state.since { Since.text(since, narrow: true) }
-        case "feed": Clock(state: state)
-        default: if let fed = state.fedSince { Text("Fed ") + Since.text(fed, narrow: true) }
         }
     }
 }
@@ -492,52 +528,35 @@ private struct SmallCard: View {
 
     private var lead: TimerAttributes { context.attributes.lead(context.state) }
 
+    /// One child on the Watch or in CarPlay: a small name line, then the same three facts in columns as the Lock
+    /// Screen card, sized to fit 194 × 80 points; feeding, the feed's time large. No buttons: CarPlay turns them off.
     private var alone: some View {
         let state = context.state
-        return VStack(alignment: .leading, spacing: 3) {
-            HStack(spacing: 6) {
-                Badge(attributes: lead, size: 22)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 5) {
+                Badge(attributes: lead, size: 16)
                 Text(lead.childName)
-                    .font(.headline)
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(Tone.cream)
                     .lineLimit(1)
                 Spacer(minLength: 4)
-                if state.mode != "glance" { TimerGlyph(mode: state.mode, size: 16).foregroundStyle(Tone.moon) }
-            }
-            Group {
-                switch state.mode {
-                case "glance":
-                    if let fed = state.fedSince { Text("Fed ") + Since.text(fed, narrow: true) + Text(" ago") }
-                    switch (state.awakeSince, state.nappySince) {
-                    case let (awake?, nappy?): Text("Awake ") + Since.text(awake, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)
-                    case let (awake?, nil): Text("Awake ") + Since.text(awake, narrow: true)
-                    case let (nil, nappy?): Text("\(Terms.nappy) ") + Since.text(nappy, narrow: true) + Text(" ago")
-                    default: EmptyView()
-                    }
-                case "sleep":
-                    if let since = state.since { Text("Asleep ") + Since.text(since, narrow: true) }
-                    switch (state.fedSince, state.nappySince) {
-                    case let (fed?, nappy?): Text("Fed ") + Since.text(fed, narrow: true) + Text(" · \(Terms.nappy) ") + Since.text(nappy, narrow: true)
-                    case let (fed?, nil): Text("Fed ") + Since.text(fed, narrow: true) + Text(" ago")
-                    case let (nil, nappy?): Text("\(Terms.nappy) ") + Since.text(nappy, narrow: true) + Text(" ago")
-                    default: EmptyView()
-                    }
-                default:
-                    HStack(spacing: 5) {
-                        Text(state.label)
-                        Clock(state: state, alignment: .leading)
-                    }
+                if state.mode == "feed" {
+                    Text(state.heading).font(.caption2.weight(.semibold)).foregroundStyle(Tone.cream.opacity(0.8))
                 }
             }
-            .font(.body.weight(.semibold))
-            .foregroundStyle(Tone.moon)
-            .monospacedDigit()
-            .lineLimit(1)
-            .minimumScaleFactor(0.7)
+            if state.mode == "feed" {
+                Clock(state: state, alignment: .leading)
+                    .font(.system(size: 26, weight: .semibold))
+                    .foregroundStyle(Tone.moon)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
+            } else {
+                Facts(state: state, childID: lead.childID, size: 15, rules: false)
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
     }
 }
 
@@ -548,6 +567,16 @@ private struct SmallCard: View {
 private struct Facts: View {
     let state: TimerAttributes.ContentState
     let childID: String
+    /// The times' size: 26 on the Lock Screen, smaller for a second child's row, the Watch and CarPlay.
+    var size: CGFloat = 26
+    /// Thin lines between the columns; left out where the columns are small.
+    var rules = true
+    /// At most this many facts.
+    var limit = 3
+    /// Columns to keep even when there are fewer facts, so rows on the family card line up. Nil: as many as there are.
+    var slots: Int?
+    /// Something in the last column, as wide as a fact: the first child's button on the family card.
+    var extra: AnyView?
 
     private var shown: [(title: String, glyph: String?, since: Date, link: String)] {
         var facts: [(title: String, glyph: String?, since: Date, link: String)] = []
@@ -559,14 +588,18 @@ private struct Facts: View {
     }
 
     var body: some View {
-        let facts = shown
+        let facts = Array(shown.prefix(limit))
         HStack(spacing: 0) {
             ForEach(Array(facts.enumerated()), id: \.offset) { index, fact in
-                if index > 0 {
-                    Rectangle().fill(Tone.cream.opacity(0.16)).frame(width: 1, height: 44)
+                if index > 0, rules {
+                    Rectangle().fill(Tone.cream.opacity(0.16)).frame(width: 1, height: size + 18)
                 }
                 Link(destination: PuggleLink.log(fact.link, child: childID)) { face(fact.title, glyph: fact.glyph, fact.since) }
             }
+            if let slots, slots > facts.count {
+                ForEach(0..<(slots - facts.count), id: \.self) { _ in Color.clear.frame(maxWidth: .infinity, maxHeight: 1) }
+            }
+            if let extra { extra.frame(maxWidth: .infinity) }
         }
     }
 
@@ -574,7 +607,7 @@ private struct Facts: View {
         VStack(spacing: 1) {
             // A time that counts up takes all the width it is given, so it is centred in it, as its word is under it.
             Since.text(since, narrow: true)
-                .font(.system(size: 26, weight: .semibold))
+                .font(.system(size: size, weight: .semibold))
                 .foregroundStyle(Tone.moon)
                 .monospacedDigit()
                 .multilineTextAlignment(.center)
@@ -582,13 +615,14 @@ private struct Facts: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
             HStack(spacing: 3) {
-                if let glyph { Glyph(glyph, size: 12) } else { Image(systemName: "sun.max").font(.system(size: 10, weight: .semibold)) }
+                if let glyph { Glyph(glyph, size: size < 20 ? 10 : 12) } else { Image(systemName: "sun.max").font(.system(size: size < 20 ? 9 : 10, weight: .semibold)) }
                 Text(title)
             }
-            .font(.caption.weight(.medium))
-            .foregroundStyle(Tone.cream.opacity(0.7))
+            .font(.system(size: size < 20 ? 11 : 12, weight: .medium))
+            .foregroundStyle(Tone.cream.opacity(0.75))
+            .lineLimit(1)
         }
-        .padding(.horizontal, 4)
+        .padding(.horizontal, 2)
         .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
     }
@@ -627,20 +661,20 @@ private struct FeedButtons: View {
     let attributes: TimerAttributes
     let state: TimerAttributes.ContentState
 
+    /// While one side runs: the other side, and Finish. Paused: both sides, and Finish. Apple prefers few buttons
+    /// on a Live Activity; pausing is in the app.
     var body: some View {
         HStack(spacing: 8) {
-            side("Left", action: TimerActions.feedLeft)
-            side("Right", action: TimerActions.feedRight)
-            Spacer(minLength: 0)
+            if state.runningSide != "Left" { side("Left", action: TimerActions.feedLeft) }
+            if state.runningSide != "Right" { side("Right", action: TimerActions.feedRight) }
             ActionButton("Finish", action: TimerActions.finishFeed, attributes: attributes,
                          spoken: "Finish \(attributes.childName)'s feed")
         }
     }
 
     private func side(_ name: String, action: String) -> some View {
-        let running = state.runningSide == name
-        return ActionButton(name, action: action, attributes: attributes, filled: running, ticked: running,
-                            spoken: running ? "Pause the \(name.lowercased()) side" : "Start the \(name.lowercased()) side")
+        ActionButton(name, action: action, attributes: attributes, filled: false,
+                     spoken: "Switch to the \(name.lowercased()) side")
     }
 }
 
@@ -651,8 +685,11 @@ private struct ActionButton: View {
     var filled = true
     var ticked = false
     let spoken: String
+    /// Smaller, to fit a column of the family card.
+    var small = false
 
-    init(_ title: String, action: String, attributes: TimerAttributes, filled: Bool = true, ticked: Bool = false, spoken: String) {
+    init(_ title: String, action: String, attributes: TimerAttributes, filled: Bool = true, ticked: Bool = false, small: Bool = false, spoken: String) {
+        self.small = small
         self.title = title
         self.action = action
         self.attributes = attributes
@@ -666,11 +703,13 @@ private struct ActionButton: View {
             HStack(spacing: 4) {
                 if ticked { Image(systemName: "checkmark").font(.caption2.weight(.bold)) }
                 Text(title)
+                    .lineLimit(1)
+                    .fixedSize()
             }
-            .font(.subheadline.weight(.semibold))
+            .font(small ? .footnote.weight(.semibold) : .subheadline.weight(.semibold))
             .foregroundStyle(filled ? Tone.ink : Tone.moon)
-            .padding(.horizontal, 14)
-            .frame(minHeight: 36)
+            .padding(.horizontal, small ? 10 : 12)
+            .frame(minHeight: small ? 32 : 36)
             .background(filled ? Tone.moon : Tone.moon.opacity(0.16), in: Capsule())
         }
         .buttonStyle(.plain)
