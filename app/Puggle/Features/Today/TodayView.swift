@@ -146,6 +146,9 @@ struct TodayView: View {
                 .padding(.bottom, 24)
             }
             .coordinateSpace(name: "todayScroll")
+            // No scroll bar: it ran down over the scene and beside the You button. Today is short enough to
+            // scroll without one (Tom, 20 November 2026).
+            .scrollIndicators(.hidden)
             .background(Palette.sand)
             // The sky runs up under the status bar; content scrolling up fades under it.
             .ignoresSafeArea(edges: .top)

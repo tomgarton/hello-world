@@ -49,8 +49,13 @@ private enum TimerCard {
                 // the badge and the name where the badge was, the button at the right, then the facts in columns.
                 DynamicIslandExpandedRegion(.leading) {
                     HStack(spacing: 8) {
-                        Badge(attributes: lead, size: 28)
-                        Text(lead.childName)
+                        if !others.isEmpty {
+                            // The family: everyone's badges, then a row each below, as on the Lock Screen.
+                            Badges(lead: lead, others: others, size: 28)
+                        } else {
+                            Badge(attributes: lead, size: 28)
+                        }
+                        Text(others.isEmpty ? lead.childName : "Family")
                             .font(.headline)
                             .foregroundStyle(Tone.cream)
                             .lineLimit(1)
@@ -61,7 +66,10 @@ private enum TimerCard {
                 }
                 DynamicIslandExpandedRegion(.trailing) {
                     Group {
-                        switch state.mode {
+                        switch others.isEmpty ? state.mode : "family" {
+                        case "family":
+                            // Each row has its own button.
+                            EmptyView()
                         case "glance":
                             ActionButton("Start sleep", action: TimerActions.startSleep, attributes: lead,
                                          spoken: "Start \(lead.childName)'s sleep")
@@ -78,19 +86,17 @@ private enum TimerCard {
                     .padding(.top, 2)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        if state.mode == "feed" {
+                    Group {
+                        if !others.isEmpty {
+                            FamilyRows(lead: lead, state: state, others: others)
+                        } else if state.mode == "feed" {
                             FeedNow(attributes: lead, state: state)
                         } else {
                             Facts(state: state, childID: lead.childID, size: 24)
                         }
-                        // Everyone else, a row each in the same columns, smaller.
-                        ForEach(others, id: \.id) { other in
-                            ChildColumns(name: other.name, colourIndex: other.colourIndex, childID: other.id, state: other.state)
-                        }
                     }
                     .padding(.horizontal, 6)
-                    .padding(.bottom, 2)
+                    .padding(.bottom, others.isEmpty ? 2 : 8)
                 }
             } compactLeading: {
                 CompactLeading(lead: lead, others: others, mode: state.mode)
@@ -483,25 +489,52 @@ private struct LockScreenCard: View {
     /// How far in the name starts: the badge and the gap after it.
     private static let underName: CGFloat = 24 + 8
 
-    /// Two or more children: a row each, the busiest first, and only the first with buttons.
-    /// Two or more children (proposed 20 November 2026): a row each, the same three facts in columns as the
-    /// one-child card, smaller. The first child's button, if any, sits under their row.
+    /// Two or more children: a row each (see `FamilyRows`).
     private func family(lead: TimerAttributes, state: TimerAttributes.ContentState, others: [TimerAttributes.ContentState.Other]) -> some View {
+        FamilyRows(lead: lead, state: state, others: others)
+    }
+}
+
+/// Two or more children (proposed 20 November 2026): a row each, the same three facts in columns as the one-child
+/// card, smaller. The rows run in Today's order, so each child keeps their place; whoever is feeding has the feed's
+/// buttons in their row, and anyone asleep a Woke up button (Tom, 20 November 2026). The Lock Screen and the open
+/// island both show this.
+private struct FamilyRows: View {
+    let lead: TimerAttributes
+    let state: TimerAttributes.ContentState
+    let others: [TimerAttributes.ContentState.Other]
+
+    private var rows: [TimerAttributes.ContentState.Other] {
+        var rows = others
+        let first = TimerAttributes.ContentState.Other(id: lead.childID, name: lead.childName, colourIndex: lead.colourIndex, state: state)
+        rows.insert(first, at: min(max(state.leadPlace ?? 0, 0), rows.count))
+        return rows
+    }
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            ChildColumns(name: lead.childName, colourIndex: lead.colourIndex, childID: lead.childID, state: state,
-                         button: state.mode == "sleep"
-                            ? AnyView(ActionButton("Woke up", action: TimerActions.wokeUp, attributes: lead, small: true, spoken: "\(lead.childName) woke up"))
-                            : state.mode == "feed" ? AnyView(FeedButtons(attributes: lead, state: state)) : nil)
-            ForEach(others, id: \.id) { other in
-                Rectangle().fill(Tone.cream.opacity(0.12)).frame(height: 1)
-                ChildColumns(name: other.name, colourIndex: other.colourIndex, childID: other.id, state: other.state)
+            ForEach(Array(rows.enumerated()), id: \.element.id) { index, row in
+                if index > 0 { Rectangle().fill(Tone.cream.opacity(0.12)).frame(height: 1) }
+                ChildColumns(name: row.name, colourIndex: row.colourIndex, childID: row.id, state: row.state, button: button(for: row))
             }
             if let more = state.more, more > 0 {
-                Text("and \(more) more in Puggle")
+                Text("and \(more) more in the app")
                     .font(.caption.weight(.medium))
                     .foregroundStyle(Tone.cream.opacity(0.75))
                     .frame(maxWidth: .infinity, alignment: .center)
             }
+        }
+    }
+
+    private func button(for row: TimerAttributes.ContentState.Other) -> AnyView? {
+        let who = TimerAttributes(childID: row.id, childName: row.name, colourIndex: row.colourIndex)
+        switch row.state.mode {
+        case "sleep":
+            return AnyView(ActionButton("Woke up", action: TimerActions.wokeUp, attributes: who, small: true, spoken: "\(row.name) woke up"))
+        case "feed" where row.id == lead.childID:
+            return AnyView(FeedButtons(attributes: who, state: row.state))
+        default:
+            return nil
         }
     }
 }
@@ -515,8 +548,8 @@ private struct SmallCard: View {
         if others.isEmpty { alone } else {
             // The family: a line each, the first child's first.
             VStack(alignment: .leading, spacing: 4) {
-                OtherLine(other: .init(id: lead.childID, name: lead.childName, colourIndex: lead.colourIndex, state: context.state))
-                ForEach(others, id: \.id) { OtherLine(other: $0) }
+                // In Today's order, as on the Lock Screen.
+                ForEach(rows, id: \.id) { OtherLine(other: $0) }
                 if let more = context.state.more, more > 0 {
                     Text("and \(more) more").font(.caption2).foregroundStyle(Tone.cream.opacity(0.7))
                 }
@@ -528,6 +561,13 @@ private struct SmallCard: View {
     }
 
     private var lead: TimerAttributes { context.attributes.lead(context.state) }
+
+    private var rows: [TimerAttributes.ContentState.Other] {
+        var rows = context.state.others ?? []
+        let first = TimerAttributes.ContentState.Other(id: lead.childID, name: lead.childName, colourIndex: lead.colourIndex, state: context.state)
+        rows.insert(first, at: min(max(context.state.leadPlace ?? 0, 0), rows.count))
+        return rows
+    }
 
     /// One child on the Watch or in CarPlay: a small name line, then the same three facts in columns as the Lock
     /// Screen card, sized to fit 194 × 80 points; feeding, the feed's time large. No buttons: CarPlay turns them off.
@@ -579,34 +619,41 @@ private struct Facts: View {
     /// Something in the last column, as wide as a fact: the first child's button on the family card.
     var extra: AnyView?
 
-    private var shown: [(title: String, glyph: String?, since: Date, link: String)] {
-        var facts: [(title: String, glyph: String?, since: Date, link: String)] = []
-        // In the same places as the child's card on Today, at every age: food (Fed on milk, Ate past it), then
-        // sleep (Awake or Asleep), then the nappy or the potty.
+    private typealias Fact = (title: String, glyph: String?, since: Date, link: String)
+
+    /// Each fact in its own place, as on the child's card on Today, at every age: food (Fed on milk, Ate past
+    /// it), then sleep (Awake or Asleep), then the nappy or the potty. Nil where nothing is logged.
+    private var placed: [Fact?] {
         let onMilk = state.milk != false
-        if onMilk, let fed = state.fedSince { facts.append(("Fed", "bottle", fed, "fed")) }
-        if !onMilk, let ate = state.ateSince { facts.append(("Ate", "solids", ate, "ate")) }
-        if state.mode == "sleep", let since = state.since { facts.append(("Asleep", "sleep", since, "asleep")) }
-        if state.mode == "glance", let awake = state.awakeSince { facts.append(("Awake", nil, awake, "awake")) }
+        var food: Fact?, sleep: Fact?, toilet: Fact?
+        if onMilk, let fed = state.fedSince { food = ("Fed", "bottle", fed, "fed") }
+        if !onMilk, let ate = state.ateSince { food = ("Ate", "solids", ate, "ate") }
+        if state.mode == "sleep", let since = state.since { sleep = ("Asleep", "sleep", since, "asleep") }
+        if state.mode == "glance", let awake = state.awakeSince { sleep = ("Awake", nil, awake, "awake") }
         if state.potty == true {
-            if let potty = state.pottySince { facts.append(("Potty", "potty", potty, "potty")) }
+            if let potty = state.pottySince { toilet = ("Potty", "potty", potty, "potty") }
         } else if let nappy = state.nappySince {
-            facts.append((Terms.nappy, "nappy", nappy, "nappy"))
+            toilet = (Terms.nappy, "nappy", nappy, "nappy")
         }
-        return facts
+        return [food, sleep, toilet]
     }
 
     var body: some View {
-        let facts = Array(shown.prefix(limit))
+        // In rows that line up (the family card), every fact keeps its column, so a second child's Asleep sits
+        // under the first child's Asleep even when nothing has been fed (Tom, 20 November 2026). Alone, the
+        // facts there are share the width.
+        let cells: [Fact?] = slots != nil ? Array(placed.prefix(limit)) : Array(placed.compactMap { $0 }.prefix(limit))
+        let columns = max(cells.count, slots ?? 0)
         HStack(spacing: 0) {
-            ForEach(Array(facts.enumerated()), id: \.offset) { index, fact in
+            ForEach(0..<columns, id: \.self) { index in
                 if index > 0, rules {
                     Rectangle().fill(Tone.cream.opacity(0.16)).frame(width: 1, height: size + 18)
                 }
-                Link(destination: PuggleLink.log(fact.link, child: childID)) { face(fact.title, glyph: fact.glyph, fact.since) }
-            }
-            if let slots, slots > facts.count {
-                ForEach(0..<(slots - facts.count), id: \.self) { _ in Color.clear.frame(maxWidth: .infinity, maxHeight: 1) }
+                if index < cells.count, let fact = cells[index] {
+                    Link(destination: PuggleLink.log(fact.link, child: childID)) { face(fact.title, glyph: fact.glyph, fact.since) }
+                } else {
+                    Color.clear.frame(maxWidth: .infinity, maxHeight: 1)
+                }
             }
             if let extra { extra.frame(maxWidth: .infinity) }
         }

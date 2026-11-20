@@ -46,6 +46,10 @@ struct TimerAttributes: ActivityAttributes {
         var others: [Other]?
         /// Children left off for want of room, counted.
         var more: Int?
+        /// Where the first row sits among the others, so the rows run in Today's order (Tom, 20 November 2026):
+        /// the first row is still whoever is feeding or asleep, as it runs the island, but is drawn in its place.
+        /// Nil on an older card: first.
+        var leadPlace: Int?
 
         /// Another child's row: who, and what they are doing, in the same terms as the first row.
         struct Other: Codable, Hashable {

@@ -2756,3 +2756,21 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **Height:** iOS centres the launch screen's mark on the whole screen, but the splash centred it inside the safe area, about 16 points lower. The splash now ignores the safe area too.
 - **Colour:** the launch screen shows its image without colour management, so Puggle's mark came out a stronger yellow and browner than in the app. It now uses `LaunchMark`, a copy of the mark with each colour converted so it shows as the app's own.
 - Checked frame by frame in a recording. The phone keeps a picture of the launch screen from the last install; a fresh install or a restart shows the new one.
+
+## Objects in Puggle's line, and the family card in Today's order (20 November 2026)
+
+- Every outlined object (the rabbit, the cat, birds, crab, snail, butterfly, kookaburra, balloon, kite, beach ball,
+  plane, glider, owl) takes Puggle's coloured line: a darker shade of its own colour, 2.2 points showing, as hers
+  does on Today (`Outline.width` in `Rig.swift`). The things in front of Puggle in a room had kept the old dark
+  line; they now follow the chosen style too. Furniture, scenery and the sky stay flat, without a line, so the
+  characters and their things stand forward.
+- More definition: the rabbit has pink inside his ears, a pale tummy and a stitched mouth; the cat has ginger
+  stripes and a pale muzzle; the birds a paler breast.
+- The armchair's back reaches down behind its seat, so no floor shows between them, and its shadow sits where its
+  feet meet the floor.
+- Today has no scroll bar.
+- The family Live Activity: each fact keeps its column (food, sleep, then the nappy or potty), so a second child's
+  Asleep sits under the first child's Asleep even with no feed logged. Rows run in Today's order; whoever is
+  feeding or asleep still runs the island, but their row sits in its place. Anyone asleep has their own Woke up
+  button. The open island shows the same rows as the Lock Screen.
+- The Watch shows a sleep as "1h 2m", as the Lock Screen does; only a feed ticks in seconds.

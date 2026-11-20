@@ -154,6 +154,14 @@ struct PartState: Equatable {
 
 // MARK: Line style
 
+/// The outline every object borrows from Puggle (Tom, 20 November 2026). Objects stroke their line under the
+/// fill, so half of it shows: 4.4 shows as 2.2 points, as Puggle's does on Today. The smallest things (a bow,
+/// a wing in flight) a little finer.
+enum Outline {
+    static let width: CGFloat = 4.4
+    static let small: CGFloat = 3.4
+}
+
 /// How characters are outlined: one dark line, or each line a darker shade of its own colour.
 enum LineStyle: String {
     case ink, tinted

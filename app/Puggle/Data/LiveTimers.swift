@@ -52,6 +52,8 @@ final class LiveTimers {
         let request = NSFetchRequest<Child>(entityName: "Child")
         request.predicate = NSPredicate(format: "archived != YES")
         request.predicate = store.scoped(request.predicate)
+        // In Today's order, which the family card keeps.
+        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         let children = (try? store.context.fetch(request)) ?? []
         let defaults = UserDefaults.standard
         // The glance is on unless switched off, and never in "Just logging".
@@ -129,7 +131,7 @@ final class LiveTimers {
                 }
             }
         }
-        return Self.family(Array(result.values))
+        return Self.family(children.compactMap { $0.id?.uuidString }.compactMap { result[$0] })
     }
 
     /// Every child's card made into one, with a row each (decided 15 November 2026, drawn in
@@ -152,9 +154,14 @@ final class LiveTimers {
         state.leadColour = lead.attributes.colourIndex
         let room = lead.state.mode == "feed" ? 1 : 2
         let rest = ordered.dropFirst()
-        state.others = rest.prefix(room).map {
+        // Who is shown is decided by what is going on; the rows then run in Today's order (the order `cards`
+        // came in), so each child keeps their place as on Today.
+        let place = { (wanted: Wanted) in cards.firstIndex { $0.attributes.childID == wanted.attributes.childID } ?? 0 }
+        let shown = rest.prefix(room).sorted { place($0) < place($1) }
+        state.others = shown.map {
             .init(id: $0.attributes.childID, name: $0.attributes.childName, colourIndex: $0.attributes.colourIndex, state: $0.state)
         }
+        state.leadPlace = shown.filter { place($0) < place(lead) }.count
         state.more = rest.count > room ? rest.count - room : nil
         let attributes = TimerAttributes(childID: TimerAttributes.familyID, childName: "Family", colourIndex: nil)
         return [TimerAttributes.familyID: Wanted(attributes: attributes, state: state)]

@@ -1395,7 +1395,7 @@ struct Triangle: Shape {
 /// Draws a character the way Puggle is drawn: flat colours inside one dark
 /// outline. Every part is first stroked dark, then all are filled, so the
 /// outline runs round the whole shape and not between its parts.
-private func outlined(_ context: inout GraphicsContext, _ parts: [(Path, Color)], line: CGFloat = 4, style: LineStyle = .ink) {
+private func outlined(_ context: inout GraphicsContext, _ parts: [(Path, Color)], line: CGFloat = Outline.width, style: LineStyle = .chosen) {
     for (path, colour) in parts {
         // One dark line, or each part's own colour, darker.
         context.stroke(path, with: .color(style == .tinted ? colour.outlineShade : Palette.fixedInk),
@@ -1462,11 +1462,13 @@ struct Bird: View {
             }
             parts.append((Path(ellipseIn: CGRect(x: cx - 14 - puff * 2, y: cy - 11 - puff * 1.5, width: 28 + puff * 4, height: 22 + puff * 3)), body))
             outlined(&context, parts, style: style)
+            // A paler breast, for some definition.
+            context.fill(Path(ellipseIn: CGRect(x: cx + 0.5, y: cy - 1 - puff, width: 12 + puff * 2, height: 10 + puff * 2)), with: .color(Color.white.opacity(dark ? 0.16 : 0.35)))
             let lift: CGFloat = flying ? -7 : 0
             let wingShape = Path(ellipseIn: CGRect(x: cx - 10, y: cy - 3 + lift, width: 14, height: 9))
                 .applying(CGAffineTransform(translationX: cx - 3, y: cy + 1.5 + lift).rotated(by: flying ? -0.9 + flap : -0.35).translatedBy(x: -(cx - 3), y: -(cy + 1.5 + lift)))
             if flying {
-                outlined(&context, [(wingShape, wing)], line: 3, style: style)
+                outlined(&context, [(wingShape, wing)], line: Outline.small, style: style)
             } else {
                 context.fill(wingShape, with: .color(wing))
             }
@@ -1616,7 +1618,7 @@ struct Butterfly: View {
                 (tilted(CGRect(x: cx + 3, y: cy + 1, width: 11, height: 11), -0.3), lower),
                 (tilted(CGRect(x: cx - 16, y: cy - 12, width: 14, height: 17), -0.4), wing),
                 (tilted(CGRect(x: cx + 2, y: cy - 12, width: 14, height: 17), 0.4), wing),
-            ], line: 3.4, style: style)
+            ], line: Outline.small, style: style)
             context.fill(Path(roundedRect: CGRect(x: cx - 1.7, y: cy - 9, width: 3.4, height: 19), cornerRadius: 1.7), with: .color(Palette.fixedInk))
             var feelers = Path()
             feelers.move(to: CGPoint(x: cx - 0.5, y: cy - 8)); feelers.addQuadCurve(to: CGPoint(x: cx - 5, y: cy - 14), control: CGPoint(x: cx - 1.5, y: cy - 13))
@@ -1746,11 +1748,11 @@ struct Balloon: View {
             var ropes = Path()
             ropes.move(to: CGPoint(x: cx - 9, y: 38)); ropes.addLine(to: CGPoint(x: cx - 4.5, y: 48))
             ropes.move(to: CGPoint(x: cx + 9, y: 38)); ropes.addLine(to: CGPoint(x: cx + 4.5, y: 48))
-            context.stroke(ropes, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
+            context.stroke(ropes, with: .color(style == .tinted ? Color(hex: 0xB08A5E).moonlit(dark).outlineShade : Palette.fixedInk), style: StrokeStyle(lineWidth: 1.3, lineCap: .round))
             outlined(&context, [
                 (Path(ellipseIn: envelope), red),
                 (Path(roundedRect: CGRect(x: cx - 5.5, y: 47, width: 11, height: 8), cornerRadius: 2), Color(hex: 0xB08A5E).moonlit(dark)),
-            ], line: 3.6, style: style)
+            ], style: style)
             // Stripes that follow the round of the balloon.
             context.fill(Path(ellipseIn: CGRect(x: cx - 6, y: 3, width: 12, height: 38)), with: .color(yellow))
             var seams = Path()
@@ -1772,13 +1774,13 @@ struct Kite: View {
             var tail = Path()
             tail.move(to: bottom)
             tail.addCurve(to: CGPoint(x: cx + 6, y: 72), control1: CGPoint(x: cx - 10, y: 54), control2: CGPoint(x: cx + 12, y: 62))
-            context.stroke(tail, with: .color(Palette.fixedInk), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
+            context.stroke(tail, with: .color(style == .tinted ? Color(hex: 0x6C93C4).outlineShade : Palette.fixedInk), style: StrokeStyle(lineWidth: 1.4, lineCap: .round))
             for (point, colour) in [(CGPoint(x: cx - 2.5, y: 55), Color(hex: 0xE8735E)), (CGPoint(x: cx + 6, y: 65), Color(hex: 0xFFD666))] {
                 let bow = polygon([CGPoint(x: point.x - 5, y: point.y - 3), CGPoint(x: point.x + 5, y: point.y + 3),
                                    CGPoint(x: point.x + 5, y: point.y - 3), CGPoint(x: point.x - 5, y: point.y + 3)])
-                outlined(&context, [(bow, colour)], line: 2.4, style: style)
+                outlined(&context, [(bow, colour)], line: Outline.small, style: style)
             }
-            outlined(&context, [(polygon([top, right, bottom, left]), Color(hex: 0x6C93C4))], line: 3.6, style: style)
+            outlined(&context, [(polygon([top, right, bottom, left]), Color(hex: 0x6C93C4))], style: style)
             // Two lighter panels and the sticks.
             context.fill(polygon([top, right, CGPoint(x: cx, y: 21)]), with: .color(Color(hex: 0x8FB4E3)))
             context.fill(polygon([left, CGPoint(x: cx, y: 21), bottom]), with: .color(Color(hex: 0x8FB4E3)))
@@ -1907,7 +1909,7 @@ struct BeachBall: View {
         return Canvas { context, size in
             let centre = CGPoint(x: size.width / 2, y: size.height / 2), radius = min(size.width, size.height) / 2 - 3
             let round = Path(ellipseIn: CGRect(x: centre.x - radius, y: centre.y - radius, width: radius * 2, height: radius * 2))
-            outlined(&context, [(round, Color(hex: 0xFFFDF6))], line: 3.4, style: style)
+            outlined(&context, [(round, Color(hex: 0xFFFDF6))], style: style)
             // Three coloured panels meeting at the top.
             for (index, colour) in [Color(hex: 0xE5553B), Color(hex: 0xF4BE2C), Color(hex: 0x2A62B8)].enumerated() {
                 var panel = Path()
@@ -1945,7 +1947,7 @@ struct StreamerPlane: View {
                 (polygon([CGPoint(x: 34, y: cy - 2), CGPoint(x: 42, y: cy - 12), CGPoint(x: 42, y: cy + 2)]), yellow),
                 (Path(roundedRect: CGRect(x: 6, y: cy - 6, width: 36, height: 12), cornerRadius: 6), yellow),
                 (Path(roundedRect: CGRect(x: 15, y: cy - 1, width: 14, height: 13), cornerRadius: 3), Color(hex: 0xFBE7A6)),
-            ], line: 3.2, style: style)
+            ], style: style)
             context.fill(Path(roundedRect: CGRect(x: 11, y: cy - 4, width: 7, height: 4.5), cornerRadius: 2), with: .color(Color(hex: 0xBFD9F5)))
             // The propeller, a blur.
             let spin = CGFloat(abs(sin(t * 30))) * 8 + 2
@@ -2098,7 +2100,7 @@ struct PaperPlane: View {
                 (polygon([nose, tail, fold]), Color(hex: 0xFFFDF6)),
                 (polygon([nose, fold, CGPoint(x: w * 0.3, y: h - 4)]), Color(hex: 0xE9E1CD)),
                 (polygon([nose, fold, CGPoint(x: 8, y: h * 0.7)]), Color(hex: 0xFFFDF6)),
-            ], line: 2.8, style: style)
+            ], line: Outline.small, style: style)
         }
     }
 }
@@ -2246,7 +2248,7 @@ struct SugarGlider: View {
                 (Path(ellipseIn: CGRect(x: cx + 12, y: cy + 11, width: 7, height: 9)), grey),
                 (Path(roundedRect: CGRect(x: cx - 15, y: cy - 6.5, width: 34, height: 13), cornerRadius: 6.5), grey),
                 (Path(ellipseIn: CGRect(x: cx + 12, y: cy - 9, width: 19, height: 18)), grey),
-            ], line: 3.4, style: style)
+            ], style: style)
             // The dark stripe down her back, big eyes and a pink nose.
             context.fill(Path(roundedRect: CGRect(x: cx - 12, y: cy - 1.5, width: 30, height: 3), cornerRadius: 1.5), with: .color(Color(hex: 0x5A5856).moonlit(dark)))
             dot(&context, cx + 24, cy - 4.5, 2.6, Palette.fixedInk)
@@ -2282,7 +2284,7 @@ struct Owl: View {
                 (polygon([CGPoint(x: cx - 9, y: cy - 9), CGPoint(x: cx - 8, y: cy - 17), CGPoint(x: cx - 3, y: cy - 12)]), brown),
                 (polygon([CGPoint(x: cx + 9, y: cy - 9), CGPoint(x: cx + 8, y: cy - 17), CGPoint(x: cx + 3, y: cy - 12)]), brown),
                 (Path(ellipseIn: CGRect(x: cx - 11, y: cy - 13, width: 22, height: 25)), brown),
-            ], line: 3.4, style: style)
+            ], style: style)
             context.fill(Path(ellipseIn: CGRect(x: cx - 7, y: cy - 1, width: 14, height: 12)), with: .color(pale))
             for side in [-1.0, 1.0] {
                 dot(&context, cx + side * 4.4, cy - 5.5, 4, pale)

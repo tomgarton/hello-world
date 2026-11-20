@@ -175,13 +175,15 @@ struct RoomFront: View {
     let room: Room
     let dark: Bool
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.lineStyle) private var lineStyle
 
     var body: some View {
+        let style = lineStyle
         if room == .dining || room == .bedroom {
             TimelineView(.animation(minimumInterval: 1.0 / 20, paused: reduceMotion)) { timeline in
                 Canvas { context, size in
                     let painter = RoomPainter(context: &context, w: size.width, top: size.height - 250, dark: dark,
-                                              t: timeline.date.timeIntervalSince(SceneClock.start), hour: Room.hourNow, weather: .clear, style: .ink)
+                                              t: timeline.date.timeIntervalSince(SceneClock.start), hour: Room.hourNow, weather: .clear, style: style)
                     if room == .dining { painter.table() } else { painter.bedFront() }
                 }
             }
@@ -615,8 +617,10 @@ struct RoomPainter {
         rug(col(0xCFE5D2, 0x35485A), col(0x3C9A5F, 0x2A5A48).opacity(0.5))
         // The armchair by the bed, for stories and for whoever is babysitting. Its arms are drawn in front.
         armchair { rect, oval in
-            oval(0, -8, 52, 6, Palette.fixedInk.opacity(dark ? 0.3 : 0.1))
-            rect(-44, -134, 88, 92, 26, col(0xE9B872, 0x6A5468))
+            // Its shadow where the feet meet the floor, and its back down behind the seat, so no floor shows
+            // between them (Tom, 20 November 2026).
+            oval(0, -1, 52, 6, Palette.fixedInk.opacity(dark ? 0.3 : 0.1))
+            rect(-44, -134, 88, 104, 26, col(0xE9B872, 0x6A5468))
             rect(-34, -122, 68, 66, 18, col(0xDDA75E, 0x5E4A60))
             // Its seat and feet, behind whoever sits on it, so their legs hang down in front.
             if BedroomLayout.current.legsInFront {
@@ -916,7 +920,7 @@ struct RoomPainter {
 
     // MARK: The cast indoors (outlined, like Puggle)
 
-    private func outlined(_ parts: [(Path, Color)], line: CGFloat = 3.6) {
+    private func outlined(_ parts: [(Path, Color)], line: CGFloat = Outline.width) {
         for (path, colour) in parts {
             context.stroke(path, with: .color(style == .tinted ? colour.outlineShade : Palette.fixedInk), style: StrokeStyle(lineWidth: line, lineCap: .round, lineJoin: .round))
         }
@@ -944,6 +948,13 @@ struct RoomPainter {
             (ear(0), fur), (ear(11), fur),
             (Path(ellipseIn: CGRect(x: x - 20, y: y - 8, width: 22, height: 19)), fur),
         ])
+        // Ginger stripes over her back, and a paler muzzle, for some definition.
+        var stripes = Path()
+        for dx in [6.0, 13, 20] as [CGFloat] {
+            stripes.move(to: CGPoint(x: x + dx, y: y - 7 - breathe * 0.6)); stripes.addQuadCurve(to: CGPoint(x: x + dx + 1.5, y: y + 1), control: CGPoint(x: x + dx + 3, y: y - 3))
+        }
+        context.stroke(stripes, with: .color(Color(hex: 0xC27C3E).moonlit(dark)), style: StrokeStyle(lineWidth: 2.2, lineCap: .round))
+        context.fill(Path(ellipseIn: CGRect(x: x - 15, y: y + 1, width: 12, height: 8)), with: .color(Color(hex: 0xF6DDBF).moonlit(dark)))
         // Asleep: two closed eyes and a nose.
         for dx in [-13.0, -5.0] as [CGFloat] {
             var lid = Path()
@@ -954,17 +965,30 @@ struct RoomPainter {
         context.fill(Path(ellipseIn: CGRect(x: x - 10.2, y: y + 3.6, width: 2.6, height: 2)), with: .color(Color(hex: 0xF2A48E)))
     }
 
-    /// Her toy rabbit, on the pillow.
+    /// Her toy rabbit, on the pillow: drawn as Puggle is, in her line, with pink inside his ears, a pale tummy
+    /// and a stitched mouth (Tom, 20 November 2026).
     private func rabbit(_ x: CGFloat, _ y: CGFloat) {
         let cloth = Color(hex: 0xF3D9C9).moonlit(dark), y = top + y
+        let leftEar = Path(roundedRect: CGRect(x: x - 9, y: y - 24, width: 6.5, height: 18), cornerRadius: 3.2)
+        let turn = CGAffineTransform(translationX: x + 6, y: y - 8).rotated(by: 0.3).translatedBy(x: -(x + 6), y: -(y - 8))
+        let rightEar = Path(roundedRect: CGRect(x: x + 2.5, y: y - 23, width: 6.5, height: 17), cornerRadius: 3.2).applying(turn)
         outlined([
-            (Path(roundedRect: CGRect(x: x - 9, y: y - 24, width: 6.5, height: 18), cornerRadius: 3.2), cloth),
-            (Path(roundedRect: CGRect(x: x + 2.5, y: y - 23, width: 6.5, height: 17), cornerRadius: 3.2).applying(CGAffineTransform(translationX: x + 6, y: y - 8).rotated(by: 0.3).translatedBy(x: -(x + 6), y: -(y - 8))), cloth),
+            (leftEar, cloth), (rightEar, cloth),
             (Path(ellipseIn: CGRect(x: x - 11, y: y + 2, width: 22, height: 16)), cloth),
             (Path(ellipseIn: CGRect(x: x - 10, y: y - 10, width: 20, height: 17)), cloth),
-        ], line: 3)
-        context.fill(Path(ellipseIn: CGRect(x: x - 5.4, y: y - 3, width: 2.4, height: 2.4)), with: .color(Palette.fixedInk))
-        context.fill(Path(ellipseIn: CGRect(x: x + 3, y: y - 3, width: 2.4, height: 2.4)), with: .color(Palette.fixedInk))
+        ])
+        let pink = Color(hex: 0xF2B5A8).moonlit(dark)
+        context.fill(Path(roundedRect: CGRect(x: x - 7.4, y: y - 21, width: 3.2, height: 12), cornerRadius: 1.6), with: .color(pink))
+        context.fill(Path(roundedRect: CGRect(x: x + 4.1, y: y - 20, width: 3.2, height: 11), cornerRadius: 1.6).applying(turn), with: .color(pink))
+        context.fill(Path(ellipseIn: CGRect(x: x - 6, y: y + 6, width: 12, height: 9)), with: .color(Color(hex: 0xFFF6EE).moonlit(dark)))
+        let ink = Palette.fixedInk.moonlit(dark, 0.6)
+        context.fill(Path(ellipseIn: CGRect(x: x - 5.4, y: y - 3, width: 2.4, height: 2.4)), with: .color(ink))
+        context.fill(Path(ellipseIn: CGRect(x: x + 3, y: y - 3, width: 2.4, height: 2.4)), with: .color(ink))
         context.fill(Path(ellipseIn: CGRect(x: x - 1.4, y: y + 0.6, width: 2.8, height: 2)), with: .color(Color(hex: 0xF2A48E)))
+        var mouth = Path()
+        mouth.move(to: CGPoint(x: x - 2.2, y: y + 3.6))
+        mouth.addQuadCurve(to: CGPoint(x: x, y: y + 3.6), control: CGPoint(x: x - 1.1, y: y + 5))
+        mouth.addQuadCurve(to: CGPoint(x: x + 2.2, y: y + 3.6), control: CGPoint(x: x + 1.1, y: y + 5))
+        context.stroke(mouth, with: .color(cloth.outlineShade), style: StrokeStyle(lineWidth: 0.9, lineCap: .round))
     }
 }

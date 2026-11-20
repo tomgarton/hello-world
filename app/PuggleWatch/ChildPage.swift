@@ -132,7 +132,11 @@ struct ChildPage: View {
             }
             Spacer(minLength: 0)
             Group {
-                if let since {
+                if let since, label == "Asleep" {
+                    // A sleep reads as on the iPhone's Lock Screen, "1h 2m"; only a feed, short and watched,
+                    // ticks in seconds (Tom, 20 November 2026).
+                    Text(.dateRange(startingAt: since), format: .components(style: .narrow, fields: [.hour, .minute]))
+                } else if let since {
                     Text(timerInterval: since...Date.distantFuture, countsDown: false)
                 } else {
                     Text("Paused")

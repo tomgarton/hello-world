@@ -28,7 +28,9 @@ final class LockScreenTests: XCTestCase {
         ])
         let state = try XCTUnwrap(all[TimerAttributes.familyID]).state
         XCTAssertEqual(state.leadID, "bea")
-        XCTAssertEqual(state.others?.map(\.id), ["ollie", "kit"])
+        // The rows are drawn in Today's order (the order given): Kit, then Bea in her place, then Ollie.
+        XCTAssertEqual(state.others?.map(\.id), ["kit", "ollie"])
+        XCTAssertEqual(state.leadPlace, 1)
 
         let feeding = try XCTUnwrap(LiveTimers.family([card("bea", "sleep", minutesAgo: 70), card("ollie", "feed", minutesAgo: 5)])[TimerAttributes.familyID]).state
         XCTAssertEqual(feeding.leadID, "ollie")
