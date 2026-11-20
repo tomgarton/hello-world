@@ -1,4 +1,5 @@
 import CloudKit
+import CoreData
 import SwiftUI
 
 /// First run: from install to Today in under a minute. No account, no email,

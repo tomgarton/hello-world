@@ -1,7 +1,8 @@
 import PhotosUI
 import SwiftUI
 import UIKit
-import Vision
+// Vision's request types are not marked Sendable; they are made and used on one background queue here.
+@preconcurrency import Vision
 
 /// What the family set for a medicine, by name: the smallest gap between doses
 /// and the most doses in 24 hours. The app only checks against these; it never

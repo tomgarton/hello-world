@@ -1,7 +1,8 @@
 import CoreData
 import Foundation
 import UIKit
-import Vision
+// Vision's request types are not marked Sendable; they are made and used on one background queue here.
+@preconcurrency import Vision
 
 /// A medicine box or a formula tin.
 enum GuideKind: String {

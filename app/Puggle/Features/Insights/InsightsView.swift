@@ -1,3 +1,4 @@
+import CoreData
 import SwiftUI
 
 /// Look back without scores. One child and one stretch of time at a once:
@@ -600,7 +601,6 @@ struct RingBlock: Shape {
     func path(in rect: CGRect) -> Path {
         let centre = CGPoint(x: rect.midX, y: rect.midY)
         let outer = min(rect.width, rect.height) / 2
-        let middle = outer - thickness / 2
         // Each end is cut parallel to the line between two blocks, half the gap to one side of it, so the space
         // between neighbours is the same width from the inside of the ring to the outside (Tom, 16 November
         // 2026: the edges should meet up cleanly). Cut along the spoke instead, the gap opens out like a wedge.

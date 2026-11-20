@@ -1,3 +1,4 @@
+import CoreData
 import SwiftUI
 
 /// What the child form edits, for a new child or an existing one.

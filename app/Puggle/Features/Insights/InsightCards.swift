@@ -178,14 +178,11 @@ struct UsualRangeChart: View {
                     .stroke(metric.colour.opacity(0.5), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
                     ForEach(Array(model.days.enumerated()), id: \.element.id) { index, day in
                         let value = values[index]
-                        let today = false
                         let dimmed = picked != nil && picked != day.id
                         if value > 0 {
-                            // Today is not over, so its dot is open.
                             Circle()
-                                .fill(today ? Palette.paper : metric.colour)
-                                .overlay(Circle().stroke(metric.colour, lineWidth: today ? 2.5 : 0))
-                                .frame(width: wide ? (today ? 13 : 10) : 5, height: wide ? (today ? 13 : 10) : 5)
+                                .fill(metric.colour)
+                                .frame(width: wide ? 10 : 5, height: wide ? 10 : 5)
                                 .opacity(dimmed ? 0.35 : 1)
                                 .position(x: x(index), y: y(value))
                         }

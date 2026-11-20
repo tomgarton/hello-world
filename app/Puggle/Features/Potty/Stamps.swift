@@ -164,7 +164,6 @@ struct CrayonStroke: View {
     let paper: Color
 
     var body: some View {
-        let solid = StrokeStyle(lineWidth: width, lineCap: .round, lineJoin: .round)
         ZStack {
             // The edge: broken, where the crayon skipped.
             path.stroke(colour.opacity(0.5), style: StrokeStyle(lineWidth: width + 1.8, lineCap: .round, lineJoin: .round, dash: [1.3, 2.4]))
