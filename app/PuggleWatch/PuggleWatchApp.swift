@@ -86,7 +86,7 @@ struct RootView: View {
             }
         }
         .alert(model.trouble ?? "", isPresented: Binding(get: { model.trouble != nil }, set: { if !$0 { model.trouble = nil } })) {
-            Button("OK", role: .cancel) {}
+            Button("Close", role: .cancel) {}
         } message: {
             Text("Keep your iPhone nearby, then try again.")
         }

@@ -113,7 +113,7 @@ private struct Hooray: View {
             VStack(spacing: 10) {
                 PuggleStanding(height: 170)
                     .scaleEffect(burst ? 1 : (wound ? 0.72 : 0.85), anchor: .bottom)
-                Text("Hooray!").displayFont(54)
+                Text("A first").displayFont(54)
                     .scaleEffect(burst ? 1 : 0.6)
                     .opacity(burst ? 1 : 0)
                 Text("\(name): \(title)")

@@ -494,7 +494,7 @@ struct TodayView: View {
                 .frame(maxWidth: .infinity)
             Text("Add a child")
                 .font(.title3.weight(.semibold))
-            Text("Twins, siblings, as many as you have. They share one Today.")
+            Text("Add every child. They all show on one Today.")
                 .foregroundStyle(Palette.muted)
             Button("Add a child") { addingChild = true }
                 .buttonStyle(PillButtonStyle())

@@ -429,10 +429,10 @@ struct StampFlowView: View {
     // MARK: - Page two: stamp your card
 
     private var cardTitle: String {
-        if stuck { return "You filled the card!" }
-        if offering { return "Stick on the shiny one!" }
-        if stamped != nil { return "Stamped!" }
-        return name.isEmpty ? "Stamp your card!" : "Stamp your card, \(name)!"
+        if stuck { return "The card is full" }
+        if offering { return "Stick on the shiny one" }
+        if stamped != nil { return "Stamped" }
+        return name.isEmpty ? "Stamp your card" : "Stamp your card, \(name)"
     }
 
     private var cardPage: some View {

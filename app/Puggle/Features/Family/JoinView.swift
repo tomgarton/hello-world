@@ -227,7 +227,7 @@ struct JoinView: View {
             Button("Try again") { join() }.buttonStyle(PillButtonStyle())
             Button("Not now") { dismiss() }.buttonStyle(PillButtonStyle(primary: false))
         case .failed(.used):
-            Button("OK") { dismiss() }.buttonStyle(PillButtonStyle())
+            Button("Close") { dismiss() }.buttonStyle(PillButtonStyle())
         }
     }
 

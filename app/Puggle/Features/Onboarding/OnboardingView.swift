@@ -628,9 +628,9 @@ struct DataPromiseView: View {
 
     private let promises: [(String, String, String)] = [
         ("iphone", "On your phone", "Everything you log is kept on this iPhone first, so logging works without a signal."),
-        ("icloud", "In your own iCloud", "Copies go to your iCloud, which only you and people you invite can see. Not to a server of ours."),
+        ("icloud", "In your own iCloud", "Copies go to your iCloud, which only you and people you invite can see. The app has no server."),
         ("person.2", "Only who you invite", "Nobody sees your family's day unless you send them an invite, and you can stop sharing any time."),
-        ("nosign", "No account, no ads", "No email or password, no adverts, and nothing sold or shared."),
+        ("nosign", "No account, no ads", "There's no account to make. No adverts, and nothing is sold."),
         ("square.and.arrow.up", "Yours to take", "Export every entry as a spreadsheet file whenever you like, from Your data."),
     ]
 

@@ -157,7 +157,7 @@ final class ReminderStore: ObservableObject {
                 var minutes = reminder.from
                 var index = 0
                 while minutes < reminder.until, index < 24 {
-                    add("\(reminder.id).\(index)", title: "Time to try?", body: "A gentle potty reminder for \(name).",
+                    add("\(reminder.id).\(index)", title: "Potty for \(name)", body: "Time to try the potty.",
                         trigger: Self.daily(at: minutes))
                     minutes += step
                     index += 1
@@ -475,7 +475,7 @@ private struct ReminderEditor: View {
             DatePicker("From", selection: minutes(\.from), displayedComponents: .hourAndMinute)
             DatePicker("Until", selection: minutes(\.until), displayedComponents: .hourAndMinute)
         } footer: {
-            Text("A quiet \"Time to try?\" between these times.")
+            Text("Sends \"Time to try the potty\" between these times.")
         }
     }
 

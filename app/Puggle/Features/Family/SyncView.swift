@@ -287,7 +287,7 @@ struct SyncView: View {
             return "Everything on this phone is in iCloud. Family members get it the next time they open Puggle."
         }
         if failed {
-            return "The last send did not go through. Puggle tries again by itself. If this stays for a few minutes, close Puggle and open it again."
+            return "The last send did not go through. The app tries again by itself. If this stays for a few minutes, close the app and open it again."
         }
         if let pace {
             let minutes = max(1, Int((Double(progress.waiting) / pace).rounded(.up)))

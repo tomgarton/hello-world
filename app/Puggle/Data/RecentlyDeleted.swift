@@ -173,7 +173,7 @@ struct RecentlyDeletedView: View {
         .navigationTitle("Recently deleted")
         .navigationBarTitleDisplayMode(.inline)
         .alert("This one can't come back", isPresented: $couldNotRestore) {
-            Button("OK", role: .cancel) {}
+            Button("Close", role: .cancel) {}
         } message: {
             Text("The child it was for is no longer in the family.")
         }

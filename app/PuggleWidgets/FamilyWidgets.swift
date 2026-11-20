@@ -197,7 +197,7 @@ struct ChildWidget: Widget {
         .configurationDisplayName("One child")
         // As plain text: WidgetKit stops the whole extension, Live Activity included, on a description with a
         // value put into it.
-        .description(Text(verbatim: "Their last feed, sleep and \(Terms.nappyLower), at a glance. Also for the Lock Screen."))
+        .description(Text(verbatim: "Last feed, sleep and \(Terms.nappyLower) for one child. Also on the Lock Screen."))
         .supportedFamilies([.systemSmall, .accessoryRectangular, .accessoryInline])
     }
 }
@@ -392,7 +392,7 @@ struct FamilyWidget: Widget {
         }
         .configurationDisplayName("Quick log")
         // Fixed text: WidgetKit stops the widget if this is built from a value that changes.
-        .description("Start a sleep or log a change for any child, without opening Puggle.")
+        .description("Start a sleep or log a change for any child, without opening the app.")
         .supportedFamilies([.systemMedium])
     }
 }

@@ -44,7 +44,7 @@ struct BringInView: View {
                 Text("Not now keeps them on this iPhone, out of sight. You can bring them in later from the Family tab.")
                     .font(.footnote).foregroundStyle(Palette.muted).multilineTextAlignment(.center).fixedSize(horizontal: false, vertical: true)
             } else {
-                Button(done == nil ? "OK" : "Done") { dismiss() }.buttonStyle(PillButtonStyle())
+                Button(done == nil ? "Close" : "Done") { dismiss() }.buttonStyle(PillButtonStyle())
             }
         }
         .padding(24)

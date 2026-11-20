@@ -188,7 +188,7 @@ struct RootView: View {
                 hasOnboarded = true
             }
             .alert("You're no longer in this family", isPresented: $store.removedNotice) {
-                Button("OK") {}
+                Button("Close") {}
             } message: {
                 Text("Whoever started it has removed you or stopped sharing. Their children have come off this iPhone. What you logged is still with them.")
             }

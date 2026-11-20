@@ -45,7 +45,7 @@ enum Role: String, CaseIterable, Identifiable {
         switch self {
         case .parent: "For another parent or carer. Can do everything you can"
         case .helper: "For anyone who looks after them. Logs the day"
-        case .viewer: "For someone who likes to follow along"
+        case .viewer: "Can see the day. Can't log"
         }
     }
 
@@ -342,7 +342,7 @@ extension FamilyStore {
         request.predicate = self.scoped(request.predicate)
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: true)]
         let names = ((try? context.fetch(request)) ?? []).map(\.displayName)
-        return names.isEmpty ? "Our family" : "\(ListFormatter.localizedString(byJoining: names))'s family"
+        return names.isEmpty ? "Family" : "\(ListFormatter.localizedString(byJoining: names))'s family"
     }
 
     private func participant(for person: Person, in share: CKShare) -> CKShare.Participant? {

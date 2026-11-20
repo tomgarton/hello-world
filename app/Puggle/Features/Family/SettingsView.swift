@@ -249,7 +249,7 @@ struct SampleBanner: View {
                 Image(systemName: "eye")
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Sample family").font(.subheadline.weight(.semibold))
-                    Text("Made-up entries. Yours are safe.").font(.footnote)
+                    Text("Made-up entries. Your own are untouched.").font(.footnote)
                 }
                 Spacer(minLength: 0)
                 // The size goes inside the label, so the whole capsule can be tapped.

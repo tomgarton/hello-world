@@ -157,7 +157,7 @@ struct HelpView: View {
                  Persistence.cloudSyncEnabled
                     ? "Yes. Tap Invite someone on the Family tab. They need an iPhone with their own Apple Account, and open the invite on it."
                     : "Not in this build. It keeps everything on this iPhone."),
-                ("Where are our entries kept?",
+                ("Where are entries kept?",
                  "On your iPhone, and in your own iCloud once sharing is on. Nobody else can see them unless you invite them."),
                 ("Can I bring entries in from another app?",
                  "From the Baby Tracker app, yes. Export its CSV file, then go to You, Your data, Import from another app. You see what the file holds before anything is added, and the import can be undone."),

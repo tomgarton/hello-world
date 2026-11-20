@@ -165,7 +165,7 @@ struct PersonSheet: View {
     private var since: String {
         if person.holdsFamily { return "Started the family" }
         if let joined = person.joinedAt { return "Joined \(joined.formatted(.dateTime.day().month(.wide)))" }
-        if let invited = person.invitedAt { return "Invited \(invited.formatted(.dateTime.day().month(.wide))). Not joined yet" }
+        if let invited = person.invitedAt { return "Invited \(invited.formatted(.dateTime.day().month(.wide))) · Not joined yet" }
         return ""
     }
 
@@ -481,7 +481,7 @@ struct SharingItem: Identifiable {
     let container: CKContainer
     /// A viewer is invited to look only, which iCloud itself enforces.
     var lookOnly = false
-    var title = "Our family"
+    var title = "Family"
 }
 
 /// Apple's standard sharing sheet: invite by Messages, Mail or a link.
@@ -489,7 +489,7 @@ struct CloudSharingView: UIViewControllerRepresentable {
     let share: CKShare
     let container: CKContainer
     var lookOnly = false
-    var title = "Our family"
+    var title = "Family"
     /// Called when the sheet has saved a change to who is in the family.
     var onSaved: () -> Void = {}
     /// Called when iCloud would not save the invite, with what it said.

@@ -392,15 +392,17 @@ struct SceneFrame: View {
         case .hills:
             let far = Hill(rise: 0.34, left: 0.58, right: 0.76, peak: 0.2)
             far.fill(tone(0xD7E7C6, 0x2E3468))
-            RoundTree(leaf: tone(0xB7D2A4, 0x263A62), trunk: tone(0xB89A78, 0x3A3560), bare: season == .winter).frame(width: 16, height: 24).position(x: w * 0.1, y: h * 0.47)
+            RoundTree(leaf: tone(0xB7D2A4, 0x263A62), trunk: tone(0xB89A78, 0x3A3560), bare: season == .winter).frame(width: 16, height: 24).position(x: w * 0.1, y: h * far.top(at: 0.1) - 12 + 4)
             // Someone is home on the far hill: a warm window after dark.
             // Standing on the far hill, its foot a little into the grass, wherever the hill's top is (Tom, 20 November 2026).
             Cottage(night: starry).frame(width: 26, height: 24).position(x: w * 0.36, y: h * far.top(at: 0.36) - 12 + 2.5)
-            Hill(rise: 0.44, left: 0.82, right: 0.56, peak: 0.84).fill(tone(0xBFD8AA, 0x272C5A))
+            let middle = Hill(rise: 0.44, left: 0.82, right: 0.56, peak: 0.84)
+            middle.fill(tone(0xBFD8AA, 0x272C5A))
+            // Each tree stands on the hill behind it, its foot a little into the grass (Tom, 20 November 2026).
             // In spring the big one is a jacaranda in flower; in winter the trees are bare.
             RoundTree(leaf: season == .spring ? tone(0xB9A3DE, 0x3A3870) : tone(0x9CC08C, 0x1F3258), trunk: tone(0xA98A68, 0x332E58), bare: season == .winter)
-                .frame(width: 26, height: 38).position(x: w * 0.78, y: h * 0.47)
-            RoundTree(leaf: tone(0xA9C998, 0x22365C), trunk: tone(0xA98A68, 0x332E58), bare: season == .winter).frame(width: 18, height: 27).position(x: w * 0.87, y: h * 0.48)
+                .frame(width: 26, height: 38).position(x: w * 0.78, y: h * middle.top(at: 0.78) - 19 + 6)
+            RoundTree(leaf: tone(0xA9C998, 0x22365C), trunk: tone(0xA98A68, 0x332E58), bare: season == .winter).frame(width: 18, height: 27).position(x: w * 0.87, y: h * middle.top(at: 0.87) - 13.5 + 4.5)
             Hill(rise: 0.56, left: 0.74, right: 0.72).fill(tone(0xA9CB93, 0x1F2450))
         case .beach:
             // The sea, lighter where it is shallow, with a boat out on it.
@@ -834,11 +836,13 @@ struct SceneFrame: View {
         switch kind {
         case .hills:
             let moves = birdMoves()
-            Ellipse().fill(shadow).frame(width: 30, height: 6).position(x: w * 0.26, y: h * 0.868)
+            // Her feet (13 below the middle of her frame) stand on her shadow, which shrinks a little as she hops
+            // (Tom, 20 November 2026).
+            Ellipse().fill(shadow).frame(width: 30 - CGFloat(moves.hop) * 6, height: 6).position(x: w * 0.26, y: h * 0.868)
             Bird(dark: starry, asleep: moves.asleep, fluff: moves.asleep || chilly || weather.wet ? 1 : 0, sing: moves.sing)
                 .frame(width: 46, height: 38)
                 .rotationEffect(.degrees(moves.tilt), anchor: UnitPoint(x: 0.5, y: 0.9))
-                .position(x: w * 0.26, y: h * 0.8 - CGFloat(moves.hop) * 7)
+                .position(x: w * 0.26, y: h * 0.868 - 13 - CGFloat(moves.hop) * 7)
                 .scaleEffect(pop).offset(y: appeared ? 0 : -20).opacity(appeared ? 1 : 0)
             if let note = moves.note {
                 // Her song, drifting up.

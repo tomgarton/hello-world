@@ -184,7 +184,7 @@ struct PatternsView: View {
                 row("Longest stretch at night", all) { one in months[all.firstIndex(of: one) ?? 0]?.longestNight.map { Elapsed.short(seconds: ($0 / 300).rounded() * 300) } ?? "–" }
                 row("Naps a day", all) { one in months[all.firstIndex(of: one) ?? 0]?.napsPerDay.map { $0.formatted(.number.precision(.fractionLength(0...1))) } ?? "–" }
                 row("Bottles a day", all) { one in months[all.firstIndex(of: one) ?? 0]?.bottlesPerDay.map { $0.formatted(.number.precision(.fractionLength(0...1))) } ?? "–" }
-                Text("Every child is different, and neither is ahead. A dash means too little was logged at that age.")
+                Text("Each column is one child. A dash means too little was logged at that age.")
                     .font(.footnote).foregroundStyle(Palette.muted).fixedSize(horizontal: false, vertical: true)
             }
         }
