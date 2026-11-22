@@ -28,6 +28,8 @@ enum InsightStats {
         var feeds: Int { bottles + breastfeeds }
         var daySleep: Double { max(sleep - nightSleep, 0) }
         var any: Bool { sleep > 0 || feeds > 0 || solids > 0 || nappies > 0 || potty > 0 || other > 0 }
+        /// Any of the everyday things: sleep, a feed, food, a nappy or the potty.
+        var everyday: Bool { sleep > 0 || feeds > 0 || solids > 0 || nappies > 0 || potty > 0 }
     }
 
     /// One entry, reduced to what the sums need, so they can be tested without a store.

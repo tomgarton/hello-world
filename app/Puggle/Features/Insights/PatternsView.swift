@@ -128,7 +128,7 @@ struct PatternsView: View {
                 }
                 .accessibilityElement(children: .combine)
                 BedtimeChart(months: shown)
-                Text("By month of age. The dot is the usual bedtime, the bar where most of them fell.")
+                Text("By month of age, earlier at the top. The dot is the usual bedtime, the bar where most of them fell.")
                     .font(.footnote).foregroundStyle(Palette.muted).fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -216,22 +216,31 @@ struct MonthBars: View {
 
     var body: some View {
         let top = max(values.map(\.1).max() ?? 1, 0.0001)
-        HStack(alignment: .bottom, spacing: 4) {
+        // With only a few months each bar says what it stands for: its figure above, "5 mo" below. Two bare
+        // bars marked "4" and "5" said very little (Tom, 23 November 2026).
+        let few = values.count <= 6
+        HStack(alignment: .bottom, spacing: few ? 10 : 4) {
             ForEach(values, id: \.0) { month, value in
                 VStack(spacing: 4) {
+                    if few {
+                        Text(label(value)).font(.caption.weight(.semibold)).monospacedDigit().fixedSize()
+                    }
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
                         .fill(colour)
                         .frame(height: max(4, 80 * value / top))
-                    Text(showsLabel(month) ? "\(month)" : " ")
+                    Text(few ? "\(month) mo" : (showsLabel(month) ? "\(month)" : " "))
                         .font(.footnote).foregroundStyle(Palette.muted).fixedSize()
                 }
-                .frame(maxWidth: 30)
+                .frame(maxWidth: few ? 56 : 30)
                 .accessibilityElement()
                 .accessibilityLabel(Patterns.ageWords(month))
                 .accessibilityValue(label(value))
             }
         }
         .frame(maxWidth: .infinity, minHeight: 104, alignment: .bottomLeading)
+        if !few {
+            Text("By month of age.").font(.footnote).foregroundStyle(Palette.muted)
+        }
     }
 
     private func showsLabel(_ month: Int) -> Bool {
@@ -247,9 +256,14 @@ struct BedtimeChart: View {
         let early = months.compactMap { $0.bedtimeEarly ?? $0.bedtime }.min() ?? 0
         let late = months.compactMap { $0.bedtimeLate ?? $0.bedtime }.max() ?? 1
         let low = Double(early - 15), span = Double(max(late - early + 30, 60))
-        HStack(alignment: .bottom, spacing: 4) {
+        let few = months.count <= 6
+        HStack(alignment: .bottom, spacing: few ? 10 : 4) {
             ForEach(months) { month in
                 VStack(spacing: 4) {
+                    // With only a few months, each one's usual time is written above it.
+                    if few, let usual = month.bedtime {
+                        Text(Patterns.clock(afterNoon: Patterns.round5(usual))).font(.caption.weight(.semibold)).monospacedDigit().fixedSize()
+                    }
                     GeometryReader { geometry in
                         let h = geometry.size.height
                         let y = { (v: Int) -> CGFloat in CGFloat((Double(v) - low) / span) * h }
@@ -263,10 +277,10 @@ struct BedtimeChart: View {
                         }
                         .frame(maxWidth: .infinity)
                     }
-                    .frame(height: 90)
-                    Text(showsLabel(month.id) ? "\(month.id)" : " ").font(.footnote).foregroundStyle(Palette.muted).fixedSize()
+                    .frame(height: few ? 64 : 90)
+                    Text(few ? "\(month.id) mo" : (showsLabel(month.id) ? "\(month.id)" : " ")).font(.footnote).foregroundStyle(Palette.muted).fixedSize()
                 }
-                .frame(maxWidth: 30)
+                .frame(maxWidth: few ? 56 : 30)
                 .accessibilityElement()
                 .accessibilityLabel(Patterns.ageWords(month.id))
                 .accessibilityValue(month.bedtime.map { "Usually \(Patterns.clock(afterNoon: Patterns.round5($0)))" } ?? "")

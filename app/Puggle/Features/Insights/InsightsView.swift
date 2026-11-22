@@ -35,8 +35,10 @@ struct InsightsView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
             .background(Palette.sand)
+            // A large title that scrolls away, with a soft edge under the clock, as History and Family have.
+            // The small fixed one sat on top of whatever scrolled beneath it (Tom, 23 November 2026).
+            .softTopEdge()
             .navigationTitle("Insights")
-            .navigationBarTitleDisplayMode(.inline)
         }
     }
 
@@ -82,14 +84,18 @@ enum InsightPeriod: String, CaseIterable, Identifiable {
 
 /// What the chart can show.
 enum InsightMetric: String, CaseIterable, Identifiable {
-    case sleep, feeds, bottles, nappies, potty
+    case sleep, feeds, bottles, meals, nappies, potty
     var id: String { rawValue }
+
+    /// A child past weaning has meals; a baby has solids.
+    func title(meals: Bool) -> String { self == .meals ? (meals ? "Meals" : "Solids") : title }
 
     var title: String {
         switch self {
         case .sleep: "Sleep"
         case .feeds: "Feeds"
         case .bottles: "Bottles"
+        case .meals: "Meals"
         case .nappies: Terms.nappies
         case .potty: "Potty"
         }
@@ -99,6 +105,7 @@ enum InsightMetric: String, CaseIterable, Identifiable {
         switch self {
         case .sleep: InsightColour.sleep
         case .feeds, .bottles: InsightColour.feeds
+        case .meals: InsightColour.solids
         case .nappies: InsightColour.nappies
         case .potty: InsightColour.potty
         }
@@ -142,6 +149,7 @@ struct ChildInsights: View {
             case .sleep: sleep / 3600
             case .feeds: Double(feeds)
             case .bottles: Units.volumeValue(bottleML)
+            case .meals: Double(solids)
             case .nappies: Double(nappies)
             case .potty: Double(potty)
             }
@@ -231,7 +239,7 @@ struct ChildInsights: View {
             } else {
                 // The stretch against this child's own usual range (after Gentler Streak, 16 November 2026).
                 VStack(alignment: .leading, spacing: 14) {
-                    UsualRangeChart(name: name, title: "\(showing.title) · \(rangeTitle(model.days.first?.id ?? .now, model.days.last?.id ?? .now))",
+                    UsualRangeChart(name: name, title: "\(showing.title(meals: child.eatsMeals)) · \(rangeTitle(model.days.first?.id ?? .now, model.days.last?.id ?? .now))",
                                     model: model, metric: showing, picked: $picked)
                     if metrics.count > 1 { metricPicker(metrics, showing: showing) }
                 }
@@ -239,8 +247,10 @@ struct ChildInsights: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Palette.paper, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
 
-                Text(period == .week ? "This week" : "This month").displayFont(22).padding(.top, 4).accessibilityAddTraits(.isHeader)
-                RecapCards(name: name, model: model, before: period == .week ? "last week" : "the month before")
+                // The stretch ends yesterday, so it is not "this week" (on a Monday that was all of last week), and
+                // it starts where the entries do (Tom, 23 November 2026).
+                Text(stretchTitle).displayFont(22).padding(.top, 4).accessibilityAddTraits(.isHeader)
+                RecapCards(name: name, model: model, before: period == .week ? "the week before" : "the month before")
 
                 if model.usualDay.days >= 5, !(model.usualDay.sleepRuns.isEmpty && model.usualDay.feedTimes.isEmpty) {
                     Text("\(name)\u{2019}s usual day").displayFont(22).padding(.top, 4).accessibilityAddTraits(.isHeader)
@@ -260,12 +270,20 @@ struct ChildInsights: View {
         }
     }
 
+    /// "The last seven days", or "Since 10 November" when the entries began inside the stretch.
+    private var stretchTitle: String {
+        if model.days.count < model.asked, let first = model.days.first?.id {
+            return "Since \(first.formatted(.dateTime.day().month(.wide)))"
+        }
+        return period == .week ? "The last seven days" : "The last thirty days"
+    }
+
     private func metricPicker(_ metrics: [InsightMetric], showing: InsightMetric) -> some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
                 ForEach(metrics) { one in
                     let on = one == showing
-                    Button(one.title) {
+                    Button(one.title(meals: child.eatsMeals)) {
                         withAnimation(.easeInOut(duration: 0.2)) { metric = one; picked = nil }
                     }
                     .font(.subheadline.weight(.semibold))

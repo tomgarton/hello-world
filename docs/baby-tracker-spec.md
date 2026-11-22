@@ -2846,3 +2846,16 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **The fade under the clock covers the clock.** It ended at the clock's height because the inset read as nothing where the sky runs up under the status bar, so words showed through. It is now near solid behind the clock and comes in sooner.
 - **A child of a year or more has meals, not solids** (`Child.eatsMeals`): the sheet is "Bea's meal", "What did Bea eat?", "Save meal", and lists say "Meal · Porridge". A baby keeps "Solids" and "What did they try?".
 - **Stop and Start potty are out of the + menu.** Among the things to log they read as an entry. The switch stays on the child's page and on a long press of the Nappy or Potty tile. The tile's code is kept, off (`ChildActions.pottySwitchInGrid`).
+
+## Insights, a pass over what was wrong or hard to read (23 November 2026)
+
+- **The heading says what the stretch is.** It ends yesterday, so "This week" on a Monday was all of last week. Now "The last seven days" and "The last thirty days", or "Since 10 November" when the entries began inside the stretch; the cards compare with "the week before".
+- **The day everyday logging began is left as a gap** (`InsightModel.make`). A few hours of sleep beside whole days read as a drop and squashed the chart. "Everyday" is sleep, feeds, food, nappies and the potty: a haircut noted weeks earlier doesn't start the days. A stretch that reaches back before then starts where the entries do, a week at least.
+- **One rule for "usual"** (`InsightModel.usual`): the four weeks before the stretch, or, where there aren't seven days there, every day there is once there are ten. Week and Month no longer disagree about whether a usual is known.
+- **The usual-day ring's arcs end where the sleep ends.** Their round ends were drawn outside the run, about 25 minutes each way, so the marker for now could sit on a nap while the middle said "Awake". The "6 am" and "6 pm" labels now start at the ring's edge and run away from it.
+- **The band's label keeps clear of the line:** above the band when the first days fall below it.
+- **Meals can be charted** (`InsightMetric.meals`): "Meals" for a child past weaning, "Solids" for a baby.
+- **The day being read wears a ring** on the chart. Tapping a day already showed its figure.
+- **Patterns, with only a few months:** each bar has its figure above and "5 mo" below, and each bedtime its time. Bars are wider. The bedtime note says earlier is at the top.
+- **A large title that scrolls away**, with the soft edge History has. The small fixed one sat on whatever scrolled under it.
+- Left as they are: "What was logged" (already last, until Tom says whether it stays), and "Around 19:20, most nights between 19:05 and 19:20", which is what the nights were.

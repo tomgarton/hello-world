@@ -13,6 +13,17 @@ struct InsightModel {
     var tin: FormulaDay?
     /// Milestones in the last thirty days, newest first.
     var firsts: [String] = []
+    /// How many days were asked for. `days` is shorter when the child's entries began inside the stretch.
+    var asked = 0
+    /// True when "usual" had to take in the stretch itself, there being too little before it.
+    var usualFromStretch = false
+
+    /// What is usual for one measure: from the four weeks before the stretch, or, where entries don't go back
+    /// that far, from every day there is, the stretch's own included (Tom, 23 November 2026). Week said "More than usual" while
+    /// Month, for the same child, said usual wasn't known yet.
+    func usual(_ metric: InsightMetric) -> ClosedRange<Double>? {
+        InsightStats.usual((usualFromStretch ? earlier + days : earlier).map { $0.value(metric) })
+    }
 
     @MainActor
     static func make(child: Child, days count: Int, store: FamilyStore, now: Date = .now) -> InsightModel {
@@ -24,11 +35,27 @@ struct InsightModel {
         let entries = live.compactMap { InsightStats.Entry($0, now: now) }
         // Whole days only: the stretch ends yesterday. Today is not over, and a part-day beside whole ones
         // reads as a drop; today is on the Today tab.
-        let all = InsightStats.days(entries, from: from, to: back(1))
+        var all = InsightStats.days(entries, from: from, to: back(1))
+        // The day the very first entry was made is a part day too: a few hours of sleep beside whole days
+        // read as a drop and squashed the chart. It is left as a gap (Tom, 23 November 2026).
+        // "First" means the first of the everyday things: a haircut noted weeks earlier doesn't start the days.
+        let everyday: Set<EventKind> = [.sleep, .bottle, .breastfeed, .solids, .nappy, .potty]
+        let began = (child.events ?? []).filter { $0.isLive && everyday.contains($0.kind) }.compactMap(\.startedAt).min()
+            .map { calendar.startOfDay(for: $0) }
+        if let began, let place = all.firstIndex(where: { $0.id == began }) { all[place] = InsightStats.Day(id: began) }
         var model = InsightModel()
+        model.asked = count
         model.days = Array(all.suffix(count))
+        // A stretch that reaches back before the first entry starts where the entries do, a week at least, so
+        // a month isn't half empty.
+        if let first = model.days.firstIndex(where: \.everyday), first > 0 {
+            model.days = Array(model.days.suffix(max(model.days.count - first, 7)))
+        }
         model.before = Array(all.dropLast(count).suffix(count))
         model.earlier = Array(all.dropLast(count).suffix(28))
+        let known = model.earlier.filter(\.everyday).count >= InsightStats.enough
+        // Ten days is enough for the middle half of them to mean something.
+        model.usualFromStretch = !known && (model.earlier + model.days).filter(\.everyday).count >= 10
         model.usualDay = InsightStats.usualDay(entries, from: back(14), to: today)
         model.changes = Patterns.make(child: child, now: now).changes
         model.tin = child.birthDate.flatMap { store.formulaGuide()?.table?.formulaDay(birth: $0, now: now) }
@@ -45,6 +72,7 @@ extension InsightStats.Day {
         case .sleep: sleep / 3600
         case .feeds: Double(feeds)
         case .bottles: Units.volumeValue(bottleML)
+        case .meals: Double(solids)
         case .nappies: Double(nappies)
         case .potty: Double(potty)
         }
@@ -110,7 +138,7 @@ struct UsualRangeChart: View {
 
     var body: some View {
         let values = model.days.map { $0.value(metric) }
-        let usual = InsightStats.usual(model.earlier.map { $0.value(metric) })
+        let usual = model.usual(metric)
         let average = InsightStats.average(values, leavingOutLast: false)
         let chosen = model.days.first { $0.id == picked }
         VStack(alignment: .leading, spacing: 10) {
@@ -162,8 +190,10 @@ struct UsualRangeChart: View {
                         Text("\(name)\u{2019}s usual")
                             .font(.caption2.weight(.semibold))
                             .foregroundStyle(metric.colour)
-                            // Under the band, clear of the dots that sit on it.
-                            .offset(x: 6, y: min(y(usual.lowerBound) + 4, box.size.height - 14))
+                            // Under the band, clear of the dots that sit on it; above it when the first days
+                            // fall below, where the line ran through the words (Tom, 23 November 2026).
+                            .offset(x: 6, y: labelBelow(values, usual) ? min(y(usual.lowerBound) + 4, box.size.height - 14)
+                                                                         : max(y(usual.upperBound) - 17, 0))
                     }
                     // A line through the days that have something; a day with nothing is a gap, not a nought.
                     Path { path in
@@ -184,6 +214,8 @@ struct UsualRangeChart: View {
                                 .fill(metric.colour)
                                 .frame(width: wide ? 10 : 5, height: wide ? 10 : 5)
                                 .opacity(dimmed ? 0.35 : 1)
+                                // The day being read wears a ring, so it is plain which one the figure is for.
+                                .overlay { if picked == day.id { Circle().stroke(Palette.ink, lineWidth: 2).frame(width: 16, height: 16) } }
                                 .position(x: x(index), y: y(value))
                         }
                         Color.clear
@@ -229,6 +261,12 @@ struct UsualRangeChart: View {
             .accessibilityHidden(true)
         }
         .padding(.bottom, 22)
+    }
+
+    /// Whether the band's label goes under it: yes, unless one of the first few days sits below the band.
+    private func labelBelow(_ values: [Double], _ usual: ClosedRange<Double>) -> Bool {
+        let reach = max(values.count * 3 / 7, 1)
+        return !values.prefix(reach).contains { $0 > 0 && $0 < usual.lowerBound }
     }
 
     private func axis(_ value: Double) -> String {
@@ -478,15 +516,22 @@ struct UsualDayClock: View {
                     // By the clock: asleep in the dark hours is the night, in daylight a nap.
                     let middle = ((run.from + run.to) / 2).truncatingRemainder(dividingBy: 24)
                     let night = middle >= 19 || middle < 7
-                    context.stroke(arc(run.from, run.to), with: .color((night ? Palette.night : InsightColour.sleep).opacity(0.55 + 0.45 * run.share)),
+                    // The round ends are part of the run, not added to it: with them outside, a nap that ended at
+                    // 10:00 was drawn to about 10:25 and the marker for now sat on it while the middle said
+                    // "Awake" (Tom, 23 November 2026).
+                    let cap = Double(11 / max(radius, 1)) * 12 / .pi
+                    let inset = min(cap, (run.to - run.from) / 2 - 0.01)
+                    context.stroke(arc(run.from + inset, run.to - inset), with: .color((night ? Palette.night : InsightColour.sleep).opacity(0.55 + 0.45 * run.share)),
                                    style: StrokeStyle(lineWidth: 22, lineCap: .round))
                 }
                 for time in day.feedTimes {
                     let at = point(time, radius - 24)
                     context.fill(Path(ellipseIn: CGRect(x: at.x - 5, y: at.y - 5, width: 10, height: 10)), with: .color(InsightColour.feeds))
                 }
-                for (hour, label) in [(0.0, "Midnight"), (6, "6 am"), (12, "Noon"), (18, "6 pm")] {
-                    context.draw(Text(label).font(.caption2).foregroundStyle(Palette.muted), at: point(hour, radius + 23))
+                // The side labels start at the ring's edge and run away from it, so the ring never covers them.
+                for (hour, label, anchor) in [(0.0, "Midnight", UnitPoint.center), (6, "6 am", .leading), (12, "Noon", .center), (18, "6 pm", .trailing)] {
+                    context.draw(Text(label).font(.caption2).foregroundStyle(Palette.muted),
+                                 at: point(hour, radius + (anchor == .center ? 23 : 18)), anchor: anchor)
                 }
                 let here = point(hour, radius)
                 context.fill(Path(ellipseIn: CGRect(x: here.x - 8, y: here.y - 8, width: 16, height: 16)), with: .color(Palette.paper))
