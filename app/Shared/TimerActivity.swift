@@ -35,6 +35,20 @@ struct TimerAttributes: ActivityAttributes {
         /// until `nextAt`, so nothing ever reads as late.
         var nextText: String?
         var nextAt: Date?
+        /// A medicine with a gap the parent set (Tom, 22 November 2026): which, for whom, and the earliest the next
+        /// dose fits. Counts down on the card until then, and goes once it passes. Never a suggestion of a dose.
+        var doseName: String?
+        var doseChild: String?
+        var doseAt: Date?
+
+        /// When the card should be drawn again by itself: when what comes next, or the next dose, is reached.
+        var staleAt: Date? { [nextAt, doseAt].compactMap { $0 }.min() }
+
+        /// The next dose, while it is still ahead.
+        func doseLine(now: Date = .now) -> (name: String, child: String?, at: Date)? {
+            guard let doseName, let doseAt, doseAt > now else { return nil }
+            return (doseName, doseChild, doseAt)
+        }
 
         /// The family card (16 November 2026): one card, a row for each child. The fields above are for the
         /// first row, whose child is named here; it is the only row with buttons. Nil on a card made before this,

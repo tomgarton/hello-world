@@ -2819,3 +2819,12 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
   so nothing glares and everything stays readable on the dimmed screen.
 - Settings → "Initials only on the Lock Screen": a first letter instead of each child's name on the Lock Screen,
   in the Dynamic Island and on the Watch's Smart Stack. Off unless chosen; the app shows full names.
+
+## The next dose on the Live Activity (22 November 2026)
+
+- When a medicine with a gap or a daily limit set by the parent was given in the last day, the card shows the
+  soonest next dose as one line under the facts: "Paracetamol for Bea from 14:16", with the time left counting
+  down. It goes when the time passes (the card's stale date is the sooner of what comes next and the dose). On the
+  family card it takes the room of one row. Only the gap the parent set is used; the app never suggests a dose.
+- A medicine waiting on its gap brings the card up even when nothing else would.
+- For checking: `-debugDose 1` with `-debugLive`.

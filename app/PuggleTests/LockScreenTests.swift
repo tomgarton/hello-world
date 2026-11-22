@@ -36,6 +36,16 @@ final class LockScreenTests: XCTestCase {
         XCTAssertEqual(feeding.leadID, "ollie")
     }
 
+    func testADoseCountsDownUntilItsTimeAndThenGoes() {
+        var state = TimerAttributes.ContentState(mode: "glance")
+        state.doseName = "Paracetamol"
+        state.doseAt = Date.now.addingTimeInterval(3600)
+        state.nextAt = Date.now.addingTimeInterval(7200)
+        XCTAssertEqual(state.doseLine()?.name, "Paracetamol")
+        XCTAssertEqual(state.staleAt, state.doseAt)
+        XCTAssertNil(state.doseLine(now: Date.now.addingTimeInterval(3601)))
+    }
+
     func testTheRestAreCountedWhenThereIsNoRoom() throws {
         let four = ["a", "b", "c", "d"].enumerated().map { card($0.element, "glance", minutesAgo: Double(100 - $0.offset)) }
         let state = try XCTUnwrap(LiveTimers.family(four)[TimerAttributes.familyID]).state

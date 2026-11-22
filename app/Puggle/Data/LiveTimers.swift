@@ -132,6 +132,24 @@ final class LiveTimers {
                     result[id] = Wanted(attributes: attributes, state: state)
                 }
             }
+            // A medicine waiting on its gap: counted down on the card, even when nothing else would show it
+            // (Tom, 22 November 2026).
+            if let dose = store.nextDoseDue(for: child) {
+                var state = result[id]?.state ?? {
+                    var glance = TimerAttributes.ContentState(mode: "glance")
+                    glance.milk = milk
+                    glance.potty = potty
+                    glance.fedSince = milk ? lastFeed : nil
+                    glance.ateSince = milk ? nil : lastAte
+                    glance.nappySince = lastNappy
+                    glance.pottySince = lastPotty
+                    return glance
+                }()
+                state.doseName = dose.name
+                state.doseChild = name
+                state.doseAt = dose.at
+                result[id] = Wanted(attributes: attributes, state: state)
+            }
         }
         return Self.family(children.compactMap { $0.id?.uuidString }.compactMap { result[$0] })
     }
@@ -154,7 +172,9 @@ final class LiveTimers {
         state.leadID = lead.attributes.childID
         state.leadName = lead.attributes.childName
         state.leadColour = lead.attributes.colourIndex
-        let room = lead.state.mode == "feed" ? 1 : 2
+        // The soonest dose of anyone's, as one line under the rows; it takes a row's room.
+        let dose = cards.compactMap { card in card.state.doseAt.map { (card.state, $0) } }.min { $0.1 < $1.1 }?.0
+        let room = (lead.state.mode == "feed" ? 1 : 2) - (dose != nil && cards.count > 2 ? 1 : 0)
         let rest = ordered.dropFirst()
         // Who is shown is decided by what is going on; the rows then run in Today's order (the order `cards`
         // came in), so each child keeps their place as on Today.
@@ -164,6 +184,9 @@ final class LiveTimers {
             .init(id: $0.attributes.childID, name: $0.attributes.childName, colourIndex: $0.attributes.colourIndex, state: $0.state)
         }
         state.leadPlace = shown.filter { place($0) < place(lead) }.count
+        state.doseName = dose?.doseName
+        state.doseChild = dose?.doseChild
+        state.doseAt = dose?.doseAt
         state.more = rest.count > room ? rest.count - room : nil
         let attributes = TimerAttributes(childID: TimerAttributes.familyID, childName: "Family", colourIndex: nil)
         return [TimerAttributes.familyID: Wanted(attributes: attributes, state: state)]
@@ -207,7 +230,7 @@ final class LiveTimers {
             // and the old card carries on until the next chance.
             if Self.age(of: activity) > 7 * 3600,
                let fresh = try? Activity.request(attributes: want.attributes,
-                                                 content: ActivityContent(state: want.state, staleDate: want.state.nextAt),
+                                                 content: ActivityContent(state: want.state, staleDate: want.state.staleAt),
                                                  pushType: nil) {
                 Self.started(fresh)
                 await activity.end(nil, dismissalPolicy: .immediate)
@@ -217,14 +240,14 @@ final class LiveTimers {
                 // The stale date is when the "next" line's time passes: iOS then draws the card again, without it.
                 // Updating works with the app in the background, so "Woke up" on the
                 // Lock Screen can turn the card into "Awake" without opening the app.
-                await activity.update(ActivityContent(state: want.state, staleDate: want.state.nextAt))
+                await activity.update(ActivityContent(state: want.state, staleDate: want.state.staleAt))
             }
         }
         guard ActivityAuthorizationInfo().areActivitiesEnabled else { return }
         for (id, want) in wanted where !showing.contains(id) {
             // Starting needs the app on screen; if it is not, the next sync tries again.
             if let fresh = try? Activity.request(attributes: want.attributes,
-                                                 content: ActivityContent(state: want.state, staleDate: want.state.nextAt),
+                                                 content: ActivityContent(state: want.state, staleDate: want.state.staleAt),
                                                  pushType: nil) {
                 Self.started(fresh)
             }
@@ -254,6 +277,12 @@ final class LiveTimers {
             let guess = NextUp.Guess(kind: mode == "sleep" ? .feed : .sleep, at: NextUp.rounded(ago(-35)))
             state.nextText = guess.line
             state.nextAt = guess.at
+        }
+        // "-debugDose 1": a medicine waiting on its gap, counting down.
+        if UserDefaults.standard.string(forKey: "debugDose") == "1" {
+            state.doseName = "Paracetamol"
+            state.doseChild = "Ollie"
+            state.doseAt = ago(-80)
         }
         var all = [Wanted(attributes: .init(childID: "sample-ollie", childName: "Ollie", colourIndex: 0), state: state)]
         // "-debugLiveTwo 1" adds a second child, to see the family card; "2" adds a third, and "3" a fourth.

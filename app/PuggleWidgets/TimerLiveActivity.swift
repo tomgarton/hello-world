@@ -87,12 +87,17 @@ private enum TimerCard {
                 }
                 DynamicIslandExpandedRegion(.bottom) {
                     Group {
-                        if !others.isEmpty {
-                            FamilyRows(lead: lead, state: state, others: others)
-                        } else if state.mode == "feed" {
-                            FeedNow(attributes: lead, state: state)
-                        } else {
-                            Facts(state: state, childID: lead.childID, size: 24)
+                        VStack(spacing: 10) {
+                            if !others.isEmpty {
+                                FamilyRows(lead: lead, state: state, others: others)
+                            } else if state.mode == "feed" {
+                                FeedNow(attributes: lead, state: state)
+                            } else {
+                                Facts(state: state, childID: lead.childID, size: 24)
+                            }
+                            if let dose = state.doseLine() {
+                                DoseLine(name: dose.name, child: others.isEmpty ? nil : dose.child, at: dose.at)
+                            }
                         }
                     }
                     .padding(.horizontal, 6)
@@ -309,6 +314,36 @@ private struct StandByCard: View {
     }
 }
 
+/// A medicine waiting on the gap the parent set: "Calpol for Bea from 2:15", and the time left counting down
+/// (Tom, 22 November 2026). It goes when the time passes; the app never suggests a dose.
+private struct DoseLine: View {
+    let name: String
+    /// Whose, on the family card; nil when the card is one child's.
+    let child: String?
+    let at: Date
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "pills").font(.system(size: 11, weight: .semibold))
+            Text(child.map { "\(name) for \($0) from \(at.formatted(date: .omitted, time: .shortened))" }
+                 ?? "\(name) from \(at.formatted(date: .omitted, time: .shortened))")
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Spacer(minLength: 6)
+            Text(timerInterval: Date.now...max(at, .now), countsDown: true)
+                .monospacedDigit()
+                .multilineTextAlignment(.trailing)
+                .frame(maxWidth: 70, alignment: .trailing)
+        }
+        .font(.caption.weight(.semibold))
+        .foregroundStyle(Tone.cream.opacity(0.85))
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(Tone.cream.opacity(0.08), in: Capsule())
+        .accessibilityElement(children: .combine)
+    }
+}
+
 /// Whose card it is: their initial on their own colour, as on Today.
 private struct Badge: View {
     let name: String
@@ -418,13 +453,16 @@ private struct LockScreenCard: View {
         let state = context.state
         let lead = context.attributes.lead(state)
         let others = state.others ?? []
-        Group {
+        VStack(spacing: 10) {
             if fullscreen {
                 StandByCard(lead: lead, state: state)
             } else if others.isEmpty {
                 alone(lead: lead, state: state)
             } else {
                 family(lead: lead, state: state, others: others)
+            }
+            if !fullscreen, let dose = state.doseLine() {
+                DoseLine(name: dose.name, child: others.isEmpty ? nil : dose.child, at: dose.at)
             }
         }
         // Apple's margin for a card on the Lock Screen, so it lines up with notifications.

@@ -103,15 +103,20 @@ extension FamilyStore {
     /// For the child's row on Today: the medicine whose next dose is soonest
     /// but not yet, as "Calpol · from 19:45".
     func nextDoseLine(for child: Child, now: Date = .now) -> String? {
+        guard let soonest = nextDoseDue(for: child, now: now) else { return nil }
+        return "\(soonest.name) · From \(soonest.at.formatted(date: .omitted, time: .shortened))"
+    }
+
+    /// The medicine given in the last day whose next dose is soonest but not yet, and when it fits.
+    func nextDoseDue(for child: Child, now: Date = .now) -> (name: String, at: Date)? {
         let names = Set((child.events ?? [])
             .filter { $0.kind == .medicine && ($0.startedAt ?? .distantPast) > now.addingTimeInterval(-24 * 3600) }
             .compactMap(\.detail))
-        let upcoming = names.compactMap { name -> (String, Date)? in
+        let upcoming = names.compactMap { name -> (name: String, at: Date)? in
             guard let next = nextDose(of: name, for: child, now: now), next > now else { return nil }
             return (name, next)
         }
-        guard let soonest = upcoming.min(by: { $0.1 < $1.1 }) else { return nil }
-        return "\(soonest.0) · From \(soonest.1.formatted(date: .omitted, time: .shortened))"
+        return upcoming.min(by: { $0.at < $1.at })
     }
 }
 
