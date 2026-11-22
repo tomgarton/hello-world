@@ -287,6 +287,29 @@ def arm_moves(parts, reads=True, hugs=False):
                 {'t': 1.9, 'pose': only({**round_it, **glad, 'head': {'r': -5}, 'upper': {'r': -2}}), 'face': face},
                 {'t': 2.5, 'pose': only({**round_it, **glad}), 'face': face},
             ]}
+        # A hug for a grown-up beside her (Tom, 23 November 2026): a step their way and a lean from the waist, both arms
+        # out their way, her cheek against them, a squeeze and a little rock, then back. "hug-right" is for someone
+        # on her right as you look at her, "hug-left" for someone on her left.
+        warm = {'eyes': 'happy', 'cheeks': 'shy'}
+        for side, way in (('right', 1), ('left', -1)):
+            def lean(amount, rock=0):
+                near, far = ([206, 192], [158, 206]) if way > 0 else ([34, 192], [82, 206])
+                left, right = (far, near) if way > 0 else (near, far)
+                return only({**arms(parts, left, right), **glad,
+                             'body': {'x': round(way * 14 * amount, 1)},
+                             'upper': {'r': round(way * (12 * amount + rock), 1)},
+                             'head': {'r': round(way * 4 * amount, 1)}})
+            moves[f'hug-{side}'] = {
+                'about': f'A hug for the grown-up on her {side}: she leans in with both arms out to them, squeezes, rocks, and stands up again.',
+                'exact': True, 'length': 2.6, 'keys': [
+                    {'t': 0, 'pose': only({**glad})},
+                    {'t': 0.35, 'pose': lean(1), 'face': warm},
+                    {'t': 0.8, 'pose': lean(1, 2), 'face': warm},
+                    {'t': 1.3, 'pose': lean(1, -1), 'face': warm},
+                    {'t': 1.8, 'pose': lean(1, 1.5), 'face': warm},
+                    {'t': 2.2, 'pose': lean(0.3), 'face': warm},
+                    {'t': 2.6, 'pose': {}},
+                ]}
     return moves
 
 
@@ -323,5 +346,16 @@ def main():
     print('puggle', len(parts), 'parts;', ', '.join(rig['moves']))
 
 
+def moves_only():
+    """Write the arm moves again into a rig that is already bent, without bending it a second time."""
+    path = os.path.join(RIGS, 'puggle.rig.json')
+    rig = json.load(open(path))
+    rig['moves'].update(arm_moves(rig['parts'], hugs=True))
+    with open(path, 'w') as out:
+        json.dump(rig, out, indent=1, ensure_ascii=False)
+    print('puggle moves:', ', '.join(rig['moves']))
+
+
 if __name__ == '__main__':
-    main()
+    import sys
+    moves_only() if '--moves-only' in sys.argv else main()

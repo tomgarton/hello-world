@@ -2835,3 +2835,5 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **The looser patterns only showed on the eight-shape mix.** A one-square tile repeated the same small turns everywhere, so it looked ruled. One-square tiles are now laid out four by four before they repeat.
 - Seen working: the dose line in the open island, the hug and heart for Nan, Nan's nod, Pebble answering a tap, Quill waving back.
 - Not checked: Always On (the simulator has none).
+- **Puggle hugs the grown-up, not her rabbit** (Tom, 23 November 2026). New moves `hug-right` and `hug-left` (`tools/bend_arms.py`, written with `--moves-only` so the arms are not bent twice): a small step towards them, a lean from the waist with her feet planted, both arms out to them, a squeeze and a rock, then upright again. The rabbit hug stays for story time.
+- Seen once on the simulator: when the sample family first opens, Today can be rebuilt as it appears, and her glance and hug are then missed. It happened before this change too, and coming back to Today plays them as it should.

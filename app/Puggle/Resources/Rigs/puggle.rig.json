@@ -5878,6 +5878,386 @@
      }
     }
    ]
+  },
+  "hug-right": {
+   "about": "A hug for the grown-up on her right: she leans in with both arms out to them, squeezes, rocks, and stands up again.",
+   "exact": true,
+   "length": 2.6,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     }
+    },
+    {
+     "t": 0.35,
+     "pose": {
+      "arm-left": {
+       "r": -102.5
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": -41.2
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": 14
+      },
+      "upper": {
+       "r": 12
+      },
+      "head": {
+       "r": 4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": -102.5
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": -41.2
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": 14
+      },
+      "upper": {
+       "r": 14
+      },
+      "head": {
+       "r": 4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.3,
+     "pose": {
+      "arm-left": {
+       "r": -102.5
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": -41.2
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": 14
+      },
+      "upper": {
+       "r": 11
+      },
+      "head": {
+       "r": 4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.8,
+     "pose": {
+      "arm-left": {
+       "r": -102.5
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": -41.2
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": 14
+      },
+      "upper": {
+       "r": 13.5
+      },
+      "head": {
+       "r": 4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 2.2,
+     "pose": {
+      "arm-left": {
+       "r": -102.5
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": -41.2
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": 4.2
+      },
+      "upper": {
+       "r": 3.6
+      },
+      "head": {
+       "r": 1.2
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 2.6,
+     "pose": {}
+    }
+   ]
+  },
+  "hug-left": {
+   "about": "A hug for the grown-up on her left: she leans in with both arms out to them, squeezes, rocks, and stands up again.",
+   "exact": true,
+   "length": 2.6,
+   "keys": [
+    {
+     "t": 0,
+     "pose": {
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      }
+     }
+    },
+    {
+     "t": 0.35,
+     "pose": {
+      "arm-left": {
+       "r": 41.2
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": 102.5
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": -14
+      },
+      "upper": {
+       "r": -12
+      },
+      "head": {
+       "r": -4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 0.8,
+     "pose": {
+      "arm-left": {
+       "r": 41.2
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": 102.5
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": -14
+      },
+      "upper": {
+       "r": -14
+      },
+      "head": {
+       "r": -4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.3,
+     "pose": {
+      "arm-left": {
+       "r": 41.2
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": 102.5
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": -14
+      },
+      "upper": {
+       "r": -11
+      },
+      "head": {
+       "r": -4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 1.8,
+     "pose": {
+      "arm-left": {
+       "r": 41.2
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": 102.5
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": -14
+      },
+      "upper": {
+       "r": -13.5
+      },
+      "head": {
+       "r": -4
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 2.2,
+     "pose": {
+      "arm-left": {
+       "r": 41.2
+      },
+      "forearm-left": {
+       "r": -24.5
+      },
+      "arm-right": {
+       "r": 102.5
+      },
+      "forearm-right": {
+       "r": 24.5
+      },
+      "blush": {
+       "sx": 1.14,
+       "sy": 1.14
+      },
+      "body": {
+       "x": -4.2
+      },
+      "upper": {
+       "r": -3.6
+      },
+      "head": {
+       "r": -1.2
+      }
+     },
+     "face": {
+      "eyes": "happy",
+      "cheeks": "shy"
+     }
+    },
+    {
+     "t": 2.6,
+     "pose": {}
+    }
+   ]
   }
  },
  "face": {

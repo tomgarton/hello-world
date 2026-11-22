@@ -786,10 +786,11 @@ struct PuggleHeader: View {
         Task {
             try? await Task.sleep(for: .seconds(1.8))
             controller.look(x: first.x < mine ? -0.8 : 0.8, y: 0)
-            // A grown-up come to see her: a hug for them, with a heart (Tom, 20 November 2026).
+            // A grown-up come to see her: a hug for them, with a heart (Tom, 20 November 2026). She hugs the
+            // grown-up themself, leaning in their way, not her rabbit (Tom, 23 November 2026).
             if first.member.grownUp, first.pose == .standing || first.pose == .atTable, !quiet, !reduceMotion {
                 try? await Task.sleep(for: .seconds(0.6))
-                controller.rig?.play("hug")
+                controller.rig?.play(first.x < mine ? "hug-left" : "hug-right")
                 controller.rig?.air("heart", for: 2)
             }
             try? await Task.sleep(for: .seconds(1.1))
