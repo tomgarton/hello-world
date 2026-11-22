@@ -414,6 +414,8 @@ struct ChildCard: View {
 /// Everything else that can be logged for one child: inside their card when the plus is open, or under the
 /// card as larger tiles when they are the only child.
 struct ChildActions: View {
+    /// Whether the grid holds a Start or Stop potty tile. See where it is read.
+    static let pottySwitchInGrid = false
     @EnvironmentObject private var store: FamilyStore
     @ObservedObject var child: Child
     /// The facts on the card, which already log their own kind.
@@ -461,7 +463,10 @@ struct ChildActions: View {
             .buttonStyle(PressStyle(scale: 0.96))
             .accessibilityLabel("Add a past sleep for \(child.displayName)")
             // From about 18 months: move between the nappy and the potty in one tap (Tom, 20 November 2026).
-            if store.canLog, child.ageMonths >= 18 || child.pottyTraining {
+            // Taken out of this grid on 23 November 2026: among the things to log it read as an entry, but it
+            // changes a setting. The switch is on the child's page and on a long press of the Nappy or Potty
+            // tile. Kept here, off, in case it comes back.
+            if Self.pottySwitchInGrid, store.canLog, child.ageMonths >= 18 || child.pottyTraining {
                 Button {
                     Haptics.tap()
                     store.setPottyTraining(!child.pottyTraining, for: child)

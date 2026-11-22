@@ -149,7 +149,7 @@ struct EventRow: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: Self.gap) {
-            ActivityIcon(event.kind, size: 24, plain: true)
+            EntryIcon(event: event, size: 24)
                 .frame(width: Self.iconWell, height: Self.iconWell)
                 .background(Palette.field, in: Circle())
             VStack(alignment: .leading, spacing: 6) {

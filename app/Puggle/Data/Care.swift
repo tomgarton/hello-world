@@ -242,3 +242,22 @@ enum CareLine {
         return now.timeIntervalSince(last) / 86_400 >= gap.days * 1.25
     }
 }
+
+/// The icon for an entry in a list. A Looking after entry shows its own item's icon (a toothbrush for brushing
+/// teeth), not the bath that stands for the whole kind (Tom, 23 November 2026).
+struct EntryIcon: View {
+    @EnvironmentObject private var store: FamilyStore
+    let event: Event
+    var size: CGFloat = 24
+
+    var body: some View {
+        if event.kind == .care, let item = store.careItem(event.detail), item.key != CareItem.bath.key {
+            item.image(plain: true)
+                .foregroundStyle(Palette.ink)
+                .frame(width: size, height: size)
+                .accessibilityHidden(true)
+        } else {
+            ActivityIcon(event.kind, size: size, plain: true)
+        }
+    }
+}

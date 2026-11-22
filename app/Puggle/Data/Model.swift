@@ -214,6 +214,12 @@ extension Event {
     static let removedKind = "removed"
     var isRemovedMark: Bool { kindRaw == Self.removedKind }
 
+    /// The kind's name as a list shows it: "Meal" for a child past weaning, where a baby's is "Solids".
+    var shownTitle: String {
+        let who = sortedChildren
+        return kind == .solids && !who.isEmpty && who.allSatisfy(\.eatsMeals) ? "Meal" : kind.title
+    }
+
     var sortedChildren: [Child] {
         (children ?? []).sorted { ($0.createdAt ?? .distantPast) < ($1.createdAt ?? .distantPast) }
     }
@@ -290,7 +296,7 @@ extension Event {
             if let start = startedAt, let end = endedAt { return "Slept · \(Elapsed.short(seconds: asleepSeconds(from: start, to: end)))" }
             return "Asleep"
         case .nappy, .potty, .solids:
-            return (detail ?? "").isEmpty ? kind.title : "\(kind.title) · \(detail!.lowercased().firstUpper)"
+            return (detail ?? "").isEmpty ? shownTitle : "\(shownTitle) · \(detail!.lowercased().firstUpper)"
         default:
             return summary
         }
@@ -322,7 +328,7 @@ extension Event {
         case .nappy, .potty, .solids:
             let what = (detail ?? "").isEmpty ? "" : " · \(detail!.lowercased().firstUpper)"
             let extra = kind != .potty && !(dose ?? "").isEmpty ? " · \(dose!.lowercased().firstUpper)" : ""
-            return "\(kind.title)\(what)\(extra)"
+            return "\(shownTitle)\(what)\(extra)"
         case .note:
             return note ?? "Note"
         case .weight:
@@ -362,6 +368,9 @@ extension Child {
         guard let birth = birthDate else { return 0 }
         return max(Calendar.current.dateComponents([.month], from: birth, to: .now).month ?? 0, 0)
     }
+
+    /// Past weaning: from a year old, food is a meal, not "solids" to try (Tom, 23 November 2026).
+    var eatsMeals: Bool { birthDate != nil && ageMonths >= 12 }
 
     /// Whether this activity belongs on this child's Today. Follows the setup
     /// answers and their age; a child who was never asked keeps everything.

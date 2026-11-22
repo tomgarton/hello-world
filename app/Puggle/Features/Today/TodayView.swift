@@ -98,6 +98,7 @@ struct TodayView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
+                ScrollViewReader { reader in
                 VStack(alignment: .leading, spacing: 14) {
                     header
                         .background(GeometryReader { geometry in
@@ -144,6 +145,16 @@ struct TodayView: View {
                 }
                 .padding(.horizontal, 16)
                 .padding(.bottom, 24)
+                // A card's other actions unfold below it, which for a lower card is under the tab bar. Bring the
+                // card to the middle of the screen as it opens, so they are seen (Tom, 23 November 2026).
+                .onChange(of: openChild) { _, opened in
+                    guard let opened else { return }
+                    Task {
+                        try? await Task.sleep(for: .milliseconds(120))
+                        withAnimation(.spring(duration: 0.4, bounce: 0)) { reader.scrollTo(opened, anchor: .center) }
+                    }
+                }
+                }
             }
             .coordinateSpace(name: "todayScroll")
             // No scroll bar: it ran down over the scene and beside the You button. Today is short enough to
@@ -287,6 +298,7 @@ struct TodayView: View {
                       onLog: { log($0, for: child) },
                       onPastSleep: { pastSleepFor = child },
                       onEdit: { editing = $0 })
+                .id(child.objectID)
         }
         if !store.canLog {
             Text("You're a viewer, so you can look but not log. \(store.holderName) can change that.")
@@ -518,7 +530,7 @@ struct TodayView: View {
 private struct ScrollScrim: View {
     let scroll: ScrollDepth
     var body: some View {
-        TopScrim(strength: Double(min(max((scroll.up - PuggleHeader.sceneHeight + 110) / 60, 0), 1)))
+        TopScrim(strength: Double(min(max((scroll.up - PuggleHeader.sceneHeight + 150) / 40, 0), 1)))
     }
 }
 

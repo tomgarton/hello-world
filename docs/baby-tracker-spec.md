@@ -2838,3 +2838,11 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **Puggle hugs the grown-up, not her rabbit** (Tom, 23 November 2026). New moves `hug-right` and `hug-left` (`tools/bend_arms.py`, written with `--moves-only` so the arms are not bent twice): a small step towards them, a lean from the waist with her feet planted, both arms out to them, a squeeze and a rock, then upright again. The rabbit hug stays for story time.
 - Seen once on the simulator: when the sample family first opens, Today can be rebuilt as it appears, and her glance and hug are then missed. It happened before this change too, and coming back to Today plays them as it should.
 - **The island's badges are set apart by a black ring** (Tom, 23 November 2026). Each badge sits on a black disc a little wider than itself, so the front one cuts a clean gap into the one behind, and they overlap less, so the second initial can be read. On the watch, a sleeping child's line shows the island's moon in place of "Asleep", and a long name is shortened before the time is.
+
+## Five small fixes on Today, from a look through the app (23 November 2026)
+
+- **A card's + menu is brought into view.** Opening a lower card unfolded its choices under the tab bar. Today now scrolls the opened card to the middle of the screen.
+- **Looking after entries show their own icon** in Today so far, History and the entry's page (`EntryIcon`): a toothbrush for brushing teeth, not the bath that stands for the kind.
+- **The fade under the clock covers the clock.** It ended at the clock's height because the inset read as nothing where the sky runs up under the status bar, so words showed through. It is now near solid behind the clock and comes in sooner.
+- **A child of a year or more has meals, not solids** (`Child.eatsMeals`): the sheet is "Bea's meal", "What did Bea eat?", "Save meal", and lists say "Meal · Porridge". A baby keeps "Solids" and "What did they try?".
+- **Stop and Start potty are out of the + menu.** Among the things to log they read as an entry. The switch stays on the child's page and on a long press of the Nappy or Potty tile. The tile's code is kept, off (`ChildActions.pottySwitchInGrid`).

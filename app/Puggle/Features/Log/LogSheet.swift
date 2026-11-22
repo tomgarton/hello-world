@@ -74,9 +74,20 @@ struct LogSheet: View {
 
     /// "Ollie's nappy" when the sheet is for one child, "Looking after Ollie" for care; otherwise the activity.
     private var title: String {
-        if isEditing { return "Edit \(kind.title.lowercased())" }
-        guard children.count == 1, let name = children.first?.displayName else { return kind.title }
-        return kind == .care ? "Looking after \(name)" : "\(name)'s \(kind.title.lowercased())"
+        if isEditing { return "Edit \(kindWord.lowercased())" }
+        guard children.count == 1, let name = children.first?.displayName else { return kindWord }
+        return kind == .care ? "Looking after \(name)" : "\(name)'s \(kindWord.lowercased())"
+    }
+
+    /// Food for a child past weaning is a meal; for a baby it is solids (Tom, 23 November 2026).
+    private var meals: Bool {
+        kind == .solids && !chosenChildren.isEmpty && chosenChildren.allSatisfy(\.eatsMeals)
+    }
+    private var kindWord: String { meals ? "Meal" : kind.title }
+    private var foodPrompt: String {
+        guard meals else { return "What did they try?" }
+        if chosenChildren.count == 1, let name = chosenChildren.first?.displayName { return "What did \(name) eat?" }
+        return "What did they eat?"
     }
 
     /// The choices that save in one tap, shown last: a new nappy, or the potty for a child out of nappies.
@@ -90,7 +101,7 @@ struct LogSheet: View {
 
     private var saveTitle: String {
         if pottyAndNappy { return nappyChoice != nil && choice != nil ? "Save both" : "Save" }
-        guard kind == .care else { return "Save \(kind.title.lowercased())" }
+        guard kind == .care else { return "Save \(kindWord.lowercased())" }
         let name = CareItem.name(forKey: care).lowercased()
         return bookedVisit ? "Book \(name)" : "Save \(name)"
     }
@@ -564,7 +575,7 @@ struct LogSheet: View {
             }
         case .solids:
             VStack(alignment: .leading, spacing: 16) {
-                TextField("What did they try?", text: $food)
+                TextField(foodPrompt, text: $food)
                     .padding(14)
                     .background(Palette.input, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 if !pastFoods.isEmpty {

@@ -41,7 +41,7 @@ struct EntryDetailView: View {
             List {
                 Section {
                     HStack(spacing: 14) {
-                        ActivityIcon(event.kind, size: 28, plain: true)
+                        EntryIcon(event: event, size: 28)
                             .frame(width: 52, height: 52)
                             .background(Palette.field, in: Circle())
                         VStack(alignment: .leading, spacing: 6) {
@@ -201,16 +201,22 @@ struct TopScrim: View {
 
     var body: some View {
         GeometryReader { geometry in
-            let height = geometry.safeAreaInsets.top + 64
+            // Where the view already runs up under the status bar the inset reads as nothing, so the clock's own
+            // height is assumed: without it the fade ended at the clock and words showed through it.
+            let height = max(geometry.safeAreaInsets.top, 59) + 44
             // Several soft steps rather than one edge, so there is no line where it ends.
             let fade = Gradient(stops: [.init(color: .black, location: 0),
-                                        .init(color: .black.opacity(0.92), location: 0.3),
-                                        .init(color: .black.opacity(0.6), location: 0.55),
-                                        .init(color: .black.opacity(0.25), location: 0.78),
+                                        .init(color: .black, location: 0.5),
+                                        .init(color: .black.opacity(0.7), location: 0.68),
+                                        .init(color: .black.opacity(0.3), location: 0.85),
                                         .init(color: .clear, location: 1)])
             ZStack {
                 Rectangle().fill(.ultraThinMaterial)
-                LinearGradient(colors: [Palette.sand.opacity(0.85), Palette.sand.opacity(0)],
+                // Close to solid behind the clock itself, so no words show through it, then thinning out
+                // below (Tom, 23 November 2026).
+                LinearGradient(stops: [.init(color: Palette.sand.opacity(0.98), location: 0),
+                                       .init(color: Palette.sand.opacity(0.96), location: 0.55),
+                                       .init(color: Palette.sand.opacity(0), location: 1)],
                                startPoint: .top, endPoint: .bottom)
             }
             .mask(LinearGradient(gradient: fade, startPoint: .top, endPoint: .bottom))
