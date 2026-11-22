@@ -2828,3 +2828,10 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
   family card it takes the room of one row. Only the gap the parent set is used; the app never suggests a dose.
 - A medicine waiting on its gap brings the card up even when nothing else would.
 - For checking: `-debugDose 1` with `-debugLive`.
+
+### Checking what had not been seen (22 November 2026)
+
+- **Nothing in the air over Puggle had ever shown.** Her face names "none" for the air where the cast's leave it out, and the rig only filled an empty slot. Both now count as empty, so her heart for a grown-up, her "Oh!" and her "?" show. Looking up at you on coming back to Today stays calm, with no "?".
+- **The looser patterns only showed on the eight-shape mix.** A one-square tile repeated the same small turns everywhere, so it looked ruled. One-square tiles are now laid out four by four before they repeat.
+- Seen working: the dose line in the open island, the hug and heart for Nan, Nan's nod, Pebble answering a tap, Quill waving back.
+- Not checked: Always On (the simulator has none).

@@ -758,10 +758,13 @@ struct PuggleHeader: View {
             // Back after a moment: she was here all along. A blink, and she looks up at you.
             guard !reduceMotion, controller.rig?.asleep == false else { return }
             controller.rig?.blinkAt = .now.addingTimeInterval(0.15)
+            // Looking up at you is a greeting, not a puzzle: no "?" over her.
+            controller.rig?.calmLook = true
             controller.look(x: 0, y: -0.6)
             Task {
                 try? await Task.sleep(for: .seconds(1.2))
                 controller.look(x: 0, y: 0)
+                controller.rig?.calmLook = false
             }
             return
         }

@@ -65,13 +65,16 @@ struct PatternTile {
     static func lattice(cell: CGFloat, corners: [String], middles: [String], size: CGFloat, middleSize: CGFloat? = nil,
                         turns: (CGFloat, CGFloat) = (0, 0), cols: Int = 1, rows: Int = 1) -> PatternTile {
         var marks: [Mark] = []
+        // A one-square tile would repeat the same small turns everywhere and look ruled again, so it is laid
+        // out four squares by four before it repeats.
+        let (cols, rows) = cols == 1 && rows == 1 ? (4, 4) : (cols, rows)
         for r in 0..<rows {
             for c in 0..<cols {
                 let i = c + r * 2
                 // A little looser than a ruled grid, as if placed by hand: each mark turned a few degrees and a
                 // touch larger or smaller, the middle ones a point or two off centre (Tom, 20 November 2026).
                 // Corners stay where they are, so the tile still meets itself at its edges.
-                var random = SeededRandom(UInt64(i + 1) &* 2_654_435_761 &+ UInt64(corners.count * 31 + middles.count))
+                var random = SeededRandom(UInt64(c + r * cols + 1) &* 2_654_435_761 &+ UInt64(corners.count * 31 + middles.count))
                 let cornerTurn = turns.0 + CGFloat(random.range(-9, 9)), cornerSize = size * CGFloat(random.range(0.93, 1.07))
                 let middleTurn = turns.1 + CGFloat(random.range(-9, 9)), middleScale = CGFloat(random.range(0.93, 1.07))
                 let nudge = (CGFloat(random.range(-2.5, 2.5)), CGFloat(random.range(-2.5, 2.5)))

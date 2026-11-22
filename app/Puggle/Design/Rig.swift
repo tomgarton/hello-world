@@ -617,7 +617,8 @@ final class RigRuntime {
         }
         // The same little things in the air as everyone else (tools/air.py): a "!" as they wake with a start,
         // hearts or notes when asked for, and a "?" while their eyes follow something.
-        if !asleep, showing["air"] == nil {
+        // Puggle's own face names "none" for the air (the cast's leave it out); both mean nothing is there yet.
+        if !asleep, showing["air"] == nil || showing["air"] == "none" {
             if let body = playing["body"], body.name.hasPrefix("wake") || body.name.hasPrefix("oh"),
                date.timeIntervalSince(body.start) < 1.3 {
                 showing["air"] = "oh"
