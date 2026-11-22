@@ -377,20 +377,28 @@ private struct Badges: View {
     var size: CGFloat = 22
 
     var body: some View {
-        HStack(spacing: -size * 0.45) {
-            Badge(attributes: lead, size: size).zIndex(3)
+        // Each badge sits on a black ring a little wider than itself, so the one in front cuts a clean gap into
+        // the one behind and the two read apart (Tom, 23 November 2026). Only used in the island, which is black.
+        let ring = max(1.5, size * 0.09)
+        HStack(spacing: -size * 0.3 - ring * 2) {
+            Badge(attributes: lead, size: size)
+                .padding(ring).background(Circle().fill(.black))
+                .zIndex(3)
             ForEach(Array(others.prefix(2).enumerated()), id: \.element.id) { place, other in
                 Badge(name: other.name, colourIndex: other.colourIndex, size: size)
-                    .overlay(Circle().stroke(.black, lineWidth: 1.5))
+                    .padding(ring).background(Circle().fill(.black))
                     .zIndex(Double(2 - place))
             }
         }
+        .padding(-ring)
     }
 }
 
 /// Another child in the open island or on the watch: their badge and one line.
 private struct OtherLine: View {
     let other: TimerAttributes.ContentState.Other
+    /// On the watch the words give way to the island's moon, so the time is never cut short (Tom, 23 November 2026).
+    var compact = false
 
     var body: some View {
         HStack(spacing: 6) {
@@ -398,13 +406,19 @@ private struct OtherLine: View {
             Text(other.name).fontWeight(.semibold).foregroundStyle(Tone.cream)
             Group {
                 switch other.state.mode {
-                case "sleep": if let since = other.state.since { Text("Asleep ") + Since.text(since, narrow: true) }
+                case "sleep":
+                    if let since = other.state.since {
+                        (compact ? Text(Image(systemName: "moon")) + Text(" ") : Text("Asleep ")) + Since.text(since, narrow: true)
+                    }
                 case "feed": Text("Feeding")
-                default: if let fed = other.state.fedSince { Text("Fed ") + Since.text(fed, narrow: true) + Text(" ago") }
+                default:
+                    if let fed = other.state.fedSince { Text("Fed ") + Since.text(fed, narrow: true) + Text(compact ? "" : " ago") }
                 }
             }
             .foregroundStyle(Tone.moon)
             .monospacedDigit()
+            // The time keeps its room; a long name is the one to shorten.
+            .layoutPriority(1)
             Spacer(minLength: 0)
         }
         .font(.subheadline.weight(.medium))
@@ -587,7 +601,7 @@ private struct SmallCard: View {
             // The family: a line each, the first child's first.
             VStack(alignment: .leading, spacing: 4) {
                 // In Today's order, as on the Lock Screen.
-                ForEach(rows, id: \.id) { OtherLine(other: $0) }
+                ForEach(rows, id: \.id) { OtherLine(other: $0, compact: true) }
                 if let more = context.state.more, more > 0 {
                     Text("and \(more) more").font(.caption2).foregroundStyle(Tone.cream.opacity(0.7))
                 }
