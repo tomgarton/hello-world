@@ -416,6 +416,9 @@ struct ChildCard: View {
 struct ChildActions: View {
     /// Whether the grid holds a Start or Stop potty tile. See where it is read.
     static let pottySwitchInGrid = false
+    /// Whether the plus opens a sheet in place of the grid in the card. A trial to compare the two
+    /// (23 November 2026): off unless the app is launched with "-debugPlusSheet 1". The grid stays either way.
+    static var asSheet: Bool { UserDefaults.standard.bool(forKey: "debugPlusSheet") }
     @EnvironmentObject private var store: FamilyStore
     @ObservedObject var child: Child
     /// The facts on the card, which already log their own kind.
@@ -504,5 +507,34 @@ struct ChildActions: View {
         .foregroundStyle(asleep && inside ? Palette.fixedPaper : Palette.ink)
         .background(ground, in: shape)
         .contentShape(shape)
+    }
+}
+
+/// The plus as a sheet: everything that can be logged for one child, as large tiles. The card does not grow,
+/// so nothing on Today moves. It lists the kinds on the card's facts too, so a meal or the potty is here.
+struct MoreToLogSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @ObservedObject var child: Child
+    /// Called with what to log; Today opens it once this sheet has gone.
+    let onLog: (EventKind) -> Void
+    let onPastSleep: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                ChildActions(child: child, facts: [], inside: false,
+                             onLog: { onLog($0); dismiss() },
+                             onPastSleep: { onPastSleep(); dismiss() })
+                    .padding(16)
+                    .measuredForSheet()
+            }
+            .background(Palette.sand)
+            .navigationTitle("Log for \(child.displayName)")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) { Button("Cancel") { dismiss() } }
+            }
+        }
+        .fittedSheet()
     }
 }

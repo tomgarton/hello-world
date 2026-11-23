@@ -24,6 +24,8 @@ struct TodayView: View {
     @State private var feedChild: Child?
     /// The child whose other actions are open, children first. One at a time.
     @State private var openChild: NSManagedObjectID?
+    /// The child whose other actions are up as a sheet, when the plus opens a sheet.
+    @State private var moreFor: Child?
     @AppStorage(Setting.todayLayout) private var layoutRaw = TodayLayout.children.rawValue
     @State private var pastFeed = false
     @State private var editing: EditTarget?
@@ -227,23 +229,12 @@ struct TodayView: View {
                 LogSheet(kind: target.event.kind, children: Array(children), editing: target.event, endingSleep: target.endingSleep)
             }
         }
-        .sheet(item: $dayOf, onDismiss: {
-            // Open the next sheet once the panel has gone, so the two never overlap.
-            if let child = wantsPastSleep {
-                wantsPastSleep = nil
-                pastSleepFor = child
-            } else if let want = wantsLog {
-                wantsLog = nil
-                switch want.kind {
-                case .pump: pumping = true
-                case .breastfeed: feedTimer = true
-                default:
-                    loggingChild = want.child
-                    logging = want.kind
-                }
-            }
-        }) { child in
+        .sheet(item: $dayOf, onDismiss: openWanted) { child in
             DaySoFarView(child: child, onAddSleep: { wantsPastSleep = child }, onLog: { wantsLog = ($0, child) })
+        }
+        // The plus as a sheet, to compare with the grid that opens in the card. See ChildActions.asSheet.
+        .sheet(item: $moreFor, onDismiss: openWanted) { child in
+            MoreToLogSheet(child: child, onLog: { wantsLog = ($0, child) }, onPastSleep: { wantsPastSleep = child })
         }
         .sheet(isPresented: $showingYou) { YouView() }
         .onChange(of: links.pending) { _, _ in openLink() }
@@ -294,7 +285,10 @@ struct TodayView: View {
         ForEach(ordered) { child in
             ChildCard(child: child, open: !alone && openChild == child.objectID, hasPlus: !alone,
                       onOpenDay: { dayOf = child },
-                      onToggle: { withAnimation(.spring(duration: 0.35, bounce: 0.1)) { openChild = openChild == child.objectID ? nil : child.objectID } },
+                      onToggle: {
+                          if ChildActions.asSheet { moreFor = child; return }
+                          withAnimation(.spring(duration: 0.35, bounce: 0.1)) { openChild = openChild == child.objectID ? nil : child.objectID }
+                      },
                       onLog: { log($0, for: child) },
                       onPastSleep: { pastSleepFor = child },
                       onEdit: { editing = $0 })
@@ -340,6 +334,17 @@ struct TodayView: View {
         logging = nil; editing = nil; looking = nil; dayOf = nil; pastSleepFor = nil
         feedTimer = false; pumping = false; showingYou = false; choosingTiles = false; addingChild = false
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) { open() }
+    }
+
+    /// Opens the next sheet once a panel has gone, so the two never overlap.
+    private func openWanted() {
+        if let child = wantsPastSleep {
+            wantsPastSleep = nil
+            pastSleepFor = child
+        } else if let want = wantsLog {
+            wantsLog = nil
+            log(want.kind, for: want.child)
+        }
     }
 
     /// Opens the right sheet to log one thing for one child.

@@ -2859,3 +2859,17 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **Patterns, with only a few months:** each bar has its figure above and "5 mo" below, and each bedtime its time. Bars are wider. The bedtime note says earlier is at the top.
 - **A large title that scrolls away**, with the soft edge History has. The small fixed one sat on whatever scrolled under it.
 - Left as they are: "What was logged" (already last, until Tom says whether it stays), and "Around 19:20, most nights between 19:05 and 19:20", which is what the nights were.
+
+## The plus as a sheet, to compare (23 November 2026)
+
+Tom wasn't sure about the grid that opens inside a child's card. A sheet is built beside it as a trial, and
+nothing has been chosen yet.
+
+- The grid in the card is still what the app does.
+- Launching with `-debugPlusSheet 1` makes the plus open a sheet, "Log for Ollie", with large tiles three
+  across. The card doesn't grow, so nothing on Today moves.
+- The sheet lists everything that can be logged for the child, including what the card's facts already log
+  (a bottle, a nappy, a meal, the potty).
+- Choosing a tile closes the sheet and then opens that entry's own sheet.
+
+Still to choose between: the grid as now, the sheet, a pop-up menu, or one plus for the whole family.
