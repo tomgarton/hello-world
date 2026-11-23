@@ -201,6 +201,8 @@ Cone, flower, leaf, bucket, duck and thread.
   line that comes back. Then Pebble splashes with no boots on, and Puggle copies her. In the current version
   she takes a boot off the moment she gets the other, and the reason ("Pebble has no gumboots") is easy to
   miss. "Mine" is Puggle's word in the bible.
+- **Pop says "Well, I never"** (Tom, 23 November 2026). It is Nan's line in the bible, but Pop is the one
+  drawn beside the hat, so he says it here.
 - **The last line stays.** "And the creek went on by" ends every story in the bible, so the change of tense
   is the series' own.
 
@@ -219,8 +221,6 @@ Pictures 1 to 9 and 11 can stay as drawn. Two changes, and two things worth addi
 
 ## Still to choose
 
-- **Who says "Well, I never"?** In the bible it is Nan's line, but the one drawn beside the hat looks like
-  Pop. Either he says it here, or Nan is drawn in.
 - **Picture 5 has four things to read** on the left page. If that is one too many, "The rule is" can go and
   Sunny can simply be there.
 - **The title.** The first manuscript was "One Boot". This redraft keeps "Where's My Gumboot?".

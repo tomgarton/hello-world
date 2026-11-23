@@ -165,6 +165,8 @@ the comforting. Counted across the series, not left to chance.
 - **Wants:** company while he potters.
 - **Is good at:** knots, whistling, naming birds, and fixing things with string.
 - **Sounds like:** "Hold this for me." and a whistle of two notes that means he is coming.
+  In "Where's My Gumboot?" he also says Nan's "Well, I never", as he is the one beside the hat (Tom,
+  23 November 2026).
 - **Never:** tells a long story when a short one will do.
 
 ### Quill
