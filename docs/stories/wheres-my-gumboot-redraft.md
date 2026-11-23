@@ -194,6 +194,7 @@ Cone, flower, leaf, bucket, duck and thread.
   page: "The rule is" was tried here and dropped, to keep the page to three things (Tom, 23 November 2026).
 - **The friends sound like themselves again.** Quill's "Not yet" and Kip's "Wait for me" are their lines in
   the story bible. The current version had "I'll help!" and "Wait for me! I'm coming too."
+- **The title stays "Where's My Gumboot?"** (Tom, 23 November 2026). The first manuscript was "One Boot".
 - **The find-it page stays** (Tom, 23 November 2026), in place of the paper boat the bible hides in every
   picture.
 - **"Behind the towel".** It hangs on the line, so the socks are behind it.
@@ -217,10 +218,6 @@ Pictures 1 to 9 and 11 can stay as drawn. One change, and two things worth addin
 - **Picture 9:** Pebble sitting in the boot, or holding on to it, would show that she had it all along.
 - **Picture 11:** Pebble and the friends at the water's edge. Kip stays on the bank, as he doesn't like the
   creek on his fur.
-
-## Still to choose
-
-- **The title.** The first manuscript was "One Boot". This redraft keeps "Where's My Gumboot?".
 
 ## To check
 
