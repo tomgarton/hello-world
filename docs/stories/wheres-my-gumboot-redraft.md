@@ -82,8 +82,6 @@ It's Kip!
 
 Sunny is at Nan and Pop's.
 
-"The rule is," says Sunny, "we all look."
-
 Is it behind the towel?
 
 **Under the flap**
@@ -191,10 +189,13 @@ Cone, flower, leaf, bucket, duck and thread.
   picture 9 leaves it out, so the page before the boot is quiet.
 - **Each friend joins in the same words:** "Quill comes too." "Digby comes too." "Sunny comes too." Kip's
   "Wait for me!" says he is coming, so his left-page line is dropped to make room for Sunny.
-- **Sunny is met before she speaks.** "Sunny is at Nan and Pop's." It also tells the reader whose washing
-  line, hat and tin these are, which the dummy notes list as an open question.
-- **The friends sound like themselves again.** Quill's "Not yet", Kip's "Wait for me" and Sunny's "The rule
-  is" are their lines in the story bible. The current version had "I'll help!" and "Let's all look".
+- **Sunny is met where she is.** "Sunny is at Nan and Pop's." It also tells the reader whose washing
+  line, hat and tin these are, which the dummy notes list as an open question. She says nothing on this
+  page: "The rule is" was tried here and dropped, to keep the page to three things (Tom, 23 November 2026).
+- **The friends sound like themselves again.** Quill's "Not yet" and Kip's "Wait for me" are their lines in
+  the story bible. The current version had "I'll help!" and "Wait for me! I'm coming too."
+- **The find-it page stays** (Tom, 23 November 2026), in place of the paper boat the bible hides in every
+  picture.
 - **"Behind the towel".** It hangs on the line, so the socks are behind it.
 - **Pebble says "Ba!"** when the blanket lifts, as in the first manuscript.
 - **The ending shows why the boots come off.** Puggle gets the boot and has two boots on, which answers the
@@ -208,24 +209,18 @@ Cone, flower, leaf, bucket, duck and thread.
 
 ## What the pictures would need
 
-Pictures 1 to 9 and 11 can stay as drawn. Two changes, and two things worth adding:
+Pictures 1 to 9 and 11 can stay as drawn. One change, and two things worth adding:
 
 - **Picture 10 needs redrawing.** It shows Pebble handing over the boot, with a small picture of Puggle
   pulling one off. It needs Puggle with two boots on, and Pebble with her feet in the water. The small
   picture of the tug could stay, as the boot going on.
-- **Picture 5's left page** needs Sunny where she can be seen before she speaks. She is already in the main
-  picture.
 - **Picture 9:** Pebble sitting in the boot, or holding on to it, would show that she had it all along.
 - **Picture 11:** Pebble and the friends at the water's edge. Kip stays on the bank, as he doesn't like the
   creek on his fur.
 
 ## Still to choose
 
-- **Picture 5 has four things to read** on the left page. If that is one too many, "The rule is" can go and
-  Sunny can simply be there.
 - **The title.** The first manuscript was "One Boot". This redraft keeps "Where's My Gumboot?".
-- **The paper boat.** The bible hides one in every picture. The current version has the six things on the
-  find-it page instead. This redraft keeps the find-it page.
 
 ## To check
 
