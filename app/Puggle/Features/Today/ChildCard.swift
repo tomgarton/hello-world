@@ -416,9 +416,9 @@ struct ChildCard: View {
 struct ChildActions: View {
     /// Whether the grid holds a Start or Stop potty tile. See where it is read.
     static let pottySwitchInGrid = false
-    /// Whether the plus opens a sheet in place of the grid in the card. A trial to compare the two
-    /// (23 November 2026): off unless the app is launched with "-debugPlusSheet 1". The grid stays either way.
-    static var asSheet: Bool { UserDefaults.standard.bool(forKey: "debugPlusSheet") }
+    /// Whether the plus opens a sheet in place of the grid in the card. Tom chose the sheet after seeing the
+    /// two side by side (23 November 2026). The grid is kept: launch with "-debugPlusGrid 1" to see it.
+    static var asSheet: Bool { !UserDefaults.standard.bool(forKey: "debugPlusGrid") }
     @EnvironmentObject private var store: FamilyStore
     @ObservedObject var child: Child
     /// The facts on the card, which already log their own kind.
@@ -452,10 +452,10 @@ struct ChildActions: View {
                     Haptics.tap()
                     onLog(kind)
                 } label: {
-                    face(kind.title, shape: shape, ground: ground) { icon(kind) }
+                    face(title(kind), shape: shape, ground: ground) { icon(kind) }
                 }
                 .buttonStyle(PressStyle(scale: 0.96))
-                .accessibilityLabel("Log \(kind.title.lowercased()) for \(child.displayName)")
+                .accessibilityLabel("Log \(title(kind).lowercased()) for \(child.displayName)")
             }
             Button {
                 Haptics.tap()
@@ -488,6 +488,11 @@ struct ChildActions: View {
     /// A sleeping child's card is in night colours whatever the phone's appearance, so the icons on it take
     /// their dark drawing: a pale line. In light they were drawn in dark ink on the dark card (Tom, 16 November 2026).
     @Environment(\.colorScheme) private var scheme
+
+    /// "Meal" for a child past weaning, as the log sheet and History say it.
+    private func title(_ kind: EventKind) -> String {
+        kind == .solids && child.eatsMeals ? "Meal" : kind.title
+    }
 
     private func icon(_ kind: EventKind) -> some View {
         ActivityIcon(kind, size: inside ? 24 : 40)

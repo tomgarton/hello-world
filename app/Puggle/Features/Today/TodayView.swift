@@ -232,7 +232,7 @@ struct TodayView: View {
         .sheet(item: $dayOf, onDismiss: openWanted) { child in
             DaySoFarView(child: child, onAddSleep: { wantsPastSleep = child }, onLog: { wantsLog = ($0, child) })
         }
-        // The plus as a sheet, to compare with the grid that opens in the card. See ChildActions.asSheet.
+        // The plus opens a sheet. The grid that opened in the card is kept: see ChildActions.asSheet.
         .sheet(item: $moreFor, onDismiss: openWanted) { child in
             MoreToLogSheet(child: child, onLog: { wantsLog = ($0, child) }, onPastSleep: { wantsPastSleep = child })
         }

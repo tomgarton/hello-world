@@ -2860,16 +2860,17 @@ Tom asked for a first Watch version, taking a lead from Granola's Watch app (one
 - **A large title that scrolls away**, with the soft edge History has. The small fixed one sat on whatever scrolled under it.
 - Left as they are: "What was logged" (already last, until Tom says whether it stays), and "Around 19:20, most nights between 19:05 and 19:20", which is what the nights were.
 
-## The plus as a sheet, to compare (23 November 2026)
+## The plus opens a sheet (23 November 2026)
 
-Tom wasn't sure about the grid that opens inside a child's card. A sheet is built beside it as a trial, and
-nothing has been chosen yet.
+Tom wasn't sure about the grid that opened inside a child's card. A sheet was built beside it, and he chose
+the sheet after seeing the two side by side.
 
-- The grid in the card is still what the app does.
-- Launching with `-debugPlusSheet 1` makes the plus open a sheet, "Log for Ollie", with large tiles three
-  across. The card doesn't grow, so nothing on Today moves.
+- The plus on a child's card opens a sheet, "Log for Ollie", with large tiles three across (`MoreToLogSheet`).
+  The card doesn't grow, so nothing on Today moves.
 - The sheet lists everything that can be logged for the child, including what the card's facts already log
-  (a bottle, a nappy, a meal, the potty).
+  (a bottle, a nappy, a meal, the potty). The food tile says "Meal" for a child past weaning.
 - Choosing a tile closes the sheet and then opens that entry's own sheet.
+- With one child there is still no plus: their tiles sit open under the card.
+- The grid in the card is kept. Launch with `-debugPlusGrid 1` to see it (`ChildActions.asSheet`).
 
-Still to choose between: the grid as now, the sheet, a pop-up menu, or one plus for the whole family.
+Not built, and still there to try: a pop-up menu, or one plus for the whole family.
