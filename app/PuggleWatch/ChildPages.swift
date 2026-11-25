@@ -64,6 +64,7 @@ struct DayFigures {
 struct PagedChild: View {
     let child: WidgetSnapshot.Child
     @State private var page = Pages.first
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let figures = DayFigures(child: child)
@@ -71,10 +72,20 @@ struct PagedChild: View {
         NavigationStack {
             TabView(selection: $page) {
                 ChildPage(child: child, paged: true)
-                    .containerBackground(ground(child.asleepSince != nil ? Tone.night : (child.feedingSince != nil ? Tone.honey : tint.opacity(0.28))), for: .tabView)
+                    // The three colours lie one on another and cross over, so falling asleep goes to night
+                    // over a moment and waking comes back.
+                    .containerBackground(for: .tabView) {
+                        ZStack {
+                            ground(tint.opacity(0.28))
+                            ground(Tone.honey).opacity(child.feedingSince != nil ? 1 : 0)
+                            ground(Tone.night).opacity(child.asleepSince != nil ? 1 : 0)
+                        }
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.6), value: child.asleepSince != nil)
+                        .animation(reduceMotion ? nil : .easeInOut(duration: 0.6), value: child.feedingSince != nil)
+                    }
                     .navigationTitle { Text(child.name).foregroundStyle(tint) }
                     .tag(0)
-                SleepTodayPage(child: child, figures: figures)
+                SleepTodayPage(child: child, figures: figures, current: page == 1)
                     .containerBackground(ground(Tone.night), for: .tabView)
                     .navigationTitle { Text("Sleep today").foregroundStyle(tint) }
                     .tag(1)
@@ -82,7 +93,7 @@ struct PagedChild: View {
                     .containerBackground(ground(Tone.night), for: .tabView)
                     .navigationTitle { Text("Next").foregroundStyle(tint) }
                     .tag(2)
-                FortnightPage(child: child, figures: figures)
+                FortnightPage(child: child, figures: figures, current: page == 3)
                     .containerBackground(ground(Tone.night), for: .tabView)
                     .navigationTitle { Text("Last 14 days").foregroundStyle(tint) }
                     .tag(3)
@@ -123,6 +134,9 @@ private struct Figure: View {
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
+                // A figure rolls to its new value.
+                .contentTransition(.numericText())
+                .animation(.default, value: value)
             if let detail {
                 Text(detail)
                     .font(.system(.footnote, design: .rounded))
@@ -150,15 +164,28 @@ private func clock(_ date: Date) -> String {
 struct SleepTodayPage: View {
     let child: WidgetSnapshot.Child
     let figures: DayFigures
+    /// Whether this is the page showing, so the strip can fill in as it arrives.
+    var current = true
+    @State private var drawn: CGFloat = 0
+    @State private var scrubbing = UserDefaults.standard.string(forKey: "previewSheet") == "day"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
             let now = context.date
             let midnight = Calendar.current.startOfDay(for: now)
+            let sleeps = figures.sleeps ?? []
             VStack(alignment: .leading, spacing: 8) {
-                strip(now: now, midnight: midnight)
-                    .frame(maxHeight: 64)
-                if (figures.sleeps ?? []).isEmpty {
+                // Tap it to look along the day with the crown.
+                Button { scrubbing = true } label: {
+                    DayStrip(sleeps: sleeps, now: now, drawn: drawn)
+                        .frame(maxHeight: 64)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .disabled(sleeps.isEmpty)
+                .accessibilityLabel("Look along today")
+                if sleeps.isEmpty {
                     Text(figures.sleeps == nil ? "Open Puggle on your iPhone to see today's sleep." : "No sleep logged today.")
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.secondary)
@@ -169,6 +196,17 @@ struct SleepTodayPage: View {
             }
             .padding(.horizontal, 6)
         }
+        .onAppear { draw(current) }
+        .onChange(of: current) { _, showing in draw(showing) }
+        .sheet(isPresented: $scrubbing) {
+            NavigationStack { DayScrub(child: child, sleeps: figures.sleeps ?? []) }
+        }
+    }
+
+    /// The blocks fill in from the left as the page arrives, and are whole at once with Reduce Motion.
+    private func draw(_ showing: Bool) {
+        guard showing else { drawn = 0; return }
+        if reduceMotion { drawn = 1 } else { withAnimation(.easeOut(duration: 0.7)) { drawn = 1 } }
     }
 
     /// "Up at 06:40 · 2 naps", from the night that ran into today and the sleeps that began today.
@@ -181,36 +219,6 @@ struct SleepTodayPage: View {
         let naps = Set(sleeps.filter { $0.sleep != night }.map(\.sleep)).count
         if naps > 0 { parts.append(naps == 1 ? "1 nap" : "\(naps) naps") }
         return parts.joined(separator: " · ")
-    }
-
-    private func strip(now: Date, midnight: Date) -> some View {
-        GeometryReader { box in
-            let width = box.size.width
-            let barHeight = box.size.height - 16
-            let x: (Date) -> CGFloat = { width * CGFloat(min(max($0.timeIntervalSince(midnight) / 86400, 0), 1)) }
-            ZStack(alignment: .topLeading) {
-                // A line and its hour every six hours.
-                ForEach([0, 6, 12, 18], id: \.self) { hour in
-                    let left = width * CGFloat(hour) / 24
-                    Rectangle().fill(.white.opacity(0.22)).frame(width: 1, height: box.size.height).offset(x: left)
-                    Text(String(format: "%02d", hour))
-                        .font(.system(size: 11, weight: .medium, design: .rounded))
-                        .foregroundStyle(.secondary)
-                        .offset(x: left + 3, y: barHeight + 2)
-                }
-                Rectangle().fill(.white.opacity(0.22)).frame(width: 1, height: box.size.height).offset(x: width - 1)
-                ForEach(figures.sleeps ?? [], id: \.self) { sleep in
-                    let left = x(sleep.start), right = x(sleep.end ?? now)
-                    RoundedRectangle(cornerRadius: 5, style: .continuous)
-                        .fill(Tone.moon)
-                        .frame(width: max(right - left, 3), height: barHeight - 8)
-                        .offset(x: left, y: 4)
-                }
-                // Now.
-                Capsule().fill(.white).frame(width: 2, height: barHeight).offset(x: x(now) - 1)
-            }
-        }
-        .accessibilityHidden(true)
     }
 }
 
@@ -260,6 +268,11 @@ struct NextPage: View {
 struct FortnightPage: View {
     let child: WidgetSnapshot.Child
     let figures: DayFigures
+    /// Whether this is the page showing, so the bars can rise as it arrives.
+    var current = true
+    @State private var drawn = false
+    @State private var scrubbing = UserDefaults.standard.string(forKey: "previewSheet") == "days"
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         let days = figures.days ?? Array(repeating: nil, count: 14)
@@ -267,13 +280,20 @@ struct FortnightPage: View {
         let top = max(days.compactMap { $0 }.max() ?? 1, 1)
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Calendar.current.startOfDay(for: .now)) ?? .now
         VStack(alignment: .leading, spacing: 8) {
-            HStack(alignment: .top, spacing: 10) {
-                ForEach(0..<2, id: \.self) { index in
-                    let last = Calendar.current.date(byAdding: .day, value: index == 0 ? -7 : 0, to: yesterday) ?? yesterday
-                    let first = Calendar.current.date(byAdding: .day, value: -6, to: last) ?? last
-                    week(weeks[index], top: top, from: first, to: last)
+            // Tap them to go day by day with the crown.
+            Button { scrubbing = true } label: {
+                HStack(alignment: .top, spacing: 10) {
+                    ForEach(0..<2, id: \.self) { index in
+                        let last = Calendar.current.date(byAdding: .day, value: index == 0 ? -7 : 0, to: yesterday) ?? yesterday
+                        let first = Calendar.current.date(byAdding: .day, value: -6, to: last) ?? last
+                        week(weeks[index], top: top, from: first, to: last, order: index * 7)
+                    }
                 }
+                .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .disabled(figures.days == nil)
+            .accessibilityHint("Opens the days one by one")
             if let recent = average(weeks[1]) {
                 Figure(label: "Asleep a day", value: hoursAndMinutes(recent * 3600), detail: "Average, last 7 days", tint: Tone.moon)
             } else {
@@ -284,6 +304,11 @@ struct FortnightPage: View {
             Spacer(minLength: 0)
         }
         .padding(.horizontal, 6)
+        .onAppear { drawn = current }
+        .onChange(of: current) { _, showing in drawn = showing }
+        .sheet(isPresented: $scrubbing) {
+            NavigationStack { FortnightScrub(child: child, days: days) }
+        }
     }
 
     private func average(_ days: [Double?]) -> Double? {
@@ -291,7 +316,7 @@ struct FortnightPage: View {
         return known.isEmpty ? nil : known.reduce(0, +) / Double(known.count)
     }
 
-    private func week(_ days: [Double?], top: Double, from: Date, to: Date) -> some View {
+    private func week(_ days: [Double?], top: Double, from: Date, to: Date, order: Int) -> some View {
         let mean = average(days)
         return VStack(alignment: .leading, spacing: 2) {
             Text(mean.map { hoursAndMinutes($0 * 3600) } ?? "–")
@@ -300,17 +325,22 @@ struct FortnightPage: View {
             GeometryReader { box in
                 ZStack(alignment: .bottomLeading) {
                     HStack(alignment: .bottom, spacing: 3) {
-                        ForEach(Array(days.enumerated()), id: \.offset) { _, hours in
+                        ForEach(Array(days.enumerated()), id: \.offset) { offset, hours in
                             RoundedRectangle(cornerRadius: 2, style: .continuous)
                                 .fill(.white.opacity(hours == nil ? 0 : 0.45))
                                 .frame(height: box.size.height * CGFloat((hours ?? 0) / top))
                                 .frame(maxWidth: .infinity)
+                                // Each bar rises from the baseline, one after the other.
+                                .scaleEffect(y: drawn ? 1 : 0.02, anchor: .bottom)
+                                .animation(reduceMotion ? nil : .spring(duration: 0.5, bounce: 0.2).delay(Double(order + offset) * 0.03), value: drawn)
                         }
                     }
                     Rectangle().fill(.white.opacity(0.22)).frame(height: 1)
                     if let mean {
                         Rectangle().fill(Tone.moon).frame(height: 1.5)
                             .offset(y: -box.size.height * CGFloat(mean / top))
+                            .opacity(drawn ? 1 : 0)
+                            .animation(reduceMotion ? nil : .easeIn(duration: 0.3).delay(0.45), value: drawn)
                     }
                 }
             }

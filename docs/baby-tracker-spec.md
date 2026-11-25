@@ -2903,4 +2903,25 @@ to take a lead from. A paged version was built as a trial; he saw it and said to
   The title is given as a view, which the Watch lets an app colour.
 - **Not right yet:** the fourteen days are as they were
   when the iPhone last wrote the summary, so after midnight they are a day behind until something is logged.
-- **Not built:** turning the crown to move along the day strip, as the tides app does.
+
+**Motion and the crown (Tom, 26 November).** He liked how smoothly a tides app and a depth app move with the
+Digital Crown, and chose three things to build.
+
+- **The crown along the day.** Tapping the strip on Sleep today opens it (`DayScrub`, in
+  `PuggleWatch/Scrub.swift`). Turning the crown moves a marker along the day, the time under the clock
+  follows it, and the words say what was happening: "Night, 11h 10m, 19:06 – 6:40", "Awake in the night,
+  24 min", "Nap", "Awake". The sleep the marker is on stays bright and the rest dim. A tick on the wrist at
+  each falling asleep and each waking. It opens first because on the pages the crown turns the page.
+- **The crown day by day.** Tapping the bars on Last 14 days opens them as one row (`FortnightScrub`). The
+  crown moves a day a click; the day it is on is bright, with its date and its hours.
+- **Charts draw in, figures roll.** The blocks on Sleep today fill from the left and the bars on Last 14
+  days rise one after another as the page arrives. Figures roll to a new value, on the pages and on the
+  bottle amount.
+- **A sleep starting is a change of scene.** The colour behind crosses to night over a moment, the timer
+  fades in and a moon rises above it. Waking and feeding cross the same way.
+- **Reduce Motion** leaves all of it still.
+- **For checking:** `-previewSheet day` with `-previewScrub 600` opens the day at 10:00;
+  `-previewSheet days` with `-previewScrubDay 5` opens the days on the sixth.
+- **Checked on the simulator** from recordings: the change of scene and the bars rising. **Not checked:**
+  the strip filling in (the same method as the bars), the crown itself, which the simulator can't be turned
+  by script, and how the ticks feel.

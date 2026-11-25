@@ -32,7 +32,7 @@ struct ChildPage: View {
                     }
                 }
             } else {
-                awake
+                awake.modifier(Arriving())
             }
         }
         .sheet(isPresented: $choosingNappy) { NavigationStack { NappyChoice(child: child) } }
@@ -135,6 +135,8 @@ struct ChildPage: View {
                         Text(row.value)
                             .font(.system(size: first ? 34 : 26, weight: .semibold, design: .rounded))
                             .monospacedDigit()
+                            .contentTransition(.numericText())
+                            .animation(.default, value: row.value)
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
                     }
@@ -173,6 +175,8 @@ struct ChildPage: View {
                 }
             }
             Spacer(minLength: 0)
+            // The moon comes up as they fall asleep.
+            if paged, label == "Asleep" { Rising(systemName: "moon.stars.fill") }
             Group {
                 if let since, label == "Asleep" {
                     // A sleep reads as on the iPhone's Lock Screen, "1h 2m"; only a feed, short and watched,
@@ -199,6 +203,9 @@ struct ChildPage: View {
         .padding(.horizontal, 6)
         .background(paged ? Color.clear.ignoresSafeArea() : fill.ignoresSafeArea())
         .accessibilityElement(children: .contain)
+        // Falling asleep, feeding and waking change the scene over a moment, not at a cut: each screen
+        // fades in as it arrives, while the colour behind crosses over (`PagedChild`).
+        .modifier(Arriving())
     }
 
     private func side(_ name: String, _ action: WatchLink.Request.Action) -> some View {
@@ -256,6 +263,38 @@ struct ChildPage: View {
     }
 }
 
+/// Fades a screen in as it arrives. Still at once with Reduce Motion.
+struct Arriving: ViewModifier {
+    @State private var here = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(here ? 1 : 0)
+            .onAppear {
+                if reduceMotion { here = true } else { withAnimation(.easeOut(duration: 0.55)) { here = true } }
+            }
+    }
+}
+
+/// A small picture that rises into place as its screen arrives: the moon, when a sleep starts.
+struct Rising: View {
+    let systemName: String
+    @State private var up = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        Image(systemName: systemName)
+            .font(.system(size: 22, weight: .semibold))
+            .offset(y: up ? 0 : 26)
+            .opacity(up ? 1 : 0)
+            .onAppear {
+                if reduceMotion { up = true } else { withAnimation(.spring(duration: 0.9, bounce: 0.3).delay(0.15)) { up = true } }
+            }
+            .accessibilityHidden(true)
+    }
+}
+
 /// Wet, dirty or both: one tap saves it.
 struct NappyChoice: View {
     let child: WidgetSnapshot.Child
@@ -301,6 +340,8 @@ struct BottleChoice: View {
     var body: some View {
         VStack(spacing: 8) {
             Text("\(Int(ml)) ml")
+                .contentTransition(.numericText(value: ml))
+                .animation(.snappy(duration: 0.2), value: ml)
                 .font(.system(size: 36, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .focusable()
