@@ -61,6 +61,15 @@ struct RootView: View {
             if let children = model.snapshot?.children, !children.isEmpty {
                 // One page each, side by side; the title says whose it is.
                 // In a navigation stack, so what scrolls up fades under the clock instead of running behind it.
+                if Pages.on {
+                    // The paged trial: each child has pages of their own, turned with the crown.
+                    TabView(selection: $page) {
+                        ForEach(children) { child in
+                            PagedChild(child: child).tag(child.id)
+                        }
+                    }
+                    .tabViewStyle(.page)
+                } else {
                 NavigationStack {
                     TabView(selection: $page) {
                         ForEach(children) { child in
@@ -68,6 +77,7 @@ struct RootView: View {
                         }
                     }
                     .tabViewStyle(.page)
+                }
                 }
             } else {
                 VStack(spacing: 8) {

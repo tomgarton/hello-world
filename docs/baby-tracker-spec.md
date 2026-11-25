@@ -2874,3 +2874,22 @@ the sheet after seeing the two side by side.
 - The grid in the card is kept. Launch with `-debugPlusGrid 1` to see it (`ChildActions.asSheet`).
 
 Not built, and still there to try: a pop-up menu, or one plus for the whole family.
+
+## The Watch app as pages, a trial (26 November 2026)
+
+Tom sent screens from Apple's Sleep and Activity apps on the Watch, and from a tides app and a workout app,
+to take a lead from. A paged version is built beside the Watch app to look at. Nothing has been chosen.
+
+- The Watch app still opens as one page a child. Launching with `-previewPages 1` shows the trial
+  (`PuggleWatch/ChildPages.swift`); `-previewPage 2` opens on the third page.
+- **Taken from them:** one idea a page, turned with the Digital Crown, with dots down the right edge; the
+  page's name under the clock; the child's badge in the corner, which goes back to the first page; a small
+  coloured label, a large figure and a grey line under it; a strip for the day with a line every six hours;
+  two weeks of bars with a line at each week's average; a colour at the top fading to black.
+- **Left out:** a score or a verdict ("69, OK", "Consistent"), sleep stages, and Apple's colours.
+- **The pages:** Now (Awake, Fed and Nappy, each large, with the buttons under them), Sleep today, Next,
+  and Last 14 days. Asleep and feeding keep their timer and button as the first page.
+- **Made-up figures.** Sleep today, Next and Last 14 days show a sample (`DayFigures.sample`). The iPhone
+  does not send today's sleeps, the fortnight or more than one "next" yet.
+- **Not right yet:** the page names are grey, not the child's colour; and on Now the buttons start below
+  the three facts, so "Start sleep" needs a turn of the crown.

@@ -5,6 +5,9 @@ import SwiftUI
 /// is most likely next and two smaller ones below (Tom, 20 November 2026, after Granola's Watch app).
 struct ChildPage: View {
     let child: WidgetSnapshot.Child
+    /// The first of a child's pages in the paged trial (`PagedChild`): their name is in the title and their
+    /// badge in the corner, so the page starts with the facts, each large.
+    var paged = false
     @EnvironmentObject private var model: WatchModel
     // For checking: "-previewSheet nappy" or "bottle" opens one on the first child.
     @State private var choosingNappy = false
@@ -55,13 +58,17 @@ struct ChildPage: View {
         ScrollViewReader { scroller in
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
-                    HStack(spacing: 8) {
-                        Badge(child: child)
-                        Text(child.name)
-                            .font(.system(.title3, design: .rounded).weight(.bold))
-                            .lineLimit(1)
+                    if paged {
+                        largeFacts
+                    } else {
+                        HStack(spacing: 8) {
+                            Badge(child: child)
+                            Text(child.name)
+                                .font(.system(.title3, design: .rounded).weight(.bold))
+                                .lineLimit(1)
+                        }
+                        facts
                     }
-                    facts
                     // One column, every button the full width, so their edges line up.
                     VStack(spacing: 6) {
                         big("Start sleep", systemImage: "moon.fill", fill: Tone.child(child.colourIndex), ink: Tone.ink) { send(.startSleep) }
@@ -105,6 +112,35 @@ struct ChildPage: View {
         }
     }
 
+    /// The same facts for the paged trial, as Activity lists steps and distance: a grey word, a large figure
+    /// and a line between. Awake comes first, as it is what "Start sleep" under it answers.
+    private var largeFacts: some View {
+        TimelineView(.periodic(from: .now, by: 60)) { context in
+            let rows: [(word: String, value: String)] = [
+                child.lastWoke.map { ("Awake", Elapsed.short(from: $0, to: context.date)) },
+                child.usesMilk != false ? child.lastFeed.map { ("Fed", ago($0, context.date)) } : child.lastSolids.map { ("Ate", ago($0, context.date)) },
+                child.pottyTraining == true ? child.lastPotty.map { ("Potty", ago($0, context.date)) }
+                    : (child.usesNappies ? child.lastNappy.map { (Terms.nappy, ago($0, context.date)) } : nil),
+            ].compactMap { $0 }
+            VStack(alignment: .leading, spacing: 4) {
+                ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
+                    if index > 0 { Rectangle().fill(.white.opacity(0.2)).frame(height: 1) }
+                    VStack(alignment: .leading, spacing: -2) {
+                        Text(row.word)
+                            .font(.system(.footnote, design: .rounded).weight(.medium))
+                            .foregroundStyle(.secondary)
+                        Text(row.value)
+                            .font(.system(size: 26, weight: .semibold, design: .rounded))
+                            .monospacedDigit()
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                    }
+                    .accessibilityElement(children: .combine)
+                }
+            }
+        }
+    }
+
     private func fact(_ word: String, _ value: String) -> some View {
         HStack(spacing: 4) {
             Text(word).foregroundStyle(.secondary)
@@ -124,11 +160,13 @@ struct ChildPage: View {
     private func running<Buttons: View>(label: String, since: Date?, fill: Color, ink: Color,
                                         @ViewBuilder buttons: () -> Buttons) -> some View {
         VStack(spacing: 2) {
-            HStack(spacing: 6) {
-                Badge(child: child, size: 20)
-                Text(child.name)
-                    .font(.system(.headline, design: .rounded))
-                    .lineLimit(1)
+            if !paged {
+                HStack(spacing: 6) {
+                    Badge(child: child, size: 20)
+                    Text(child.name)
+                        .font(.system(.headline, design: .rounded))
+                        .lineLimit(1)
+                }
             }
             Spacer(minLength: 0)
             Group {
@@ -155,7 +193,7 @@ struct ChildPage: View {
         .foregroundStyle(ink)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, 6)
-        .background(fill.ignoresSafeArea())
+        .background(paged ? Color.clear.ignoresSafeArea() : fill.ignoresSafeArea())
         .accessibilityElement(children: .contain)
     }
 
