@@ -59,7 +59,8 @@ struct ChildPage: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
                     if paged {
-                        largeFacts
+                        // What "Start sleep" answers comes first, with the button in view under it.
+                        largeFacts(first: true)
                     } else {
                         HStack(spacing: 8) {
                             Badge(child: child)
@@ -72,6 +73,7 @@ struct ChildPage: View {
                     // One column, every button the full width, so their edges line up.
                     VStack(spacing: 6) {
                         big("Start sleep", systemImage: "moon.fill", fill: Tone.child(child.colourIndex), ink: Tone.ink) { send(.startSleep) }
+                        if paged { largeFacts(first: false).padding(.vertical, 4) }
                         if child.breastfeeds == true {
                             row("Start feed", systemImage: "timer") { choosingSide = true }
                         }
@@ -114,14 +116,15 @@ struct ChildPage: View {
 
     /// The same facts for the paged trial, as Activity lists steps and distance: a grey word, a large figure
     /// and a line between. Awake comes first, as it is what "Start sleep" under it answers.
-    private var largeFacts: some View {
+    private func largeFacts(first: Bool) -> some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
-            let rows: [(word: String, value: String)] = [
+            let all: [(word: String, value: String)] = [
                 child.lastWoke.map { ("Awake", Elapsed.short(from: $0, to: context.date)) },
                 child.usesMilk != false ? child.lastFeed.map { ("Fed", ago($0, context.date)) } : child.lastSolids.map { ("Ate", ago($0, context.date)) },
                 child.pottyTraining == true ? child.lastPotty.map { ("Potty", ago($0, context.date)) }
                     : (child.usesNappies ? child.lastNappy.map { (Terms.nappy, ago($0, context.date)) } : nil),
             ].compactMap { $0 }
+            let rows = first ? Array(all.prefix(1)) : Array(all.dropFirst())
             VStack(alignment: .leading, spacing: 4) {
                 ForEach(Array(rows.enumerated()), id: \.offset) { index, row in
                     if index > 0 { Rectangle().fill(.white.opacity(0.2)).frame(height: 1) }
@@ -130,7 +133,7 @@ struct ChildPage: View {
                             .font(.system(.footnote, design: .rounded).weight(.medium))
                             .foregroundStyle(.secondary)
                         Text(row.value)
-                            .font(.system(size: 26, weight: .semibold, design: .rounded))
+                            .font(.system(size: first ? 34 : 26, weight: .semibold, design: .rounded))
                             .monospacedDigit()
                             .lineLimit(1)
                             .minimumScaleFactor(0.7)
@@ -138,6 +141,7 @@ struct ChildPage: View {
                     .accessibilityElement(children: .combine)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 

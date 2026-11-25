@@ -40,6 +40,11 @@ enum NextUp {
     ///   - sleeps: each sleep's start and end. A running sleep has no end.
     ///   - nappies: when each nappy was changed.
     static func soonest(feeds: [Date], sleeps: [(start: Date, end: Date?)], nappies: [Date], now: Date) -> Guess? {
+        all(feeds: feeds, sleeps: sleeps, nappies: nappies, now: now).min { $0.at < $1.at }
+    }
+
+    /// Every guess there is enough to make, in no order. The Watch's "Next" page shows the first two.
+    static func all(feeds: [Date], sleeps: [(start: Date, end: Date?)], nappies: [Date], now: Date) -> [Guess] {
         var guesses: [Guess] = []
         func add(_ kind: Kind, after last: Date?, gap: TimeInterval?) {
             guard let last, let gap else { return }
@@ -64,16 +69,20 @@ enum NextUp {
                 .sorted()
             add(.sleep, after: woke, gap: awake.count >= enough ? awake[awake.count / 2] : nil)
         }
-        return guesses.min { $0.at < $1.at }
+        return guesses
     }
 
     static func soonest(for child: Child, now: Date = .now) -> Guess? {
+        all(for: child, now: now).min { $0.at < $1.at }
+    }
+
+    static func all(for child: Child, now: Date = .now) -> [Guess] {
         // Only the last week and a day is looked at, so a long history costs nothing more.
         let from = now.addingTimeInterval(-(days + 1) * 86400)
         let events = (child.events ?? []).filter { ($0.startedAt ?? .distantPast) > from && $0.isLive }
         let feeds = events.filter { $0.kind == .bottle || $0.kind == .breastfeed }.compactMap(\.startedAt)
         let sleeps = events.filter { $0.kind == .sleep }.compactMap { event in event.startedAt.map { (start: $0, end: event.endedAt) } }
         let nappies = child.uses(.nappy) ? events.filter { $0.kind == .nappy }.compactMap(\.startedAt) : []
-        return soonest(feeds: feeds, sleeps: sleeps, nappies: nappies, now: now)
+        return all(feeds: feeds, sleeps: sleeps, nappies: nappies, now: now)
     }
 }

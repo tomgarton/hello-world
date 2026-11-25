@@ -47,6 +47,42 @@ enum WidgetFeed {
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
+    /// For the Watch's "Sleep today": each stretch asleep that touches today, split around wakings. A sleep
+    /// still running ends its last stretch with no end, so the Watch can keep it growing.
+    static func sleepsToday(for child: Child, now: Date = .now) -> [WidgetSnapshot.Stretch] {
+        let midnight = Calendar.current.startOfDay(for: now)
+        let sleeps = (child.events ?? [])
+            .filter { $0.kind == .sleep && $0.isLive && ($0.startedAt ?? .distantFuture) <= now && ($0.endedAt ?? now) > midnight }
+            .sorted { ($0.startedAt ?? .distantPast) < ($1.startedAt ?? .distantPast) }
+        var result: [WidgetSnapshot.Stretch] = []
+        for (index, sleep) in sleeps.enumerated() {
+            var pieces = sleep.asleepPieces(to: now, now: now).map { WidgetSnapshot.Stretch(start: $0.start, end: $0.end, sleep: index) }
+            if sleep.endedAt == nil, !pieces.isEmpty { pieces[pieces.count - 1].end = nil }
+            result += pieces
+        }
+        return result
+    }
+
+    /// For the Watch's "Last 14 days": hours asleep on each of the fourteen whole days before today, oldest
+    /// first. A day with no sleep in it is nil, so it is drawn as a gap and left out of the average.
+    static func sleepDays(stretches: [DateInterval], now: Date = .now, calendar: Calendar = .current) -> [Double?] {
+        let today = calendar.startOfDay(for: now)
+        return (1...14).reversed().map { back -> Double? in
+            guard let start = calendar.date(byAdding: .day, value: -back, to: today),
+                  let end = calendar.date(byAdding: .day, value: 1, to: start) else { return nil }
+            let seconds = stretches.reduce(0.0) { $0 + max(0, min($1.end, end).timeIntervalSince(max($1.start, start))) }
+            return seconds >= 60 ? seconds / 3600 : nil
+        }
+    }
+
+    static func sleepDays(for child: Child, now: Date = .now) -> [Double?] {
+        let from = Calendar.current.startOfDay(for: now).addingTimeInterval(-16 * 86400)
+        let stretches = (child.events ?? [])
+            .filter { $0.kind == .sleep && $0.isLive && ($0.endedAt ?? now) > from }
+            .flatMap { $0.asleepPieces(from: from, to: now, now: now) }
+        return sleepDays(stretches: stretches, now: now)
+    }
+
     /// Writes the summary for the widgets and sends it to the Watch. Returns it, for the Watch's answer.
     @discardableResult
     static func write(from store: FamilyStore) -> WidgetSnapshot {
@@ -80,7 +116,10 @@ enum WidgetFeed {
                 feedingSince: store.activeFeed(for: child)?.startedAt,
                 feedSide: store.activeFeed(for: child)?.runningSide,
                 breastfeeds: child.uses(.breastfeed),
-                lastBottleML: store.latest(.bottle, for: child).map { Int($0.amountML) }.flatMap { $0 > 0 ? $0 : nil })
+                lastBottleML: store.latest(.bottle, for: child).map { Int($0.amountML) }.flatMap { $0 > 0 ? $0 : nil },
+                sleepsToday: sleepsToday(for: child),
+                sleepDays: sleepDays(for: child),
+                coming: NextUp.all(for: child).sorted { $0.at < $1.at }.map { WidgetSnapshot.Coming(kind: $0.kind.rawValue, at: $0.at) })
         }
         let snapshot = WidgetSnapshot(children: rows, updatedAt: .now)
         snapshot.save()

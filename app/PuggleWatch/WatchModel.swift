@@ -42,6 +42,7 @@ final class WatchModel: NSObject, ObservableObject {
         }
         preview.children[0].breastfeeds = true
         preview.children[0].lastBottleML = 150
+        for index in preview.children.indices { DayFigures.fillSample(&preview.children[index]) }
         return preview
     }
 

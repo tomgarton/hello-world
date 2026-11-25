@@ -2875,21 +2875,30 @@ the sheet after seeing the two side by side.
 
 Not built, and still there to try: a pop-up menu, or one plus for the whole family.
 
-## The Watch app as pages, a trial (26 November 2026)
+## The Watch app as pages (26 November 2026)
 
 Tom sent screens from Apple's Sleep and Activity apps on the Watch, and from a tides app and a workout app,
-to take a lead from. A paged version is built beside the Watch app to look at. Nothing has been chosen.
+to take a lead from. A paged version was built as a trial; he saw it and said to make it real.
 
-- The Watch app still opens as one page a child. Launching with `-previewPages 1` shows the trial
-  (`PuggleWatch/ChildPages.swift`); `-previewPage 2` opens on the third page.
-- **Taken from them:** one idea a page, turned with the Digital Crown, with dots down the right edge; the
-  page's name under the clock; the child's badge in the corner, which goes back to the first page; a small
-  coloured label, a large figure and a grey line under it; a strip for the day with a line every six hours;
-  two weeks of bars with a line at each week's average; a colour at the top fading to black.
+- **Each child has four pages, turned with the Digital Crown** (`PuggleWatch/ChildPages.swift`). Children
+  are still side by side. The single page is kept: launch with `-singlePage 1`.
+- **Taken from those apps:** one idea a page, with dots down the right edge; the page's name under the
+  clock; the child's badge in the corner, which goes back to the first page; a small coloured label, a large
+  figure and a grey line under it; a strip for the day with a line every six hours; two weeks of bars with a
+  line at each week's average; a colour at the top fading to black.
 - **Left out:** a score or a verdict ("69, OK", "Consistent"), sleep stages, and Apple's colours.
-- **The pages:** Now (Awake, Fed and Nappy, each large, with the buttons under them), Sleep today, Next,
-  and Last 14 days. Asleep and feeding keep their timer and button as the first page.
-- **Made-up figures.** Sleep today, Next and Last 14 days show a sample (`DayFigures.sample`). The iPhone
-  does not send today's sleeps, the fortnight or more than one "next" yet.
-- **Not right yet:** the page names are grey, not the child's colour; and on Now the buttons start below
-  the three facts, so "Start sleep" needs a turn of the crown.
+- **Now.** "Awake 1h 11m" large with "Start sleep" in view under it, then Fed and Nappy, then the other
+  buttons. Asleep and feeding keep their timer and button here.
+- **Sleep today.** A strip from midnight to midnight with a block for each stretch asleep, a gap for each
+  waking and a line at now. Under it "Asleep today", the total, and "Up at 6:40 · 2 naps".
+- **Next.** The two soonest guesses from `NextUp` (sleep, feed or nappy), the first bright. While they are
+  asleep it says so.
+- **Last 14 days.** The fourteen whole days before today, a week each side, each with its average, and
+  "Asleep a day" for the last seven. A day with no sleep logged is a gap and is left out of the average.
+- **What the iPhone sends** (`WidgetSnapshot.Child`, written in `WidgetFeed`): `sleepsToday`, `sleepDays`
+  and `coming`. A Watch whose iPhone has an older Puggle says "Open Puggle on your iPhone to see…".
+- **For checking:** `-preview 1` fills the pages with made-up figures; `-previewPage 2` opens on the third.
+- **Not checked:** the figures arriving from a real iPhone (the simulators aren't paired).
+- **Not right yet:** the page names are grey, not the child's colour. The fourteen days are as they were
+  when the iPhone last wrote the summary, so after midnight they are a day behind until something is logged.
+- **Not built:** turning the crown to move along the day strip, as the tides app does.

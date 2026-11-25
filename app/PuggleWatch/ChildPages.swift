@@ -1,26 +1,16 @@
 import SwiftUI
 
-/// A trial (26 November 2026): each child as a few short pages turned with the Digital Crown, one idea a page,
-/// after Apple's Sleep and Activity apps on the Watch. Off unless the app is launched with "-previewPages 1";
-/// the single page (`ChildPage`) is what the app does.
-///
-/// The pages after the first show made-up figures (`DayFigures.sample`). The iPhone does not send today's
-/// sleeps, the fortnight or more than one "next" yet.
+/// Each child as a few short pages turned with the Digital Crown, one idea a page, after Apple's Sleep and
+/// Activity apps on the Watch (Tom, 26 November 2026). The single page (`ChildPage` by itself) is kept:
+/// launch with "-singlePage 1" to see it.
 enum Pages {
-    static let on = UserDefaults.standard.bool(forKey: "previewPages")
+    static let on = !UserDefaults.standard.bool(forKey: "singlePage")
     /// For checking: "-previewPage 2" opens on the third page.
     static let first = UserDefaults.standard.integer(forKey: "previewPage")
 }
 
-/// What the pages past the first need, which the iPhone's summary does not carry yet.
+/// What the pages past the first show, read from what the iPhone sent.
 struct DayFigures {
-    struct Sleep: Identifiable {
-        let start: Date
-        /// Nil while it is running.
-        let end: Date?
-        var id: Date { start }
-    }
-
     struct Coming: Identifiable {
         let title: String
         let systemImage: String
@@ -28,33 +18,45 @@ struct DayFigures {
         var id: String { title }
     }
 
-    /// Sleeps that touch today, the night that ran into this morning first.
-    var sleeps: [Sleep]
+    /// Each stretch asleep that touches today. Nil when the iPhone has not sent them (an older Puggle there).
+    var sleeps: [WidgetSnapshot.Stretch]?
     /// Hours asleep on each of the last fourteen whole days, oldest first. Nil for a day with nothing logged.
-    var days: [Double?]
-    /// What comes next, soonest first.
+    var days: [Double?]?
+    /// What comes next, soonest first, and still to come.
     var coming: [Coming]
 
-    /// Made up, so the pages can be looked at: a night to 06:40 and two naps.
-    static func sample(for child: WidgetSnapshot.Child, now: Date = .now) -> DayFigures {
+    init(child: WidgetSnapshot.Child, now: Date = .now) {
+        sleeps = child.sleepsToday
+        days = child.sleepDays
+        coming = (child.coming ?? []).filter { $0.at > now }.sorted { $0.at < $1.at }.map { next in
+            switch next.kind {
+            case "sleep": Coming(title: "Next sleep", systemImage: "moon.fill", at: next.at)
+            case "nappy": Coming(title: "Next \(Terms.nappyLower)", systemImage: "drop.fill", at: next.at)
+            default: Coming(title: "Next feed", systemImage: "waterbottle.fill", at: next.at)
+            }
+        }
+    }
+
+    /// Made up, for "-preview 1": a night to 06:40 and two naps, a fortnight, and a sleep and a feed to come.
+    static func fillSample(_ child: inout WidgetSnapshot.Child, now: Date = .now) {
         let midnight = Calendar.current.startOfDay(for: now)
         func at(_ hour: Double) -> Date { midnight.addingTimeInterval(hour * 3600) }
-        var sleeps = [Sleep(start: at(-4.9), end: at(6.67)), Sleep(start: at(9.25), end: at(10.5)), Sleep(start: at(13.1), end: at(14.6))]
-            .filter { $0.start < now }
-            .map { Sleep(start: $0.start, end: min($0.end ?? now, now)) }
-        if let since = child.asleepSince { sleeps.append(Sleep(start: since, end: nil)) }
-        let ollie: [Double?] = [13.9, 12.8, 14.2, nil, 13.6, 12.4, 13.1, 14.4, 11.2, 13.8, 14.9, 13.3, 12.9, 13.7]
-        let bea: [Double?] = [11.6, 12.1, 11.2, 11.9, 12.4, 10.8, 11.5, 11.9, 12.2, nil, 11.1, 12.6, 11.8, 11.4]
-        return DayFigures(sleeps: sleeps, days: child.usesMilk == true ? ollie : bea,
-                          coming: [Coming(title: "Next sleep", systemImage: "moon.fill", at: now.addingTimeInterval(70 * 60)),
-                                   Coming(title: child.usesMilk == true ? "Next feed" : "Next meal", systemImage: child.usesMilk == true ? "waterbottle.fill" : "fork.knife",
-                                          at: now.addingTimeInterval(125 * 60))])
+        // The night has a waking in it, so it is two stretches of one sleep.
+        let made: [(Double, Double, Int)] = [(-4.9, 2.2, 0), (2.6, 6.67, 0), (9.25, 10.5, 1), (13.1, 14.6, 2)]
+        var sleeps = made.filter { at($0.0) < now }.map { WidgetSnapshot.Stretch(start: at($0.0), end: min(at($0.1), now), sleep: $0.2) }
+        if let since = child.asleepSince { sleeps.append(WidgetSnapshot.Stretch(start: since, end: nil, sleep: 9)) }
+        child.sleepsToday = sleeps
+        let milk = child.usesMilk == true
+        child.sleepDays = milk ? [13.9, 12.8, 14.2, nil, 13.6, 12.4, 13.1, 14.4, 11.2, 13.8, 14.9, 13.3, 12.9, 13.7]
+                               : [11.6, 12.1, 11.2, 11.9, 12.4, 10.8, 11.5, 11.9, 12.2, nil, 11.1, 12.6, 11.8, 11.4]
+        child.coming = child.asleepSince != nil ? [] : [WidgetSnapshot.Coming(kind: "sleep", at: now.addingTimeInterval(70 * 60))]
+        if milk { child.coming?.append(WidgetSnapshot.Coming(kind: "feed", at: now.addingTimeInterval(125 * 60))) }
     }
 
     /// Seconds asleep since midnight.
     func asleepToday(now: Date) -> TimeInterval {
         let midnight = Calendar.current.startOfDay(for: now)
-        return sleeps.reduce(0) { $0 + max(0, ($1.end ?? now).timeIntervalSince(max($1.start, midnight))) }
+        return (sleeps ?? []).reduce(0) { $0 + max(0, ($1.end ?? now).timeIntervalSince(max($1.start, midnight))) }
     }
 }
 
@@ -64,7 +66,7 @@ struct PagedChild: View {
     @State private var page = Pages.first
 
     var body: some View {
-        let figures = DayFigures.sample(for: child)
+        let figures = DayFigures(child: child)
         let tint = Tone.child(child.colourIndex)
         NavigationStack {
             TabView(selection: $page) {
@@ -158,8 +160,8 @@ struct SleepTodayPage: View {
             VStack(alignment: .leading, spacing: 8) {
                 strip(now: now, midnight: midnight)
                     .frame(maxHeight: 64)
-                if figures.sleeps.isEmpty {
-                    Text("No sleep logged today.")
+                if (figures.sleeps ?? []).isEmpty {
+                    Text(figures.sleeps == nil ? "Open Puggle on your iPhone to see today's sleep." : "No sleep logged today.")
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.secondary)
                 } else {
@@ -174,8 +176,11 @@ struct SleepTodayPage: View {
     /// "Up at 06:40 · 2 naps", from the night that ran into today and the sleeps that began today.
     private func detail(midnight: Date) -> String {
         var parts: [String] = []
-        if let up = figures.sleeps.first(where: { $0.start < midnight })?.end { parts.append("Up at \(clock(up))") }
-        let naps = figures.sleeps.filter { $0.start >= midnight }.count
+        let sleeps = figures.sleeps ?? []
+        // The night is the sleep that began before midnight; its last stretch says when they got up.
+        let night = sleeps.first(where: { $0.start < midnight })?.sleep
+        if let up = sleeps.last(where: { $0.sleep == night })?.end, night != nil { parts.append("Up at \(clock(up))") }
+        let naps = Set(sleeps.filter { $0.sleep != night }.map(\.sleep)).count
         if naps > 0 { parts.append(naps == 1 ? "1 nap" : "\(naps) naps") }
         return parts.joined(separator: " · ")
     }
@@ -196,7 +201,7 @@ struct SleepTodayPage: View {
                         .offset(x: left + 3, y: barHeight + 2)
                 }
                 Rectangle().fill(.white.opacity(0.22)).frame(width: 1, height: box.size.height).offset(x: width - 1)
-                ForEach(figures.sleeps) { sleep in
+                ForEach(figures.sleeps ?? [], id: \.self) { sleep in
                     let left = x(sleep.start), right = x(sleep.end ?? now)
                     RoundedRectangle(cornerRadius: 5, style: .continuous)
                         .fill(Tone.moon)
@@ -222,7 +227,7 @@ struct NextPage: View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
             VStack(alignment: .leading, spacing: 10) {
                 if figures.coming.isEmpty {
-                    Text("Nothing to guess from yet.")
+                    Text(child.asleepSince != nil ? "Asleep now. What's next shows when they wake." : "Nothing to guess from yet. It takes a few days of entries.")
                         .font(.system(.body, design: .rounded))
                         .foregroundStyle(.secondary)
                 }
@@ -259,8 +264,9 @@ struct FortnightPage: View {
     let figures: DayFigures
 
     var body: some View {
-        let weeks = [Array(figures.days.prefix(7)), Array(figures.days.suffix(7))]
-        let top = max(figures.days.compactMap { $0 }.max() ?? 1, 1)
+        let days = figures.days ?? Array(repeating: nil, count: 14)
+        let weeks = [Array(days.prefix(7)), Array(days.suffix(7))]
+        let top = max(days.compactMap { $0 }.max() ?? 1, 1)
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Calendar.current.startOfDay(for: .now)) ?? .now
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 10) {
@@ -273,7 +279,7 @@ struct FortnightPage: View {
             if let recent = average(weeks[1]) {
                 Figure(label: "Asleep a day", value: hoursAndMinutes(recent * 3600), detail: "Average, last 7 days", tint: Tone.moon)
             } else {
-                Text("No sleep logged in the last 7 days.")
+                Text(figures.days == nil ? "Open Puggle on your iPhone to see the last 14 days." : "No sleep logged in the last 7 days.")
                     .font(.system(.footnote, design: .rounded))
                     .foregroundStyle(.secondary)
             }

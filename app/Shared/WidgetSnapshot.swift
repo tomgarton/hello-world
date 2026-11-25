@@ -36,6 +36,27 @@ struct WidgetSnapshot: Codable {
         var feedSide: String?
         var breastfeeds: Bool?
         var lastBottleML: Int?
+        /// For the Watch's pages (26 November 2026). Nil in a summary written before this.
+        /// Each stretch asleep that touches today, split around wakings, the earliest first.
+        var sleepsToday: [Stretch]?
+        /// Hours asleep on each of the fourteen whole days before today, oldest first. Nil for a day with no sleep logged.
+        var sleepDays: [Double?]?
+        /// What is guessed to come next, soonest first.
+        var coming: [Coming]?
+    }
+
+    /// One stretch asleep. `sleep` numbers the sleep it belongs to, so a night broken by a waking is still
+    /// one night. `end` is nil while the sleep is running.
+    struct Stretch: Codable, Hashable {
+        var start: Date
+        var end: Date?
+        var sleep: Int
+    }
+
+    /// A guess at what comes next: "feed", "sleep" or "nappy", and about when.
+    struct Coming: Codable, Hashable {
+        var kind: String
+        var at: Date
     }
 
     var children: [Child]
