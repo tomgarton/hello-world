@@ -72,19 +72,19 @@ struct PagedChild: View {
             TabView(selection: $page) {
                 ChildPage(child: child, paged: true)
                     .containerBackground(ground(child.asleepSince != nil ? Tone.night : (child.feedingSince != nil ? Tone.honey : tint.opacity(0.28))), for: .tabView)
-                    .navigationTitle(child.name)
+                    .navigationTitle { Text(child.name).foregroundStyle(tint) }
                     .tag(0)
                 SleepTodayPage(child: child, figures: figures)
                     .containerBackground(ground(Tone.night), for: .tabView)
-                    .navigationTitle("Sleep today")
+                    .navigationTitle { Text("Sleep today").foregroundStyle(tint) }
                     .tag(1)
                 NextPage(child: child, figures: figures)
                     .containerBackground(ground(Tone.night), for: .tabView)
-                    .navigationTitle("Next")
+                    .navigationTitle { Text("Next").foregroundStyle(tint) }
                     .tag(2)
                 FortnightPage(child: child, figures: figures)
                     .containerBackground(ground(Tone.night), for: .tabView)
-                    .navigationTitle("Last 14 days")
+                    .navigationTitle { Text("Last 14 days").foregroundStyle(tint) }
                     .tag(3)
             }
             .tabViewStyle(.verticalPage)
@@ -98,8 +98,6 @@ struct PagedChild: View {
             }
         }
         .tint(tint)
-        // The page's name under the clock, in the child's colour.
-        .toolbarForegroundStyle(tint, for: .navigationBar)
     }
 
     /// The colour at the top, fading to black at the foot, as Sleep and Activity do.

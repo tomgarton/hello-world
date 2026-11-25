@@ -2899,6 +2899,8 @@ to take a lead from. A paged version was built as a trial; he saw it and said to
   and `coming`. A Watch whose iPhone has an older Puggle says "Open Puggle on your iPhone to see…".
 - **For checking:** `-preview 1` fills the pages with made-up figures; `-previewPage 2` opens on the third.
 - **Not checked:** the figures arriving from a real iPhone (the simulators aren't paired).
-- **Not right yet:** the page names are grey, not the child's colour. The fourteen days are as they were
+- **The page names are the child's colour** (Tom, 26 November): Ollie's in his blue, Bea's in her peach.
+  The title is given as a view, which the Watch lets an app colour.
+- **Not right yet:** the fourteen days are as they were
   when the iPhone last wrote the summary, so after midnight they are a day behind until something is logged.
 - **Not built:** turning the crown to move along the day strip, as the tides app does.
