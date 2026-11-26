@@ -442,7 +442,7 @@ Rules: one or two syllables a toddler can say; each name hints at the character'
 
 Trademark checks needed for Puggle before launch; the others matter only if sold as products in their own right.
 
-**Superseded for the stories (16 November 2026).** The personalities in this table are the first proposal. The friends' characters now live in `docs/stories/story-bible.md`, where Kip is the climber who sees far (not the sleepy one), Sunny is the oldest who makes the rules (not the smiling one), Digby is the youngest who joins in (not the potty jokes), and Quill is the maker who likes things just so. Tom agreed to try these, to build on. Names, animals and looks are unchanged.
+**Superseded for the stories (16 November 2026).** The personalities in this table are the first proposal. The friends' characters now live in `story-bible.md` in the puggle-book repository, where Kip is the climber who sees far (not the sleepy one), Sunny is the oldest who makes the rules (not the smiling one), Digby is the youngest who joins in (not the potty jokes), and Quill is the maker who likes things just so. Tom agreed to try these, to build on. Names, animals and looks are unchanged.
 
 #### Style direction: the original Puggle
 
@@ -2041,8 +2041,8 @@ stories. This is the "first book for Play" from the plan.
   Several sources could not be opened; the report marks what is unverified.
 - **Tom's choices:** the first stories are for toddlers of 2 to 4; the first book is a lift-the-flap search;
   plain prose with a refrain; the friends are neighbours along the creek.
-- **Drafts:** `docs/stories/story-bible.md` (what the stories are for, the engine, the creek and its five
-  homes, the rules, profiles for all ten characters, twelve outlines) and `docs/stories/one-boot.md` (the
+- **Drafts**, now in the puggle-book repository: `story-bible.md` (what the stories are for, the engine, the creek and its five
+  homes, the rules, profiles for all ten characters, twelve outlines) and `one-boot.md` (the
   first book, eleven pictures, about 190 words).
 - **Agreed to try:** the new characters for Kip, Digby and Sunny (see the note under Character names).
 - **Not done:** nothing drawn, nothing built in the app, nothing read aloud to a child, and no name or
@@ -2317,9 +2317,9 @@ Tom asked for little rain "pops" on the characters, objects and animals, then dr
 Tom chose **the house** as Puggle's home (from the ChatGPT world pack) and asked to bring the pack into the
 book already built, keeping build 14's approach: flat SwiftUI pages turned in 3D, not RealityKit.
 
-- **The pack is filed** in `docs/stories/handoff/`: its specification (world bible, dummy decisions, spread
+- **The pack is filed** in `handoff/` in the puggle-book repository: its specification (world bible, dummy decisions, spread
   plan, storyboard, the RealityKit notes for the record), the six concept pictures, the cast crops and the
-  interactive dummy. The manuscript in it is word for word `docs/stories/one-boot-story.md`.
+  interactive dummy. The manuscript in it is word for word `one-boot-story.md`.
 - **Home is the house.** A cream house with a coral roof, a round coral door and a garden with a white gate;
   the app's rooms are its inside. The story bible and world kit say so. **The burrow is kept, unchosen,** in
   both. Nan and Pop's is now the green-roofed house with a veranda along the path before the creek.
@@ -2938,3 +2938,16 @@ Digital Crown, and chose three things to build.
 - **Checked on the simulator** from recordings: the change of scene and the bars rising. **Not checked:**
   the strip filling in (the same method as the bars), the crown itself, which the simulator can't be turned
   by script, and how the ticks feel.
+
+## The book moved to its own repository (26 November 2026)
+
+Tom: "These are still in the hello-world repo. We should move to its own repo instead." He chose to move
+the documents only.
+
+- Everything that was in `docs/stories/` is now in the private repository `tomgarton/puggle-book`
+  (https://github.com/tomgarton/puggle-book), with its history. The paths there are the old ones without
+  `docs/stories/`: for example `handoff/specification/ONE_BOOT_MANUSCRIPT.md`.
+- `docs/stories/` is removed from this repository, with the line in `.gitignore` that was only for it.
+- The mentions above and in the Play tab's code now name the file in puggle-book.
+- The board book in the Play tab stays here (`app/Puggle/Features/Play/`). It reads nothing from those
+  documents: they were only named in comments.

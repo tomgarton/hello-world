@@ -1,7 +1,7 @@
 import SwiftUI
 
 // The places in "One Boot", drawn for the board book (17 November 2026). The route and the places come from
-// the ChatGPT world pack (docs/stories/handoff/): Puggle's house, the garden path past the logs, the digging
+// the ChatGPT world pack (handoff/ in the puggle-book repository): Puggle's house, the garden path past the logs, the digging
 // patch and the big gum, Nan and Pop's, and the creek. Redrawn here the way the app's scenes are drawn: flat
 // shapes, no outline, the scenes' own colours, and eastern Australian plants in place of the pack's tulips
 // and daisies. Storyboard quality still: placed by eye, to be drawn properly once the pages are agreed.

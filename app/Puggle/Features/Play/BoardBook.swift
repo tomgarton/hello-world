@@ -2,7 +2,7 @@ import SwiftUI
 
 // A board book on the screen: thick card pages that turn stiffly on a spine, and flaps cut into the page
 // that lift on a hinge and leave a recess. A first try (16 November 2026), to find out how convincing card
-// can be made with nothing but SwiftUI. See docs/stories/board-book-build.md for what was weighed up.
+// can be made with nothing but SwiftUI. See board-book-build.md in the puggle-book repository for what was weighed up.
 // Open it from Settings, Test builds only, "Board book", or with "-debugBook 1".
 
 /// The card every page and flap is cut from.

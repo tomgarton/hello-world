@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// "One Boot", the first book (docs/stories/one-boot.md), laid out to the ChatGPT pack's dummy
-/// (docs/stories/handoff/, 17 November 2026): one beat to an opening, eleven openings, seven flaps (six raised,
+/// "One Boot", the first book (one-boot.md in the puggle-book repository), laid out to the ChatGPT pack's dummy
+/// (handoff/ there, 17 November 2026): one beat to an opening, eleven openings, seven flaps (six raised,
 /// the dirt cut in), along the route from Puggle's house through the garden to Nan and Pop's and the creek.
 /// The places are in BookPlaces.swift. Storyboard quality: placed by eye.
 extension Book {
