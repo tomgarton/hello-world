@@ -1,4 +1,5 @@
 import SwiftUI
+import WatchKit
 
 /// One child on the Watch. Asleep, the screen is night blue with the sleep counting up; feeding, it is a deep
 /// honey with the feed counting up; otherwise it shows how they are, with one big button for what
@@ -8,6 +9,8 @@ struct ChildPage: View {
     /// The first of a child's pages in the paged trial (`PagedChild`): their name is in the title and their
     /// badge in the corner, so the page starts with the facts, each large.
     var paged = false
+    /// Counts up each time the page should go back to its top: the badge tapped, or the page left.
+    var toTop = 0
     @EnvironmentObject private var model: WatchModel
     // For checking: "-previewSheet nappy" or "bottle" opens one on the first child.
     @State private var choosingNappy = false
@@ -17,12 +20,31 @@ struct ChildPage: View {
     var body: some View {
         Group {
             if let since = child.asleepSince {
-                running(label: "Asleep", since: since, fill: Tone.night, ink: Tone.moon) {
+                running(label: "Asleep", fill: Tone.night, ink: Tone.moon, moon: true) {
+                    // A sleep reads as on the iPhone's Lock Screen, "1h 2m"; only a feed, short and watched,
+                    // ticks in seconds (Tom, 20 November 2026). Its first minute is "Just now", as elsewhere.
+                    TimelineView(.periodic(from: since, by: 60)) { context in
+                        if context.date.timeIntervalSince(since) < 60 {
+                            Text("Just now")
+                        } else {
+                            Text(.dateRange(startingAt: since), format: .components(style: .narrow, fields: [.hour, .minute]))
+                        }
+                    }
+                } buttons: {
                     big("Woke up", systemImage: "sun.max.fill", fill: Tone.moon, ink: Tone.night) { send(.wokeUp) }
                 }
             } else if let since = child.feedingSince {
-                running(label: child.feedSide.map { "Feeding, \($0.lowercased())" } ?? "Feed paused", since: child.feedSide == nil ? nil : since,
-                        fill: Tone.honey, ink: Tone.cream) {
+                // The time fed, without the pauses, when the iPhone sends it; from the start otherwise.
+                let paused = child.feedSide == nil
+                let label = child.feedSide.map { "Feeding, \($0.lowercased())" } ?? (child.feedBanked == nil ? "Feed" : "Feed paused")
+                running(label: label, fill: Tone.honey, ink: Tone.cream, moon: false) {
+                    if paused {
+                        Text(child.feedBanked.map { Duration.seconds($0).formatted(.time(pattern: .minuteSecond)) } ?? "Paused")
+                    } else {
+                        let from = child.feedBanked.flatMap { banked in child.feedSideSince?.addingTimeInterval(-banked) } ?? since
+                        Text(timerInterval: from...Date.distantFuture, countsDown: false)
+                    }
+                } buttons: {
                     VStack(spacing: 6) {
                         HStack(spacing: 6) {
                             side("Left", .feedLeft)
@@ -35,8 +57,19 @@ struct ChildPage: View {
                 awake.modifier(Arriving())
             }
         }
-        .sheet(isPresented: $choosingNappy) { NavigationStack { NappyChoice(child: child) } }
-        .sheet(isPresented: $choosingBottle) { NavigationStack { BottleChoice(child: child) } }
+        // The closing cross is white: on its own dark circle, not the child's pale colour.
+        .sheet(isPresented: $choosingNappy) { NavigationStack { NappyChoice(child: child) }.tint(Tone.closeButton) }
+        .sheet(isPresented: $choosingBottle) { NavigationStack { BottleChoice(child: child, ounces: model.snapshot?.ounces == true) }.tint(Tone.closeButton) }
+        // A sheet, not a dialog: the dialog stayed up over the feed it had started.
+        .sheet(isPresented: $choosingSide) {
+            NavigationStack {
+                SideChoice(child: child) { side in
+                    choosingSide = false
+                    send(side)
+                }
+            }
+            .tint(Tone.closeButton)
+        }
         .onAppear {
             guard child.id == WatchModel.shared.snapshot?.children.first?.id else { return }
             switch UserDefaults.standard.string(forKey: "previewSheet") {
@@ -46,10 +79,6 @@ struct ChildPage: View {
             default: break
             }
         }
-        .confirmationDialog("Which side?", isPresented: $choosingSide) {
-            Button("Start left") { send(.feedLeft) }
-            Button("Start right") { send(.feedRight) }
-        }
     }
 
     // MARK: Awake
@@ -58,6 +87,7 @@ struct ChildPage: View {
         ScrollViewReader { scroller in
             ScrollView {
                 VStack(alignment: .leading, spacing: 10) {
+                    Color.clear.frame(height: 0).id("top")
                     if paged {
                         // What "Start sleep" answers comes first, with the button in view under it.
                         largeFacts(first: true)
@@ -75,13 +105,14 @@ struct ChildPage: View {
                         big("Start sleep", systemImage: "moon.fill", fill: Tone.child(child.colourIndex), ink: Tone.ink) { send(.startSleep) }
                         if paged { largeFacts(first: false).padding(.vertical, 4) }
                         if child.breastfeeds == true {
-                            row("Start feed", systemImage: "timer") { choosingSide = true }
+                            row("Start feed", systemImage: "timer") { Haptic.tap(); choosingSide = true }
                         }
-                        if child.usesMilk != false {
-                            row("Log bottle", systemImage: "waterbottle.fill") { choosingBottle = true }
+                        // A summary from an older Puggle does not say, so it goes by milk as before.
+                        if child.usesBottle ?? (child.usesMilk != false) {
+                            row("Log bottle", systemImage: "waterbottle.fill") { Haptic.tap(); choosingBottle = true }
                         }
                         if child.pottyTraining != true, child.usesNappies {
-                            row("Log \(Terms.nappyLower)", systemImage: "drop.fill") { choosingNappy = true }
+                            row("Log \(Terms.nappyLower)", systemImage: "drop.fill") { Haptic.tap(); choosingNappy = true }
                         }
                     }
                     .id("end")
@@ -94,6 +125,7 @@ struct ChildPage: View {
                 // For checking: "-previewScroll 1" opens at the foot of the page.
                 if UserDefaults.standard.bool(forKey: "previewScroll") { scroller.scrollTo("end", anchor: .bottom) }
             }
+            .onChange(of: toTop) { withAnimation { scroller.scrollTo("top", anchor: .top) } }
         }
     }
 
@@ -104,7 +136,7 @@ struct ChildPage: View {
                 // As on Today: Fed for a child on milk, Ate for one past it; Potty while potty training.
                 if child.usesMilk != false, let fed = child.lastFeed { fact("Fed", ago(fed, context.date)) }
                 if child.usesMilk == false, let ate = child.lastSolids { fact("Ate", ago(ate, context.date)) }
-                if let woke = child.lastWoke { fact("Awake", Elapsed.short(from: woke, to: context.date)) }
+                if let woke = child.lastWoke { fact("Awake", context.date.timeIntervalSince(woke) < 60 ? "just now" : Elapsed.short(from: woke, to: context.date)) }
                 if child.pottyTraining == true {
                     if let potty = child.lastPotty { fact("Potty", ago(potty, context.date)) }
                 } else if child.usesNappies, let nappy = child.lastNappy {
@@ -119,7 +151,7 @@ struct ChildPage: View {
     private func largeFacts(first: Bool) -> some View {
         TimelineView(.periodic(from: .now, by: 60)) { context in
             let all: [(word: String, value: String)] = [
-                child.lastWoke.map { ("Awake", Elapsed.short(from: $0, to: context.date)) },
+                child.lastWoke.map { ("Awake", context.date.timeIntervalSince($0) < 60 ? "just now" : Elapsed.short(from: $0, to: context.date)) },
                 child.usesMilk != false ? child.lastFeed.map { ("Fed", ago($0, context.date)) } : child.lastSolids.map { ("Ate", ago($0, context.date)) },
                 child.pottyTraining == true ? child.lastPotty.map { ("Potty", ago($0, context.date)) }
                     : (child.usesNappies ? child.lastNappy.map { (Terms.nappy, ago($0, context.date)) } : nil),
@@ -133,7 +165,7 @@ struct ChildPage: View {
                             .font(.system(.footnote, design: .rounded).weight(.medium))
                             .foregroundStyle(.secondary)
                         Text(row.value)
-                            .font(.system(size: first ? 34 : 26, weight: .semibold, design: .rounded))
+                            .rounded(first ? 34 : 26)
                             .monospacedDigit()
                             .contentTransition(.numericText())
                             .animation(.default, value: row.value)
@@ -163,8 +195,9 @@ struct ChildPage: View {
     // MARK: Running
 
     /// The whole screen in one colour, who it is, the time counting up large, and what to do about it.
-    private func running<Buttons: View>(label: String, since: Date?, fill: Color, ink: Color,
-                                        @ViewBuilder buttons: () -> Buttons) -> some View {
+    private func running<Counter: View, Buttons: View>(label: String, fill: Color, ink: Color, moon: Bool,
+                                                       @ViewBuilder counter: () -> Counter,
+                                                       @ViewBuilder buttons: () -> Buttons) -> some View {
         VStack(spacing: 2) {
             if !paged {
                 HStack(spacing: 6) {
@@ -176,19 +209,9 @@ struct ChildPage: View {
             }
             Spacer(minLength: 0)
             // The moon comes up as they fall asleep.
-            if paged, label == "Asleep" { Rising(systemName: "moon.stars.fill") }
-            Group {
-                if let since, label == "Asleep" {
-                    // A sleep reads as on the iPhone's Lock Screen, "1h 2m"; only a feed, short and watched,
-                    // ticks in seconds (Tom, 20 November 2026).
-                    Text(.dateRange(startingAt: since), format: .components(style: .narrow, fields: [.hour, .minute]))
-                } else if let since {
-                    Text(timerInterval: since...Date.distantFuture, countsDown: false)
-                } else {
-                    Text("Paused")
-                }
-            }
-            .font(.system(size: 44, weight: .bold, design: .rounded))
+            if paged, moon { Rising(systemName: "moon.stars.fill") }
+            counter()
+            .rounded(44, .bold)
             .monospacedDigit()
             .minimumScaleFactor(0.6)
             .lineLimit(1)
@@ -217,6 +240,8 @@ struct ChildPage: View {
         }
         .buttonStyle(.plain)
         .frame(minHeight: 40)
+        .lineLimit(1)
+        .minimumScaleFactor(0.75)
         .background(Tone.cream.opacity(on ? 0.3 : 0.14), in: Capsule())
         .contentShape(Capsule())
         .foregroundStyle(Tone.cream)
@@ -325,34 +350,65 @@ struct NappyChoice: View {
     }
 }
 
-/// A bottle: the amount starts at the last one and turns with the Digital Crown, 10 ml a click.
+/// Left or right, to start a feed: one tap starts it.
+struct SideChoice: View {
+    let child: WidgetSnapshot.Child
+    let choose: (WatchLink.Request.Action) -> Void
+
+    var body: some View {
+        VStack(spacing: 6) {
+            ForEach([("Left", WatchLink.Request.Action.feedLeft), ("Right", .feedRight)], id: \.0) { name, action in
+                Button { choose(action) } label: {
+                    Text(name)
+                        .font(.system(.headline, design: .rounded))
+                        .foregroundStyle(Tone.ink)
+                        .frame(maxWidth: .infinity, minHeight: 44)
+                        .background(Tone.child(child.colourIndex), in: Capsule())
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Start \(name.lowercased())")
+            }
+        }
+        .padding(.horizontal, 4)
+        .navigationTitle("Which side?")
+    }
+}
+
+/// A bottle: the amount starts at the last one and turns with the Digital Crown, 10 ml (or half an ounce) a click.
 struct BottleChoice: View {
     let child: WidgetSnapshot.Child
+    let ounces: Bool
     @EnvironmentObject private var model: WatchModel
     @Environment(\.dismiss) private var dismiss
-    @State private var ml: Double
+    /// Millilitres, or ounces when the iPhone is set to them.
+    @State private var amount: Double
 
-    init(child: WidgetSnapshot.Child) {
+    init(child: WidgetSnapshot.Child, ounces: Bool = false) {
         self.child = child
-        _ml = State(initialValue: Double(child.lastBottleML ?? 120))
+        self.ounces = ounces
+        let ml = Double(child.lastBottleML ?? 120)
+        _amount = State(initialValue: ounces ? max((ml / WidgetSnapshot.mlPerOz * 2).rounded() / 2, 0.5) : ml)
     }
+
+    private var ml: Int { Int((ounces ? amount * WidgetSnapshot.mlPerOz : amount).rounded()) }
 
     var body: some View {
         VStack(spacing: 8) {
-            Text("\(Int(ml)) ml")
-                .contentTransition(.numericText(value: ml))
-                .animation(.snappy(duration: 0.2), value: ml)
-                .font(.system(size: 36, weight: .bold, design: .rounded))
+            Text(ounces ? "\(amount.formatted(.number.precision(.fractionLength(0...1)))) oz" : "\(Int(amount)) ml")
+                .contentTransition(.numericText(value: amount))
+                .animation(.snappy(duration: 0.2), value: amount)
+                .rounded(36, .bold)
                 .monospacedDigit()
+                .lineLimit(1)
+                .minimumScaleFactor(0.6)
                 .focusable()
-                .digitalCrownRotation($ml, from: 10, through: 400, by: 10, sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: true)
-                .accessibilityValue("\(Int(ml)) millilitres")
-            Text("Turn the crown to change it")
-                .font(.system(.caption2, design: .rounded))
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
+                .digitalCrownRotation($amount, from: ounces ? 0.5 : 10, through: ounces ? 14 : 400, by: ounces ? 0.5 : 10,
+                                      sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: true)
+                .accessibilityValue(ounces ? "\(amount.formatted()) ounces" : "\(Int(amount)) millilitres")
+            CrownHint()
             Button {
-                model.send(WatchLink.Request(action: .bottle, childID: child.id, ml: Int(ml)))
+                model.send(WatchLink.Request(action: .bottle, childID: child.id, ml: ml))
                 dismiss()
             } label: {
                 Text("Save bottle")
@@ -366,5 +422,42 @@ struct BottleChoice: View {
         }
         .padding(.horizontal, 4)
         .navigationTitle("Bottle")
+    }
+}
+
+/// "Turn the crown", with the crown drawn beside it: short enough for the small Watch.
+struct CrownHint: View {
+    var body: some View {
+        Label("Turn the crown", systemImage: "digitalcrown.horizontal.arrow.clockwise.fill")
+            .font(.system(.caption2, design: .rounded))
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+            .minimumScaleFactor(0.7)
+    }
+}
+
+/// A light tick for a tap that opens something. Taps that save play their own (`WatchModel.send`).
+enum Haptic {
+    static func tap() { WKInterfaceDevice.current().play(.click) }
+}
+
+/// A figure's size, which grows with the text size set on the Watch as the labels do.
+private struct Scaled: ViewModifier {
+    @ScaledMetric private var size: CGFloat
+    private let weight: Font.Weight
+
+    init(_ size: CGFloat, _ weight: Font.Weight, relativeTo style: Font.TextStyle) {
+        _size = ScaledMetric(wrappedValue: size, relativeTo: style)
+        self.weight = weight
+    }
+
+    func body(content: Content) -> some View {
+        content.font(.system(size: size, weight: weight, design: .rounded))
+    }
+}
+
+extension View {
+    func rounded(_ size: CGFloat, _ weight: Font.Weight = .semibold) -> some View {
+        modifier(Scaled(size, weight, relativeTo: size < 16 ? .caption2 : .title2))
     }
 }

@@ -22,17 +22,22 @@ struct DayFigures {
     var sleeps: [WidgetSnapshot.Stretch]?
     /// Hours asleep on each of the last fourteen whole days, oldest first. Nil for a day with nothing logged.
     var days: [Double?]?
-    /// What comes next, soonest first, and still to come.
+    /// What comes next, soonest first.
     var coming: [Coming]
+    /// Whether the iPhone sent any guesses at all (an older Puggle there sends none).
+    var guessed: Bool
     /// Today's feeds, meals, nappies and potty trips.
     var marks: [WidgetSnapshot.Mark]
 
     init(child: WidgetSnapshot.Child, now: Date = .now) {
-        sleeps = child.sleepsToday
-        days = child.sleepDays(now: now)
         let midnight = Calendar.current.startOfDay(for: now)
+        // Only what touches today: after midnight a summary from yesterday still has yesterday's naps in it.
+        sleeps = child.sleepsToday.map { $0.filter { ($0.end ?? now) > midnight } }
+        days = child.sleepDays(now: now)
         marks = (child.marksToday ?? []).filter { $0.at >= midnight && $0.at <= now }
-        coming = (child.coming ?? []).filter { $0.at > now }.sorted { $0.at < $1.at }.map { next in
+        guessed = child.coming != nil
+        // Those gone by are left out where they are shown, minute by minute (`NextPage`).
+        coming = (child.coming ?? []).sorted { $0.at < $1.at }.map { next in
             switch next.kind {
             case "sleep": Coming(title: "Next sleep", systemImage: "moon.fill", at: next.at)
             case "nappy": Coming(title: "Next \(Terms.nappyLower)", systemImage: "drop.fill", at: next.at)
@@ -72,7 +77,11 @@ struct DayFigures {
 /// One child: Now, Sleep today, Next, and the last fourteen days.
 struct PagedChild: View {
     let child: WidgetSnapshot.Child
+    /// Whether this is the child showing. Swiping away puts their pages back to Now, so swiping to a child
+    /// always arrives on the page with their name.
+    var selected = true
     @State private var page = Pages.first
+    @State private var toTop = 0
     /// The day it is, so the pages are drawn again when it changes: at midnight with the app open, or on
     /// coming back to it in a new day. The fourteen days then move on by one (`sleepDays(now:)`).
     @State private var today = Calendar.current.startOfDay(for: .now)
@@ -85,7 +94,7 @@ struct PagedChild: View {
         let tint = Tone.child(child.colourIndex)
         NavigationStack {
             TabView(selection: $page) {
-                ChildPage(child: child, paged: true)
+                ChildPage(child: child, paged: true, toTop: toTop)
                     // The three colours lie one on another and cross over, so falling asleep goes to night
                     // over a moment and waking comes back.
                     .containerBackground(for: .tabView) {
@@ -116,7 +125,11 @@ struct PagedChild: View {
             .toolbar {
                 // Whose pages these are, in the corner on every page. Tapping it goes back to Now.
                 ToolbarItem(placement: .topBarLeading) {
-                    Button { withAnimation { page = 0 } } label: { Badge(child: child, size: 30) }
+                    Button {
+                        Haptic.tap()
+                        toTop += 1
+                        withAnimation { page = 0 }
+                    } label: { Badge(child: child, size: 30) }
                         .buttonStyle(.plain)
                         .accessibilityLabel("\(child.name), now")
                 }
@@ -125,6 +138,11 @@ struct PagedChild: View {
         .tint(tint)
         .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged).receive(on: RunLoop.main)) { _ in
             today = Calendar.current.startOfDay(for: .now)
+        }
+        // Coming back up to Now by a swipe lands at its foot, as the Watch's own paged apps do. Moving it to
+        // its top as it was left stopped the page turn half way, so only the badge does that.
+        .onChange(of: selected) { _, showing in
+            if !showing { page = 0; toTop += 1 }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { today = Calendar.current.startOfDay(for: .now) }
@@ -143,14 +161,28 @@ private struct Figure: View {
     let value: String
     var detail: String?
     let tint: Color
+    /// Whether tapping it opens a closer look: an arrow at its right says so.
+    var opens = false
 
     var body: some View {
+        HStack(alignment: .center, spacing: 4) {
+            words
+            if opens {
+                Image(systemName: "chevron.right")
+                    .font(.system(.footnote, design: .rounded).weight(.bold))
+                    .foregroundStyle(.secondary)
+                    .accessibilityHidden(true)
+            }
+        }
+    }
+
+    private var words: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text(label)
                 .font(.system(.footnote, design: .rounded).weight(.semibold))
                 .foregroundStyle(tint)
             Text(value)
-                .font(.system(size: 34, weight: .semibold, design: .rounded))
+                .rounded(34, .semibold)
                 .monospacedDigit()
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
@@ -167,6 +199,34 @@ private struct Figure: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .combine)
+    }
+}
+
+/// A page as it is when it fits the screen, so one swipe turns it; scrolling only when it does not, on the
+/// small Watch or with larger text. A page that always scrolled took two swipes to leave.
+private struct Fitting<Content: View>: View {
+    /// Whether this is the page showing. Left, it goes back to its top.
+    var current = true
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        ViewThatFits(in: .vertical) {
+            // With room left for the dots at the foot of the screen, or it counts as not fitting.
+            content.padding(.bottom, 14).frame(maxHeight: .infinity, alignment: .top)
+            ScrollViewReader { scroller in
+                ScrollView {
+                    content
+                        .padding(.bottom, 16)
+                        .id("top")
+                }
+                .onChange(of: current) { _, showing in
+                    if !showing { scroller.scrollTo("top", anchor: .top) }
+                }
+            }
+        }
+        // Measured against the whole screen below the title. The Watch keeps a deep margin free above the
+        // dots, and a page only a few points into it would scroll by those few points.
+        .ignoresSafeArea(.container, edges: .bottom)
     }
 }
 
@@ -195,31 +255,35 @@ struct SleepTodayPage: View {
             let now = context.date
             let midnight = Calendar.current.startOfDay(for: now)
             let sleeps = figures.sleeps ?? []
-            // It scrolls on a small Watch, where the strip, the figure and the key are taller than the screen.
-            ScrollView {
-            VStack(alignment: .leading, spacing: 5) {
-                // Tap it to look along the day with the crown.
-                Button { scrubbing = true } label: {
-                    DayStrip(sleeps: sleeps, marks: figures.marks, now: now, drawn: drawn)
-                        .frame(height: 64)
+            Fitting(current: current) {
+                VStack(alignment: .leading, spacing: 5) {
+                    // Tap it to look along the day with the crown.
+                    Button {
+                        Haptic.tap()
+                        scrubbing = true
+                    } label: {
+                        VStack(alignment: .leading, spacing: 5) {
+                            DayStrip(sleeps: sleeps, marks: figures.marks, now: now, drawn: drawn)
+                                .frame(height: 64)
+                            if !sleeps.isEmpty {
+                                Figure(label: "Asleep today", value: hoursAndMinutes(figures.asleepToday(now: now)),
+                                       detail: detail(midnight: midnight), tint: Tone.moon, opens: true)
+                            }
+                        }
                         .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(sleeps.isEmpty && figures.marks.isEmpty)
+                    .accessibilityHint("Opens the day to look along")
+                    if sleeps.isEmpty {
+                        Text(figures.sleeps == nil ? "Open Puggle on your iPhone to see today's sleep." : "No sleep logged today.")
+                            .font(.system(.body, design: .rounded))
+                            .foregroundStyle(.secondary)
+                    }
+                    MarkKey(marks: figures.marks)
                 }
-                .buttonStyle(.plain)
-                .disabled(sleeps.isEmpty && figures.marks.isEmpty)
-                .accessibilityLabel("Look along today")
-                if sleeps.isEmpty {
-                    Text(figures.sleeps == nil ? "Open Puggle on your iPhone to see today's sleep." : "No sleep logged today.")
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.secondary)
-                } else {
-                    Figure(label: "Asleep today", value: hoursAndMinutes(figures.asleepToday(now: now)), detail: detail(midnight: midnight), tint: Tone.moon)
-                }
-                MarkKey(marks: figures.marks)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 6)
-            // Clear of the page dots at the foot of the screen.
-            .padding(.bottom, 16)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 6)
             }
         }
         .onAppear { draw(current) }
@@ -236,15 +300,20 @@ struct SleepTodayPage: View {
         if reduceMotion { drawn = 1 } else { withAnimation(.easeOut(duration: 0.7)) { drawn = 1 } }
     }
 
-    /// "Up at 06:40 · 2 naps", from the night that ran into today and the sleeps that began today.
+    /// "Up at 06:40 · 2 naps", and "2 naps · Bed at 19:30" once they are down for the night. A sleep that
+    /// starts from 17:00 to 05:00 is the night and is not counted as a nap (`WidgetSnapshot.isNight`).
     private func detail(midnight: Date) -> String {
-        var parts: [String] = []
         let sleeps = figures.sleeps ?? []
-        // The night is the sleep that began before midnight; its last stretch says when they got up.
-        let night = sleeps.first(where: { $0.start < midnight })?.sleep
-        if let up = sleeps.last(where: { $0.sleep == night })?.end, night != nil { parts.append("Up at \(clock(up))") }
-        let naps = Set(sleeps.filter { $0.sleep != night }.map(\.sleep)).count
+        // Each sleep by its first stretch.
+        let starts = Dictionary(sleeps.map { ($0.sleep, $0.start) }, uniquingKeysWith: min)
+        let nights = starts.filter { WidgetSnapshot.isNight($0.value) }
+        let morning = nights.filter { $0.value < midnight.addingTimeInterval(5 * 3600) }.max { $0.value < $1.value }?.key
+        let evening = nights.filter { $0.value >= midnight.addingTimeInterval(17 * 3600) }.min { $0.value < $1.value }?.value
+        var parts: [String] = []
+        if let morning, let up = sleeps.last(where: { $0.sleep == morning })?.end, evening == nil { parts.append("Up at \(clock(up))") }
+        let naps = starts.count - nights.count
         if naps > 0 { parts.append(naps == 1 ? "1 nap" : "\(naps) naps") }
+        if let evening { parts.append("Bed at \(clock(evening))") }
         return parts.joined(separator: " · ")
     }
 }
@@ -257,34 +326,43 @@ struct NextPage: View {
     let figures: DayFigures
 
     var body: some View {
-        TimelineView(.periodic(from: .now, by: 60)) { context in
-            VStack(alignment: .leading, spacing: 10) {
-                if figures.coming.isEmpty {
-                    Text(child.asleepSince != nil ? "Asleep now. What's next shows when they wake." : "Nothing to guess from yet. It takes a few days of entries.")
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.secondary)
-                }
-                ForEach(Array(figures.coming.prefix(2).enumerated()), id: \.element.id) { index, coming in
-                    VStack(alignment: .leading, spacing: 0) {
-                        Label(coming.title, systemImage: coming.systemImage)
-                            .font(.system(.footnote, design: .rounded).weight(.semibold))
-                            .foregroundStyle(index == 0 ? Tone.moon : Color.secondary)
-                        Text(clock(coming.at))
-                            .font(.system(size: 34, weight: .semibold, design: .rounded))
-                            .monospacedDigit()
-                        Text("Around then, in \(Elapsed.short(from: context.date, to: coming.at))")
-                            .font(.system(.footnote, design: .rounded))
+        TimelineView(.periodic(from: .now, by: 30)) { context in
+            // A guess is only shown ahead of time, as on the iPhone: once it has gone by it goes.
+            let coming = figures.coming.filter { $0.at > context.date }
+            Fitting {
+                VStack(alignment: .leading, spacing: 10) {
+                    if coming.isEmpty {
+                        Text(child.asleepSince != nil ? "Asleep now. What's next shows when they wake."
+                             : !figures.guessed ? "Open Puggle on your iPhone to see what's next."
+                             : "No guess just now. They come from the last week of entries on your iPhone.")
+                            .font(.system(.body, design: .rounded))
                             .foregroundStyle(.secondary)
-                            .lineLimit(1)
-                            .minimumScaleFactor(0.7)
                     }
-                    .opacity(index == 0 ? 1 : 0.6)
-                    .accessibilityElement(children: .combine)
+                    ForEach(Array(coming.prefix(2).enumerated()), id: \.element.id) { index, coming in
+                        let soon = coming.at.timeIntervalSince(context.date) < 60
+                        VStack(alignment: .leading, spacing: 0) {
+                            Label(coming.title, systemImage: coming.systemImage)
+                                .font(.system(.footnote, design: .rounded).weight(.semibold))
+                                .foregroundStyle(index == 0 ? Tone.moon : Tone.moon.opacity(0.75))
+                            Text(clock(coming.at))
+                                .rounded(34, .semibold)
+                                .monospacedDigit()
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.6)
+                                // The one after is quieter, and still clear enough to read.
+                                .foregroundStyle(.white.opacity(index == 0 ? 1 : 0.8))
+                            Text(soon ? "Around now" : "Around then, in \(Elapsed.short(from: context.date, to: coming.at))")
+                                .font(.system(.footnote, design: .rounded))
+                                .foregroundStyle(.secondary)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.7)
+                        }
+                        .accessibilityElement(children: .combine)
+                    }
                 }
-                Spacer(minLength: 0)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 6)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 6)
         }
     }
 }
@@ -306,9 +384,14 @@ struct FortnightPage: View {
         let weeks = [Array(days.prefix(7)), Array(days.suffix(7))]
         let top = max(days.compactMap { $0 }.max() ?? 1, 1)
         let yesterday = Calendar.current.date(byAdding: .day, value: -1, to: Calendar.current.startOfDay(for: .now)) ?? .now
+        Fitting(current: current) {
         VStack(alignment: .leading, spacing: 8) {
             // Tap them to go day by day with the crown.
-            Button { scrubbing = true } label: {
+            Button {
+                Haptic.tap()
+                scrubbing = true
+            } label: {
+                VStack(alignment: .leading, spacing: 8) {
                 HStack(alignment: .top, spacing: 10) {
                     ForEach(0..<2, id: \.self) { index in
                         let last = Calendar.current.date(byAdding: .day, value: index == 0 ? -7 : 0, to: yesterday) ?? yesterday
@@ -316,21 +399,23 @@ struct FortnightPage: View {
                         week(weeks[index], top: top, from: first, to: last, order: index * 7)
                     }
                 }
+                if let recent = average(weeks[1]) {
+                    Figure(label: "Asleep a day", value: hoursAndMinutes(recent * 3600), detail: "Average, last 7 days", tint: Tone.moon, opens: true)
+                }
+                }
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
             .disabled(figures.days == nil)
             .accessibilityHint("Opens the days one by one")
-            if let recent = average(weeks[1]) {
-                Figure(label: "Asleep a day", value: hoursAndMinutes(recent * 3600), detail: "Average, last 7 days", tint: Tone.moon)
-            } else {
+            if average(weeks[1]) == nil {
                 Text(figures.days == nil ? "Open Puggle on your iPhone to see the last 14 days." : "No sleep logged in the last 7 days.")
                     .font(.system(.footnote, design: .rounded))
                     .foregroundStyle(.secondary)
             }
-            Spacer(minLength: 0)
         }
         .padding(.horizontal, 6)
+        }
         .onAppear { drawn = current }
         .onChange(of: current) { _, showing in drawn = showing }
         .sheet(isPresented: $scrubbing) {
@@ -348,7 +433,7 @@ struct FortnightPage: View {
         let mean = average(days)
         return VStack(alignment: .leading, spacing: 2) {
             Text(mean.map { hoursAndMinutes($0 * 3600) } ?? "–")
-                .font(.system(size: 12, weight: .semibold, design: .rounded))
+                .rounded(12, .semibold)
                 .foregroundStyle(Tone.moon)
             GeometryReader { box in
                 ZStack(alignment: .bottomLeading) {
@@ -374,7 +459,7 @@ struct FortnightPage: View {
             }
             .frame(height: 44)
             Text(range(from, to))
-                .font(.system(size: 10, weight: .medium, design: .rounded))
+                .rounded(10, .medium)
                 .foregroundStyle(.secondary)
                 .lineLimit(1)
                 .minimumScaleFactor(0.7)

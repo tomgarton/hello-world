@@ -55,6 +55,7 @@ struct Badge: View {
 
 struct RootView: View {
     @EnvironmentObject private var model: WatchModel
+    @Environment(\.scenePhase) private var scenePhase
     /// The child showing. For checking, "-previewChild 1" opens on the second.
     @State private var page: String = {
         let children = WatchModel.shared.snapshot?.children ?? []
@@ -71,7 +72,7 @@ struct RootView: View {
                     // The paged trial: each child has pages of their own, turned with the crown.
                     TabView(selection: $page) {
                         ForEach(children) { child in
-                            PagedChild(child: child).tag(child.id)
+                            PagedChild(child: child, selected: page == child.id).tag(child.id)
                         }
                     }
                     .tabViewStyle(.page)
@@ -100,6 +101,10 @@ struct RootView: View {
                 }
                 .padding()
             }
+        }
+        // The iPhone only sends a summary when something is logged, so the Watch asks as it comes to the front.
+        .onChange(of: scenePhase, initial: true) { _, phase in
+            if phase == .active { model.refresh() }
         }
         .alert(model.trouble ?? "", isPresented: Binding(get: { model.trouble != nil }, set: { if !$0 { model.trouble = nil } })) {
             Button("Close", role: .cancel) {}

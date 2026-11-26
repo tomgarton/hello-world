@@ -2979,3 +2979,58 @@ nothing covers is a gap, as on the iPhone. The pages are drawn again at midnight
 app in a new day. Five tests in `WatchPagesTests`. A summary from an older Puggle on the iPhone is shown as
 it was. **Not checked:** midnight passing on a real Watch.
 
+
+## The Watch after testing: taps, pages, stale figures and the small Watch (26 November 2026)
+
+Tom: "I found a few things felt odd, and the haptic engine didn't engage with taps when I would expect them
+to." Four agents tested the Watch app; Tom chose to fix everything listed.
+
+**Taps**
+- **One tick a tap.** Start feed, Log bottle, Log nappy, the badge, the day strip and the fourteen days now
+  tick lightly (`Haptic.tap`). A saved nappy or bottle plays "success", a paused side a light tick, a start
+  and a stop their own. A tap that fails plays only the failure, never two at once.
+- **"Which side?" is a sheet** with Left and Right. As a dialog it stayed up over the feed it had started.
+- **A timer tap waits up to four seconds for the iPhone** (`WatchModel.held`). Just after the app opens or
+  the wrist is raised the link is not up yet: the tap used to show as done and never be sent, or be refused
+  at once. Now it is sent when the link comes up, and put back with "Can't reach your iPhone" if it does not.
+- **A nappy or bottle waiting to be delivered stays on the Watch** (`WatchModel.waiting`, kept between
+  launches) and is put back on top of each summary until the summary has it, so it cannot flip back and be
+  logged twice. The iPhone saves a tap once however many times it arrives (`watchTapsTaken`).
+
+**Getting around**
+- **A page that fits does not scroll** (`Fitting`), so one swipe turns it. It scrolls only on the small Watch
+  or with larger text. Pages used to be a few points taller than the Watch's margin above the dots.
+- **The badge goes to the top of Now**, from anywhere, including Now's own foot.
+- **Swiping to the other child arrives on their Now page.** Unchosen: keeping the same page across children.
+- **An arrow beside the figure** on Sleep today and Last 14 days shows they open, and the whole block is the
+  button. Opened, "Turn the crown" shows until the crown is turned.
+- **Not changed:** swiping back up to Now lands at its foot, as the Watch's own paged apps do. Moving it to
+  the top as the page was left stopped the page turn half way.
+
+**Figures**
+- **The Watch asks the iPhone for a fresh summary as it comes to the front** (`WatchLink.refreshKey`), since
+  the iPhone only sent one when something was logged. With the iPhone out of reach, Sleep today drops
+  yesterday's sleeps after midnight, and Last 14 days moves on by itself (the section above).
+- **A tap on the Watch shows on every page at once** (`WidgetSnapshot.Child.apply`): the day strip, the
+  marks, and the guess it has answered goes.
+- **The evening bedtime is the night, not a nap.** A sleep that starts from 17:00 to 05:00 is the night, the
+  rule Patterns uses (`WidgetSnapshot.isNight`). In the evening the line reads "2 naps · Bed at 19:30".
+- **Next only shows what is ahead**, checked every half minute, with "Around now" in the last minute. With
+  nothing to show it says whether they are asleep, the iPhone has sent no guesses, or none is due.
+- **A feed counts the time fed, without the pauses** (`feedBanked`, `feedSideSince`), and a paused feed shows
+  that time over "Feed paused".
+- **The opened day view keeps up with the clock** while it is open, staying at "Now" if it was left there.
+- **The opened fourteen days say "14-day average"**, beside the page's "Average, last 7 days".
+- **Under a minute is "just now"** for Awake and Asleep, as for Fed.
+- **Log bottle only for a child who has bottles** (`usesBottle`), in ounces when the iPhone is set to them,
+  half an ounce a click.
+
+**Small Watch and larger text**
+- The large figures grow with the text size (`rounded(_:_:)`); pages that no longer fit scroll, which keeps
+  them clear of the title and the badge. The bottle sheet's hint is "Turn the crown". The closing cross on
+  every sheet is on its own dark circle. Every bar in the opened fourteen days is the same width.
+
+Five new tests in `WatchPagesTests`. **Not checked on a Watch:** every tick, the crown, the wait for the
+link, a nappy waiting for delivery, and the refresh on coming to the front. The simulator has no iPhone
+link and its crown cannot be turned by script. **Left as they were:** a sleep hides a running feed; the
+running feed's counter sits close under the name on the small Watch.

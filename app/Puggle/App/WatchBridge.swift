@@ -28,6 +28,11 @@ final class WatchBridge: NSObject {
     /// Saves a tap from the Watch, and answers with the summary as it now is.
     fileprivate func handle(_ request: WatchLink.Request) -> Data? {
         let store = FamilyStore.live
+        // A nappy or bottle can arrive twice: as a message whose answer was lost, then again from the queue.
+        var taken = UserDefaults.standard.stringArray(forKey: "watchTapsTaken") ?? []
+        guard !taken.contains(request.key) else { return try? JSONEncoder().encode(WidgetFeed.write(from: store)) }
+        taken.append(request.key)
+        UserDefaults.standard.set(Array(taken.suffix(60)), forKey: "watchTapsTaken")
         switch request.action {
         case .startSleep: store.handleTimerAction(TimerActions.startSleep, childID: request.childID)
         case .wokeUp: store.handleTimerAction(TimerActions.wokeUp, childID: request.childID)
@@ -66,7 +71,15 @@ extension WatchBridge: WCSessionDelegate {
     }
 
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
-        guard let request = WatchLink.Request(message: message) else { replyHandler([:]); return }
+        guard let request = WatchLink.Request(message: message) else {
+            // The Watch woke and asks how things are now.
+            guard message[WatchLink.refreshKey] != nil else { replyHandler([:]); return }
+            Task { @MainActor in
+                let data = FamilyStore.live.isSample ? nil : try? JSONEncoder().encode(WidgetFeed.write(from: FamilyStore.live))
+                replyHandler(data.map { [WatchLink.snapshotKey: $0] } ?? [:])
+            }
+            return
+        }
         Task { @MainActor in
             let data = self.handle(request)
             replyHandler(data.map { [WatchLink.snapshotKey: $0] } ?? [:])
