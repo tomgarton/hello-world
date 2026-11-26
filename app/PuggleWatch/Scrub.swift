@@ -110,8 +110,15 @@ struct DayScrub: View {
     let marks: [WidgetSnapshot.Mark]
     private let now: Date
     private let midnight: Date
-    /// Minutes after midnight. For checking: "-previewScrub 600" opens at 10:00.
-    @State private var minute: Double
+    /// Where the crown is, in half hours after midnight, landing on whole minutes. The crown's sensitivity is
+    /// how far it turns between two whole numbers, so the size of one decides how fast the day goes by: at a
+    /// minute each it took hundreds of steps to cross a morning, "incredibly slow" beside a tides app
+    /// (Tom, 26 November 2026). For checking: "-previewScrub 600" opens at 10:00.
+    @State private var turn: Double
+    private static let step = 30.0
+    private var minute: Double { turn * Self.step }
+    /// When the last tick was played. Ticks closer together than this cut each other off.
+    @State private var lastTick = Date.distantPast
 
     init(child: WidgetSnapshot.Child, sleeps: [WidgetSnapshot.Stretch], marks: [WidgetSnapshot.Mark] = [], now: Date = .now) {
         self.child = child
@@ -121,7 +128,13 @@ struct DayScrub: View {
         midnight = Calendar.current.startOfDay(for: now)
         let upTo = now.timeIntervalSince(Calendar.current.startOfDay(for: now)) / 60
         let asked = UserDefaults.standard.double(forKey: "previewScrub")
-        _minute = State(initialValue: asked > 0 ? min(asked, upTo) : upTo)
+        _turn = State(initialValue: (asked > 0 ? min(asked, upTo) : upTo) / Self.step)
+    }
+
+    /// What a tick is played for: the stretch the marker is in, and the mark it is on.
+    private struct Tick: Equatable {
+        var edge: Date
+        var mark: Date?
     }
 
     /// What the marker is on.
@@ -213,12 +226,17 @@ struct DayScrub: View {
         .containerBackground(LinearGradient(colors: [Tone.night, .black], startPoint: .top, endPoint: .bottom), for: .navigation)
         .navigationTitle { Text(atNow ? "Now" : clock(time)).foregroundStyle(tint).monospacedDigit() }
         .focusable()
-        .digitalCrownRotation($minute, from: 0, through: max(now.timeIntervalSince(midnight) / 60, 1), by: 1,
-                              sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: false)
-        // A tick at each falling asleep and each waking, and none in between.
-        .onChange(of: moment.from) { WKInterfaceDevice.current().play(.click) }
-        // And a lighter one on reaching a feed or a nappy.
-        .onChange(of: near) { _, mark in if mark != nil { WKInterfaceDevice.current().play(.directionUp) } }
+        .digitalCrownRotation($turn, from: 0, through: max(now.timeIntervalSince(midnight) / 60, 1) / Self.step, by: 1 / Self.step,
+                              sensitivity: .high, isContinuous: false, isHapticFeedbackEnabled: false)
+        // One tick at each falling asleep, each waking and each feed or nappy, and none in between. One kind
+        // of tick from one place, and never two within a moment: the Watch stops a tick to start the next,
+        // so two together were felt as none.
+        .onChange(of: Tick(edge: moment.from, mark: near?.at)) { old, new in
+            guard new.edge != old.edge || (new.mark != nil && new.mark != old.mark) else { return }
+            guard Date.now.timeIntervalSince(lastTick) > 0.12 else { return }
+            lastTick = .now
+            WKInterfaceDevice.current().play(.click)
+        }
         .accessibilityLabel("Today, \(clock(time))")
     }
 

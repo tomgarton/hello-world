@@ -2939,6 +2939,21 @@ Digital Crown, and chose three things to build.
   the strip filling in (the same method as the bars), the crown itself, which the simulator can't be turned
   by script, and how the ticks feel.
 
+## The Watch's day view: a faster crown and one kind of tick (26 November 2026)
+
+Tom, after trying it on his Watch: turning the crown along the day "feels incredibly slow" beside the tides
+and depth apps.
+
+- **Why.** The crown's sensitivity is how far it turns between two whole numbers of the value. Each whole
+  number was one minute, at medium sensitivity, so a morning took hundreds of steps.
+- **Now** each whole number is half an hour, at high sensitivity, still landing on single minutes
+  (`DayScrub.step`). Chosen by reasoning, not by feel: the simulator's crown can't be turned by script.
+  If it is now too quick, `step` is the one number to change.
+- **One kind of tick, never two together.** A sleep's edge and a feed or nappy each played their own tick
+  from their own place. The Watch stops one tick to start the next, so two at once were felt as none, and
+  the one used for feeds was a longer "value went up" pattern. Now there is one light tick from one place,
+  with at least a tenth of a second between ticks.
+
 ## The book moved to its own repository (26 November 2026)
 
 Tom: "These are still in the hello-world repo. We should move to its own repo instead." He chose to move
