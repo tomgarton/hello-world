@@ -2901,8 +2901,9 @@ to take a lead from. A paged version was built as a trial; he saw it and said to
 - **Not checked:** the figures arriving from a real iPhone (the simulators aren't paired).
 - **The page names are the child's colour** (Tom, 26 November): Ollie's in his blue, Bea's in her peach.
   The title is given as a view, which the Watch lets an app colour.
-- **Not right yet:** the fourteen days are as they were
-  when the iPhone last wrote the summary, so after midnight they are a day behind until something is logged.
+- ~~**Not right yet:** the fourteen days are as they were
+  when the iPhone last wrote the summary, so after midnight they are a day behind until something is logged.~~
+  Fixed 26 November: see "The fourteen days keep up with the date" below.
 
 **Motion and the crown (Tom, 26 November).** He liked how smoothly a tides app and a depth app move with the
 Digital Crown, and chose three things to build.
@@ -2938,3 +2939,13 @@ Digital Crown, and chose three things to build.
 - **Checked on the simulator** from recordings: the change of scene and the bars rising. **Not checked:**
   the strip filling in (the same method as the bars), the crown itself, which the simulator can't be turned
   by script, and how the ticks feel.
+
+**The fourteen days keep up with the date (26 November).** The iPhone writes the summary only when something
+changes, so after midnight Last 14 days was a day out until the next entry. Now the iPhone also sends the
+day it wrote them for (`sleepDaysEnd`), and the Watch moves them on itself (`WidgetSnapshot.Child.sleepDays(now:)`):
+the oldest days drop off and the day just ended is added from that day's sleeps, which the Watch already has,
+counting a sleep still running up to midnight. A sleep that runs through more nights fills those too; a day
+nothing covers is a gap, as on the iPhone. The pages are drawn again at midnight and on coming back to the
+app in a new day. Five tests in `WatchPagesTests`. A summary from an older Puggle on the iPhone is shown as
+it was. **Not checked:** midnight passing on a real Watch.
+

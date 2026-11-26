@@ -41,6 +41,9 @@ struct WidgetSnapshot: Codable {
         var sleepsToday: [Stretch]?
         /// Hours asleep on each of the fourteen whole days before today, oldest first. Nil for a day with no sleep logged.
         var sleepDays: [Double?]?
+        /// The midnight `sleepDays` runs up to: the start of the day the summary was written (27 November
+        /// 2026). Nil in a summary written before this, when the days are taken as they are.
+        var sleepDaysEnd: Date?
         /// What is guessed to come next, soonest first.
         var coming: [Coming]?
         /// Today's feeds, meals, nappies and potty trips, for the marks under the day strip, earliest first.
@@ -98,6 +101,31 @@ struct WidgetSnapshot: Codable {
         Child(id: "preview-bea", name: "Bea", colourIndex: 1, asleepSince: Date.now.addingTimeInterval(-50 * 60),
               lastFeed: Date.now.addingTimeInterval(-150 * 60), lastFeedText: "Solids", lastNappy: nil, usesNappies: false),
     ], updatedAt: .now)
+}
+
+extension WidgetSnapshot.Child {
+    /// The fourteen whole days before today, as of `now`. The iPhone writes them only when something changes,
+    /// so after midnight they are a day or more out of date. Moved on here: the oldest drop off, and each day
+    /// since the summary was written is added from the sleeps it sent for its own day (`sleepsToday`), which
+    /// also carry a sleep still running through the nights after. A day nothing covers is a gap, as on the iPhone.
+    func sleepDays(now: Date, calendar: Calendar = .current) -> [Double?]? {
+        guard let sent = sleepDays else { return nil }
+        guard let end = sleepDaysEnd else { return sent }
+        let written = calendar.startOfDay(for: end)
+        let today = calendar.startOfDay(for: now)
+        let behind = calendar.dateComponents([.day], from: written, to: today).day ?? 0
+        guard behind > 0 else { return sent }
+        // A sleep running when the summary was written ran on until now, or until they woke if the Watch saw it.
+        let until = asleepSince != nil ? now : min(lastWoke ?? now, now)
+        let stretches = (sleepsToday ?? []).map { DateInterval(start: $0.start, end: max($0.start, $0.end ?? until)) }
+        let added = (max(0, behind - 14)..<behind).map { offset -> Double? in
+            guard let start = calendar.date(byAdding: .day, value: offset, to: written),
+                  let next = calendar.date(byAdding: .day, value: 1, to: start) else { return nil }
+            let seconds = stretches.reduce(0.0) { $0 + max(0, min($1.end, next).timeIntervalSince(max($1.start, start))) }
+            return seconds >= 60 ? seconds / 3600 : nil
+        }
+        return Array((sent + added).suffix(14))
+    }
 }
 
 /// A child to choose when setting up a widget or control.

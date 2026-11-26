@@ -137,6 +137,7 @@ enum WidgetFeed {
                 lastBottleML: store.latest(.bottle, for: child).map { Int($0.amountML) }.flatMap { $0 > 0 ? $0 : nil },
                 sleepsToday: sleepsToday(for: child),
                 sleepDays: sleepDays(for: child),
+                sleepDaysEnd: Calendar.current.startOfDay(for: .now),
                 coming: NextUp.all(for: child).sorted { $0.at < $1.at }.map { WidgetSnapshot.Coming(kind: $0.kind.rawValue, at: $0.at) },
                 marksToday: marksToday(for: child))
         }
