@@ -29,7 +29,7 @@ struct DayFigures {
 
     init(child: WidgetSnapshot.Child, now: Date = .now) {
         sleeps = child.sleepsToday
-        days = child.sleepDays
+        days = child.sleepDays(now: now)
         let midnight = Calendar.current.startOfDay(for: now)
         marks = (child.marksToday ?? []).filter { $0.at >= midnight && $0.at <= now }
         coming = (child.coming ?? []).filter { $0.at > now }.sorted { $0.at < $1.at }.map { next in
@@ -73,9 +73,14 @@ struct DayFigures {
 struct PagedChild: View {
     let child: WidgetSnapshot.Child
     @State private var page = Pages.first
+    /// The day it is, so the pages are drawn again when it changes: at midnight with the app open, or on
+    /// coming back to it in a new day. The fourteen days then move on by one (`sleepDays(now:)`).
+    @State private var today = Calendar.current.startOfDay(for: .now)
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
+        let _ = today
         let figures = DayFigures(child: child)
         let tint = Tone.child(child.colourIndex)
         NavigationStack {
@@ -118,6 +123,12 @@ struct PagedChild: View {
             }
         }
         .tint(tint)
+        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged).receive(on: RunLoop.main)) { _ in
+            today = Calendar.current.startOfDay(for: .now)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active { today = Calendar.current.startOfDay(for: .now) }
+        }
     }
 
     /// The colour at the top, fading to black at the foot, as Sleep and Activity do.
