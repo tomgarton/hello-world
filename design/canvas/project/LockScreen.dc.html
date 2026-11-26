@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lock Screen timers</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800&display=swap">
+<style>
+body{margin:0}
+a{color:#9DBDF7}a:hover{color:#C4D8FA}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; overflow: hidden; background: #0D111A; color: #F3F5F8; font-family: ui-rounded, 'SF Pro Rounded', Nunito, system-ui, sans-serif; display: flex; flex-direction: column; padding: 96px 12px 48px 12px">
+
+<div style="display: flex; flex-direction: column; align-items: center; gap: 2px">
+<div style="font-size: 20px; font-weight: 700; color: #C9CFDA">Tuesday 10 November</div>
+<div style="font-size: 96px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums">2:50</div>
+</div>
+
+<div style="flex-grow: 1"></div>
+
+<div style="display: flex; flex-direction: column; gap: 10px">
+
+<div style="background: #1C2230; border-radius: 26px; padding: 16px; display: flex; align-items: center; gap: 14px">
+<div style="width: 46px; height: 46px; border-radius: 23px; background: #FFD9B8; color: #7A3303; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0">A</div>
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0">
+<div style="font-size: 13px; font-weight: 800; color: #FFC08F">Ada is napping</div>
+<div style="font-size: 32px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums">0:42</div>
+<div style="font-size: 13px; font-weight: 600; color: #C9CFDA">Asleep at 2:08</div>
+</div>
+<button style="height: 48px; padding: 0 18px; border: none; border-radius: 24px; background: #FFD9B8; color: #7A3303; font: inherit; font-size: 15px; font-weight: 800; flex-shrink: 0">Woke up</button>
+</div>
+
+<div style="background: #1C2230; border-radius: 26px; padding: 16px; display: flex; align-items: center; gap: 14px">
+<div style="width: 46px; height: 46px; border-radius: 23px; background: #2457B8; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 19px; font-weight: 800; flex-shrink: 0">M</div>
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0">
+<div style="font-size: 13px; font-weight: 800; color: #9DBDF7">Milo is awake</div>
+<div style="font-size: 32px; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums">1h 05m</div>
+<div style="font-size: 13px; font-weight: 600; color: #C9CFDA">Next bottle about 3:45</div>
+</div>
+<button style="height: 48px; padding: 0 18px; border: none; border-radius: 24px; background: #9DBDF7; color: #0D111A; font: inherit; font-size: 15px; font-weight: 800; flex-shrink: 0">Bottle</button>
+</div>
+
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

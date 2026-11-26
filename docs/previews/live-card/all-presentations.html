@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live Activity, every presentation</title>
+<!-- Tom, 20 November 2026: every place the Live Activity appears, drawn at Apple's sizes in points (Human Interface
+     Guidelines, Live Activities, updated 13 October 2026), with option E on the Lock Screen and the rest made to match.
+     Sample family only: Ollie (5 months) and Bea (2½). -->
+<style>
+  :root { --night:#1B2440; --moon:#F3E0B8; --cream:#FBF6E9; --muted:rgba(251,246,233,.72); --sky:#BFD9F5; --shell:#F3D9C9; --ink:#3A2A20; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:20px 0 48px; background:#E9E3D6; color:#2C2522;
+         font-family:-apple-system,"SF Pro Text",system-ui,sans-serif; }
+  .page { width:100%; max-width:420px; margin:0 auto; padding:0 12px; }
+  h1 { font-size:20px; margin:0 4px 6px; }
+  h2 { font-size:16px; margin:28px 4px 4px; }
+  p, li { font-size:13px; line-height:1.4; }
+  p.lead { margin:0 4px 10px; color:#5A504A; }
+  .cap { font-size:12px; color:#6B615B; margin:10px 4px 6px; font-weight:600; }
+  table { width:100%; border-collapse:collapse; font-size:12px; background:#fff; border-radius:12px; overflow:hidden; }
+  td { padding:7px 8px; border-top:1px solid #EEE7DC; vertical-align:top; line-height:1.35; }
+  td:first-child { width:22px; text-align:center; font-weight:700; }
+  .ok { color:#2E7D4F; } .todo { color:#B36A00; }
+  .wall { background:linear-gradient(160deg,#7FA6C9,#3C5A8C 55%,#253A63); border-radius:22px; padding:10px 0; }
+  .card { width:371px; max-width:100%; margin:0 auto; padding:14px; border-radius:24px; background:rgba(27,36,64,.96); color:var(--cream); }
+  .row { display:flex; align-items:center; }
+  .grow { flex:1; min-width:0; }
+  .badge { border-radius:50%; display:grid; place-items:center; color:var(--ink); font:700 12px/1 ui-rounded,-apple-system,sans-serif; flex:none; }
+  .name { font-weight:600; font-size:15px; }
+  .next { color:var(--muted); font-size:12px; font-weight:500; text-align:right; }
+  .cols { display:flex; margin-top:10px; }
+  .cols > div { flex:1; text-align:center; }
+  .cols > .rule, .rule { flex:none; width:1px; background:rgba(251,246,233,.16); align-self:stretch; margin:4px 0; }
+  .t { color:var(--moon); font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .w { color:var(--muted); font-size:12px; font-weight:500; white-space:nowrap; }
+  .btn { background:var(--moon); color:var(--ink); border-radius:999px; font-weight:600; font-size:14px; padding:7px 14px; white-space:nowrap; }
+  .btn.soft { background:rgba(251,246,233,.16); color:var(--cream); }
+  /* The Dynamic Island: black, round, the camera in the middle. */
+  .island { background:#000; color:var(--cream); margin:0 auto; border-radius:999px; display:flex; align-items:center; }
+  .cam { width:126px; height:37px; flex:none; }
+  .exp { background:#000; color:var(--cream); width:371px; max-width:100%; margin:0 auto; border-radius:44px; padding:12px 18px 16px; }
+  .watch { width:194px; height:80.5px; background:#1c1c1e; color:var(--cream); border-radius:20px; padding:8px 10px; margin:0 auto; }
+  .car { width:240px; height:78px; background:#1c1c1e; color:var(--cream); border-radius:14px; padding:8px 10px; margin:0 auto; }
+  .note { font-size:12px; color:#6B615B; margin:6px 4px 0; line-height:1.4; }
+  .pick { background:#fff; border-radius:14px; padding:10px 12px; margin:8px 0; font-size:13px; line-height:1.4; }
+  .pick b { font-size:13px; }
+  svg { display:block; }
+</style>
+</head>
+<body>
+<div class="page">
+<h1>The Live Activity, everywhere it appears</h1>
+<p class="lead">Drawn at Apple's sizes in points, with option E on the Lock Screen and the other places made to match it. Checked against Apple's guidelines (13 October 2026). Sample family only.</p>
+
+<h2>What Apple asks, and where we are</h2>
+<table>
+<tr><td class="ok">✓</td><td><b>Lock Screen margin of 14 points</b>, a custom dark background, the dismiss button coloured to match.</td></tr>
+<tr><td class="ok">✓</td><td><b>One Live Activity for several things</b>: one card for the whole family, not one per child.</td></tr>
+<tr><td class="ok">✓</td><td><b>Ends at once</b> when there is nothing to show; no alerts or sounds; tapping opens the right sheet.</td></tr>
+<tr><td class="ok">✓</td><td><b>The Smart Stack and CarPlay</b> have their own small layout, with no buttons (CarPlay switches them off).</td></tr>
+<tr><td class="ok">✓</td><td><b>Key line</b> in the child's colour; <b>height</b> changes with what there is to show.</td></tr>
+<tr><td class="todo">!</td><td><b>Limited width is new and missing.</b> In landscape the island gives each side a 28-point circle. Apple asks for a short form there, or the leading side alone. We draw neither, so text can be cut off.</td></tr>
+<tr><td class="todo">!</td><td><b>Minimal should show live information, not only a logo.</b> Ours shows the first child's initial. Apple's own Timer shows the time left.</td></tr>
+<tr><td class="todo">!</td><td><b>The expanded island should look like the Lock Screen.</b> Ours still has one big number and a line of small text; the Lock Screen now has three columns.</td></tr>
+<tr><td class="todo">!</td><td><b>Text a medium weight or heavier.</b> Some small words are regular weight (the line under the name in the expanded island).</td></tr>
+<tr><td class="todo">!</td><td><b>Always-On, dimmed:</b> the paler words (70% cream) need checking on a phone with Always-On; Apple asks to check contrast there.</td></tr>
+<tr><td class="todo">!</td><td><b>Sensitive information.</b> Apple suggests a choice to hide details on the Lock Screen. A child's name and their feeds show to anyone who picks up the phone. Suggested: a setting to show initials only.</td></tr>
+<tr><td class="todo">!</td><td><b>Activities with a beginning and end, under eight hours.</b> A sleep or a feed is one. The card between them (the "since" card) runs all day, which is why iOS asked "continue to allow Live Activities from Puggle?" in the simulator today. Worth keeping, but it needs to end and restart cleanly at the eight-hour limit, and the setting to turn it off stays easy to find.</td></tr>
+<tr><td class="todo">!</td><td><b>One button where possible.</b> Feeding has three (Left, Right, Finish). Apple allows pause and resume controls; it stays, but the expanded and Lock Screen versions should match.</td></tr>
+<tr><td class="todo">!</td><td><b>StandBy</b> shows the Lock Screen card twice the size, tinted red at night. Worth a layout of its own (see Puggle, below).</td></tr>
+</table>
+
+<h2>iPhone Lock Screen · 371 × 84–160</h2>
+<div class="cap">Awake, one child (as built)</div>
+<div class="wall"><div class="card">
+  <div class="row" style="gap:8px"><div class="badge" style="width:24px;height:24px;background:var(--sky)">O</div><div class="name grow">Ollie</div><div class="next">Next sleep around 18:45</div></div>
+  <div class="cols"><div><div class="t" style="font-size:26px">1h 29m</div><div class="w">Fed</div></div><div class="rule"></div><div><div class="t" style="font-size:26px">1h 11m</div><div class="w">Awake</div></div><div class="rule"></div><div><div class="t" style="font-size:26px">45m</div><div class="w">Nappy</div></div></div>
+</div></div>
+<div class="cap">Asleep (as built)</div>
+<div class="wall"><div class="card">
+  <div class="row" style="gap:8px"><div class="badge" style="width:24px;height:24px;background:var(--sky)">O</div><div class="name grow">Ollie</div><div class="btn">Woke up</div></div>
+  <div class="cols"><div><div class="t" style="font-size:26px">1h 12m</div><div class="w">Asleep</div></div><div class="rule"></div><div><div class="t" style="font-size:26px">2h 05m</div><div class="w">Fed</div></div><div class="rule"></div><div><div class="t" style="font-size:26px">1h 30m</div><div class="w">Nappy</div></div></div>
+  <div class="next" style="text-align:center;margin-top:6px">Next feed around 18:35</div>
+</div></div>
+<div class="cap">Feeding: proposed, the feed large like the other facts</div>
+<div class="wall"><div class="card">
+  <div class="row" style="gap:8px"><div class="badge" style="width:24px;height:24px;background:var(--sky)">O</div><div class="name grow">Ollie</div><div class="next">Left side</div></div>
+  <div class="row" style="margin-top:8px;gap:10px"><div class="t" style="font-size:34px">12:08</div><div class="grow"></div><div class="btn soft">Right</div><div class="btn">Finish</div></div>
+</div></div>
+<p class="note">Today the feeding card has a small "Feeding, left 12:08" line and three buttons. Proposed: the running time as large as the facts, the side named at the top, and two buttons. Tapping "Right" switches side; pausing moves to the open island and the app.</p>
+<div class="cap">Two children: proposed, a row each in the same columns</div>
+<div class="wall"><div class="card">
+  <div class="row" style="gap:8px"><div class="badge" style="width:24px;height:24px;background:var(--sky)">O</div><div class="name" style="width:50px">Ollie</div>
+    <div class="cols grow" style="margin:0"><div><div class="t" style="font-size:18px">1h 29m</div><div class="w" style="font-size:11px">Fed</div></div><div><div class="t" style="font-size:18px">1h 11m</div><div class="w" style="font-size:11px">Awake</div></div><div><div class="t" style="font-size:18px">45m</div><div class="w" style="font-size:11px">Nappy</div></div></div></div>
+  <div style="height:1px;background:rgba(251,246,233,.12);margin:8px 0"></div>
+  <div class="row" style="gap:8px"><div class="badge" style="width:24px;height:24px;background:var(--shell)">B</div><div class="name" style="width:50px">Bea</div>
+    <div class="cols grow" style="margin:0"><div><div class="t" style="font-size:18px">52m</div><div class="w" style="font-size:11px">Asleep</div></div><div><div class="t" style="font-size:18px">2h 40m</div><div class="w" style="font-size:11px">Ate</div></div><div><div class="t" style="font-size:18px">1h 05m</div><div class="w" style="font-size:11px">Potty</div></div></div></div>
+</div></div>
+<p class="note">Today a second child gets one quiet line of small text. Proposed: the same three facts for each child, smaller, so the family card reads like the single one. Up to three children fit within 160 points; more say "and 2 more".</p>
+
+<h2>Dynamic Island, compact · 52 × 37 each side</h2>
+<div class="cap">Awake · Asleep · Feeding (as now, kept)</div>
+<div style="display:grid;gap:8px">
+  <div class="island" style="width:250px;height:37px;padding:0 10px"><div class="badge" style="width:22px;height:22px;background:var(--sky)">O</div><div class="cam"></div><div class="t" style="font-size:12px;margin-left:auto">1h 29m</div></div>
+  <div class="island" style="width:250px;height:37px;padding:0 10px"><div class="badge" style="width:22px;height:22px;background:var(--sky)">O</div><div class="cam"></div><div class="t" style="font-size:12px;margin-left:auto">☾ 1h 12m</div></div>
+  <div class="island" style="width:250px;height:37px;padding:0 10px"><div class="badge" style="width:22px;height:22px;background:var(--sky)">O</div><div class="cam"></div><div class="t" style="font-size:12px;margin-left:auto">◷ 12m</div></div>
+</div>
+<div class="cap">Limited width, landscape · a 28-point circle each side (new, needed)</div>
+<div class="island" style="width:200px;height:37px;padding:0 6px"><div class="badge" style="width:26px;height:26px;background:var(--sky)">O</div><div class="cam" style="width:150px"></div></div>
+<p class="note">Apple: if both sides cannot be shortened sensibly, show the leading side alone. Proposed: the child's badge alone, or Puggle's face (option P2 below).</p>
+<div class="cap">Minimal, beside another app's activity · 37–45 × 37 (proposed)</div>
+<div class="row" style="justify-content:center;gap:10px">
+  <div class="island" style="width:170px;height:37px"></div>
+  <div class="island" style="width:45px;height:37px;justify-content:center"><div class="t" style="font-size:12px">1h</div></div>
+</div>
+<p class="note">Today: the first child's initial. Proposed: the most useful number, rounded short ("1h", "25m"), with the key line in the child's colour so it is still theirs.</p>
+
+<h2>Dynamic Island, expanded · 371 × 84–160 (proposed)</h2>
+<div class="exp">
+  <div class="row" style="gap:8px"><div class="badge" style="width:28px;height:28px;background:var(--sky);font-size:14px">O</div><div class="name grow">Ollie</div><div class="btn">Start sleep</div></div>
+  <div class="cols"><div><div class="t" style="font-size:24px">1h 29m</div><div class="w">Fed</div></div><div class="rule"></div><div><div class="t" style="font-size:24px">1h 11m</div><div class="w">Awake</div></div><div class="rule"></div><div><div class="t" style="font-size:24px">45m</div><div class="w">Nappy</div></div></div>
+</div>
+<p class="note">Apple asks the Lock Screen and the expanded island to look alike, and the expanded island to grow out of the compact one: the badge stays on the left, the number that was on the right is the first column.</p>
+
+<h2>Apple Watch Smart Stack · 194 × 80.5 (46 mm) and CarPlay · 240 × 78</h2>
+<div class="watch">
+  <div class="row" style="gap:5px"><div class="badge" style="width:16px;height:16px;background:var(--sky);font-size:9px">O</div><div style="font-weight:600;font-size:13px" class="grow">Ollie</div></div>
+  <div class="cols" style="margin-top:6px"><div><div class="t" style="font-size:14px">1h 29m</div><div class="w" style="font-size:10px">Fed</div></div><div><div class="t" style="font-size:14px">1h 11m</div><div class="w" style="font-size:10px">Awake</div></div><div><div class="t" style="font-size:14px">45m</div><div class="w" style="font-size:10px">Nappy</div></div></div>
+</div>
+<div style="height:10px"></div>
+<div class="car">
+  <div class="row" style="gap:6px"><div class="badge" style="width:18px;height:18px;background:var(--sky);font-size:10px">O</div><div style="font-weight:600;font-size:14px" class="grow">Ollie</div></div>
+  <div class="cols" style="margin-top:6px"><div><div class="t" style="font-size:16px">1h 29m</div><div class="w" style="font-size:11px">Fed</div></div><div><div class="t" style="font-size:16px">1h 11m</div><div class="w" style="font-size:11px">Awake</div></div><div><div class="t" style="font-size:16px">45m</div><div class="w" style="font-size:11px">Nappy</div></div></div>
+</div>
+<p class="note">Today these are two lines of small text. Proposed: the same three columns, sized to fit; no buttons, since CarPlay turns them off and on the Watch the Puggle app now does the logging.</p>
+
+<h2>Puggle in the Live Activity</h2>
+<p class="lead">Apple allows a logo mark "without a container", never the whole app icon. Puggle's face, drawn in one colour, can be that mark, and her face can say something: awake, asleep, feeding.</p>
+<div class="row" style="justify-content:center;gap:18px;margin:8px 0">
+  <!-- Puggle's head as a one-colour mark: awake, asleep, feeding. -->
+  <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="27" r="20" fill="#F3E0B8"/><ellipse cx="28" cy="38" rx="14" ry="8" fill="#1B2440" opacity=".55"/><circle cx="20" cy="26" r="2.6" fill="#1B2440"/><circle cx="36" cy="26" r="2.6" fill="#1B2440"/><circle cx="42" cy="11" r="6" fill="#F3E0B8"/></svg>
+  <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="27" r="20" fill="#F3E0B8"/><ellipse cx="28" cy="38" rx="14" ry="8" fill="#1B2440" opacity=".55"/><path d="M16 26q4 3 8 0M32 26q4 3 8 0" stroke="#1B2440" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="42" cy="11" r="6" fill="#F3E0B8"/><path d="M47 2h5l-5 5h5" stroke="#F3E0B8" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
+  <svg width="56" height="56" viewBox="0 0 56 56"><circle cx="28" cy="27" r="20" fill="#F3E0B8"/><ellipse cx="28" cy="38" rx="14" ry="8" fill="#1B2440" opacity=".55"/><circle cx="20" cy="26" r="2.6" fill="#1B2440"/><circle cx="36" cy="26" r="2.6" fill="#1B2440"/><circle cx="42" cy="11" r="6" fill="#F3E0B8"/><rect x="40" y="36" width="9" height="14" rx="3" fill="#F3E0B8" stroke="#1B2440" stroke-width="1.5"/></svg>
+</div>
+<p class="note" style="text-align:center">A rough stand-in for her mark: awake, asleep, feeding. The real one would come from her drawing.</p>
+<div class="pick"><b>P1 · No Puggle.</b> Initials on each child's colour everywhere, as now. Clearest about whose card it is.</div>
+<div class="pick"><b>P2 · Puggle where there is no room for a name.</b> Her face as the mark in the limited-width circle and when the island is minimal, awake, asleep or feeding to match. Every other place keeps the children's badges.
+  <div class="row" style="gap:10px;margin-top:8px;justify-content:center">
+    <div class="island" style="width:200px;height:37px;padding:0 6px"><svg width="26" height="26" viewBox="0 0 56 56"><circle cx="28" cy="27" r="20" fill="#F3E0B8"/><ellipse cx="28" cy="38" rx="14" ry="8" fill="#000" opacity=".55"/><path d="M16 26q4 3 8 0M32 26q4 3 8 0" stroke="#000" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="42" cy="11" r="6" fill="#F3E0B8"/></svg><div class="cam" style="width:150px"></div></div>
+  </div></div>
+<div class="pick"><b>P3 · Puggle in StandBy at night.</b> On a phone charging on its side by the cot, the card fills the screen. Asleep, it shows Puggle asleep under the moon with the sleep time large; awake, the three facts. Red-tinted by iOS at night, so drawn in a single colour.
+  <div style="background:#000;border-radius:18px;padding:16px;margin-top:8px;color:var(--moon);display:flex;align-items:center;gap:16px">
+    <svg width="90" height="90" viewBox="0 0 56 56"><circle cx="28" cy="27" r="20" fill="#3A2F2A"/><ellipse cx="28" cy="38" rx="14" ry="8" fill="#000" opacity=".5"/><path d="M16 26q4 3 8 0M32 26q4 3 8 0" stroke="#F3E0B8" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M45 4h6l-6 6h6" stroke="#F3E0B8" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>
+    <div><div style="font-size:13px;color:rgba(243,224,184,.7);font-weight:600">Ollie, asleep</div><div class="t" style="font-size:44px">1h 12m</div><div style="font-size:12px;color:rgba(243,224,184,.7)">Next feed around 18:35</div></div>
+  </div></div>
+</div>
+</body>
+</html>

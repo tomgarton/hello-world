@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Stamp card prototype</title>
+<style>
+  :root { --ink:#3A2A20; --muted:#6B5E52; --sand:#F2ECDD; --paper:#FBF6E9; --field:#EAE2D2; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin:0; padding:16px 8px 40px; background:var(--sand); color:var(--ink);
+         font:15px/1.4 -apple-system,system-ui,sans-serif; display:flex; flex-direction:column; align-items:center; }
+  h1 { font-size:20px; margin:0 0 2px; } h2 { font-size:16px; margin:22px 0 8px; align-self:flex-start; }
+  p.lead { margin:0 0 14px; color:var(--muted); max-width:360px; font-size:14px; text-align:center; }
+  .wrapw { width:360px; max-width:100%; }
+  .stage { perspective:900px; width:360px; height:215px; margin:8px 0 6px; touch-action:none; user-select:none; }
+  .card { position:relative; width:360px; height:215px; border-radius:14px; transform-style:preserve-3d;
+          transition:transform .45s cubic-bezier(.2,.9,.3,1.2), box-shadow .3s; box-shadow:0 6px 14px rgba(0,0,0,.22); will-change:transform; }
+  .card.held { transition:box-shadow .2s; box-shadow:0 18px 30px rgba(0,0,0,.28); }
+  .card svg.base { position:absolute; inset:0; width:100%; height:100%; border-radius:14px; }
+  .glare { position:absolute; inset:0; border-radius:14px; pointer-events:none; opacity:0; transition:opacity .3s;
+           background:radial-gradient(circle at var(--gx,50%) var(--gy,50%), rgba(255,255,255,.38), rgba(255,255,255,0) 55%); }
+  .card.held .glare { opacity:1; }
+  .next { position:absolute; width:58px; height:58px; margin:-29px 0 0 -29px; border-radius:50%; border:2.5px dashed rgba(58,42,32,.55);
+          animation:pulse 1.6s ease-in-out infinite; cursor:pointer; }
+  @keyframes pulse { 50% { transform:scale(1.1); opacity:.5; } }
+  .stamper { position:absolute; width:66px; height:66px; margin:-33px 0 0 -33px; border-radius:50%; pointer-events:none; z-index:5;
+             background:radial-gradient(circle at 35% 30%, #C99A6B, #8A5A3C 60%, #5E3B26); box-shadow:0 22px 22px rgba(0,0,0,.35); }
+  .stamper::after { content:""; position:absolute; inset:16px; border-radius:50%; background:radial-gradient(circle at 40% 35%, #E2B98C, #A8744B); }
+  .ripple { position:absolute; width:20px; height:20px; margin:-10px 0 0 -10px; border-radius:50%; border:3px solid rgba(58,42,32,.35); pointer-events:none; }
+  .tray { display:flex; gap:6px; background:var(--paper); border-radius:20px; padding:8px; }
+  .tray button { flex:1; border:0; background:none; padding:2px; border-radius:14px; cursor:pointer; }
+  .tray button.on { background:var(--field); outline:2px solid var(--ink); }
+  .tray svg { width:100%; height:auto; display:block; }
+  .hint { color:var(--muted); font-size:14px; min-height:40px; text-align:center; margin:8px 0 0; }
+  .sheet { display:none; align-items:center; gap:14px; background:#fff; border-radius:16px; padding:10px 16px; margin-top:8px;
+           box-shadow:0 2px 8px rgba(0,0,0,.12); }
+  .sheet.show { display:flex; animation:rise .5s cubic-bezier(.2,.9,.3,1.3); }
+  @keyframes rise { from { transform:translateY(30px); opacity:0; } }
+  .sticker { width:74px; height:74px; touch-action:none; cursor:grab; filter:drop-shadow(0 3px 3px rgba(0,0,0,.3)); z-index:10; position:relative; }
+  .sticker.drag { cursor:grabbing; filter:drop-shadow(0 12px 10px rgba(0,0,0,.35)); }
+  .placed { position:absolute; width:74px; height:74px; margin:-37px 0 0 -37px; pointer-events:none; filter:drop-shadow(0 2px 2px rgba(0,0,0,.3)); }
+  .holo { animation:foil 3.5s linear infinite; }
+  @keyframes foil { to { transform:translateX(-60px); } }
+  .sweep { position:absolute; inset:0; border-radius:14px; overflow:hidden; pointer-events:none; }
+  .sweep::before { content:""; position:absolute; top:-20%; bottom:-20%; width:90px; left:-120px; transform:skewX(-20deg);
+                   background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.7), rgba(255,255,255,0)); }
+  .sweep.go::before { animation:sweep .9s ease-out; }
+  @keyframes sweep { to { left:420px; } }
+  .bit { position:absolute; width:16px; height:16px; pointer-events:none; z-index:20; }
+  .shelf { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; background:var(--paper); border-radius:20px; padding:12px; }
+  .award { text-align:center; font-size:11.5px; font-weight:600; line-height:1.2; }
+  .award svg { width:58px; height:58px; display:block; margin:0 auto 4px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
+  .award.new { animation:pop .6s cubic-bezier(.2,.9,.3,1.5); }
+  @keyframes pop { from { transform:scale(.2) rotate(-25deg); opacity:0; } }
+  .note { color:var(--muted); font-size:13px; margin:8px 2px 0; }
+  button.plain { border:0; background:var(--ink); color:var(--paper); font:600 15px -apple-system,system-ui,sans-serif; border-radius:999px; padding:12px 20px; margin-top:10px; cursor:pointer; display:none; }
+  @media (prefers-reduced-motion: reduce) { .next, .holo { animation:none; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <filter id="ink" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="4" result="n"/><feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.6 2.25" result="m"/><feComposite in="SourceGraphic" in2="m" operator="in"/></filter>
+  <filter id="crayon" x="-5%" y="-5%" width="110%" height="110%"><feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="w"/><feDisplacementMap in="SourceGraphic" in2="w" scale="5" result="d"/><feTurbulence type="fractalNoise" baseFrequency="0.9" seed="2" result="g"/><feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.8 1.8" result="gm"/><feComposite in="d" in2="gm" operator="in"/></filter>
+  <filter id="paper"><feTurbulence type="fractalNoise" baseFrequency="0.5" numOctaves="3" seed="9"/><feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.2 0.75"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+  <linearGradient id="foil" x1="0" y1="0" x2="60" y2="0" gradientUnits="userSpaceOnUse" spreadMethod="repeat">
+    <stop offset="0" stop-color="#F9C6D8"/><stop offset=".25" stop-color="#FBE9A6"/><stop offset=".5" stop-color="#B9F0D2"/><stop offset=".75" stop-color="#B5D8FA"/><stop offset="1" stop-color="#F9C6D8"/>
+  </linearGradient>
+  <pattern id="foilp" width="60" height="60" patternUnits="userSpaceOnUse" patternTransform="rotate(25)"><rect class="holo" width="120" height="60" fill="url(#foil)" style="transform-box:fill-box"/></pattern>
+  <g id="quat"><circle cx="-9" cy="0" r="11"/><circle cx="9" cy="0" r="11"/><circle cx="0" cy="-9" r="11"/><circle cx="0" cy="9" r="11"/><circle r="10"/></g>
+</defs></svg>
+
+<h1>Stamp card prototype</h1>
+<p class="lead">Drag the card to tilt it. Pick a stamp, then tap the dashed space. After five, drag the shiny sticker onto the last space.</p>
+
+<div class="stage" id="stage">
+  <div class="card" id="card">
+    <svg class="base" viewBox="0 0 360 215">
+      <rect width="360" height="215" rx="14" fill="#CDB98A"/>
+      <rect width="360" height="215" rx="14" fill="#5a4320" opacity="0.10" filter="url(#paper)"/>
+      <rect x="1" y="1" width="358" height="213" rx="13" fill="none" stroke="#00000020" stroke-width="2"/>
+      <g filter="url(#crayon)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M-10 165L48 165L104 110L162 165L220 110L278 165L318 86" stroke="#2A62B8" stroke-width="9"/>
+        <path d="M18 62q13 -13 26 0t26 0t26 0t26 0t26 0t26 0" stroke="#2A62B8" stroke-width="6"/>
+        <path d="M58 48h44l-9 12h-26z" stroke="#D9482F" stroke-width="5"/><path d="M80 46V16l20 26z" stroke="#D9482F" stroke-width="5"/>
+        <circle cx="236" cy="36" r="13" stroke="#E9AE1C" stroke-width="6"/><path d="M236 12v-6M258 36h7M252 20l5 -5M220 20l-5 -5M214 36h-7" stroke="#E9AE1C" stroke-width="5"/>
+        <path d="M150 198l6 -12l6 12l6 -12l6 12" stroke="#3C8A55" stroke-width="5"/>
+      </g>
+      <g id="spaces" fill="#F4ECDA"></g>
+      <g transform="translate(318 86) scale(1.5)" fill="#F4ECDA"><use href="#quat"/></g>
+      <g id="inks"></g>
+    </svg>
+    <div class="glare"></div><div class="sweep" id="sweep"></div>
+  </div>
+</div>
+
+<div class="wrapw">
+  <div class="tray" id="tray"></div>
+  <p class="hint" id="hint"></p>
+  <div class="sheet" id="sheet">
+    <svg class="sticker" id="sticker" viewBox="-37 -37 74 74" role="img" aria-label="Shiny sticker"><use href="#quat" fill="#fff" transform="scale(1.5)"/><use href="#quat" fill="url(#foilp)" transform="scale(1.32)"/><circle r="6" fill="#fff" opacity=".8"/></svg>
+    <div><b>You filled the card!</b><br><span style="color:var(--muted);font-size:14px">Peel the shiny sticker and stick it on.</span></div>
+  </div>
+  <div style="text-align:center"><button class="plain" id="again">Start a new card</button></div>
+
+  <h2>Stickers earned</h2>
+  <div class="shelf" id="shelf"></div>
+  <p class="note">Only stickers already earned are shown, so nothing looks missing. They are for finished cards, firsts, new foods tried, milestones and dry days in total. No streaks; nothing expires.</p>
+</div>
+
+<script>
+const P = [[48,165],[104,110],[162,165],[220,110],[278,165]], FINAL = [318,86];
+const INKS = { red:'#D9482F', blue:'#2A62B8', green:'#3C8A55' };
+const MOTIFS = {
+  clip: ['red','<g transform="scale(.55)"><use href="#quat"/></g>'],
+  fish: ['blue','<ellipse cx="-2" cy="0" rx="10" ry="6.5"/><path d="M7 0l8 -6v12z"/>'],
+  leaf: ['green','<path d="M-11 9C-11 -6 2 -13 13 -11C13 4 2 12 -11 9z"/>'],
+  sun:  ['red','<circle r="6.5"/>' + [0,45,90,135,180,225,270,315].map(a=>`<rect x="-1.5" y="-14" width="3" height="5" rx="1.5" transform="rotate(${a})"/>`).join('')],
+  moon: ['blue','<path d="M5 -13a13 13 0 1 0 8 20a11 11 0 0 1 -8 -20z"/>'],
+  heart:['green','<path d="M0 11C-16 0 -11 -12 -4 -10C-1 -9 0 -6 0 -6C0 -6 1 -9 4 -10C11 -12 16 0 0 11z"/>'],
+};
+const $ = id => document.getElementById(id);
+const card = $('card'), stage = $('stage'), hint = $('hint');
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let chosen = 'clip', count = 0, busy = false, cards = 0;
+const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+
+function stampSVG(name, rot, date) {
+  const [ink, shape] = MOTIFS[name], c = INKS[ink];
+  return `<g transform="rotate(${rot})" filter="url(#ink)" fill="${c}"><circle r="24" fill="none" stroke="${c}" stroke-width="2.2"/><circle r="20.5" fill="none" stroke="${c}" stroke-width=".9"/><g transform="translate(0 -3)">${shape}</g>${date ? `<text y="17" text-anchor="middle" font-size="5.6" font-weight="700" letter-spacing=".8" font-family="-apple-system,system-ui,sans-serif">${date}</text>` : ''}</g>`;
+}
+
+// Tray
+Object.keys(MOTIFS).forEach(name => {
+  const b = document.createElement('button');
+  b.innerHTML = `<svg viewBox="-28 -28 56 56">${stampSVG(name, 0, '')}</svg>`;
+  b.setAttribute('aria-label', name + ' stamp');
+  b.onclick = () => { chosen = name; drawTray(); buzz(8); };
+  b.dataset.name = name; $('tray').appendChild(b);
+});
+function drawTray() { [...$('tray').children].forEach(b => b.classList.toggle('on', b.dataset.name === chosen)); }
+
+function drawSpaces() {
+  $('spaces').innerHTML = P.map(([x,y]) => `<circle cx="${x}" cy="${y}" r="27"/>`).join('');
+  document.querySelectorAll('.next').forEach(n => n.remove());
+  if (count < 5) {
+    const n = document.createElement('div'); n.className = 'next';
+    n.style.left = P[count][0] + 'px'; n.style.top = P[count][1] + 'px';
+    n.setAttribute('role', 'button'); n.setAttribute('aria-label', 'Stamp the next space');
+    n.onclick = e => { e.stopPropagation(); press(); };
+    card.appendChild(n);
+    hint.textContent = count === 0 ? 'Pick a stamp, then tap the dashed space.' : `${5 - count} to go before the shiny one.`;
+  }
+}
+
+function press() {
+  if (busy || count >= 5) return; busy = true;
+  const [x, y] = P[count], rot = (Math.random() * 18 - 9).toFixed(1);
+  document.querySelectorAll('.next').forEach(n => n.remove());
+  const s = document.createElement('div'); s.className = 'stamper'; s.style.left = x + 'px'; s.style.top = y + 'px';
+  card.appendChild(s);
+  const down = s.animate([{ transform:'translateY(-70px) scale(1.5)', opacity:0 }, { transform:'translateY(-30px) scale(1.25)', opacity:1, offset:.5 }, { transform:'translateY(0) scale(1)', opacity:1 }],
+                         { duration: reduce ? 1 : 190, easing:'cubic-bezier(.6,0,1,.6)', fill:'forwards' });
+  down.onfinish = () => {
+    buzz(35);
+    s.style.boxShadow = '0 2px 4px rgba(0,0,0,.4)';
+    // The paper takes the hit: it dips, twists a touch and settles.
+    if (!reduce) card.animate([{ transform:'scale(1)' }, { transform:`scale(.955) rotate(${rot > 0 ? .9 : -.9}deg) translateY(4px)`, offset:.22 }, { transform:'scale(1.012)', offset:.6 }, { transform:'scale(1)' }],
+                              { duration:420, easing:'cubic-bezier(.2,.8,.3,1)' });
+    const r = document.createElement('div'); r.className = 'ripple'; r.style.left = x + 'px'; r.style.top = y + 'px'; card.appendChild(r);
+    r.animate([{ transform:'scale(1)', opacity:.6 }, { transform:'scale(9)', opacity:0 }], { duration:520, easing:'ease-out' }).onfinish = () => r.remove();
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('transform', `translate(${x} ${y})`);
+    const d = new Date().toLocaleDateString('en-AU', { day:'numeric', month:'short' }).toUpperCase();
+    g.innerHTML = stampSVG(chosen, rot, d); $('inks').appendChild(g);
+    setTimeout(() => {
+      s.animate([{ transform:'translateY(0) scale(1)', opacity:1 }, { transform:'translateY(-60px) scale(1.35)', opacity:0 }], { duration: reduce ? 1 : 240, easing:'ease-in', fill:'forwards' })
+       .onfinish = () => { s.remove(); count++; busy = false; drawSpaces(); if (count === 5) offerSticker(); };
+    }, reduce ? 0 : 150);
+  };
+}
+
+function offerSticker() {
+  hint.textContent = '';
+  $('sheet').classList.add('show'); buzz([15, 60, 15]);
+}
+
+// The final sticker: drag it onto the last space (or tap it).
+const sticker = $('sticker'); let dragging = null;
+sticker.addEventListener('pointerdown', e => {
+  sticker.setPointerCapture(e.pointerId); sticker.classList.add('drag');
+  dragging = { x:e.clientX, y:e.clientY, moved:false };
+});
+sticker.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const dx = e.clientX - dragging.x, dy = e.clientY - dragging.y;
+  if (Math.hypot(dx, dy) > 6) dragging.moved = true;
+  sticker.style.transform = `translate(${dx}px,${dy}px) rotate(${dx / 12}deg) scale(1.08)`;
+});
+sticker.addEventListener('pointerup', e => {
+  if (!dragging) return;
+  const box = card.getBoundingClientRect(), k = box.width / 360;
+  const tx = box.left + FINAL[0] * k, ty = box.top + FINAL[1] * k;
+  const s = sticker.getBoundingClientRect(), near = Math.hypot(s.left + s.width / 2 - tx, s.top + s.height / 2 - ty) < 60;
+  const tapped = !dragging.moved; dragging = null; sticker.classList.remove('drag');
+  if (near || tapped) stick(); else { sticker.style.transition = 'transform .35s cubic-bezier(.2,.9,.3,1.3)'; sticker.style.transform = ''; setTimeout(() => sticker.style.transition = '', 360); }
+});
+
+function stick() {
+  $('sheet').classList.remove('show'); sticker.style.transform = '';
+  const p = document.createElement('div'); p.className = 'placed'; p.style.left = FINAL[0] + 'px'; p.style.top = FINAL[1] + 'px';
+  p.innerHTML = `<svg viewBox="-37 -37 74 74" style="width:100%;height:100%"><use href="#quat" fill="#fff" transform="scale(1.5)"/><use href="#quat" fill="url(#foilp)" transform="scale(1.32)"/><circle r="6" fill="#fff" opacity=".8"/></svg>`;
+  card.appendChild(p);
+  buzz([20, 50, 20, 50, 20, 50, 80]);
+  if (!reduce) {
+    p.animate([{ transform:'scale(1.7) rotate(-18deg)' }, { transform:'scale(.9) rotate(-8deg)', offset:.6 }, { transform:'scale(1) rotate(-8deg)' }], { duration:420, easing:'cubic-bezier(.2,.9,.3,1.4)', fill:'forwards' });
+    // The big moment: the whole card lifts, the light sweeps across, quatrefoils scatter.
+    card.animate([{ transform:'scale(1)' }, { transform:'scale(.95) translateY(5px)', offset:.15 }, { transform:'scale(1.07) rotateX(8deg) translateY(-10px)', offset:.45 }, { transform:'scale(1.04) rotateX(-3deg) translateY(-6px)', offset:.75 }, { transform:'scale(1)' }],
+                 { duration:1300, easing:'cubic-bezier(.2,.8,.3,1)' });
+    $('sweep').classList.remove('go'); void $('sweep').offsetWidth; $('sweep').classList.add('go');
+    const cols = ['#F4BE2C', '#E5553B', '#2A62B8', '#3C9A5F', '#F9C6D8', '#B5D8FA'];
+    for (let i = 0; i < 22; i++) {
+      const b = document.createElement('div'); b.className = 'bit'; b.style.left = FINAL[0] + 'px'; b.style.top = FINAL[1] + 'px';
+      b.innerHTML = `<svg viewBox="-22 -22 44 44" style="width:100%;height:100%"><use href="#quat" fill="${cols[i % cols.length]}"/></svg>`;
+      card.appendChild(b);
+      const a = Math.random() * Math.PI * 2, d = 70 + Math.random() * 130;
+      b.animate([{ transform:'translate(-8px,-8px) scale(.3)', opacity:1 }, { transform:`translate(${Math.cos(a) * d - 8}px,${Math.sin(a) * d - 8 - 30}px) scale(1) rotate(${Math.random() * 360}deg)`, opacity:1, offset:.6 }, { transform:`translate(${Math.cos(a) * d - 8}px,${Math.sin(a) * d + 60}px) scale(.8) rotate(${Math.random() * 720}deg)`, opacity:0 }],
+                { duration:1100 + Math.random() * 500, easing:'cubic-bezier(.1,.7,.3,1)' }).onfinish = () => b.remove();
+    }
+  } else p.style.transform = 'rotate(-8deg)';
+  cards++;
+  hint.textContent = 'Card finished. It goes into the stamp book.';
+  setTimeout(() => { award(cards === 1 ? 'First card' : `${cards} cards`, true); $('again').style.display = 'inline-block'; }, reduce ? 0 : 900);
+}
+
+$('again').onclick = () => {
+  $('again').style.display = 'none'; count = 0; $('inks').innerHTML = '';
+  document.querySelectorAll('.placed').forEach(p => p.remove());
+  if (!reduce) card.animate([{ transform:'translateX(0)', opacity:1 }, { transform:'translateX(-380px) rotate(-6deg)', opacity:0, offset:.5 }, { transform:'translateX(380px) rotate(6deg)', opacity:0, offset:.51 }, { transform:'translateX(0)', opacity:1 }], { duration:700, easing:'ease-in-out' });
+  drawSpaces();
+};
+
+// Earned stickers (the "fits": firsts, new foods, milestones, dry days in total, finished cards).
+function award(label, isNew, colour) {
+  const a = document.createElement('div'); a.className = 'award' + (isNew ? ' new' : '');
+  const fill = colour ? colour : 'url(#foilp)';
+  a.innerHTML = `<svg viewBox="-37 -37 74 74"><use href="#quat" fill="#fff" transform="scale(1.5)"/><use href="#quat" fill="${fill}" transform="scale(1.32)"/></svg>${label}`;
+  $('shelf').prepend(a);
+}
+award('First steps', false); award('5 new foods', false, '#F4BE2C'); award('First wee on the potty', false, '#CFE5D2'); award('3 dry days', false, '#BFD9F5');
+
+// Drag the card to tilt it; the light follows the finger.
+let hold = false;
+stage.addEventListener('pointerdown', e => { if (e.target.closest('.next')) return; hold = true; card.classList.add('held'); tilt(e); });
+stage.addEventListener('pointermove', e => { if (hold) tilt(e); });
+['pointerup', 'pointerleave', 'pointercancel'].forEach(t => stage.addEventListener(t, () => { hold = false; card.classList.remove('held'); card.style.transform = ''; }));
+function tilt(e) {
+  if (reduce) return;
+  const b = stage.getBoundingClientRect(), x = (e.clientX - b.left) / b.width, y = (e.clientY - b.top) / b.height;
+  card.style.transform = `rotateX(${(0.5 - y) * 22}deg) rotateY(${(x - 0.5) * 22}deg) scale(1.03)`;
+  card.style.setProperty('--gx', x * 100 + '%'); card.style.setProperty('--gy', y * 100 + '%');
+}
+
+drawTray(); drawSpaces();
+</script>
+</body>
+</html>

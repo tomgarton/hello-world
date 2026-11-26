@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Patterns in Insights</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Layout: a row of phones showing the Patterns view, then notes on what is arithmetic and what is not. */
+  --page: #F2ECDD; --card: #FBF6E9; --ink: #3A2A20; --muted: #6B5E52; --line: #E0D6C2; --accent: #C2412A;
+  --display: "Bricolage Grotesque", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* The app's own day colours: the phones always use these. */
+  --sand: #F2ECDD; --paper: #FBF6E9; --field: #EAE2D2; --app-ink: #3A2A20; --app-muted: #6B5E52;
+  --wattle: #F4BE2C; --waratah: #C2412A; --moon: #1B2440;
+  --sky: #BFD9F5; --shell: #F3D5C9; --mint: #CFE5D2; --sun: #F6E2A8; --lilac: #E2D4F1;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --page: #171310; --card: #221C18; --ink: #EBDDC4; --muted: #B3A590; --line: #3B332D; --accent: #FF7A61; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--page); color: var(--ink); font-family: var(--body); line-height: 1.5; padding: 28px 16px 64px; }
+main { max-width: 1040px; margin: 0 auto; display: flex; flex-direction: column; gap: 44px; }
+h1 { font-family: var(--display); font-size: 34px; line-height: 1.1; margin: 0 0 8px; text-wrap: balance; }
+h2 { font-family: var(--display); font-size: 24px; line-height: 1.15; margin: 0 0 6px; text-wrap: balance; }
+p { margin: 0; max-width: 66ch; }
+.lede { color: var(--muted); }
+.q { display: flex; flex-direction: column; gap: 18px; }
+.num { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .04em; }
+.row { display: flex; flex-wrap: wrap; gap: 22px; align-items: flex-start; }
+.opt { display: flex; flex-direction: column; gap: 10px; width: 300px; max-width: 100%; }
+.opt h3 { font-size: 16px; margin: 0; }
+.opt p { font-size: 14px; color: var(--muted); }
+.pick { font-size: 12px; font-weight: 700; color: var(--accent); }
+.note { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; gap: 8px; }
+.note h3 { margin: 0; font-size: 16px; }
+.note ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 66ch; }
+
+/* The phone. Fixed day palette, whatever the page theme. */
+.phone { width: 300px; max-width: 100%; border-radius: 38px; background: var(--sand); color: var(--app-ink); border: 7px solid #2A211B; padding: 14px 14px 18px; display: flex; flex-direction: column; gap: 10px; min-height: 560px; font-size: 14px; line-height: 1.3; position: relative; overflow: hidden; }
+.phone.sheet { background: #CFC6B6; padding-top: 44px; }
+.phone .inner { background: var(--sand); border-radius: 26px 26px 0 0; margin: 0 -14px -18px; padding: 14px 14px 18px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.bar { display: flex; justify-content: space-between; align-items: center; }
+.pill { background: var(--paper); border-radius: 999px; padding: 7px 14px; font-weight: 600; font-size: 13px; }
+.pill.dark { background: var(--app-ink); color: var(--paper); }
+.title { font-family: var(--display); font-size: 26px; font-weight: 700; margin-top: 6px; }
+.stitle { font-weight: 700; font-size: 15px; text-align: center; flex: 1; }
+.label { font-weight: 700; font-size: 13px; margin: 6px 4px 0; }
+.foot { font-size: 12px; color: var(--app-muted); margin: 0 4px; }
+.cardp { background: var(--paper); border-radius: 20px; padding: 2px 14px; display: flex; flex-direction: column; }
+.item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid #E6DCC8; min-height: 48px; }
+.item:first-child { border-top: 0; }
+.item .t { flex: 1; min-width: 0; }
+.item .t b { display: block; font-size: 14px; }
+.item .t span { display: block; font-size: 12px; color: var(--app-muted); }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 13px; flex: none; }
+.av.lg { width: 50px; height: 50px; font-size: 18px; }
+.chev { color: #B5A894; font-weight: 700; }
+.tick { font-weight: 800; }
+.tag { font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--field); white-space: nowrap; }
+.tag.wait { background: var(--sun); }
+.faces { display: flex; gap: 12px; flex-wrap: wrap; padding: 12px 0; }
+.face { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; width: 54px; text-align: center; }
+.face small { font-weight: 400; color: var(--app-muted); font-size: 10.5px; }
+.plus { background: var(--field); border: 1.5px dashed #B5A894; }
+.btn { background: var(--app-ink); color: var(--paper); border-radius: 999px; text-align: center; padding: 13px; font-weight: 700; }
+.btn.soft { background: var(--field); color: var(--app-ink); }
+.btn.red { background: transparent; color: var(--waratah); }
+.center { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 18px 8px 6px; }
+.big { font-family: var(--display); font-size: 22px; font-weight: 700; line-height: 1.15; }
+.kids { display: flex; gap: -6px; }
+.kids .av { margin-left: -8px; border: 3px solid var(--sand); }
+.kids .av:first-child { margin-left: 0; }
+.spacer { flex: 1; }
+.tabs { display: flex; justify-content: space-around; background: var(--paper); border-radius: 999px; padding: 9px 6px; font-size: 10.5px; font-weight: 600; color: var(--app-muted); margin-top: auto; }
+.tabs b { color: var(--app-ink); background: var(--field); padding: 3px 10px; border-radius: 999px; }
+.warn { background: var(--sun); border-radius: 16px; padding: 12px 14px; font-size: 13px; }
+
+.phone { min-height: 640px; }
+.card2 { background: var(--paper); border-radius: 20px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.card2 h4 { margin: 0; font-size: 12px; font-weight: 600; color: var(--app-muted); }
+.big2 { font-family: var(--display); font-weight: 700; font-size: 24px; line-height: 1.1; }
+.sm { font-size: 12.5px; color: var(--app-muted); }
+.chips { display: flex; gap: 6px; }
+.chips span { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: var(--field); }
+.chips span.on { background: var(--app-ink); color: var(--paper); }
+.say { font-size: 13.5px; padding: 9px 0; border-top: 1px solid #E6DCC8; } .say:first-child { border-top: 0; padding-top: 2px; }
+.say small { display: block; color: var(--app-muted); font-size: 11.5px; }
+.src { font-size: 11px; font-weight: 700; letter-spacing: .04em; color: var(--app-muted); }
+.plain { max-width: 70ch; display: flex; flex-direction: column; gap: 10px; } .plain p { max-width: none; }
+table.when { border-collapse: collapse; font-size: 14px; width: 100%; max-width: 78ch; }
+table.when td { padding: 9px 14px 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.when td:first-child { font-weight: 600; white-space: nowrap; }
+</style>
+</head>
+<body>
+<main>
+<header><h1>Patterns in Insights</h1>
+<p class="lede">A third view beside Week and Month that shows how a child's days have changed with age. The children and all the figures here are made up. Nothing is built.</p></header>
+<section class="q"><div><div class="num">THE VIEW</div><h2>Four screens</h2></div>
+<div class="row">
+<div class="opt"><div class="phone"><div class="title" style="font-size:22px">Insights</div><div class="chips"><span>Ollie</span><span>Bea</span></div><div class="chips"><span>Week</span><span>Month</span><span class="on">Patterns</span></div><div class="card2"><h4>BEDTIME</h4><div class="big2">Around 19:40</div><div class="sm">Within 20 minutes most nights, this month</div><svg width="250" height="96" viewBox="0 0 250 96" role="img" aria-label="Bedtime by month, getting earlier and steadier"><rect x="8.0" y="10.0" width="12" height="42.0" rx="6" fill="#BFD9F5"/><circle cx="14.0" cy="31.0" r="3.200" fill="#3A2A20"/><text x="14.0" y="94" font-size="9.500" text-anchor="middle" fill="#6B5E52">3</text><rect x="32.5" y="14.2" width="12" height="42.0" rx="6" fill="#BFD9F5"/><circle cx="38.5" cy="35.2" r="3.200" fill="#3A2A20"/><rect x="57.0" y="19.8" width="12" height="47.6" rx="6" fill="#BFD9F5"/><circle cx="63.0" cy="43.6" r="3.200" fill="#3A2A20"/><rect x="81.5" y="25.4" width="12" height="44.8" rx="6" fill="#BFD9F5"/><circle cx="87.5" cy="47.8" r="3.200" fill="#3A2A20"/><text x="87.5" y="94" font-size="9.500" text-anchor="middle" fill="#6B5E52">6</text><rect x="106.0" y="38.0" width="12" height="39.2" rx="6" fill="#BFD9F5"/><circle cx="112.0" cy="57.6" r="3.200" fill="#3A2A20"/><rect x="130.5" y="61.8" width="12" height="11.2" rx="6" fill="#BFD9F5"/><circle cx="136.5" cy="67.4" r="3.200" fill="#3A2A20"/><rect x="155.0" y="67.4" width="12" height="7.0" rx="6" fill="#BFD9F5"/><circle cx="161.0" cy="70.2" r="3.200" fill="#3A2A20"/><text x="161.0" y="94" font-size="9.500" text-anchor="middle" fill="#6B5E52">9</text><rect x="179.5" y="68.8" width="12" height="7.0" rx="6" fill="#BFD9F5"/><circle cx="185.5" cy="71.6" r="3.200" fill="#3A2A20"/><rect x="204.0" y="67.4" width="12" height="7.0" rx="6" fill="#BFD9F5"/><circle cx="210.0" cy="70.2" r="3.200" fill="#3A2A20"/><rect x="228.5" y="66.7" width="12" height="7.0" rx="6" fill="#BFD9F5"/><circle cx="234.5" cy="70.2" r="3.200" fill="#3A2A20"/><text x="234.5" y="94" font-size="9.500" text-anchor="middle" fill="#6B5E52">12</text></svg><div class="sm">Age in months. The dot is the usual time, the bar how much it moved.</div></div><div class="card2"><h4>LONGEST STRETCH AT NIGHT</h4><div class="big2">About 11 hours</div><svg width="250" height="84" viewBox="0 0 250 84" role="img" aria-label="Longest night stretch by month"><rect x="8.0" y="52.5" width="16" height="15.5" rx="5" fill="#BFD9F5"/><text x="16.0" y="82" font-size="9.500" text-anchor="middle" fill="#6B5E52">3</text><rect x="32.5" y="54.6" width="16" height="13.4" rx="5" fill="#BFD9F5"/><rect x="57.0" y="52.0" width="16" height="16.0" rx="5" fill="#BFD9F5"/><rect x="81.5" y="42.7" width="16" height="25.3" rx="5" fill="#BFD9F5"/><text x="89.5" y="82" font-size="9.500" text-anchor="middle" fill="#6B5E52">6</text><rect x="106.0" y="49.9" width="16" height="18.1" rx="5" fill="#BFD9F5"/><rect x="130.5" y="42.2" width="16" height="25.8" rx="5" fill="#BFD9F5"/><rect x="155.0" y="9.6" width="16" height="58.4" rx="5" fill="#BFD9F5"/><text x="163.0" y="82" font-size="9.500" text-anchor="middle" fill="#6B5E52">9</text><rect x="179.5" y="9.1" width="16" height="58.9" rx="5" fill="#BFD9F5"/><rect x="204.0" y="11.7" width="16" height="56.3" rx="5" fill="#BFD9F5"/><rect x="228.5" y="11.2" width="16" height="56.8" rx="5" fill="#BFD9F5"/><text x="236.5" y="82" font-size="9.500" text-anchor="middle" fill="#6B5E52">12</text></svg></div><div class="tabs"><span>Today</span><span>History</span><b>Insights</b><span>Family</span></div></div><h3>1. Patterns</h3><p>One card for each thing that has a pattern: bedtime, the longest stretch at night, naps, bottles. Each shows where it is now and how it got there.</p></div><div class="opt"><div class="phone"><div class="title" style="font-size:22px">Insights</div><div class="chips"><span>Ollie</span><span>Bea</span></div><div class="chips"><span>Week</span><span>Month</span><span class="on">Patterns</span></div><div class="label">What changed</div><div class="card2" style="gap:0"><div class="say">Bedtime has been within 20 minutes of 19:40 since 9 months.<small>Before that it moved by about 3 hours.</small></div><div class="say">The last bottle between 22:00 and 05:00 was at 8 months.<small>None in the 4 months since.</small></div><div class="say">Naps went from 3 a day to 2 at 7 months.<small>The first now starts around 11:15.</small></div><div class="say">Bottles are larger and fewer: 3 a day of about 200 ml.<small>At 4 months it was 6 a day of about 150 ml.</small></div></div><div class="label">To read</div><div class="card2"><span class="src">NHS</span><b style="font-size:14px">Helping your baby to sleep</b><span class="sm">Opens the NHS page. The app doesn't summarise it.</span></div><div class="foot">Worked out from what was logged. The app doesn't say what is usual for a child.</div><div class="tabs"><span>Today</span><span>History</span><b>Insights</b><span>Family</span></div></div><h3>2. What changed</h3><p>The same findings as plain sentences, each one a fact from the entries. Below them, a link out to a trusted source for that subject.</p></div><div class="opt"><div class="phone"><div class="title" style="font-size:22px">Insights</div><div class="chips"><span class="on">At the same age</span></div><div class="card2" style="gap:0"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:700"><span style="background:var(--shell);padding:3px 10px;border-radius:999px">Bea at 5 months</span><span style="background:var(--sky);padding:3px 10px;border-radius:999px">Ollie at 5 months</span></div><div class="say"><span class="sm">Usual bedtime</span><div style="display:flex;justify-content:space-between;font-weight:600;font-size:14px"><span>21:10</span><span>21:40</span></div></div><div class="say"><span class="sm">Longest stretch at night</span><div style="display:flex;justify-content:space-between;font-weight:600;font-size:14px"><span>4 h 10</span><span>3 h 05</span></div></div><div class="say"><span class="sm">Naps a day</span><div style="display:flex;justify-content:space-between;font-weight:600;font-size:14px"><span>3</span><span>3</span></div></div><div class="say"><span class="sm">Bottles a day</span><div style="display:flex;justify-content:space-between;font-weight:600;font-size:14px"><span>5 of 160 ml</span><span>5 of 165 ml</span></div></div></div><div class="foot">Two children are never the same, and neither is ahead. This is here because you switched it on.</div><div class="spacer"></div><div class="btn soft">Switch this off</div><div class="tabs"><span>Today</span><span>History</span><b>Insights</b><span>Family</span></div></div><h3>3. At the same age</h3><p>A second child beside the first, each at the same age. Off until a parent switches it on.</p></div><div class="opt"><div class="phone"><div class="title" style="font-size:22px">Ask about Ollie</div><div class="card2"><h4>YOU ASKED</h4><span style="font-size:14px">How has his sleep been this fortnight?</span></div><div class="card2"><h4>FROM WHAT WAS LOGGED</h4><span style="font-size:14px">Ollie slept between 10 h 40 and 11 h 30 at night on 12 of the last 14 nights. On the other two he woke once, around 02:00. He had two naps on every day but one.</span><span class="sm">Written on this iPhone from the entries below. It can be wrong: check the entries.</span></div><div class="cardp"><div class="item"><div class="t"><b>14 nights</b><span>Tap to see each one</span></div><span class="chev">&#8250;</span></div></div><div class="foot">It answers about what was logged. Ask it what to do and it says it can't help with that, and offers the reading list.</div><div class="spacer"></div><div class="cardp"><div class="item"><div class="t"><b style="font-weight:400;color:var(--app-muted)">Ask about what was logged</b></div></div></div></div><h3>4. Asking in words</h3><p>A question about what was logged, answered on the phone, with the entries it used one tap away.</p></div>
+</div></section>
+<section class="q"><div><div class="num">WHERE THE LINE IS</div><h2>Three kinds of help, and what each is safe for</h2></div>
+<table class="when">
+<tr><td>Patterns and sentences</td><td>Plain arithmetic on the entries, and sentences filled in from fixed wording. No model is involved, it works on every iPhone, and the same entries always give the same answer. Screens 1 to 3 are this.</td></tr>
+<tr><td>Reading from trusted sources</td><td>A short list of links, chosen by subject and the child's age, to pages such as the NHS's. The app shows the title and opens the page. It doesn't quote, shorten or reword them, so the advice stays theirs.</td></tr>
+<tr><td>A model on the phone</td><td>Good at turning entries into a readable paragraph and at answering "when did" and "how often". It can also state things that are not in the entries, so every answer shows the entries behind it, and it stays away from what a parent should do.</td></tr>
+</table>
+<div class="plain">
+<p><strong>What I would not build: tips or recommendations written by the app.</strong> "Ollie's naps are short, try an earlier bedtime" is advice about one child's health from software that knows only what was logged. A small on-device model will say such things fluently whether or not they are right. It is also the point where an app can start to count as a medical device under the rules in the UK, the EU and Australia. I am not a lawyer and that needs checking before anything like it ships.</p>
+<p><strong>What does the same job safely:</strong> the app says what changed, and a trusted source says what it might mean. "Bedtime has moved about an hour later this fortnight" with "NHS: Helping your baby to sleep" underneath gives a parent the fact and somewhere reliable to take it.</p>
+<p><strong>Sources by country.</strong> The NHS suits the UK. Elsewhere the list would need its own, such as Raising Children Network in Australia. Linking is fine; reusing their words inside the app has terms attached, which is another reason to link.</p>
+<p><strong>On-device models.</strong> Apple's own on-device model is only on recent iPhones with Apple Intelligence switched on, so screen 4 would be missing for many families. Screens 1 to 3 need none of it. What that model can do reliably with a few thousand entries needs testing on a real phone before I would promise it.</p>
+<p><strong>The earlier rule.</strong> Insights was totals and counts only. This keeps "no targets and no normal ranges" and lets go of "no averages", for a child's own history. "Just logging" still hides all of it.</p>
+</div></section>
+</main>
+</body>
+</html>
