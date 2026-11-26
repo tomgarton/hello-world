@@ -94,7 +94,7 @@ struct PagedChild: View {
         let tint = Tone.child(child.colourIndex)
         NavigationStack {
             TabView(selection: $page) {
-                ChildPage(child: child, paged: true, toTop: toTop)
+                ChildPage(child: child, paged: true, toTop: toTop, showing: page == 0)
                     // The three colours lie one on another and cross over, so falling asleep goes to night
                     // over a moment and waking comes back.
                     .containerBackground(for: .tabView) {
@@ -139,10 +139,19 @@ struct PagedChild: View {
         .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged).receive(on: RunLoop.main)) { _ in
             today = Calendar.current.startOfDay(for: .now)
         }
-        // Coming back up to Now by a swipe lands at its foot, as the Watch's own paged apps do. Moving it to
-        // its top as it was left stopped the page turn half way, so only the badge does that.
+        // Swiping to another child puts these pages back to Now. Swiping back up to Now from the page under it
+        // arrives at Now's top: `ChildPage` goes back there once it is out of sight (`showing`).
         .onChange(of: selected) { _, showing in
             if !showing { page = 0; toTop += 1 }
+        }
+        .task {
+            // For checking without a swipe: "-previewTurn 1" with "-previewScroll 1" turns from the foot of
+            // Now to Sleep today and back, as a swipe down and up would.
+            guard UserDefaults.standard.bool(forKey: "previewTurn") else { return }
+            try? await Task.sleep(for: .seconds(4))
+            withAnimation { page = 1 }
+            try? await Task.sleep(for: .seconds(4))
+            withAnimation { page = 0 }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { today = Calendar.current.startOfDay(for: .now) }

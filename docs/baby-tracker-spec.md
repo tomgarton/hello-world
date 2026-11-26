@@ -3004,8 +3004,9 @@ to." Four agents tested the Watch app; Tom chose to fix everything listed.
 - **Swiping to the other child arrives on their Now page.** Unchosen: keeping the same page across children.
 - **An arrow beside the figure** on Sleep today and Last 14 days shows they open, and the whole block is the
   button. Opened, "Turn the crown" shows until the crown is turned.
-- **Not changed:** swiping back up to Now lands at its foot, as the Watch's own paged apps do. Moving it to
-  the top as the page was left stopped the page turn half way.
+- ~~**Not changed:** swiping back up to Now lands at its foot, as the Watch's own paged apps do. Moving it to
+  the top as the page was left stopped the page turn half way.~~ Fixed 26 November: see "Back up to Now
+  arrives at its top" below.
 
 **Figures**
 - **The Watch asks the iPhone for a fresh summary as it comes to the front** (`WatchLink.refreshKey`), since
@@ -3034,3 +3035,22 @@ Five new tests in `WatchPagesTests`. **Not checked on a Watch:** every tick, the
 link, a nappy waiting for delivery, and the refresh on coming to the front. The simulator has no iPhone
 link and its crown cannot be turned by script. **Left as they were:** a sleep hides a running feed; the
 running feed's counter sits close under the name on the small Watch.
+
+## Back up to Now arrives at its top (26 November 2026)
+
+From the Watch testing, sent on by Tom ("Yes, send to Watch"): swiping back up to Now from Sleep today
+arrived at the foot of Now, among the buttons, not at "Awake" and "Start sleep".
+
+- **Why.** Now is longer than the screen, so it is left from its foot, where the swipe to the next page
+  starts, and it kept that place while out of sight.
+- **Now** it goes back to its top once the page turn is over and Now has left the screen, without animation,
+  so nothing moves that can be seen and the turn is not held up (`ChildPage`, on disappearing). Moving it as
+  the turn began was what stopped the turn half way before. It is aimed at a mark at the top of the page;
+  aimed at the edge it stopped about 20 points short, under the title.
+- The badge's tap back to Now uses the same mark.
+- **For checking without a swipe:** `-previewTurn 1` with `-previewScroll 1` opens Now at its foot, turns to
+  Sleep today after four seconds and back four seconds later. `-previewScroll 1` now opens at the foot the
+  first time only, where before it went to the foot each time Now appeared.
+- **Seen on the simulator**, 46 mm and 42 mm: back at the foot without the change, at the top with it.
+  **Not checked:** a real swipe and a crown turn on a Watch, where the turn is driven by the finger.
+

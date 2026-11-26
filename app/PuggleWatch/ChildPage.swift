@@ -11,11 +11,17 @@ struct ChildPage: View {
     var paged = false
     /// Counts up each time the page should go back to its top: the badge tapped, or the page left.
     var toTop = 0
+    /// Whether this page is the one showing, in the paged version. Once it has been turned away from, it goes
+    /// back to its top out of sight, so swiping back up arrives at the facts rather than at its foot.
+    var showing = true
     @EnvironmentObject private var model: WatchModel
     // For checking: "-previewSheet nappy" or "bottle" opens one on the first child.
     @State private var choosingNappy = false
     @State private var choosingBottle = false
     @State private var choosingSide = false
+    /// Where Now is scrolled to, so it can be put back to its top while out of sight.
+    @State private var position = ScrollPosition(edge: .top)
+    @State private var openedAtFoot = false
 
     var body: some View {
         Group {
@@ -84,48 +90,57 @@ struct ChildPage: View {
     // MARK: Awake
 
     private var awake: some View {
-        ScrollViewReader { scroller in
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    Color.clear.frame(height: 0).id("top")
-                    if paged {
-                        // What "Start sleep" answers comes first, with the button in view under it.
-                        largeFacts(first: true)
-                    } else {
-                        HStack(spacing: 8) {
-                            Badge(child: child)
-                            Text(child.name)
-                                .font(.system(.title3, design: .rounded).weight(.bold))
-                                .lineLimit(1)
-                        }
-                        facts
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                Color.clear.frame(height: 0).id("top")
+                if paged {
+                    // What "Start sleep" answers comes first, with the button in view under it.
+                    largeFacts(first: true)
+                } else {
+                    HStack(spacing: 8) {
+                        Badge(child: child)
+                        Text(child.name)
+                            .font(.system(.title3, design: .rounded).weight(.bold))
+                            .lineLimit(1)
                     }
-                    // One column, every button the full width, so their edges line up.
-                    VStack(spacing: 6) {
-                        big("Start sleep", systemImage: "moon.fill", fill: Tone.child(child.colourIndex), ink: Tone.ink) { send(.startSleep) }
-                        if paged { largeFacts(first: false).padding(.vertical, 4) }
-                        if child.breastfeeds == true {
-                            row("Start feed", systemImage: "timer") { Haptic.tap(); choosingSide = true }
-                        }
-                        // A summary from an older Puggle does not say, so it goes by milk as before.
-                        if child.usesBottle ?? (child.usesMilk != false) {
-                            row("Log bottle", systemImage: "waterbottle.fill") { Haptic.tap(); choosingBottle = true }
-                        }
-                        if child.pottyTraining != true, child.usesNappies {
-                            row("Log \(Terms.nappyLower)", systemImage: "drop.fill") { Haptic.tap(); choosingNappy = true }
-                        }
-                    }
-                    .id("end")
+                    facts
                 }
-                .padding(.horizontal, 4)
-                // Clear of the page dots at the foot of the screen.
-                .padding(.bottom, 14)
+                // One column, every button the full width, so their edges line up.
+                VStack(spacing: 6) {
+                    big("Start sleep", systemImage: "moon.fill", fill: Tone.child(child.colourIndex), ink: Tone.ink) { send(.startSleep) }
+                    if paged { largeFacts(first: false).padding(.vertical, 4) }
+                    if child.breastfeeds == true {
+                        row("Start feed", systemImage: "timer") { Haptic.tap(); choosingSide = true }
+                    }
+                    // A summary from an older Puggle does not say, so it goes by milk as before.
+                    if child.usesBottle ?? (child.usesMilk != false) {
+                        row("Log bottle", systemImage: "waterbottle.fill") { Haptic.tap(); choosingBottle = true }
+                    }
+                    if child.pottyTraining != true, child.usesNappies {
+                        row("Log \(Terms.nappyLower)", systemImage: "drop.fill") { Haptic.tap(); choosingNappy = true }
+                    }
+                }
+                .id("end")
             }
-            .onAppear {
-                // For checking: "-previewScroll 1" opens at the foot of the page.
-                if UserDefaults.standard.bool(forKey: "previewScroll") { scroller.scrollTo("end", anchor: .bottom) }
+            .scrollTargetLayout()
+            .padding(.horizontal, 4)
+            // Clear of the page dots at the foot of the screen.
+            .padding(.bottom, 14)
+        }
+        .scrollPosition($position)
+        .onAppear {
+            // For checking: "-previewScroll 1" opens at the foot of the page, the first time only.
+            if UserDefaults.standard.bool(forKey: "previewScroll"), !openedAtFoot {
+                openedAtFoot = true
+                position.scrollTo(edge: .bottom)
             }
-            .onChange(of: toTop) { withAnimation { scroller.scrollTo("top", anchor: .top) } }
+        }
+        .onChange(of: toTop) { withAnimation { position.scrollTo(id: "top", anchor: .top) } }
+        // Left at its foot (where the swipe to the next page starts), the page was still at its foot when
+        // swiped back to. Moving it while the page turn was under way stopped the turn half way, so it is
+        // moved once the turn is over and the page has gone from the screen, without animation.
+        .onDisappear {
+            if paged, !showing { position.scrollTo(id: "top", anchor: .top) }
         }
     }
 
