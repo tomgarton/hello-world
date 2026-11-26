@@ -23,6 +23,12 @@ enum Tone {
     /// (the clock is always white; Tom, 20 November 2026).
     static let honey = Color(red: 0x7A / 255, green: 0x4E / 255, blue: 0x10 / 255)
 
+    /// Behind the white cross that closes a sheet. A sheet takes the child's colour as its tint otherwise,
+    /// and a white cross on pale pink or blue could not be read (Tom, 26 November 2026).
+    static let closeButton = Color(red: 0x3A / 255, green: 0x43 / 255, blue: 0x60 / 255)
+    /// Marks under the day strip: feeds and meals in the yellow of milk, nappies and the potty in a sea green.
+    static let sea = Color(red: 0x8F / 255, green: 0xD3 / 255, blue: 0xCF / 255)
+
     /// The children's colours, as in the app (Sky, Shell, Mint, Sun, Lilac, Rose, Sea, Stone).
     private static let children: [UInt32] = [0xBFD9F5, 0xF3D9C9, 0xCFE5D2, 0xF4E7B0, 0xE2D4F1, 0xF6CFDC, 0xC4E6E4, 0xDDD8D0]
 

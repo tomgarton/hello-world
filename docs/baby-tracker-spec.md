@@ -2920,6 +2920,19 @@ Digital Crown, and chose three things to build.
 - **A sleep starting is a change of scene.** The colour behind crosses to night over a moment, the timer
   fades in and a moon rises above it. Waking and feeding cross the same way.
 - **Reduce Motion** leaves all of it still.
+
+**Feeds and nappies on the day, and two fixes (Tom, 26 November).**
+
+- **Marks under the sleep blocks:** a row of yellow dots for feeds and meals, and a row of sea-green squares
+  for nappies and potty trips. A line under the figure says what they are and how many: "● 3 feeds, 1 meal
+  ■ 3 nappies". The iPhone sends them as `marksToday`.
+- **In the opened view** the mark the crown is on grows, the line under the figure says "Fed at 6:48",
+  "Ate at…", "Nappy at…" or "Potty at…" in the mark's colour, and there is a lighter tick on the wrist.
+- **The title no longer doubles the clock.** At now it says "Now"; turned back, it says the time it is on.
+- **The cross that closes** is white on a dark disc. It took the child's colour, and white on pale pink or
+  blue couldn't be read.
+- Sleep today scrolls on a small Watch, where the strip, the figure and the key are taller than the screen.
+  Checked on the 46 mm and 40 mm simulators.
 - **For checking:** `-previewSheet day` with `-previewScrub 600` opens the day at 10:00;
   `-previewSheet days` with `-previewScrubDay 5` opens the days on the sixth.
 - **Checked on the simulator** from recordings: the change of scene and the bars rising. **Not checked:**

@@ -43,6 +43,14 @@ struct WidgetSnapshot: Codable {
         var sleepDays: [Double?]?
         /// What is guessed to come next, soonest first.
         var coming: [Coming]?
+        /// Today's feeds, meals, nappies and potty trips, for the marks under the day strip, earliest first.
+        var marksToday: [Mark]?
+    }
+
+    /// Something logged at a moment today: "feed", "meal", "nappy" or "potty".
+    struct Mark: Codable, Hashable {
+        var kind: String
+        var at: Date
     }
 
     /// One stretch asleep. `sleep` numbers the sleep it belongs to, so a night broken by a waking is still

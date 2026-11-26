@@ -24,10 +24,14 @@ struct DayFigures {
     var days: [Double?]?
     /// What comes next, soonest first, and still to come.
     var coming: [Coming]
+    /// Today's feeds, meals, nappies and potty trips.
+    var marks: [WidgetSnapshot.Mark]
 
     init(child: WidgetSnapshot.Child, now: Date = .now) {
         sleeps = child.sleepsToday
         days = child.sleepDays
+        let midnight = Calendar.current.startOfDay(for: now)
+        marks = (child.marksToday ?? []).filter { $0.at >= midnight && $0.at <= now }
         coming = (child.coming ?? []).filter { $0.at > now }.sorted { $0.at < $1.at }.map { next in
             switch next.kind {
             case "sleep": Coming(title: "Next sleep", systemImage: "moon.fill", at: next.at)
@@ -43,7 +47,8 @@ struct DayFigures {
         func at(_ hour: Double) -> Date { midnight.addingTimeInterval(hour * 3600) }
         // The night has a waking in it, so it is two stretches of one sleep.
         let made: [(Double, Double, Int)] = [(-4.9, 2.2, 0), (2.6, 6.67, 0), (9.25, 10.5, 1), (13.1, 14.6, 2)]
-        var sleeps = made.filter { at($0.0) < now }.map { WidgetSnapshot.Stretch(start: at($0.0), end: min(at($0.1), now), sleep: $0.2) }
+        // Only those already over, so none is cut short at now and read as "awake for 0 min".
+        var sleeps = made.filter { at($0.1) <= now }.map { WidgetSnapshot.Stretch(start: at($0.0), end: at($0.1), sleep: $0.2) }
         if let since = child.asleepSince { sleeps.append(WidgetSnapshot.Stretch(start: since, end: nil, sleep: 9)) }
         child.sleepsToday = sleeps
         let milk = child.usesMilk == true
@@ -51,6 +56,10 @@ struct DayFigures {
                                : [11.6, 12.1, 11.2, 11.9, 12.4, 10.8, 11.5, 11.9, 12.2, nil, 11.1, 12.6, 11.8, 11.4]
         child.coming = child.asleepSince != nil ? [] : [WidgetSnapshot.Coming(kind: "sleep", at: now.addingTimeInterval(70 * 60))]
         if milk { child.coming?.append(WidgetSnapshot.Coming(kind: "feed", at: now.addingTimeInterval(125 * 60))) }
+        let made2: [(String, Double)] = milk
+            ? [("feed", 2.3), ("nappy", 2.4), ("feed", 6.8), ("nappy", 7.0), ("meal", 8.2), ("feed", 8.7), ("nappy", 9.1), ("feed", 12.0), ("nappy", 12.6), ("feed", 15.2), ("nappy", 16.0)]
+            : [("meal", 7.3), ("potty", 7.6), ("meal", 10.0), ("potty", 10.4), ("meal", 12.2), ("potty", 13.0), ("meal", 15.3), ("potty", 16.1)]
+        child.marksToday = made2.filter { at($0.1) <= now }.map { WidgetSnapshot.Mark(kind: $0.0, at: at($0.1)) }
     }
 
     /// Seconds asleep since midnight.
@@ -175,15 +184,17 @@ struct SleepTodayPage: View {
             let now = context.date
             let midnight = Calendar.current.startOfDay(for: now)
             let sleeps = figures.sleeps ?? []
-            VStack(alignment: .leading, spacing: 8) {
+            // It scrolls on a small Watch, where the strip, the figure and the key are taller than the screen.
+            ScrollView {
+            VStack(alignment: .leading, spacing: 5) {
                 // Tap it to look along the day with the crown.
                 Button { scrubbing = true } label: {
-                    DayStrip(sleeps: sleeps, now: now, drawn: drawn)
-                        .frame(maxHeight: 64)
+                    DayStrip(sleeps: sleeps, marks: figures.marks, now: now, drawn: drawn)
+                        .frame(height: 64)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .disabled(sleeps.isEmpty)
+                .disabled(sleeps.isEmpty && figures.marks.isEmpty)
                 .accessibilityLabel("Look along today")
                 if sleeps.isEmpty {
                     Text(figures.sleeps == nil ? "Open Puggle on your iPhone to see today's sleep." : "No sleep logged today.")
@@ -192,14 +203,19 @@ struct SleepTodayPage: View {
                 } else {
                     Figure(label: "Asleep today", value: hoursAndMinutes(figures.asleepToday(now: now)), detail: detail(midnight: midnight), tint: Tone.moon)
                 }
-                Spacer(minLength: 0)
+                MarkKey(marks: figures.marks)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 6)
+            // Clear of the page dots at the foot of the screen.
+            .padding(.bottom, 16)
+            }
         }
         .onAppear { draw(current) }
         .onChange(of: current) { _, showing in draw(showing) }
         .sheet(isPresented: $scrubbing) {
-            NavigationStack { DayScrub(child: child, sleeps: figures.sleeps ?? []) }
+            NavigationStack { DayScrub(child: child, sleeps: figures.sleeps ?? [], marks: figures.marks) }
+                .tint(Tone.closeButton)
         }
     }
 
@@ -308,6 +324,7 @@ struct FortnightPage: View {
         .onChange(of: current) { _, showing in drawn = showing }
         .sheet(isPresented: $scrubbing) {
             NavigationStack { FortnightScrub(child: child, days: days) }
+                .tint(Tone.closeButton)
         }
     }
 

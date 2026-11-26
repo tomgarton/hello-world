@@ -63,6 +63,24 @@ enum WidgetFeed {
         return result
     }
 
+    /// For the marks under the Watch's day strip: today's feeds, meals, nappies and potty trips, earliest first.
+    static func marksToday(for child: Child, now: Date = .now) -> [WidgetSnapshot.Mark] {
+        let midnight = Calendar.current.startOfDay(for: now)
+        return (child.events ?? [])
+            .filter { $0.isLive }
+            .compactMap { event -> WidgetSnapshot.Mark? in
+                guard let at = event.startedAt, at >= midnight, at <= now else { return nil }
+                switch event.kind {
+                case .bottle, .breastfeed: return WidgetSnapshot.Mark(kind: "feed", at: at)
+                case .solids: return WidgetSnapshot.Mark(kind: "meal", at: at)
+                case .nappy: return WidgetSnapshot.Mark(kind: "nappy", at: at)
+                case .potty: return WidgetSnapshot.Mark(kind: "potty", at: at)
+                default: return nil
+                }
+            }
+            .sorted { $0.at < $1.at }
+    }
+
     /// For the Watch's "Last 14 days": hours asleep on each of the fourteen whole days before today, oldest
     /// first. A day with no sleep in it is nil, so it is drawn as a gap and left out of the average.
     static func sleepDays(stretches: [DateInterval], now: Date = .now, calendar: Calendar = .current) -> [Double?] {
@@ -119,7 +137,8 @@ enum WidgetFeed {
                 lastBottleML: store.latest(.bottle, for: child).map { Int($0.amountML) }.flatMap { $0 > 0 ? $0 : nil },
                 sleepsToday: sleepsToday(for: child),
                 sleepDays: sleepDays(for: child),
-                coming: NextUp.all(for: child).sorted { $0.at < $1.at }.map { WidgetSnapshot.Coming(kind: $0.kind.rawValue, at: $0.at) })
+                coming: NextUp.all(for: child).sorted { $0.at < $1.at }.map { WidgetSnapshot.Coming(kind: $0.kind.rawValue, at: $0.at) },
+                marksToday: marksToday(for: child))
         }
         let snapshot = WidgetSnapshot(children: rows, updatedAt: .now)
         snapshot.save()
