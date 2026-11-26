@@ -107,11 +107,32 @@ struct MarkKey: View {
 struct DayScrub: View {
     let child: WidgetSnapshot.Child
     let sleeps: [WidgetSnapshot.Stretch]
+    var marks: [WidgetSnapshot.Mark] = []
+
+    var body: some View {
+        // The day goes on while it is open: it used to stop at the moment it opened and still say "Now".
+        TimelineView(.periodic(from: .now, by: 30)) { context in
+            DayScrubbing(child: child, sleeps: sleeps, marks: marks, now: context.date)
+        }
+    }
+}
+
+private struct DayScrubbing: View {
+    let child: WidgetSnapshot.Child
+    let sleeps: [WidgetSnapshot.Stretch]
     let marks: [WidgetSnapshot.Mark]
     private let now: Date
     private let midnight: Date
-    /// Minutes after midnight. For checking: "-previewScrub 600" opens at 10:00.
-    @State private var minute: Double
+    /// Where the crown is, in half hours after midnight, landing on whole minutes. The crown's sensitivity is
+    /// how far it turns between two whole numbers, so the size of one decides how fast the day goes by: at a
+    /// minute each it took hundreds of steps to cross a morning, "incredibly slow" beside a tides app
+    /// (Tom, 26 November 2026). For checking: "-previewScrub 600" opens at 10:00.
+    @State private var turn: Double
+    private static let step = 30.0
+    private var minute: Double { turn * Self.step }
+    /// When the last tick was played. Ticks closer together than this cut each other off.
+    @State private var lastTick = Date.distantPast
+    @State private var turned = false
 
     init(child: WidgetSnapshot.Child, sleeps: [WidgetSnapshot.Stretch], marks: [WidgetSnapshot.Mark] = [], now: Date = .now) {
         self.child = child
@@ -121,7 +142,13 @@ struct DayScrub: View {
         midnight = Calendar.current.startOfDay(for: now)
         let upTo = now.timeIntervalSince(Calendar.current.startOfDay(for: now)) / 60
         let asked = UserDefaults.standard.double(forKey: "previewScrub")
-        _minute = State(initialValue: asked > 0 ? min(asked, upTo) : upTo)
+        _turn = State(initialValue: (asked > 0 ? min(asked, upTo) : upTo) / Self.step)
+    }
+
+    /// What a tick is played for: the stretch the marker is in, and the mark it is on.
+    private struct Tick: Equatable {
+        var edge: Date
+        var mark: Date?
     }
 
     /// What the marker is on.
@@ -138,13 +165,16 @@ struct DayScrub: View {
     private var time: Date { midnight.addingTimeInterval(minute * 60) }
 
     private func moment(at time: Date) -> Moment {
-        let nightIndex = sleeps.first(where: { $0.start < midnight })?.sleep
+        // The night is a sleep that started from 17:00 to 05:00, so the evening's bedtime is not a nap.
+        let night: (Int?) -> Bool = { index in
+            sleeps.first(where: { $0.sleep == index }).map { WidgetSnapshot.isNight($0.start) } ?? false
+        }
         if let under = sleeps.first(where: { $0.start <= time && time < ($0.end ?? now.addingTimeInterval(1)) }) {
             let whole = sleeps.filter { $0.sleep == under.sleep }
             let from = whole.first?.start ?? under.start
             let to = whole.last?.end
             let asleep = whole.reduce(0) { $0 + ($1.end ?? now).timeIntervalSince($1.start) }
-            return Moment(label: under.sleep == nightIndex ? "Night" : "Nap", from: from, to: to, sleep: under.sleep, length: asleep)
+            return Moment(label: night(under.sleep) ? "Night" : "Nap", from: from, to: to, sleep: under.sleep, length: asleep)
         }
         let before = sleeps.last(where: { ($0.end ?? .distantFuture) <= time })
         let after = sleeps.first(where: { $0.start > time })
@@ -152,7 +182,7 @@ struct DayScrub: View {
         let to = after?.start
         // Between two stretches of one sleep: a waking in it.
         let waking = before != nil && before?.sleep == after?.sleep
-        return Moment(label: waking ? "Awake in the \(before?.sleep == nightIndex ? "night" : "nap")" : "Awake",
+        return Moment(label: waking ? "Awake in the \(night(before?.sleep) ? "night" : "nap")" : "Awake",
                       from: from, to: to, sleep: waking ? before?.sleep : nil, length: (to ?? now).timeIntervalSince(from))
     }
 
@@ -187,7 +217,7 @@ struct DayScrub: View {
                     .font(.system(.footnote, design: .rounded).weight(.semibold))
                     .foregroundStyle(Tone.moon)
                 Text(Elapsed.short(from: moment.from, to: moment.from.addingTimeInterval(moment.length)))
-                    .font(.system(size: 34, weight: .semibold, design: .rounded))
+                    .rounded(34, .semibold)
                     .monospacedDigit()
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -207,18 +237,33 @@ struct DayScrub: View {
             .animation(.snappy(duration: 0.25), value: moment)
             .animation(.snappy(duration: 0.2), value: near)
             .accessibilityElement(children: .combine)
-            Spacer(minLength: 0)
+            // Said until the crown is first turned.
+            if !turned { CrownHint() }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 6)
+        .onChange(of: now) { old, new in
+            // Left at now, it stays at now.
+            if minute >= old.timeIntervalSince(midnight) / 60 - 1.5 { turn = new.timeIntervalSince(midnight) / 60 / Self.step } else { turned = true }
+        }
+        .onChange(of: turn) { old, new in
+            if abs(new - old) * Self.step < 1.5, abs(new * Self.step - now.timeIntervalSince(midnight) / 60) < 1.5 { return }
+            turned = true
+        }
         .containerBackground(LinearGradient(colors: [Tone.night, .black], startPoint: .top, endPoint: .bottom), for: .navigation)
         .navigationTitle { Text(atNow ? "Now" : clock(time)).foregroundStyle(tint).monospacedDigit() }
         .focusable()
-        .digitalCrownRotation($minute, from: 0, through: max(now.timeIntervalSince(midnight) / 60, 1), by: 1,
-                              sensitivity: .medium, isContinuous: false, isHapticFeedbackEnabled: false)
-        // A tick at each falling asleep and each waking, and none in between.
-        .onChange(of: moment.from) { WKInterfaceDevice.current().play(.click) }
-        // And a lighter one on reaching a feed or a nappy.
-        .onChange(of: near) { _, mark in if mark != nil { WKInterfaceDevice.current().play(.directionUp) } }
+        .digitalCrownRotation($turn, from: 0, through: max(now.timeIntervalSince(midnight) / 60, 1) / Self.step, by: 1 / Self.step,
+                              sensitivity: .high, isContinuous: false, isHapticFeedbackEnabled: false)
+        // One tick at each falling asleep, each waking and each feed or nappy, and none in between. One kind
+        // of tick from one place, and never two within a moment: the Watch stops a tick to start the next,
+        // so two together were felt as none.
+        .onChange(of: Tick(edge: moment.from, mark: near?.at)) { old, new in
+            guard new.edge != old.edge || (new.mark != nil && new.mark != old.mark) else { return }
+            guard Date.now.timeIntervalSince(lastTick) > 0.12 else { return }
+            lastTick = .now
+            WKInterfaceDevice.current().play(.click)
+        }
         .accessibilityLabel("Today, \(clock(time))")
     }
 
@@ -235,6 +280,8 @@ struct FortnightScrub: View {
         return min(max(asked ?? 13, 0), 13)
     }()
 
+    @State private var turned = false
+
     var body: some View {
         let index = min(max(Int(day.rounded()), 0), days.count - 1)
         let top = max(days.compactMap { $0 }.max() ?? 1, 1)
@@ -244,15 +291,18 @@ struct FortnightScrub: View {
         let date = Calendar.current.date(byAdding: .day, value: index - days.count, to: today) ?? today
         VStack(alignment: .leading, spacing: 8) {
             GeometryReader { box in
-                HStack(alignment: .bottom, spacing: 3) {
-                    ForEach(Array(days.enumerated()), id: \.offset) { offset, hours in
-                        RoundedRectangle(cornerRadius: 2, style: .continuous)
-                            .fill(offset == index ? Tone.moon : Color.white.opacity(0.35))
-                            .frame(height: max(box.size.height * CGFloat((hours ?? 0) / top), 2))
-                            .opacity(hours == nil && offset != index ? 0.35 : 1)
-                            .frame(maxWidth: .infinity)
-                            // A little air between the two weeks.
-                            .padding(.leading, offset == 7 ? 6 : 0)
+                // A little air between the two weeks, and every bar the same width.
+                HStack(alignment: .bottom, spacing: 9) {
+                    ForEach([0, 7], id: \.self) { first in
+                        HStack(alignment: .bottom, spacing: 3) {
+                            ForEach(Array(days.enumerated()).filter { $0.offset >= first && $0.offset < first + 7 }, id: \.offset) { offset, hours in
+                                RoundedRectangle(cornerRadius: 2, style: .continuous)
+                                    .fill(offset == index ? Tone.moon : Color.white.opacity(0.35))
+                                    .frame(height: max(box.size.height * CGFloat((hours ?? 0) / top), 2))
+                                    .opacity(hours == nil && offset != index ? 0.35 : 1)
+                                    .frame(maxWidth: .infinity)
+                            }
+                        }
                     }
                 }
                 .frame(maxHeight: .infinity, alignment: .bottom)
@@ -266,20 +316,24 @@ struct FortnightScrub: View {
                     .foregroundStyle(Tone.moon)
                     .contentTransition(.numericText())
                 Text(days[index].map { Elapsed.short(from: Date(timeIntervalSinceReferenceDate: 0), to: Date(timeIntervalSinceReferenceDate: $0 * 3600)) } ?? "–")
-                    .font(.system(size: 34, weight: .semibold, design: .rounded))
+                    .rounded(34, .semibold)
                     .monospacedDigit()
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.6)
                     .contentTransition(.numericText())
-                Text(days[index] == nil ? "No sleep logged" : (mean.map { "Average \(Elapsed.short(from: Date(timeIntervalSinceReferenceDate: 0), to: Date(timeIntervalSinceReferenceDate: $0 * 3600))) a day" } ?? "Asleep"))
+                Text(days[index] == nil ? "No sleep logged" : (mean.map { "14-day average \(Elapsed.short(from: Date(timeIntervalSinceReferenceDate: 0), to: Date(timeIntervalSinceReferenceDate: $0 * 3600)))" } ?? "Asleep"))
                     .font(.system(.footnote, design: .rounded))
                     .foregroundStyle(.secondary)
-                    .lineLimit(2)
+                    .lineLimit(1)
                     .minimumScaleFactor(0.7)
             }
             .animation(.snappy(duration: 0.25), value: index)
             .accessibilityElement(children: .combine)
-            Spacer(minLength: 0)
+            if !turned { CrownHint() }
         }
+        .frame(maxHeight: .infinity, alignment: .top)
         .padding(.horizontal, 6)
+        .onChange(of: index) { turned = true }
         .containerBackground(LinearGradient(colors: [Tone.night, .black], startPoint: .top, endPoint: .bottom), for: .navigation)
         .navigationTitle { Text("Day by day").foregroundStyle(Tone.child(child.colourIndex)) }
         .focusable()

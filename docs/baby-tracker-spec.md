@@ -442,7 +442,7 @@ Rules: one or two syllables a toddler can say; each name hints at the character'
 
 Trademark checks needed for Puggle before launch; the others matter only if sold as products in their own right.
 
-**Superseded for the stories (16 November 2026).** The personalities in this table are the first proposal. The friends' characters now live in `docs/stories/story-bible.md`, where Kip is the climber who sees far (not the sleepy one), Sunny is the oldest who makes the rules (not the smiling one), Digby is the youngest who joins in (not the potty jokes), and Quill is the maker who likes things just so. Tom agreed to try these, to build on. Names, animals and looks are unchanged.
+**Superseded for the stories (16 November 2026).** The personalities in this table are the first proposal. The friends' characters now live in `story-bible.md` in the puggle-book repository, where Kip is the climber who sees far (not the sleepy one), Sunny is the oldest who makes the rules (not the smiling one), Digby is the youngest who joins in (not the potty jokes), and Quill is the maker who likes things just so. Tom agreed to try these, to build on. Names, animals and looks are unchanged.
 
 #### Style direction: the original Puggle
 
@@ -2041,8 +2041,8 @@ stories. This is the "first book for Play" from the plan.
   Several sources could not be opened; the report marks what is unverified.
 - **Tom's choices:** the first stories are for toddlers of 2 to 4; the first book is a lift-the-flap search;
   plain prose with a refrain; the friends are neighbours along the creek.
-- **Drafts:** `docs/stories/story-bible.md` (what the stories are for, the engine, the creek and its five
-  homes, the rules, profiles for all ten characters, twelve outlines) and `docs/stories/one-boot.md` (the
+- **Drafts**, now in the puggle-book repository: `story-bible.md` (what the stories are for, the engine, the creek and its five
+  homes, the rules, profiles for all ten characters, twelve outlines) and `one-boot.md` (the
   first book, eleven pictures, about 190 words).
 - **Agreed to try:** the new characters for Kip, Digby and Sunny (see the note under Character names).
 - **Not done:** nothing drawn, nothing built in the app, nothing read aloud to a child, and no name or
@@ -2317,9 +2317,9 @@ Tom asked for little rain "pops" on the characters, objects and animals, then dr
 Tom chose **the house** as Puggle's home (from the ChatGPT world pack) and asked to bring the pack into the
 book already built, keeping build 14's approach: flat SwiftUI pages turned in 3D, not RealityKit.
 
-- **The pack is filed** in `docs/stories/handoff/`: its specification (world bible, dummy decisions, spread
+- **The pack is filed** in `handoff/` in the puggle-book repository: its specification (world bible, dummy decisions, spread
   plan, storyboard, the RealityKit notes for the record), the six concept pictures, the cast crops and the
-  interactive dummy. The manuscript in it is word for word `docs/stories/one-boot-story.md`.
+  interactive dummy. The manuscript in it is word for word `one-boot-story.md`.
 - **Home is the house.** A cream house with a coral roof, a round coral door and a garden with a white gate;
   the app's rooms are its inside. The story bible and world kit say so. **The burrow is kept, unchosen,** in
   both. Nan and Pop's is now the green-roofed house with a veranda along the path before the creek.
@@ -2940,7 +2940,37 @@ Digital Crown, and chose three things to build.
   the strip filling in (the same method as the bars), the crown itself, which the simulator can't be turned
   by script, and how the ticks feel.
 
-**The fourteen days keep up with the date (26 November).** The iPhone writes the summary only when something
+## The Watch's day view: a faster crown and one kind of tick (26 November 2026)
+
+Tom, after trying it on his Watch: turning the crown along the day "feels incredibly slow" beside the tides
+and depth apps.
+
+- **Why.** The crown's sensitivity is how far it turns between two whole numbers of the value. Each whole
+  number was one minute, at medium sensitivity, so a morning took hundreds of steps.
+- **Now** each whole number is half an hour, at high sensitivity, still landing on single minutes
+  (`DayScrub.step`). Chosen by reasoning, not by feel: the simulator's crown can't be turned by script.
+  If it is now too quick, `step` is the one number to change.
+- **One kind of tick, never two together.** A sleep's edge and a feed or nappy each played their own tick
+  from their own place. The Watch stops one tick to start the next, so two at once were felt as none, and
+  the one used for feeds was a longer "value went up" pattern. Now there is one light tick from one place,
+  with at least a tenth of a second between ticks.
+
+## The book moved to its own repository (26 November 2026)
+
+Tom: "These are still in the hello-world repo. We should move to its own repo instead." He chose to move
+the documents only.
+
+- Everything that was in `docs/stories/` is now in the private repository `tomgarton/puggle-book`
+  (https://github.com/tomgarton/puggle-book), with its history. The paths there are the old ones without
+  `docs/stories/`: for example `handoff/specification/ONE_BOOT_MANUSCRIPT.md`.
+- `docs/stories/` is removed from this repository, with the line in `.gitignore` that was only for it.
+- The mentions above and in the Play tab's code now name the file in puggle-book.
+- The board book in the Play tab stays here (`app/Puggle/Features/Play/`). It reads nothing from those
+  documents: they were only named in comments.
+
+## The Watch's fourteen days keep up with the date (26 November 2026)
+
+The iPhone writes the summary only when something
 changes, so after midnight Last 14 days was a day out until the next entry. Now the iPhone also sends the
 day it wrote them for (`sleepDaysEnd`), and the Watch moves them on itself (`WidgetSnapshot.Child.sleepDays(now:)`):
 the oldest days drop off and the day just ended is added from that day's sleeps, which the Watch already has,
@@ -2949,3 +2979,58 @@ nothing covers is a gap, as on the iPhone. The pages are drawn again at midnight
 app in a new day. Five tests in `WatchPagesTests`. A summary from an older Puggle on the iPhone is shown as
 it was. **Not checked:** midnight passing on a real Watch.
 
+
+## The Watch after testing: taps, pages, stale figures and the small Watch (26 November 2026)
+
+Tom: "I found a few things felt odd, and the haptic engine didn't engage with taps when I would expect them
+to." Four agents tested the Watch app; Tom chose to fix everything listed.
+
+**Taps**
+- **One tick a tap.** Start feed, Log bottle, Log nappy, the badge, the day strip and the fourteen days now
+  tick lightly (`Haptic.tap`). A saved nappy or bottle plays "success", a paused side a light tick, a start
+  and a stop their own. A tap that fails plays only the failure, never two at once.
+- **"Which side?" is a sheet** with Left and Right. As a dialog it stayed up over the feed it had started.
+- **A timer tap waits up to four seconds for the iPhone** (`WatchModel.held`). Just after the app opens or
+  the wrist is raised the link is not up yet: the tap used to show as done and never be sent, or be refused
+  at once. Now it is sent when the link comes up, and put back with "Can't reach your iPhone" if it does not.
+- **A nappy or bottle waiting to be delivered stays on the Watch** (`WatchModel.waiting`, kept between
+  launches) and is put back on top of each summary until the summary has it, so it cannot flip back and be
+  logged twice. The iPhone saves a tap once however many times it arrives (`watchTapsTaken`).
+
+**Getting around**
+- **A page that fits does not scroll** (`Fitting`), so one swipe turns it. It scrolls only on the small Watch
+  or with larger text. Pages used to be a few points taller than the Watch's margin above the dots.
+- **The badge goes to the top of Now**, from anywhere, including Now's own foot.
+- **Swiping to the other child arrives on their Now page.** Unchosen: keeping the same page across children.
+- **An arrow beside the figure** on Sleep today and Last 14 days shows they open, and the whole block is the
+  button. Opened, "Turn the crown" shows until the crown is turned.
+- **Not changed:** swiping back up to Now lands at its foot, as the Watch's own paged apps do. Moving it to
+  the top as the page was left stopped the page turn half way.
+
+**Figures**
+- **The Watch asks the iPhone for a fresh summary as it comes to the front** (`WatchLink.refreshKey`), since
+  the iPhone only sent one when something was logged. With the iPhone out of reach, Sleep today drops
+  yesterday's sleeps after midnight, and Last 14 days moves on by itself (the section above).
+- **A tap on the Watch shows on every page at once** (`WidgetSnapshot.Child.apply`): the day strip, the
+  marks, and the guess it has answered goes.
+- **The evening bedtime is the night, not a nap.** A sleep that starts from 17:00 to 05:00 is the night, the
+  rule Patterns uses (`WidgetSnapshot.isNight`). In the evening the line reads "2 naps · Bed at 19:30".
+- **Next only shows what is ahead**, checked every half minute, with "Around now" in the last minute. With
+  nothing to show it says whether they are asleep, the iPhone has sent no guesses, or none is due.
+- **A feed counts the time fed, without the pauses** (`feedBanked`, `feedSideSince`), and a paused feed shows
+  that time over "Feed paused".
+- **The opened day view keeps up with the clock** while it is open, staying at "Now" if it was left there.
+- **The opened fourteen days say "14-day average"**, beside the page's "Average, last 7 days".
+- **Under a minute is "just now"** for Awake and Asleep, as for Fed.
+- **Log bottle only for a child who has bottles** (`usesBottle`), in ounces when the iPhone is set to them,
+  half an ounce a click.
+
+**Small Watch and larger text**
+- The large figures grow with the text size (`rounded(_:_:)`); pages that no longer fit scroll, which keeps
+  them clear of the title and the badge. The bottle sheet's hint is "Turn the crown". The closing cross on
+  every sheet is on its own dark circle. Every bar in the opened fourteen days is the same width.
+
+Five new tests in `WatchPagesTests`. **Not checked on a Watch:** every tick, the crown, the wait for the
+link, a nappy waiting for delivery, and the refresh on coming to the front. The simulator has no iPhone
+link and its crown cannot be turned by script. **Left as they were:** a sleep hides a running feed; the
+running feed's counter sits close under the name on the small Watch.

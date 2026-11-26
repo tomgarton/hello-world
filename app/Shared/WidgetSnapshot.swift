@@ -48,6 +48,13 @@ struct WidgetSnapshot: Codable {
         var coming: [Coming]?
         /// Today's feeds, meals, nappies and potty trips, for the marks under the day strip, earliest first.
         var marksToday: [Mark]?
+        /// For the Watch (27 November 2026). Nil in a summary written before this.
+        /// Whether bottles are logged for them, so a breastfed-only child is not offered one.
+        var usesBottle: Bool?
+        /// A running breastfeed's time fed so far, without the pauses: the seconds already counted, and when
+        /// the side now running started (nil while paused).
+        var feedBanked: Double?
+        var feedSideSince: Date?
     }
 
     /// Something logged at a moment today: "feed", "meal", "nappy" or "potty".
@@ -72,6 +79,23 @@ struct WidgetSnapshot: Codable {
 
     var children: [Child]
     var updatedAt: Date
+    /// Whether amounts are shown in ounces, as set on the iPhone. Nil in a summary written before 27 November 2026.
+    var ounces: Bool?
+
+    /// A sleep that starts from 17:00 to 05:00 is the night; the rest are naps. The same rule as the
+    /// iPhone's Patterns.
+    static func isNight(_ start: Date, calendar: Calendar = .current) -> Bool {
+        let hour = calendar.component(.hour, from: start)
+        return hour >= 17 || hour < 5
+    }
+
+    static let mlPerOz = 29.5735
+    /// "150 ml", or "5 oz" to the nearest quarter ounce.
+    static func volume(_ ml: Int, ounces: Bool) -> String {
+        guard ounces else { return "\(ml) ml" }
+        let oz = (Double(ml) / mlPerOz * 4).rounded() / 4
+        return "\(oz.formatted(.number.precision(.fractionLength(0...2)))) oz"
+    }
 
     static let groupID = "group.com.tomgarton.puggle"
     private static let fileName = "widgets.json"

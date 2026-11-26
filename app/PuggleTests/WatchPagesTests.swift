@@ -97,4 +97,66 @@ final class WatchPagesTests: XCTestCase {
         child.sleepDays = nil
         XCTAssertNil(child.sleepDays(now: now, calendar: calendar))
     }
+
+    // A tap on the Watch shown on its other pages before the iPhone answers.
+
+    private func tap(_ action: WatchLink.Request.Action, at date: Date, ml: Int? = nil) -> WatchLink.Request {
+        var request = WatchLink.Request(action: action, childID: "preview-ollie", ml: ml)
+        request.at = date
+        return request
+    }
+
+    func testStartingASleepAddsARunningStretchAndDropsItsGuess() {
+        var child = WidgetSnapshot.preview.children[0]
+        child.sleepsToday = [WidgetSnapshot.Stretch(start: at(daysAgo: 0, hour: 1), end: at(daysAgo: 0, hour: 6), sleep: 0)]
+        child.coming = [WidgetSnapshot.Coming(kind: "sleep", at: now), WidgetSnapshot.Coming(kind: "feed", at: now)]
+        child.apply(tap(.startSleep, at: at(daysAgo: 0, hour: 9)))
+        XCTAssertEqual(child.sleepsToday?.last, WidgetSnapshot.Stretch(start: at(daysAgo: 0, hour: 9), end: nil, sleep: 1))
+        XCTAssertEqual(child.coming?.map(\.kind), ["feed"])
+        child.apply(tap(.wokeUp, at: at(daysAgo: 0, hour: 10)))
+        XCTAssertEqual(child.sleepsToday?.last?.end, at(daysAgo: 0, hour: 10))
+        XCTAssertNil(child.asleepSince)
+    }
+
+    func testAFeedCountsOnlyTheTimeFed() {
+        var child = WidgetSnapshot.preview.children[0]
+        let start = at(daysAgo: 0, hour: 9)
+        child.apply(tap(.feedLeft, at: start))
+        XCTAssertEqual(child.feedSideSince, start)
+        // Paused after five minutes, started again ten minutes later on the right.
+        child.apply(tap(.feedLeft, at: start.addingTimeInterval(300)))
+        XCTAssertNil(child.feedSide)
+        XCTAssertNil(child.feedSideSince)
+        XCTAssertEqual(child.feedBanked ?? 0, 300, accuracy: 0.001)
+        child.apply(tap(.feedRight, at: start.addingTimeInterval(900)))
+        XCTAssertEqual(child.feedSide, "Right")
+        XCTAssertEqual(child.feedBanked ?? 0, 300, accuracy: 0.001)
+        child.apply(tap(.finishFeed, at: start.addingTimeInterval(1200)))
+        XCTAssertNil(child.feedingSince)
+        XCTAssertEqual(child.lastFeed, start)
+    }
+
+    func testANappyIsMarkedAndKnownOnceTheSummaryHasIt() {
+        var child = WidgetSnapshot.preview.children[0]
+        child.marksToday = []
+        let nappy = tap(.nappy, at: at(daysAgo: 0, hour: 9))
+        // A summary written before the nappy arrived does not have it; the Watch puts it back.
+        XCTAssertFalse(child.has(nappy))
+        child.apply(nappy)
+        XCTAssertEqual(child.marksToday, [WidgetSnapshot.Mark(kind: "nappy", at: at(daysAgo: 0, hour: 9))])
+        XCTAssertTrue(child.has(nappy))
+    }
+
+    func testABottleInOunces() {
+        var child = WidgetSnapshot.preview.children[0]
+        child.apply(tap(.bottle, at: Date.now, ml: 148), ounces: true)
+        XCTAssertEqual(child.lastFeedText, "Bottle · 5 oz")
+        XCTAssertEqual(WidgetSnapshot.volume(150, ounces: false), "150 ml")
+    }
+
+    func testTheEveningBedtimeIsTheNightNotANap() {
+        XCTAssertTrue(WidgetSnapshot.isNight(at(daysAgo: 0, hour: 19.5), calendar: calendar))
+        XCTAssertTrue(WidgetSnapshot.isNight(at(daysAgo: 0, hour: 2), calendar: calendar))
+        XCTAssertFalse(WidgetSnapshot.isNight(at(daysAgo: 0, hour: 13), calendar: calendar))
+    }
 }

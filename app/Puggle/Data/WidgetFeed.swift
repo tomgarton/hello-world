@@ -139,9 +139,12 @@ enum WidgetFeed {
                 sleepDays: sleepDays(for: child),
                 sleepDaysEnd: Calendar.current.startOfDay(for: .now),
                 coming: NextUp.all(for: child).sorted { $0.at < $1.at }.map { WidgetSnapshot.Coming(kind: $0.kind.rawValue, at: $0.at) },
-                marksToday: marksToday(for: child))
+                marksToday: marksToday(for: child),
+                usesBottle: child.uses(.bottle),
+                feedBanked: store.activeFeed(for: child).map { $0.leftSeconds + $0.rightSeconds },
+                feedSideSince: store.activeFeed(for: child).flatMap { $0.runningSide == nil ? nil : $0.sideStartedAt })
         }
-        let snapshot = WidgetSnapshot(children: rows, updatedAt: .now)
+        let snapshot = WidgetSnapshot(children: rows, updatedAt: .now, ounces: Units.ounces)
         snapshot.save()
         WatchBridge.shared.send(snapshot)
         WidgetCenter.shared.reloadAllTimelines()
